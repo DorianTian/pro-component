@@ -3,6 +3,8 @@
  * Overrides default theme tokens to align with Element Plus design language.
  */
 
+/* ---- Brand tokens ---- */
+
 :root {
   --vp-c-brand-1: #409eff;
   --vp-c-brand-2: #337ecc;
@@ -19,71 +21,207 @@
   --vp-button-brand-active-bg: #337ecc;
 }
 
-/* Demo container overrides */
+.dark {
+  --vp-c-brand-1: #409eff;
+  --vp-c-brand-2: #66b1ff;
+  --vp-c-brand-3: #79bbff;
+  --vp-c-brand-soft: rgba(64, 158, 255, 0.16);
+}
+
+/* ---- Demo container ---- */
+
 .vitepress-demo-plugin {
-  margin: 16px 0;
+  margin: 20px 0;
   border: 1px solid var(--vp-c-divider);
   border-radius: 8px;
   overflow: hidden;
+  transition: border-color 0.25s;
+}
+
+.vitepress-demo-plugin:hover {
+  border-color: var(--vp-c-brand-1);
 }
 
 .vitepress-demo-plugin__preview {
   padding: 24px;
+  background-color: var(--vp-c-bg);
 }
 
 .vitepress-demo-plugin__code {
   border-top: 1px solid var(--vp-c-divider);
 }
 
-/* API table styles */
+/* Prevent demo previews from inheriting doc typography */
+.vitepress-demo-plugin__preview .el-table,
+.vitepress-demo-plugin__preview .el-form,
+.vitepress-demo-plugin__preview .el-descriptions {
+  font-size: 14px;
+}
+
+/* ---- API table ---- */
+
 .api-table {
   width: 100%;
   border-collapse: collapse;
   margin: 16px 0;
   font-size: 14px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .api-table th {
   background-color: var(--vp-c-bg-soft);
   font-weight: 600;
   text-align: left;
-  padding: 10px 16px;
-  border-bottom: 2px solid var(--vp-c-divider);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--vp-c-divider);
+  white-space: nowrap;
 }
 
 .api-table td {
   padding: 10px 16px;
   border-bottom: 1px solid var(--vp-c-divider);
   vertical-align: top;
+  line-height: 1.6;
+}
+
+.api-table tr:last-child td {
+  border-bottom: none;
+}
+
+.api-table tbody tr:hover td {
+  background-color: var(--vp-c-bg-soft);
 }
 
 .api-table .prop-name {
   color: var(--vp-c-brand-1);
   font-family: var(--vp-font-family-mono);
   font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .api-table .prop-type {
   color: var(--vp-c-text-2);
   font-family: var(--vp-font-family-mono);
   font-size: 12px;
+  word-break: break-word;
 }
 
 .api-table .prop-default {
   font-family: var(--vp-font-family-mono);
   font-size: 12px;
+  color: var(--vp-c-text-3);
 }
 
-/* Type definition block */
-.type-block {
-  margin: 12px 0;
-  background-color: var(--vp-c-bg-soft);
-  border-radius: 8px;
-  padding: 16px;
+/* API table responsive: horizontal scroll on small screens */
+.api-section {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ---- Markdown table improvements (Slots tables etc.) ---- */
+
+.vp-doc table {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.vp-doc table th {
+  background-color: var(--vp-c-bg-soft);
+  white-space: nowrap;
+}
+
+.vp-doc table tr:last-child td {
+  border-bottom: none;
+}
+
+.vp-doc table tbody tr:hover td {
+  background-color: var(--vp-c-bg-soft);
+}
+
+/* ---- Type block ---- */
+
+.type-block {
+  margin: 16px 0;
+  background-color: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .type-block pre {
   margin: 0;
   font-size: 13px;
+}
+
+/* ---- Home page tweaks ---- */
+
+.VPHero .name {
+  background: linear-gradient(135deg, #409eff 0%, #266eb3 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ---- Content spacing ---- */
+
+.vp-doc h2 {
+  margin-top: 40px;
+  padding-top: 24px;
+}
+
+.vp-doc h3 {
+  margin-top: 28px;
+}
+
+/* ---- Code block enhancements ---- */
+
+.vp-doc div[class*='language-'] {
+  border-radius: 8px;
+}
+
+/* ---- API doc empty state ---- */
+
+.api-doc-empty {
+  padding: 24px;
+  text-align: center;
+  background-color: var(--vp-c-bg-soft);
+  border-radius: 8px;
+  border: 1px dashed var(--vp-c-divider);
+  color: var(--vp-c-text-2);
+}
+
+.api-doc-empty code {
+  color: var(--vp-c-brand-1);
+  font-size: 13px;
+}
+
+/* ---- Scrollbar styling for demo previews ---- */
+
+.vitepress-demo-plugin__preview ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.vitepress-demo-plugin__preview ::-webkit-scrollbar-thumb {
+  background: var(--vp-c-divider);
+  border-radius: 3px;
+}
+
+.vitepress-demo-plugin__preview ::-webkit-scrollbar-thumb:hover {
+  background: var(--vp-c-text-3);
+}
+
+.vitepress-demo-plugin__preview ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---- Input focus ring in demos ---- */
+
+.vitepress-demo-plugin__preview .el-input__wrapper:focus-within {
+  box-shadow: 0 0 0 1px var(--el-color-primary, #409eff),
+    0 0 0 3px rgba(64, 158, 255, 0.12) !important;
 }
