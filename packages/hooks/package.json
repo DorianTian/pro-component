@@ -1,0 +1,31 @@
+{
+  "name": "@pro/hooks",
+  "version": "0.0.1",
+  "description": "Shared composables for pro-components",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.mjs",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
+    }
+  },
+  "sideEffects": false,
+  "files": ["dist"],
+  "scripts": {
+    "build": "rollup -c rollup.config.ts --configPlugin typescript",
+    "build:dts": "vue-tsc --declaration --emitDeclarationOnly --outDir dist/types",
+    "type-check": "vue-tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@pro/utils": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": ">=3.4.0",
+    "element-plus": ">=2.9.0"
+  }
+}
