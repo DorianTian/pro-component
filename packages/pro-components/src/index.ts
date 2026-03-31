@@ -1,3 +1,5 @@
+import '@pro/themes/variables.css'
+
 // Components
 import { ProTable } from '@pro/table'
 import { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter } from '@pro/form'
