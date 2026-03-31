@@ -2,13 +2,11 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { parse } from 'acorn'
 
- 
 const log = {
   result: (msg: string) => console.log(msg),
   fail: (msg: string) => console.error(msg),
   warn: (msg: string) => console.warn(msg),
 }
- 
 
 const PACKAGES_DIR = resolve(import.meta.dirname, '../packages')
 const VUE_RUNTIME_MARKERS = [

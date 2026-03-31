@@ -12,7 +12,7 @@ import type { RollupOptions, OutputOptions } from 'rollup'
 const packageDir = process.argv[2]
 
 if (!packageDir) {
-  console.error('Usage: tsx scripts/build-package.ts <package-dir>')  
+  console.error('Usage: tsx scripts/build-package.ts <package-dir>')
   process.exit(1)
 }
 
@@ -60,6 +60,6 @@ async function build(): Promise<void> {
 }
 
 build().catch((err: unknown) => {
-  console.error('Build failed:', err)  
+  console.error('Build failed:', err)
   process.exit(1)
 })

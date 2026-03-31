@@ -11,7 +11,7 @@ import { resolve } from 'node:path'
 const packageDir = process.argv[2]
 
 if (!packageDir) {
-  console.error('Usage: tsx scripts/gen-aggregation-dts.ts <package-dir>')  
+  console.error('Usage: tsx scripts/gen-aggregation-dts.ts <package-dir>')
   process.exit(1)
 }
 
