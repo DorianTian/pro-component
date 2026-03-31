@@ -2,7 +2,15 @@ import '@pro/themes'
 
 // Components
 import { ProTable } from '@pro/table'
-import { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter, LightFilter } from '@pro/form'
+import {
+  ProForm,
+  ModalForm,
+  DrawerForm,
+  StepsForm,
+  QueryFilter,
+  LightFilter,
+  ProFormDependency,
+} from '@pro/form'
 import { ProDescriptions } from '@pro/descriptions'
 import { checkDependencies } from '@pro/utils'
 import ProConfigProvider from './pro-config-provider.vue'
@@ -10,7 +18,15 @@ import ProConfigProvider from './pro-config-provider.vue'
 import type { App } from 'vue'
 
 export { ProTable } from '@pro/table'
-export { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter, LightFilter } from '@pro/form'
+export {
+  ProForm,
+  ModalForm,
+  DrawerForm,
+  StepsForm,
+  QueryFilter,
+  LightFilter,
+  ProFormDependency,
+} from '@pro/form'
 export { ProDescriptions } from '@pro/descriptions'
 export { ProConfigProvider }
 
@@ -35,6 +51,7 @@ const components = [
   StepsForm,
   QueryFilter,
   LightFilter,
+  ProFormDependency,
   ProDescriptions,
   ProConfigProvider,
 ]
