@@ -76,8 +76,11 @@
  * Do NOT reset padding/background/font — Element Plus handles those
  * with higher-specificity selectors (.el-table__cell etc.) */
 
-/* VitePress .vp-doc sets display:block on <table> which breaks el-table.
- * Only override the exact properties VitePress adds. Let El Plus handle the rest. */
+/* === VitePress table isolation for el-table demos ===
+ * Strategy: nuke all VitePress table styles with !important,
+ * then restore el-table's specific styles with even higher specificity + !important. */
+
+/* Step 1: Kill VitePress's destructive table styles */
 .vp-doc .vp-raw table {
   display: table !important;
   margin: 0 !important;
@@ -85,21 +88,39 @@
   border-radius: 0 !important;
 }
 
-.vp-doc .vp-raw tr {
-  border-top: none !important;
-}
-
-.vp-doc .vp-raw tr:nth-child(2n) {
-  background-color: transparent !important;
-}
-
-/* Reset VitePress padding on th/td — el-table handles cell padding
- * via its internal .cell div, not on the th/td elements themselves.
- * VitePress's 8px 16px on th/td creates double-padding that misaligns header/body. */
 .vp-doc .vp-raw th,
 .vp-doc .vp-raw td {
   border: none !important;
   padding: 0 !important;
+}
+
+.vp-doc .vp-raw tr {
+  border-top: none !important;
+  background: none !important;
+}
+
+.vp-doc .vp-raw tr:nth-child(2n) {
+  background: none !important;
+}
+
+/* Step 2: Restore el-table's styles (higher specificity wins among !important rules) */
+.vp-doc .vp-raw .el-table td.el-table__cell {
+  border-bottom: 1px solid var(--el-table-border-color, var(--pro-border-light)) !important;
+  padding: var(--pro-density-cell-padding-v, 10px) var(--pro-density-cell-padding-h, 16px) !important;
+}
+
+.vp-doc .vp-raw .el-table th.el-table__cell {
+  background: var(--pro-bg-sunken) !important;
+  padding: var(--pro-density-cell-padding-v, 10px) var(--pro-density-cell-padding-h, 16px) !important;
+  font-weight: var(--pro-font-weight-semibold) !important;
+  color: var(--pro-text-primary) !important;
+  font-size: var(--pro-text-xs) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+
+.vp-doc .vp-raw .el-table .el-table__row:hover > td.el-table__cell {
+  background-color: var(--pro-color-primary-ultra-light) !important;
 }
 
 /* Ensure pro-table fills container without overflow */
