@@ -18,7 +18,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "rollup -c rollup.config.ts --configPlugin typescript",
+    "build": "tsx ../../scripts/build-package.ts .",
     "build:dts": "vue-tsc --declaration --emitDeclarationOnly --outDir dist/types",
     "type-check": "vue-tsc --noEmit",
     "test": "vitest run",

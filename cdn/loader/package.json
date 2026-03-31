@@ -5,14 +5,14 @@
   "description": "pro-loader.js — CDN bootstrap loader with Import Maps, SW, and fallback chain",
   "type": "module",
   "scripts": {
-    "build": "rollup -c rollup.config.ts --configPlugin typescript",
+    "build": "rollup -c rollup.config.ts --configPlugin esbuild",
     "test": "vitest run",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
     "rollup": "^4.0.0",
     "@rollup/plugin-terser": "^0.4.0",
-    "@rollup/plugin-typescript": "^12.0.0",
+    "rollup-plugin-esbuild": "^6.2.1",
     "typescript": "^5.5.0",
     "vitest": "^2.0.0",
     "jsdom": "^25.0.0"

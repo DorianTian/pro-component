@@ -131,4 +131,4 @@ async function boot(): Promise<void> {
 }
 
 // Auto-boot when script loads
-boot()
+void boot()

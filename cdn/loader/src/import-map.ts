@@ -39,7 +39,9 @@ async function fetchFromApi(config: LoaderConfig): Promise<ImportMapResponse> {
   const url = `${config.apiBaseUrl}/import-map?appId=${encodeURIComponent(config.appId)}&userId=${encodeURIComponent(config.userId)}`
 
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), config.fetchTimeout)
+  const timer = setTimeout(() => {
+    controller.abort()
+  }, config.fetchTimeout)
 
   try {
     const response = await fetch(url, {
@@ -49,7 +51,7 @@ async function fetchFromApi(config: LoaderConfig): Promise<ImportMapResponse> {
     })
 
     if (!response.ok) {
-      throw new Error(`API responded with ${response.status}: ${response.statusText}`)
+      throw new Error(`API responded with ${String(response.status)}: ${response.statusText}`)
     }
 
     const data: unknown = await response.json()
@@ -67,29 +69,30 @@ async function fetchFromApi(config: LoaderConfig): Promise<ImportMapResponse> {
  * SW stores the last successful API response in Cache Storage.
  */
 async function fetchFromSwCache(): Promise<ImportMapResponse | null> {
-  const sw = navigator?.serviceWorker
-  if (!sw?.controller) {
+  const sw = navigator.serviceWorker
+  if (!sw.controller) {
     return null
   }
 
+  const { controller } = sw
+
   return new Promise<ImportMapResponse | null>((resolve) => {
     const channel = new MessageChannel()
-    const timer = setTimeout(() => resolve(null), SW_REPLY_TIMEOUT_MS)
+    const timer = setTimeout(() => {
+      resolve(null)
+    }, SW_REPLY_TIMEOUT_MS)
 
     channel.port1.onmessage = (event) => {
       clearTimeout(timer)
-      if (
-        event.data?.type === 'IMPORT_MAP_CACHED' &&
-        isValidImportMapResponse(event.data.importMap)
-      ) {
-        resolve(event.data.importMap as ImportMapResponse)
+      const data = event.data as Record<string, unknown> | undefined
+      if (data?.type === 'IMPORT_MAP_CACHED' && isValidImportMapResponse(data.importMap)) {
+        resolve(data.importMap)
       } else {
         resolve(null)
       }
     }
 
-    // sw and sw.controller are guaranteed non-null by the guard above
-    sw.controller!.postMessage({ type: 'GET_CACHED_IMPORT_MAP' }, [channel.port2])
+    controller.postMessage({ type: 'GET_CACHED_IMPORT_MAP' }, [channel.port2])
   })
 }
 
@@ -140,9 +143,9 @@ function saveToLocalStorage(importMap: ImportMapResponse): void {
  */
 function notifySwToCache(importMap: ImportMapResponse): void {
   try {
-    const sw = navigator?.serviceWorker
-    if (sw?.controller) {
-      sw.controller.postMessage({
+    const { controller } = navigator.serviceWorker
+    if (controller) {
+      controller.postMessage({
         type: 'CACHE_IMPORT_MAP',
         importMap,
       })

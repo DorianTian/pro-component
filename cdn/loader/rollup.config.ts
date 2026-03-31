@@ -1,9 +1,8 @@
 import { resolve } from 'node:path'
-import typescript from '@rollup/plugin-typescript'
+import esbuild from 'rollup-plugin-esbuild'
 import terser from '@rollup/plugin-terser'
-import type { RollupOptions } from 'rollup'
 
-const loaderConfig: RollupOptions = {
+const loaderConfig = {
   input: resolve(import.meta.dirname, 'src/pro-loader.ts'),
   output: {
     file: resolve(import.meta.dirname, 'dist/pro-loader@1.js'),
@@ -12,9 +11,9 @@ const loaderConfig: RollupOptions = {
     sourcemap: true,
   },
   plugins: [
-    typescript({
+    esbuild({
       tsconfig: resolve(import.meta.dirname, 'tsconfig.json'),
-      declaration: false,
+      target: 'es2022',
       sourceMap: true,
     }),
     terser({
@@ -24,7 +23,7 @@ const loaderConfig: RollupOptions = {
   ],
 }
 
-const swConfig: RollupOptions = {
+const swConfig = {
   input: resolve(import.meta.dirname, 'pro-sw.ts'),
   output: {
     file: resolve(import.meta.dirname, 'dist/pro-sw.js'),
@@ -32,9 +31,9 @@ const swConfig: RollupOptions = {
     sourcemap: true,
   },
   plugins: [
-    typescript({
+    esbuild({
       tsconfig: resolve(import.meta.dirname, 'tsconfig.sw.json'),
-      declaration: false,
+      target: 'es2022',
       sourceMap: true,
     }),
     terser({

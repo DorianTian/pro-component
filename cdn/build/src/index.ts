@@ -21,7 +21,7 @@ function getArg(args: string[], flag: string): string | undefined {
 function formatBytes(bytes: number): string {
   const KB = 1024
   const MB = KB * KB
-  if (bytes < KB) return `${bytes} B`
+  if (bytes < KB) return `${String(bytes)} B`
   if (bytes < MB) return `${(bytes / KB).toFixed(1)} KB`
   return `${(bytes / MB).toFixed(1)} MB`
 }
@@ -31,7 +31,9 @@ function printSummary(manifests: CdnManifest[]): void {
   log.info('\n[cdn-build] Summary:')
   for (const m of manifests) {
     const sriCount = Object.keys(m.sriHashes).length
-    log.info(`  ${m.name}@${m.version} — ESM: ${formatBytes(m.esmSize)}, SRI: ${sriCount} files`)
+    log.info(
+      `  ${m.name}@${m.version} — ESM: ${formatBytes(m.esmSize)}, SRI: ${String(sriCount)} files`,
+    )
   }
 }
 
@@ -44,7 +46,7 @@ function printSummary(manifests: CdnManifest[]): void {
 async function main(): Promise<void> {
   const args = process.argv.slice(2)
 
-  const packagesDir = resolve(import.meta.dirname, '../../packages')
+  const packagesDir = resolve(import.meta.dirname, '../../../packages')
   const outputDir = resolve(import.meta.dirname, '../dist')
   const cdnBaseUrl = getArg(args, '--base-url') ?? 'https://cdn.internal'
   const packageFilter = getArg(args, '--packages')?.split(',')
@@ -64,7 +66,7 @@ async function main(): Promise<void> {
     process.exit(1)
   }
 
-  log.info(`[cdn-build] Building ${packages.length} packages for CDN`)
+  log.info(`[cdn-build] Building ${String(packages.length)} packages for CDN`)
 
   const manifests: CdnManifest[] = []
 

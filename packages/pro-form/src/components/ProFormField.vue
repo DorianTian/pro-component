@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, h, defineComponent } from 'vue'
-import { ElFormItem, ElInput, ElOption, ElRadio, ElCheckbox, ElTooltip, ElIcon } from 'element-plus'
+import { ElFormItem, ElOption, ElRadio, ElCheckbox, ElTooltip, ElIcon } from 'element-plus'
 import { CONTROL_REGISTRY } from '@pro/hooks'
 
 import type { VNode } from 'vue'

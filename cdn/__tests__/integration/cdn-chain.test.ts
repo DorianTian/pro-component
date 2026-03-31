@@ -55,7 +55,7 @@ describe('CDN Chain Integration', () => {
         mockLocalStorage[key] = value
       },
       removeItem: (key: string) => {
-        delete mockLocalStorage[key]
+        Reflect.deleteProperty(mockLocalStorage, key)
       },
     })
 

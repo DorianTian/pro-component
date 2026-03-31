@@ -7,8 +7,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import postcss from 'rollup-plugin-postcss'
 import terser from '@rollup/plugin-terser'
-import typescript from '@rollup/plugin-typescript'
-import type { CdnBuildOptions } from './types'
+import esbuild from 'rollup-plugin-esbuild'
 
 interface PackageJson {
   name: string
@@ -82,13 +81,9 @@ async function buildEsmBundle(pkg: PackageInfo, versionDir: string): Promise<voi
       vue(),
       nodeResolve({ extensions: ['.ts', '.tsx', '.vue', '.js'] }),
       commonjs(),
-      typescript({
-        tsconfig: resolve(pkg.dir, 'tsconfig.json'),
-        declaration: false,
-        sourceMap: false,
-      }),
+      esbuild({ target: 'es2022', loaders: { '.vue': 'ts' } }),
       postcss({
-        extract: resolve(versionDir, 'style/index.css'),
+        extract: 'style.css',
         minimize: true,
       }),
       terser({ format: { comments: false } }),
@@ -126,11 +121,7 @@ async function buildUmdBundle(pkg: PackageInfo, versionDir: string): Promise<voi
       vue(),
       nodeResolve({ extensions: ['.ts', '.tsx', '.vue', '.js'] }),
       commonjs(),
-      typescript({
-        tsconfig: resolve(pkg.dir, 'tsconfig.json'),
-        declaration: false,
-        sourceMap: true,
-      }),
+      esbuild({ target: 'es2022', sourceMap: true, loaders: { '.vue': 'ts' } }),
       postcss({ inject: true, minimize: true }),
       terser({ format: { comments: false } }),
     ],

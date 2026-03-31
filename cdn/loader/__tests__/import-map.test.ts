@@ -65,7 +65,7 @@ describe('resolveImportMap', () => {
         mockLocalStorage[key] = value
       },
       removeItem: (key: string) => {
-        delete mockLocalStorage[key]
+        Reflect.deleteProperty(mockLocalStorage, key)
       },
     })
 
@@ -193,7 +193,7 @@ describe('localStorage functions', () => {
         mockLocalStorage[key] = value
       },
       removeItem: (key: string) => {
-        delete mockLocalStorage[key]
+        Reflect.deleteProperty(mockLocalStorage, key)
       },
     })
   })

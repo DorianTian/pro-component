@@ -39,8 +39,9 @@ export const proComponentsPlugin = {
   install(app: App) {
     checkDependencies()
     components.forEach((component) => {
-      if (component.name) {
-        app.component(component.name, component)
+      const name = (component as { name?: string }).name
+      if (name) {
+        app.component(name, component)
       }
     })
   },

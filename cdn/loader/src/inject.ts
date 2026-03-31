@@ -75,8 +75,12 @@ export function loadEsModuleShims(url: string): Promise<void> {
     const script = document.createElement('script')
     script.setAttribute('async', '')
     script.src = url
-    script.onload = () => resolve()
-    script.onerror = () => reject(new Error(`Failed to load es-module-shims from ${url}`))
+    script.onload = () => {
+      resolve()
+    }
+    script.onerror = () => {
+      reject(new Error(`Failed to load es-module-shims from ${url}`))
+    }
     document.head.appendChild(script)
   })
 }

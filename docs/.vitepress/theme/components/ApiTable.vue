@@ -32,11 +32,15 @@ const props = defineProps<{
 
 const apiData = defineModel<ApiData>()
 
-// Load api data from JSON
-const modules = import.meta.glob('/api-data/**/*.json', { eager: true })
+// Load api data from JSON — cast through unknown to satisfy strict type checking
+// since import.meta.glob's return type cannot be resolved by the linter
+const modules = import.meta.glob('/api-data/**/*.json', { eager: true }) as unknown as Record<
+  string,
+  ApiData
+>
 const key = Object.keys(modules).find((k) => k.includes(props.src))
 if (key) {
-  apiData.value = modules[key] as unknown as ApiData
+  apiData.value = modules[key]
 }
 </script>
 

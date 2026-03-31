@@ -1,4 +1,4 @@
-import type { Plugin, UserConfig } from 'vite'
+import type { Plugin, UserConfig, ResolvedConfig, HtmlTagDescriptor } from 'vite'
 import type { ProVitePluginOptions } from './types'
 
 export type { ProVitePluginOptions }
@@ -57,6 +57,49 @@ function warnMissingExcludes(excludeList: string[], currentExclude: string[]): v
   }
 }
 
+/** Build the Vite config override returned by the config hook */
+function buildConfigOverride(excludeList: string[], isDev: boolean): Partial<UserConfig> {
+  return {
+    optimizeDeps: {
+      exclude: excludeList,
+    },
+    resolve: {
+      dedupe: ['vue', 'element-plus'],
+    },
+    ...(isDev ? { define: buildDevDefines() } : {}),
+  }
+}
+
+/** Generate the dev module boundary check script tag */
+function buildDevCheckTag(): HtmlTagDescriptor {
+  return {
+    tag: 'script',
+    attrs: { type: 'module' },
+    children: `
+      // [pro-vite-plugin] Dev module boundary check
+      import('vue').then(m => {
+        if (!m.version) {
+          console.warn('[pro-vite-plugin] Vue module loaded without version — possible module boundary issue')
+        }
+      }).catch(() => {})
+    `,
+    injectTo: 'head',
+  }
+}
+
+/** Handle configResolved hook — warn about missing excludes in dev */
+function handleConfigResolved(
+  resolvedConfig: ResolvedConfig,
+  excludeList: string[],
+  devWarnings: boolean,
+): void {
+  const isDev = resolvedConfig.command === 'serve'
+  if (isDev && devWarnings) {
+    const currentExclude = resolvedConfig.optimizeDeps.exclude ?? []
+    warnMissingExcludes(excludeList, currentExclude)
+  }
+}
+
 /**
  * @pro/vite-plugin -- ensures dev/prod module boundary alignment.
  *
@@ -74,7 +117,6 @@ function warnMissingExcludes(excludeList: string[], currentExclude: string[]): v
  */
 export function proVitePlugin(options: ProVitePluginOptions = {}): Plugin {
   const { extraExclude = [], devWarnings = true } = options
-
   const excludeList = [...ALWAYS_EXCLUDE, ...extraExclude]
 
   return {
@@ -83,55 +125,20 @@ export function proVitePlugin(options: ProVitePluginOptions = {}): Plugin {
 
     config(_userConfig: UserConfig, { command }) {
       const isDev = command === 'serve'
-
       if (isDev) {
         // eslint-disable-next-line no-console -- Vite plugin dev diagnostic
         console.info('[pro-vite-plugin] Excluding from optimizeDeps:', excludeList.join(', '))
       }
-
-      return {
-        optimizeDeps: {
-          exclude: excludeList,
-        },
-        resolve: {
-          // Dedupe Vue and Element Plus to prevent multiple instances
-          dedupe: ['vue', 'element-plus'],
-        },
-        // Ensure Vue is resolved to the ESM browser build in dev
-        // This matches what CDN serves in prod
-        ...(isDev ? { define: buildDevDefines() } : {}),
-      }
+      return buildConfigOverride(excludeList, isDev)
     },
 
     configResolved(resolvedConfig) {
-      const isDev = resolvedConfig.command === 'serve'
-
-      if (isDev && devWarnings) {
-        const currentExclude = resolvedConfig.optimizeDeps?.exclude ?? []
-        warnMissingExcludes(excludeList, currentExclude)
-      }
+      handleConfigResolved(resolvedConfig, excludeList, devWarnings)
     },
 
     transformIndexHtml(html, ctx) {
       if (ctx.server && devWarnings) {
-        return {
-          html,
-          tags: [
-            {
-              tag: 'script',
-              attrs: { type: 'module' },
-              children: `
-                // [pro-vite-plugin] Dev module boundary check
-                import('vue').then(m => {
-                  if (!m.version) {
-                    console.warn('[pro-vite-plugin] Vue module loaded without version — possible module boundary issue')
-                  }
-                }).catch(() => {})
-              `,
-              injectTo: 'head',
-            },
-          ],
-        }
+        return { html, tags: [buildDevCheckTag()] }
       }
       return html
     },

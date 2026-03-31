@@ -65,6 +65,7 @@ export default tseslint.config(
       '**/migrations/*.ts',
       '**/seeds/*.ts',
       '**/__tests__/**/*.ts',
+      'cdn/loader/pro-sw.ts',
       '*.js',
     ],
     ...tseslint.configs.disableTypeChecked,
@@ -75,6 +76,17 @@ export default tseslint.config(
     },
   },
   {
+    files: ['**/demos/**/*.vue'],
+    ...tseslint.configs.disableTypeChecked,
+    rules: {
+      ...tseslint.configs.disableTypeChecked.rules,
+      'no-console': 'off',
+      'max-lines-per-function': 'off',
+      'vue/multi-word-component-names': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+    },
+  },
+  {
     files: ['platform/server/src/**/*.ts'],
     rules: {
       '@typescript-eslint/no-unsafe-assignment': 'off',
@@ -82,6 +94,13 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
+    },
+  },
+  {
+    files: ['docs/.vitepress/**/*.ts', 'docs/.vitepress/**/*.vue'],
+    rules: {
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
     },
   },
   {
