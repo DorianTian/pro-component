@@ -1,0 +1,263 @@
+name: Nightly Pipeline
+
+on:
+  schedule:
+    # Run at 02:00 UTC every day (10:00 CST)
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      skip-compat:
+        description: 'Skip compatibility matrix (faster run)'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: read
+  issues: write # For creating issues on failure
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+jobs:
+  # ──────────────────────────────────────────────
+  # Full Compatibility Matrix
+  # ──────────────────────────────────────────────
+  compat-matrix:
+    name: Compat Matrix (${{ matrix.vue }} + ${{ matrix.element-plus }})
+    if: inputs.skip-compat != true
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        vue: ['3.4.0', '3.5.0', 'latest']
+        element-plus: ['2.9.0', '2.10.0', 'latest']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          turbo-token: ${{ secrets.TURBO_TOKEN }}
+          turbo-team: ${{ secrets.TURBO_TEAM }}
+
+      - name: Build
+        run: pnpm build
+
+      - name: Override peer dependency versions
+        run: pnpm add -Dw vue@${{ matrix.vue }} element-plus@${{ matrix.element-plus }} --no-lockfile
+
+      - name: Run tests
+        id: test
+        run: pnpm turbo test --no-cache
+        continue-on-error: true
+
+      - name: Report to Platform API
+        if: always()
+        run: |
+          STATUS="${{ steps.test.outcome == 'success' && 'pass' || 'fail' }}"
+          API_URL="${{ secrets.PLATFORM_API_URL }}"
+          CI_RUN="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          if [ -n "$API_URL" ]; then
+            curl -sf -X POST "${API_URL}/api/v1/compat/report" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${{ secrets.PLATFORM_API_KEY }}" \
+              -d "{
+                \"vue_version\": \"${{ matrix.vue }}\",
+                \"element_plus_version\": \"${{ matrix.element-plus }}\",
+                \"status\": \"${STATUS}\",
+                \"ci_run_url\": \"${CI_RUN}\"
+              }" --max-time 10 || echo "Platform API report failed (non-blocking)"
+          fi
+
+      - name: Fail if tests failed
+        if: steps.test.outcome == 'failure'
+        run: exit 1
+
+  # ──────────────────────────────────────────────
+  # CDN Health Check
+  # ──────────────────────────────────────────────
+  cdn-health:
+    name: CDN Health Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Run CDN health check
+        env:
+          PLATFORM_API_URL: ${{ secrets.PLATFORM_API_URL }}
+          CDN_BASE_URL: ${{ secrets.CDN_BASE_URL }}
+        run: npx tsx scripts/ci/cdn-health-check.ts
+
+  # ──────────────────────────────────────────────
+  # Security Scan
+  # ──────────────────────────────────────────────
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: pnpm audit (all dependencies)
+        run: pnpm audit --audit-level=moderate
+
+      - name: License check
+        run: npx tsx scripts/ci/license-check.ts
+
+      - name: Check for peer dependency breaking changes
+        run: |
+          echo "Checking Vue release notes for breaking changes..."
+          VUE_LATEST=$(npm view vue version)
+          EP_LATEST=$(npm view element-plus version)
+
+          echo "Latest Vue: $VUE_LATEST"
+          echo "Latest Element Plus: $EP_LATEST"
+
+          # Check if latest versions are still within our supported range
+          node -e "
+            const vueOk = '$VUE_LATEST'.startsWith('3.');
+            const epOk = '$EP_LATEST'.startsWith('2.');
+
+            if (!vueOk) {
+              console.error('WARNING: Vue 4.x detected — major version bump may require updates');
+              process.exit(1);
+            }
+            if (!epOk) {
+              console.error('WARNING: Element Plus 3.x detected — major version bump may require updates');
+              process.exit(1);
+            }
+            console.log('Peer dependency versions are within expected major range');
+          " || echo "::warning::Peer dependency major version change detected"
+
+  # ──────────────────────────────────────────────
+  # Secrets Expiration Check
+  # ──────────────────────────────────────────────
+  secrets-check:
+    name: Secrets Expiration Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Check secrets expiration
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          CDN_ACCESS_KEY_CREATED_AT: ${{ secrets.CDN_ACCESS_KEY_CREATED_AT }}
+          PLATFORM_API_KEY_CREATED_AT: ${{ secrets.PLATFORM_API_KEY_CREATED_AT }}
+          SLACK_WEBHOOK_URL_CREATED_AT: ${{ secrets.SLACK_WEBHOOK_URL_CREATED_AT }}
+          WECHAT_WEBHOOK_URL_CREATED_AT: ${{ secrets.WECHAT_WEBHOOK_URL_CREATED_AT }}
+        run: npx tsx scripts/ci/token-rotation-check.ts
+
+  # ──────────────────────────────────────────────
+  # Nightly Report
+  # ──────────────────────────────────────────────
+  nightly-report:
+    name: Nightly Report
+    needs: [compat-matrix, cdn-health, security-scan, secrets-check]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Determine overall status
+        id: status
+        run: |
+          COMPAT="${{ needs.compat-matrix.result }}"
+          CDN="${{ needs.cdn-health.result }}"
+          SECURITY="${{ needs.security-scan.result }}"
+          SECRETS="${{ needs.secrets-check.result }}"
+
+          if [ "$COMPAT" = "failure" ] || [ "$CDN" = "failure" ] || [ "$SECURITY" = "failure" ] || [ "$SECRETS" = "failure" ]; then
+            echo "level=error" >> $GITHUB_OUTPUT
+            echo "status=FAILED" >> $GITHUB_OUTPUT
+          elif [ "$COMPAT" = "cancelled" ] || [ "$CDN" = "cancelled" ] || [ "$SECURITY" = "cancelled" ] || [ "$SECRETS" = "cancelled" ]; then
+            echo "level=warning" >> $GITHUB_OUTPUT
+            echo "status=PARTIAL" >> $GITHUB_OUTPUT
+          else
+            echo "level=info" >> $GITHUB_OUTPUT
+            echo "status=PASSED" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send nightly report
+        uses: ./.github/actions/notify
+        with:
+          channels: 'slack'
+          title: 'Nightly Health Check: ${{ steps.status.outputs.status }}'
+          body: |
+            **Compat Matrix:** ${{ needs.compat-matrix.result }}
+            **CDN Health:** ${{ needs.cdn-health.result }}
+            **Security Scan:** ${{ needs.security-scan.result }}
+            **Secrets Check:** ${{ needs.secrets-check.result }}
+            **Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          level: ${{ steps.status.outputs.level }}
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Create issue on failure
+        if: steps.status.outputs.status == 'FAILED'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Nightly Health Check Failed - ${new Date().toISOString().split('T')[0]}`
+            const body = [
+              '## Nightly Pipeline Failures',
+              '',
+              `| Check | Result |`,
+              `|-------|--------|`,
+              `| Compat Matrix | ${{ needs.compat-matrix.result }} |`,
+              `| CDN Health | ${{ needs.cdn-health.result }} |`,
+              `| Security Scan | ${{ needs.security-scan.result }} |`,
+              `| Secrets Check | ${{ needs.secrets-check.result }} |`,
+              '',
+              `[View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`,
+            ].join('\n')
+
+            // Check if issue already exists for today
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'nightly-failure',
+              state: 'open',
+            })
+
+            const today = new Date().toISOString().split('T')[0]
+            const todayIssue = existing.data.find(i => i.title.includes(today))
+
+            if (todayIssue) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: todayIssue.number,
+                body: body,
+              })
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['nightly-failure', 'ci'],
+              })
+            }
