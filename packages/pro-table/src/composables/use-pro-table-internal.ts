@@ -1,4 +1,4 @@
-import { ref, computed, provide, watch, onMounted, type Ref, type ComputedRef } from 'vue'
+import { ref, computed, provide, watch, onMounted, onUnmounted, type Ref, type ComputedRef } from 'vue'
 import { useRequest, usePagination, useSelection, useValueType } from '@pro/hooks'
 
 import type { RequestParams, RequestResult } from '@pro/utils'
@@ -94,6 +94,9 @@ export interface UseProTableInternalReturn {
   handleSizeChange: (size: number) => void
   handleReload: () => void
   handleToggleColumnSetting: () => void
+  isFullscreen: Ref<boolean>
+  tableContainerRef: Ref<HTMLElement | null>
+  handleToggleFullscreen: () => void
 }
 
 /**
@@ -360,6 +363,35 @@ export function useProTableInternal(
     showColumnSettingPanel.value = !showColumnSettingPanel.value
   }
 
+  // --- Fullscreen ---
+  const isFullscreen = ref(false)
+  const tableContainerRef = ref<HTMLElement | null>(null)
+
+  function handleFullscreenChange(): void {
+    isFullscreen.value = !!document.fullscreenElement
+  }
+
+  onMounted(() => {
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+  })
+
+  onUnmounted(() => {
+    document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  })
+
+  function handleToggleFullscreen(): void {
+    if (!tableContainerRef.value) return
+    if (!document.fullscreenElement) {
+      tableContainerRef.value.requestFullscreen().catch(() => {
+        // Fullscreen API not supported or denied
+      })
+    } else {
+      document.exitFullscreen().catch(() => {
+        // Already exited
+      })
+    }
+  }
+
   return {
     externalInstance,
     isExternalMode,
@@ -386,5 +418,8 @@ export function useProTableInternal(
     handleSizeChange,
     handleReload,
     handleToggleColumnSetting,
+    isFullscreen,
+    tableContainerRef,
+    handleToggleFullscreen,
   }
 }

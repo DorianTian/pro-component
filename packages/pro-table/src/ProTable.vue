@@ -96,7 +96,7 @@ const state = useProTableInternal(
 </script>
 
 <template>
-  <div class="pro-table" :data-density="state.densitySize.value">
+  <div ref="state.tableContainerRef" class="pro-table" :class="{ 'pro-table--fullscreen': state.isFullscreen.value }" :data-density="state.densitySize.value">
     <!-- Search Form -->
     <QueryFilter
       v-if="search !== false"
@@ -123,6 +123,7 @@ const state = useProTableInternal(
       :toolbar-actions="toolbarActions"
       :toolbar="toolbar"
       @reload="state.handleReload"
+      @toggle-fullscreen="state.handleToggleFullscreen"
     >
       <template #columnSetting>
         <ColumnSetting>
@@ -247,5 +248,10 @@ const state = useProTableInternal(
   display: flex;
   justify-content: flex-end;
   padding: var(--pro-space-5) 0 var(--pro-space-1);
+}
+
+.pro-table--fullscreen {
+  padding: var(--pro-space-6);
+  overflow: auto;
 }
 </style>
