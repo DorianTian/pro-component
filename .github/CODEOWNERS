@@ -1,0 +1,18 @@
+# Default owners for everything
+* @pro-components-team
+
+# CI/CD changes require CI team review
+.github/ @pro-components-ci-team
+scripts/ci/ @pro-components-ci-team
+
+# Package changes require component team review
+packages/ @pro-components-team
+packages/pro-table/ @pro-components-team
+packages/pro-form/ @pro-components-team
+packages/pro-descriptions/ @pro-components-team
+
+# Platform changes require platform team review
+platform/ @pro-components-platform-team
+
+# CDN changes require both CI and platform review
+cdn/ @pro-components-ci-team @pro-components-platform-team
