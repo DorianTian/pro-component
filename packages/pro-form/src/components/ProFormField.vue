@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h } from 'vue'
+import { computed, h, defineComponent } from 'vue'
 import {
   ElFormItem,
   ElInput,
@@ -73,66 +73,83 @@ function handleUpdate(val: unknown) {
 }
 
 /**
- * Resolve the control component and props for a given valueType.
- * Uses FALLBACK_CONTROL_REGISTRY until CONTROL_REGISTRY from @pro/hooks is available.
+ * Build children VNodes for select/radio/checkbox from valueEnum.
  */
-function resolveControl(
-  field: ProFieldDef,
-  modelValue: unknown,
-  onChange: (value: unknown) => void,
-): { component: Component; props: Record<string, unknown>; slots?: Record<string, () => VNode[]> } {
-  const entry = FALLBACK_CONTROL_REGISTRY[field.valueType ?? 'text']
-  if (!entry) {
-    return resolveControl({ ...field, valueType: 'text' }, modelValue, onChange)
+function buildEnumChildren(field: ProFieldDef): VNode[] | undefined {
+  if (!field.valueEnum) return undefined
+
+  if (field.valueType === 'select') {
+    return Object.entries(field.valueEnum).map(([value, config]) =>
+      h(ElOption, {
+        key: value,
+        label: typeof config === 'string' ? config : config.text,
+        value,
+      }),
+    )
   }
 
-  const resolvedProps: Record<string, unknown> = {
-    ...entry.defaultProps,
-    ...computedFieldProps.value,
-    disabled: field.disabled,
-    readonly: field.readonly,
-    modelValue,
-    'onUpdate:modelValue': onChange,
+  if (field.valueType === 'radio') {
+    return Object.entries(field.valueEnum).map(([value, config]) =>
+      h(
+        ElRadio,
+        { key: value, value },
+        { default: () => (typeof config === 'string' ? config : config.text) },
+      ),
+    )
   }
 
-  let slots: Record<string, () => VNode[]> | undefined
-
-  // valueEnum -> options for select/radio/checkbox
-  if (field.valueEnum && field.valueType === 'select') {
-    slots = {
-      default: () =>
-        Object.entries(field.valueEnum!).map(([value, config]) =>
-          h(ElOption, {
-            key: value,
-            label: typeof config === 'string' ? config : config.text,
-            value,
-          }),
-        ),
-    }
+  if (field.valueType === 'checkbox') {
+    return Object.entries(field.valueEnum).map(([value, config]) =>
+      h(
+        ElCheckbox,
+        { key: value, value },
+        { default: () => (typeof config === 'string' ? config : config.text) },
+      ),
+    )
   }
 
-  if (field.valueEnum && field.valueType === 'radio') {
-    slots = {
-      default: () =>
-        Object.entries(field.valueEnum!).map(([value, config]) =>
-          h(ElRadio, { key: value, value }, { default: () => (typeof config === 'string' ? config : config.text) }),
-        ),
-    }
-  }
-
-  if (field.valueEnum && field.valueType === 'checkbox') {
-    slots = {
-      default: () =>
-        Object.entries(field.valueEnum!).map(([value, config]) =>
-          h(ElCheckbox, { key: value, value }, { default: () => (typeof config === 'string' ? config : config.text) }),
-        ),
-    }
-  }
-
-  return { component: entry.component, props: resolvedProps, slots }
+  return undefined
 }
 
-const controlResult = computed(() => resolveControl(props.field, props.modelValue, handleUpdate))
+/**
+ * Render the control component for this field via render function.
+ * This avoids the v-for + dynamic slot name issue in templates.
+ */
+const FieldControl = defineComponent({
+  name: 'FieldControl',
+  setup() {
+    return () => {
+      const field = props.field
+      const modelValue = props.modelValue
+
+      // Custom render takes highest priority
+      if (field.renderFormItem) {
+        return field.renderFormItem(modelValue, handleUpdate)
+      }
+
+      const entry = FALLBACK_CONTROL_REGISTRY[field.valueType ?? 'text']
+      if (!entry) {
+        return h(ElInput, { modelValue, 'onUpdate:modelValue': handleUpdate, clearable: true })
+      }
+
+      const resolvedProps: Record<string, unknown> = {
+        ...entry.defaultProps,
+        ...computedFieldProps.value,
+        disabled: field.disabled,
+        readonly: field.readonly,
+        modelValue,
+        'onUpdate:modelValue': handleUpdate,
+      }
+
+      const children = buildEnumChildren(field)
+      if (children) {
+        return h(entry.component, resolvedProps, { default: () => children })
+      }
+
+      return h(entry.component, resolvedProps)
+    }
+  },
+})
 </script>
 
 <template>
@@ -150,17 +167,6 @@ const controlResult = computed(() => resolveControl(props.field, props.modelValu
         </ElIcon>
       </ElTooltip>
     </template>
-    <template v-if="field.renderFormItem">
-      <component :is="() => field.renderFormItem!(modelValue, handleUpdate)" />
-    </template>
-    <component
-      v-else
-      :is="controlResult.component"
-      v-bind="controlResult.props"
-    >
-      <template v-if="controlResult.slots" v-for="(slotFn, slotName) in controlResult.slots" #[slotName]>
-        <component :is="() => slotFn()" />
-      </template>
-    </component>
+    <FieldControl />
   </ElFormItem>
 </template>
