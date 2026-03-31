@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { useProForm } from './use-pro-form'
 
 import type { ProFormConfig } from '@pro/utils'
@@ -23,12 +23,6 @@ export function useModalForm(config: ProFormConfig): UseModalFormReturn {
     visible.value = false
     proForm.resetFields()
   }
-
-  watch(visible, (val) => {
-    if (!val) {
-      proForm.resetFields()
-    }
-  })
 
   return {
     ...proForm,
