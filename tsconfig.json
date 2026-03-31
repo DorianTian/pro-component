@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/utils" },
+    { "path": "packages/hooks" },
+    { "path": "packages/themes" },
+    { "path": "packages/resolvers" },
+    { "path": "packages/pro-table" },
+    { "path": "packages/pro-form" },
+    { "path": "packages/pro-descriptions" },
+    { "path": "packages/pro-components" },
+    { "path": "playground" }
+  ]
+}
