@@ -6,7 +6,8 @@
     "baseUrl": ".",
     "composite": true,
     "paths": {
-      "@pro/utils": ["../utils/src/index.ts"]
+      "@pro/utils": ["../utils/src/index.ts"],
+      "@pro/locale": ["../locale/src/index.ts"]
     }
   },
   "include": ["src/**/*.ts"]

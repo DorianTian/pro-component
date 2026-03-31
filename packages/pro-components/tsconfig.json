@@ -8,9 +8,10 @@
       "@pro/form": ["../pro-form/src/index.ts"],
       "@pro/descriptions": ["../pro-descriptions/src/index.ts"],
       "@pro/hooks": ["../hooks/src/index.ts"],
+      "@pro/locale": ["../locale/src/index.ts"],
       "@pro/utils": ["../utils/src/index.ts"],
       "@pro/themes": ["../themes/src/index.ts"]
     }
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.vue"]
 }

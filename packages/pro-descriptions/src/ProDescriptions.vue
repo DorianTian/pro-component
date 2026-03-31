@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useProLocale } from '@pro/hooks'
+
 defineOptions({ name: 'ProDescriptions' })
+
+const { t } = useProLocale()
 </script>
 
 <template>

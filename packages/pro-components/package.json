@@ -31,6 +31,8 @@
     "@pro/form": "workspace:*",
     "@pro/descriptions": "workspace:*",
     "@pro/hooks": "workspace:*",
+    "dayjs": "^1.11.0",
+    "@pro/locale": "workspace:*",
     "@pro/utils": "workspace:*",
     "@pro/themes": "workspace:*"
   },

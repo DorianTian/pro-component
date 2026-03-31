@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ElSteps, ElStep, ElForm, ElButton, ElRow, ElCol } from 'element-plus'
 import { useStepsForm } from '../composables/use-steps-form'
+import { useProLocale } from '@pro/hooks'
 import { GRID_GUTTER } from '../composables/use-pro-form'
 import ProFormField from './ProFormField.vue'
 
 import type { StepFormDef, FormLayout } from '@pro/utils'
 
 defineOptions({ name: 'StepsForm' })
+
+const { t } = useProLocale()
 
 const props = withDefaults(
   defineProps<{
@@ -124,7 +127,7 @@ defineExpose({
 
       <div class="pro-steps-form__actions">
         <ElButton v-if="!isFirstStep" class="pro-steps-form__prev" @click="handlePrev">
-          Previous
+          {{ t('pro.form.steps.prev') }}
         </ElButton>
         <ElButton
           v-if="!isLastStep"
@@ -132,7 +135,7 @@ defineExpose({
           class="pro-steps-form__next"
           @click="handleNext"
         >
-          Next
+          {{ t('pro.form.steps.next') }}
         </ElButton>
         <ElButton
           v-if="isLastStep"
@@ -141,7 +144,7 @@ defineExpose({
           class="pro-steps-form__submit"
           @click="handleSubmit"
         >
-          Submit
+          {{ t('pro.form.steps.submit') }}
         </ElButton>
       </div>
     </ElForm>

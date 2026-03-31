@@ -2,12 +2,15 @@
 import { computed, provide } from 'vue'
 import { ElForm, ElButton, ElRow, ElCol } from 'element-plus'
 import { useProForm, GRID_GUTTER, DEFAULT_LABEL_WIDTH } from './composables/use-pro-form'
+import { useProLocale } from '@pro/hooks'
 import { PRO_FORM_INJECTION_KEY } from './injection-keys'
 import ProFormField from './components/ProFormField.vue'
 
 import type { ProFieldDef, FormLayout } from '@pro/utils'
 
 defineOptions({ name: 'ProForm' })
+
+const { t } = useProLocale()
 
 const props = withDefaults(
   defineProps<{
@@ -129,10 +132,10 @@ defineExpose({
     <div v-if="showActions" class="pro-form__actions">
       <slot name="actions" :loading="loading" :submit="handleSubmit" :reset="handleReset">
         <ElButton type="primary" :loading="loading" class="pro-form__submit" @click="handleSubmit">
-          {{ submitText }}
+          {{ submitText ?? t('pro.form.submit') }}
         </ElButton>
         <ElButton class="pro-form__reset" @click="handleReset">
-          {{ resetText }}
+          {{ resetText ?? t('pro.form.reset') }}
         </ElButton>
       </slot>
     </div>
