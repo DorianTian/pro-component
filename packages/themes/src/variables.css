@@ -1,0 +1,29 @@
+:root {
+  /* Pro Components Design Tokens */
+
+  /* Spacing */
+  --pro-spacing-xs: 4px;
+  --pro-spacing-sm: 8px;
+  --pro-spacing-md: 16px;
+  --pro-spacing-lg: 24px;
+  --pro-spacing-xl: 32px;
+
+  /* Border Radius */
+  --pro-radius-sm: 4px;
+  --pro-radius-md: 6px;
+  --pro-radius-lg: 8px;
+
+  /* Toolbar */
+  --pro-toolbar-height: 48px;
+  --pro-toolbar-padding: 0 var(--pro-spacing-md);
+
+  /* Search Form */
+  --pro-search-form-gap: var(--pro-spacing-md);
+  --pro-search-form-label-width: 80px;
+
+  /* Table */
+  --pro-table-header-bg: var(--el-fill-color-light);
+
+  /* Transition */
+  --pro-transition-duration: 0.2s;
+}
