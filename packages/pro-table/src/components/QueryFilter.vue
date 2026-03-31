@@ -123,9 +123,7 @@ function toggleCollapse(): void {
           </template>
 
           <!-- valueEnum-driven select -->
-          <template
-            v-else-if="col.valueEnum && (col.valueType === 'select' || col.valueType === 'radio')"
-          >
+          <template v-else-if="col.valueEnum">
             <el-select
               :model-value="modelValue[String(col.dataIndex)]"
               clearable
@@ -169,7 +167,8 @@ function toggleCollapse(): void {
               isCollapsed ? t('pro.table.queryFilter.expand') : t('pro.table.queryFilter.collapse')
             }}
             <el-icon>
-              <component :is="isCollapsed ? 'ArrowDown' : 'ArrowUp'" />
+              <ArrowDown v-if="isCollapsed" />
+              <ArrowUp v-else />
             </el-icon>
           </el-button>
         </el-form-item>

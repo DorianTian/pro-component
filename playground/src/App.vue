@@ -34,6 +34,7 @@ const columns: ProColumnDef[] = [
     key: 'age',
     valueType: 'digit',
     sortable: true,
+    hideInSearch: true,
   },
   {
     title: 'Status',
@@ -69,12 +70,14 @@ const columns: ProColumnDef[] = [
     key: 'salary',
     valueType: 'money',
     sortable: true,
+    hideInSearch: true,
   },
   {
     title: 'Join Date',
     dataIndex: 'joinDate',
     key: 'joinDate',
     valueType: 'dateTime',
+    hideInSearch: true,
   },
 ]
 
