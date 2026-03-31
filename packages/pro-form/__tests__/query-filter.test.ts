@@ -62,9 +62,7 @@ describe('QueryFilter', () => {
       await flushPromises()
 
       expect(wrapper.emitted('search')).toBeTruthy()
-      expect(wrapper.emitted('search')![0][0]).toEqual(
-        expect.objectContaining({ keyword: 'test' }),
-      )
+      expect(wrapper.emitted('search')![0][0]).toEqual(expect.objectContaining({ keyword: 'test' }))
     })
   })
 
