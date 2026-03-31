@@ -187,7 +187,9 @@ watch(
         >
           {{ t('pro.table.columnSetting.title') }}
         </el-checkbox>
-        <el-button link type="primary" @click="handleReset"> {{ t('pro.table.queryFilter.reset') }} </el-button>
+        <el-button link type="primary" @click="handleReset">
+          {{ t('pro.table.queryFilter.reset') }}
+        </el-button>
       </div>
 
       <div class="pro-column-setting__list">

@@ -24,6 +24,9 @@
     "build": "tsx ../../scripts/build-package.ts .",
     "build:dts": "vue-tsc --declaration --emitDeclarationOnly --outDir dist/types",
     "type-check": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -34,5 +37,12 @@
   "peerDependencies": {
     "vue": ">=3.4.0",
     "element-plus": ">=2.9.0"
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0",
+    "@vue/test-utils": "^2.4.0",
+    "vue": "^3.5.0",
+    "element-plus": "^2.9.0",
+    "happy-dom": "^15.0.0"
   }
 }
