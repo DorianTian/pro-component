@@ -84,6 +84,9 @@ export function useStepsForm(options: UseStepsFormOptions): UseStepsFormReturn {
     if (isSubmitting.value) return false
     if (!onSubmit) return false
 
+    const isValid = await validateCurrentStep()
+    if (!isValid) return false
+
     try {
       isSubmitting.value = true
       loading.value = true
