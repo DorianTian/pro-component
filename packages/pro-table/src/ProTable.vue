@@ -126,11 +126,9 @@ const state = useProTableInternal(
     >
       <template #columnSetting>
         <ColumnSetting>
-          <el-tooltip content="Column Settings" placement="top">
-            <span class="pro-toolbar__icon">
-              <el-icon :size="18"><Setting /></el-icon>
-            </span>
-          </el-tooltip>
+          <span class="pro-toolbar__icon" title="Column Settings">
+            <el-icon :size="18"><Setting /></el-icon>
+          </span>
         </ColumnSetting>
       </template>
     </ToolBar>
