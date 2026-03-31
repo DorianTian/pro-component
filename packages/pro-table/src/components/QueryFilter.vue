@@ -162,18 +162,13 @@ function toggleCollapse(): void {
             <el-button :icon="RefreshLeft" @click="handleReset">
               {{ t('pro.table.queryFilter.reset') }}
             </el-button>
-            <el-button
-              v-if="hasCollapsibleOverflow"
-              link
-              type="primary"
-              @click="toggleCollapse"
-            >
+            <el-button v-if="hasCollapsibleOverflow" link type="primary" @click="toggleCollapse">
               {{
                 isCollapsed
                   ? t('pro.table.queryFilter.expand')
                   : t('pro.table.queryFilter.collapse')
               }}
-              <el-icon style="margin-left: 4px">
+              <el-icon class="pro-query-filter__collapse-icon">
                 <ArrowDown v-if="isCollapsed" />
                 <ArrowUp v-else />
               </el-icon>
@@ -187,19 +182,15 @@ function toggleCollapse(): void {
 
 <style scoped>
 .pro-query-filter {
-  padding: 24px 24px 0;
-  margin-bottom: 16px;
-  background: var(--el-bg-color, #fff);
-  border: 1px solid var(--el-border-color-lighter, #ebeef5);
-  border-radius: 4px;
+  padding: var(--pro-spacing-lg, 24px) var(--pro-spacing-lg, 24px) 0;
+  border-bottom: 1px solid var(--el-border-color-lighter, #ebeef5);
 }
 
 .pro-query-filter :deep(.el-form-item) {
-  margin-bottom: 24px;
+  margin-bottom: var(--pro-spacing-lg, 24px);
 }
 
 .pro-query-filter :deep(.el-form-item__content) {
-  /* Force inputs to fill available width */
   & > .el-input,
   & > .el-select,
   & > .el-date-editor,
@@ -208,11 +199,26 @@ function toggleCollapse(): void {
   }
 }
 
+/* Focus ring — aligned with reference design */
+.pro-query-filter :deep(.el-input__wrapper:focus-within) {
+  box-shadow: 0 0 0 1px var(--el-color-primary, #409eff),
+    var(--pro-search-form-input-focus-shadow, 0 0 0 3px rgba(64, 158, 255, 0.12)) !important;
+}
+
+.pro-query-filter :deep(.el-select .el-input__wrapper:focus-within) {
+  box-shadow: 0 0 0 1px var(--el-color-primary, #409eff),
+    var(--pro-search-form-input-focus-shadow, 0 0 0 3px rgba(64, 158, 255, 0.12)) !important;
+}
+
 .pro-query-filter__actions {
   text-align: right;
 }
 
 .pro-query-filter__actions :deep(.el-form-item__content) {
   justify-content: flex-end;
+}
+
+.pro-query-filter__collapse-icon {
+  margin-left: var(--pro-spacing-xs, 4px);
 }
 </style>
