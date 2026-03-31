@@ -109,8 +109,8 @@ function toggleCollapse(): void {
 </script>
 
 <template>
-  <el-form class="pro-query-filter" :label-width="labelWidth" inline @submit.prevent="handleSearch">
-    <el-row :gutter="16">
+  <el-form class="pro-query-filter" :label-width="labelWidth" @submit.prevent="handleSearch">
+    <el-row :gutter="24">
       <el-col
         v-for="col in visibleColumns"
         :key="col.key ?? String(col.dataIndex)"
@@ -127,7 +127,8 @@ function toggleCollapse(): void {
             <el-select
               :model-value="modelValue[String(col.dataIndex)]"
               clearable
-              :placeholder="t('pro.form.select.placeholder')"
+              style="width: 100%"
+              :placeholder="`Select ${col.title}`"
               @update:model-value="updateField(String(col.dataIndex), $event)"
             >
               <el-option
@@ -146,7 +147,8 @@ function toggleCollapse(): void {
               v-bind="getColumnSearchConfig(col)?.props ?? {}"
               :model-value="modelValue[String(col.dataIndex)]"
               clearable
-              :placeholder="`Please enter ${col.title}`"
+              style="width: 100%"
+              :placeholder="`Enter ${col.title}`"
               @update:model-value="updateField(String(col.dataIndex), $event)"
             />
           </template>
@@ -155,22 +157,26 @@ function toggleCollapse(): void {
 
       <!-- Action buttons -->
       <el-col :span="span" class="pro-query-filter__actions">
-        <el-form-item>
-          <el-button type="primary" :loading="loading" @click="handleSearch">
-            {{ t('pro.table.queryFilter.search') }}
-          </el-button>
-          <el-button @click="handleReset">
-            {{ t('pro.table.queryFilter.reset') }}
-          </el-button>
-          <el-button v-if="hasCollapsibleOverflow" link type="primary" @click="toggleCollapse">
-            {{
-              isCollapsed ? t('pro.table.queryFilter.expand') : t('pro.table.queryFilter.collapse')
-            }}
-            <el-icon>
-              <ArrowDown v-if="isCollapsed" />
-              <ArrowUp v-else />
-            </el-icon>
-          </el-button>
+        <el-form-item label=" ">
+          <el-space wrap>
+            <el-button type="primary" :loading="loading" @click="handleSearch">
+              {{ t('pro.table.queryFilter.search') }}
+            </el-button>
+            <el-button @click="handleReset">
+              {{ t('pro.table.queryFilter.reset') }}
+            </el-button>
+            <el-button v-if="hasCollapsibleOverflow" link type="primary" @click="toggleCollapse">
+              {{
+                isCollapsed
+                  ? t('pro.table.queryFilter.expand')
+                  : t('pro.table.queryFilter.collapse')
+              }}
+              <el-icon>
+                <ArrowDown v-if="isCollapsed" />
+                <ArrowUp v-else />
+              </el-icon>
+            </el-button>
+          </el-space>
         </el-form-item>
       </el-col>
     </el-row>
@@ -180,14 +186,17 @@ function toggleCollapse(): void {
 <style scoped>
 .pro-query-filter {
   margin-bottom: var(--pro-spacing-md, 16px);
-  padding: var(--pro-spacing-md, 16px);
-  padding-bottom: 0;
-  background: var(--el-bg-color);
+  padding: 16px 24px 0;
+  background: var(--el-fill-color-blank, #fff);
+  border: 1px solid var(--el-border-color-lighter, #e4e7ed);
   border-radius: var(--pro-radius-md, 6px);
 }
 
+.pro-query-filter :deep(.el-form-item) {
+  margin-bottom: 16px;
+}
+
 .pro-query-filter__actions {
-  display: flex;
-  justify-content: flex-end;
+  text-align: right;
 }
 </style>

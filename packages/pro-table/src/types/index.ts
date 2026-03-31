@@ -19,6 +19,7 @@ export interface ProColumnDef<T = Record<string, unknown>> {
 
   // Table column behavior
   width?: number | string
+  minWidth?: number | string
   fixed?: 'left' | 'right'
   sortable?: boolean | 'custom'
   /**

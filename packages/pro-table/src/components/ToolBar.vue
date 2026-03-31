@@ -90,18 +90,12 @@ function handleToggleFullscreen(): void {
 
       <!-- Reload -->
       <el-tooltip content="Reload" placement="top">
-        <el-button circle @click="handleReload">
-          <el-icon><Refresh /></el-icon>
-        </el-button>
+        <el-button :icon="Refresh" text @click="handleReload" />
       </el-tooltip>
 
       <!-- Density -->
       <el-dropdown v-if="isDensityVisible" trigger="click" @command="handleDensityChange">
-        <el-tooltip content="Density" placement="top">
-          <el-button circle>
-            <el-icon><DCaret /></el-icon>
-          </el-button>
-        </el-tooltip>
+        <el-button :icon="DCaret" text />
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item
@@ -118,16 +112,12 @@ function handleToggleFullscreen(): void {
 
       <!-- Column Setting -->
       <el-tooltip v-if="isColumnSettingVisible" content="Column Settings" placement="top">
-        <el-button circle @click="handleToggleColumnSetting">
-          <el-icon><Setting /></el-icon>
-        </el-button>
+        <el-button :icon="Setting" text @click="handleToggleColumnSetting" />
       </el-tooltip>
 
       <!-- Fullscreen -->
       <el-tooltip v-if="isFullscreenVisible" content="Fullscreen" placement="top">
-        <el-button circle @click="handleToggleFullscreen">
-          <el-icon><FullScreen /></el-icon>
-        </el-button>
+        <el-button :icon="FullScreen" text @click="handleToggleFullscreen" />
       </el-tooltip>
     </div>
   </div>

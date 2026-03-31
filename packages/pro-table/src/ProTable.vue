@@ -149,9 +149,10 @@ const state = useProTableInternal(
         :prop="String(col.dataIndex)"
         :label="col.title"
         :width="col.width"
+        :min-width="col.minWidth ?? 120"
         :fixed="col.fixed"
         :sortable="col.sortable"
-        :show-overflow-tooltip="col.ellipsis"
+        :show-overflow-tooltip="col.ellipsis !== false"
       >
         <template #default="{ row, $index }">
           <template v-if="col.render">
