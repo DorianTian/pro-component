@@ -147,10 +147,16 @@ function toggleCollapse(): void {
         <!-- Action buttons — always right-aligned -->
         <el-col :span="span" class="pro-query-filter__actions">
           <el-form-item label=" ">
-            <el-button type="primary" :icon="Search" :loading="loading" @click="handleSearch">
+            <el-button
+              type="primary"
+              size="small"
+              :icon="Search"
+              :loading="loading"
+              @click="handleSearch"
+            >
               {{ t('pro.table.queryFilter.search') }}
             </el-button>
-            <el-button :icon="RefreshLeft" @click="handleReset">
+            <el-button size="small" :icon="RefreshLeft" @click="handleReset">
               {{ t('pro.table.queryFilter.reset') }}
             </el-button>
             <el-button v-if="hasCollapsibleOverflow" link type="primary" @click="toggleCollapse">
@@ -221,6 +227,8 @@ function toggleCollapse(): void {
 
 .pro-query-filter__actions :deep(.el-form-item__content) {
   justify-content: flex-end;
+  flex-wrap: nowrap;
+  gap: var(--pro-space-3);
 }
 
 .pro-query-filter__collapse-icon {

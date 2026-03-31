@@ -16,6 +16,7 @@
 /* Widen the content area — default is too narrow for table demos */
 .VPDoc .content-container {
   max-width: 1080px !important;
+  min-width: 820px;
 }
 
 /* ---- Brand tokens ---- */
