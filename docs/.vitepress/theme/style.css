@@ -3,6 +3,21 @@
  * Overrides default theme tokens to align with Element Plus design language.
  */
 
+/* ---- Layout: widen content area for table demos ---- */
+
+:root {
+  --vp-layout-max-width: 1440px;
+}
+
+.vp-doc.container {
+  max-width: 1080px !important;
+}
+
+/* Widen the content area — default is too narrow for table demos */
+.VPDoc .content-container {
+  max-width: 1080px !important;
+}
+
 /* ---- Brand tokens ---- */
 
 :root {
@@ -61,29 +76,23 @@
  * Do NOT reset padding/background/font — Element Plus handles those
  * with higher-specificity selectors (.el-table__cell etc.) */
 
-/* Fix the critical one: VitePress sets display:block on all tables,
- * which breaks el-table's separate header/body <table> elements */
+/* VitePress .vp-doc sets display:block on <table> which breaks el-table.
+ * Only override the exact properties VitePress adds. Let El Plus handle the rest. */
 .vp-doc .vp-raw table {
   display: table !important;
   margin: 0 !important;
   border: none !important;
   border-radius: 0 !important;
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
-  overflow: visible !important;
 }
 
-/* Remove VitePress row top-borders (the orange/colored bars) */
 .vp-doc .vp-raw tr {
   border-top: none !important;
 }
 
-/* Remove VitePress zebra striping (the blue alternating rows) */
 .vp-doc .vp-raw tr:nth-child(2n) {
   background-color: transparent !important;
 }
 
-/* Remove VitePress cell borders — let El Plus .el-table__cell handle borders */
 .vp-doc .vp-raw th,
 .vp-doc .vp-raw td {
   border: none !important;
