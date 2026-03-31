@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { ElForm, ElFormItem, ElButton } from 'element-plus'
 import { useProForm, QUERY_FILTER_DEFAULT_COLLAPSE_THRESHOLD } from '../composables/use-pro-form'
+import { useProLocale } from '@pro/hooks'
 import ProFormField from './ProFormField.vue'
 
 import type { ProFieldDef } from '@pro/utils'
@@ -34,6 +35,8 @@ const emit = defineEmits<{
 }>()
 
 const collapsed = ref(props.defaultCollapsed)
+
+const { t } = useProLocale()
 
 const { formValues, visibleFields, setFieldValue, resetFields, formRef } = useProForm({
   fields: props.fields,
@@ -94,9 +97,11 @@ defineExpose({
 
     <ElFormItem class="pro-query-filter__actions">
       <ElButton type="primary" class="pro-query-filter__search" @click="handleSearch">
-        Search
+        {{ t('pro.table.queryFilter.search') }}
       </ElButton>
-      <ElButton class="pro-query-filter__reset" @click="handleReset"> Reset </ElButton>
+      <ElButton class="pro-query-filter__reset" @click="handleReset">
+        {{ t('pro.table.queryFilter.reset') }}
+      </ElButton>
       <ElButton
         v-if="showCollapseToggle"
         type="primary"
@@ -104,7 +109,7 @@ defineExpose({
         class="pro-query-filter__collapse-toggle"
         @click="toggleCollapse"
       >
-        {{ collapsed ? 'Expand' : 'Collapse' }}
+        {{ collapsed ? t('pro.table.queryFilter.expand') : t('pro.table.queryFilter.collapse') }}
       </ElButton>
     </ElFormItem>
   </ElForm>
