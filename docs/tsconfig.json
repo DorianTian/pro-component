@@ -1,0 +1,19 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@pro/table": ["../packages/pro-table/src"],
+      "@pro/form": ["../packages/pro-form/src"],
+      "@pro/descriptions": ["../packages/pro-descriptions/src"],
+      "@pro/hooks": ["../packages/hooks/src"],
+      "@pro/utils": ["../packages/utils/src"],
+      "@pro/themes": ["../packages/themes/src"],
+      "@pro/pro-components": ["../packages/pro-components/src"]
+    }
+  },
+  "include": [".vitepress/**/*.ts", ".vitepress/**/*.vue"],
+  "exclude": [".vitepress/dist", ".vitepress/cache"]
+}

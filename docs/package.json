@@ -1,0 +1,31 @@
+{
+  "name": "docs",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "(pnpm gen:api || true) && vitepress build",
+    "preview": "vitepress preview",
+    "gen:api": "tsx ../scripts/gen-api-doc.ts",
+    "gen:changelog": "tsx ../scripts/gen-changelog.ts"
+  },
+  "dependencies": {
+    "vue": "^3.4.0",
+    "element-plus": "^2.9.0",
+    "@pro/table": "workspace:*",
+    "@pro/form": "workspace:*",
+    "@pro/descriptions": "workspace:*",
+    "@pro/hooks": "workspace:*",
+    "@pro/utils": "workspace:*",
+    "@pro/themes": "workspace:*",
+    "@pro/pro-components": "workspace:*"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.4",
+    "vitepress-demo-plugin": "^1.5.1",
+    "vue-component-meta": "^3.2.6",
+    "tsx": "^4.0.0",
+    "typescript": "^5.5.0"
+  }
+}
