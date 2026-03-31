@@ -33,7 +33,11 @@ function evaluateComposite(condition: CompositeCondition, context: GrayscaleCont
     return condition.conditions.every((c) => evaluateRule(c, context))
   }
 
-  return condition.conditions.some((c) => evaluateRule(c, context))
+  if (condition.operator === 'OR') {
+    return condition.conditions.some((c) => evaluateRule(c, context))
+  }
+
+  return false
 }
 
 function evaluateLeaf(condition: LeafCondition, context: GrayscaleContext): boolean {
