@@ -1,0 +1,69 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package to rollback (e.g., @pro/table)'
+        required: true
+        type: string
+      target_version:
+        description: 'Version to rollback to'
+        required: true
+        type: string
+      reason:
+        description: 'Rollback reason (required for audit log)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  rollback:
+    name: Rollback ${{ inputs.package }}@${{ inputs.target_version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production # Requires manual approval
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Verify target version exists on npm
+        run: npm view ${{ inputs.package }}@${{ inputs.target_version }}
+
+      - name: Trigger platform API rollback
+        run: |
+          curl -sf -X POST "$PLATFORM_API_URL/api/v1/versions/rollback" \
+            -H "Authorization: Bearer ${{ secrets.PLATFORM_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "package": "${{ inputs.package }}",
+              "version": "${{ inputs.target_version }}",
+              "reason": "${{ inputs.reason }}"
+            }'
+        env:
+          PLATFORM_API_URL: ${{ secrets.PLATFORM_API_URL }}
+
+      - name: Verify CDN resource availability
+        env:
+          PLATFORM_API_URL: ${{ secrets.PLATFORM_API_URL }}
+          CDN_BASE_URL: ${{ secrets.CDN_BASE_URL }}
+        run: npx tsx scripts/ci/cdn-health-check.ts
+
+      - name: Send rollback notification
+        uses: ./.github/actions/notify
+        with:
+          channels: 'slack,wechat'
+          title: 'Rollback Executed'
+          body: |
+            **Package:** ${{ inputs.package }}@${{ inputs.target_version }}
+            **Reason:** ${{ inputs.reason }}
+            **Triggered by:** ${{ github.actor }}
+            **Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          level: 'warning'
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          wechat-webhook-url: ${{ secrets.WECHAT_WEBHOOK_URL }}
