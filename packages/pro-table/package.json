@@ -30,19 +30,20 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.0",
     "@pro/hooks": "workspace:*",
-    "@pro/utils": "workspace:*",
-    "@pro/themes": "workspace:*"
+    "@pro/themes": "workspace:*",
+    "@pro/utils": "workspace:*"
   },
   "peerDependencies": {
-    "vue": ">=3.4.0",
-    "element-plus": ">=2.9.0"
+    "element-plus": ">=2.9.0",
+    "vue": ">=3.4.0"
   },
   "devDependencies": {
-    "vitest": "^2.0.0",
     "@vue/test-utils": "^2.4.0",
-    "vue": "^3.5.0",
     "element-plus": "^2.9.0",
-    "happy-dom": "^15.0.0"
+    "happy-dom": "^15.0.0",
+    "vitest": "^2.0.0",
+    "vue": "^3.5.0"
   }
 }

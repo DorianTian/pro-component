@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, type PropType } from 'vue'
+import { ArrowDown, ArrowUp } from '@element-plus/icons-vue'
 import { useValueType, useProLocale } from '@pro/hooks'
 
 import type { ProColumnDef, SearchConfig } from '../types'

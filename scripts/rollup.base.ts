@@ -52,6 +52,7 @@ function resolveBuildContext(config: PackageConfig): ResolvedBuildContext {
       'vue',
       'vue-i18n',
       'element-plus',
+      '@element-plus/icons-vue',
       'dayjs',
       'dayjs/plugin/relativeTime',
       'dayjs/locale/zh-cn',

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, inject, computed, type PropType, type VNode } from 'vue'
+import { Refresh, DCaret, Setting, FullScreen } from '@element-plus/icons-vue'
 import { useProLocale } from '@pro/hooks'
 
 import type { ToolbarConfig, DensitySize } from '../types'

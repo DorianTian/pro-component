@@ -226,6 +226,7 @@ export function useProTableInternal(
         internalPagination.setTotal(newData.length)
       }
     },
+    { immediate: true },
   )
 
   onMounted(() => {

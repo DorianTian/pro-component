@@ -128,7 +128,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^2.0.0
-        version: 2.1.9(@types/node@25.5.0)(happy-dom@15.11.7)
+        version: 2.1.9(@types/node@25.5.0)(jsdom@25.0.1)
 
   cdn/loader:
     devDependencies:
@@ -327,6 +327,9 @@ importers:
 
   packages/pro-table:
     dependencies:
+      '@element-plus/icons-vue':
+        specifier: ^2.3.0
+        version: 2.3.2(vue@3.5.31)
       '@pro/hooks':
         specifier: workspace:*
         version: link:../hooks
@@ -370,7 +373,7 @@ importers:
         version: 6.4.1(@types/node@25.5.0)(tsx@4.21.0)
       vitest:
         specifier: ^2.0.0
-        version: 2.1.9(@types/node@25.5.0)(happy-dom@15.11.7)
+        version: 2.1.9(@types/node@25.5.0)(jsdom@25.0.1)
 
   platform/server:
     dependencies:

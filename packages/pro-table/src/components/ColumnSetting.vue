@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, inject, watch, onMounted, type PropType } from 'vue'
+import { Rank, Back, Right } from '@element-plus/icons-vue'
 import { useProLocale } from '@pro/hooks'
 
 import { COLUMN_SETTING_INJECTION_KEY } from '../constants'
