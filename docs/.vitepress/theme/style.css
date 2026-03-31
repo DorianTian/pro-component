@@ -56,10 +56,13 @@
  * and alternating row backgrounds — all of which break el-table's internal layout
  * since el-table renders header and body as SEPARATE <table> elements. */
 
-/* Reset VitePress table display/layout overrides.
- * !important is necessary — VitePress injects its default theme CSS at runtime,
- * and load order varies between dev/build. This is docs-only CSS, not shipped. */
-.vp-doc .vitepress-demo-plugin__preview table,
+/* Surgical VitePress table style reset for demo previews.
+ * Only undo the specific VitePress properties that break el-table.
+ * Do NOT reset padding/background/font — Element Plus handles those
+ * with higher-specificity selectors (.el-table__cell etc.) */
+
+/* Fix the critical one: VitePress sets display:block on all tables,
+ * which breaks el-table's separate header/body <table> elements */
 .vp-doc .vp-raw table {
   display: table !important;
   margin: 0 !important;
@@ -68,34 +71,22 @@
   border-collapse: separate !important;
   border-spacing: 0 !important;
   overflow: visible !important;
-  width: 100% !important;
 }
 
-/* Reset VitePress th/td styling */
-.vp-doc .vitepress-demo-plugin__preview th,
-.vp-doc .vitepress-demo-plugin__preview td,
+/* Remove VitePress row top-borders (the orange/colored bars) */
+.vp-doc .vp-raw tr {
+  border-top: none !important;
+}
+
+/* Remove VitePress zebra striping (the blue alternating rows) */
+.vp-doc .vp-raw tr:nth-child(2n) {
+  background-color: transparent !important;
+}
+
+/* Remove VitePress cell borders — let El Plus .el-table__cell handle borders */
 .vp-doc .vp-raw th,
 .vp-doc .vp-raw td {
   border: none !important;
-  padding: 0 !important;
-  background: none !important;
-  font-weight: inherit !important;
-  font-size: inherit !important;
-  color: inherit !important;
-  white-space: normal !important;
-}
-
-/* Reset VitePress tr striping and borders */
-.vp-doc .vitepress-demo-plugin__preview tr,
-.vp-doc .vp-raw tr {
-  border: none !important;
-  background: none !important;
-  transition: none !important;
-}
-
-.vp-doc .vitepress-demo-plugin__preview tr:nth-child(2n),
-.vp-doc .vp-raw tr:nth-child(2n) {
-  background: none !important;
 }
 
 /* Ensure pro-table fills container without overflow */
