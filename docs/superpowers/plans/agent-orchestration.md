@@ -228,32 +228,22 @@ pnpm test                     # all unit/integration tests pass
 pnpm validate-build           # build output validation
 ```
 
-Then dispatch **Reviewer Agent**:
+Then dispatch **Automated Reviewer Agent** (uses the full reviewer prompt template from `supervisor-agent.md`):
 
 ```
-Coordinator review dispatch:
+Dispatch with: subagent_type: "superpowers:code-reviewer", run_in_background: true
+Use the "Automated Reviewer Agent" prompt from supervisor-agent.md.
 
-You are the Code Review Agent for Phase 2.
+Phase 2 specific cross-checks (append to standard reviewer prompt):
+- ProFormField uses CONTROL_REGISTRY from @pro/hooks (no hardcoded switch/case)
+- useProForm calls el-form.validate() in submit() — validation is mandatory
+- Grayscale evaluator has precedence over pinned versions in semver resolver
+- useProLocale() used in all components, no direct vue-i18n import
+- @pro/locale messages complete (en-US and zh-CN key parity)
 
-1. Run: git diff main..HEAD --stat (see all changed files)
-2. Read: CLAUDE.md for code standards
-3. Read: docs/superpowers/specs/2026-03-31-pro-components-design.md (Section 4: API Design)
-4. For each package changed, verify:
-   a. Type safety: grep for `any` in src/ — should be zero occurrences
-   b. File lengths: no file over 400 lines
-   c. Function lengths: no function over 50 lines
-   d. Exports: no default exports in .ts files
-   e. Tests exist and pass for all exported functions
-   f. JSDoc on all exported interfaces/functions
-   g. No console.log/warn/error in src/ (only in test files)
-5. Run: pnpm lint — must pass with zero warnings
-6. Cross-check critical integration points:
-   a. ProFormField uses CONTROL_REGISTRY from @pro/hooks (no hardcoded switch/case)
-   b. useProForm calls el-form.validate() in submit() — validation is mandatory, not skippable
-   c. Grayscale evaluator has precedence over pinned versions in semver resolver
-   d. All catch blocks use (error: unknown) + instanceof narrowing — no bare catch(e)
-   e. Verify: No `any` in any src/ files (grep -r 'any' packages/*/src/ platform/*/src/)
-7. Report findings. Fix any issues found.
+IMPORTANT: Reviewer auto-invokes /expert-team for architecture divergences.
+Supervisor waits for reviewer verdict before advancing to Phase 3.
+BLOCK verdict → pause and notify Dorian.
 ```
 
 ---
@@ -321,19 +311,19 @@ pnpm docs:build
 pnpm test
 ```
 
-Then dispatch Reviewer Agent (same pattern as Phase 2, plus these Phase 3 cross-checks):
+Then dispatch **Automated Reviewer Agent** (standard prompt from `supervisor-agent.md`, plus Phase 3 cross-checks):
 
 ```
-Additional Phase 3 reviewer cross-checks:
-- Cross-check: ProFormField uses CONTROL_REGISTRY from @pro/hooks (no hardcoded switch)
-- Cross-check: useProForm calls el-form.validate() in submit()
-- Cross-check: Grayscale evaluator has precedence over pinned versions
-- Cross-check: All catch blocks use (error: unknown) + instanceof
-- Verify: No `any` in any src/ files
+Phase 3 specific cross-checks (append to standard reviewer prompt):
 - CDN-specific: bundle.ts does NOT use require() — uses fs.readFile + JSON.parse
 - CDN-specific: (window as any) replaced with extended Window interface in global.d.ts
 - CDN-specific: SW uses atomic cache groups (Cache.addAll not individual Cache.put)
 - CDN-specific: isValidImportMapResponse type guard exists and is used
+- VitePress: both en/ and zh/ locale directories have matching page structure
+- CDN: import map template includes vue-i18n entry
+
+IMPORTANT: Reviewer auto-invokes /expert-team for architecture divergences.
+BLOCK verdict → pause and notify Dorian.
 ```
 
 ---
@@ -372,20 +362,27 @@ After completion:
 
 **Phase 4 completion gate**: All workflows valid, scripts type-check.
 
-Final Reviewer dispatch covers the entire project with these mandatory cross-checks:
+Final **Automated Reviewer Agent** dispatch covers the entire project (standard prompt from `supervisor-agent.md`, plus final cross-checks):
 
 ```
-Final Reviewer cross-checks (ALL phases):
-- Cross-check: ProFormField uses CONTROL_REGISTRY from @pro/hooks (no hardcoded switch)
-- Cross-check: useProForm calls el-form.validate() in submit()
-- Cross-check: Grayscale evaluator has precedence over pinned versions
-- Cross-check: All catch blocks use (error: unknown) + instanceof
-- Verify: No `any` in any src/ files (grep -rn 'any' packages/*/src/ platform/*/src/ cdn/src/ scripts/)
-- Verify: No `export default` in .ts files (grep -rn 'export default' --include='*.ts' --exclude='*.vue')
-- Verify: No raw console.log/warn/error in production code
-- Verify: All CI scripts import from scripts/ci/logger.ts
-- Verify: rollback.yml uses environment: production
-- Verify: release.yml npm-publish and cdn-sync use environment: production
+Final reviewer cross-checks (ALL phases, append to standard prompt):
+- ProFormField uses CONTROL_REGISTRY from @pro/hooks (no hardcoded switch)
+- useProForm calls el-form.validate() in submit()
+- Grayscale evaluator has precedence over pinned versions
+- All catch blocks use (error: unknown) + instanceof
+- No `any` in any src/ files (grep -rn 'any' packages/*/src/ platform/*/src/ cdn/src/ scripts/)
+- No `export default` in .ts files (grep -rn 'export default' --include='*.ts' --exclude='*.vue')
+- No raw console.log/warn/error in production code
+- All CI scripts import from scripts/ci/logger.ts
+- rollback.yml uses environment: production
+- release.yml npm-publish and cdn-sync use environment: production
+- i18n: full key parity between en-US and zh-CN in @pro/locale AND platform/web/src/locale
+- i18n: ProConfigProvider wraps ElConfigProvider and syncs locale + dayjs
+- i18n: VitePress en/ and zh/ directories have matching structure
+
+IMPORTANT: This is the final quality gate before project completion.
+Reviewer MUST invoke /expert-team for any architecture concerns.
+BLOCK verdict → Dorian must approve before declaring project complete.
 ```
 
 ---
