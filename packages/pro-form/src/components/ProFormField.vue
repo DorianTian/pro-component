@@ -1,22 +1,9 @@
 <script setup lang="ts">
 import { computed, h, defineComponent } from 'vue'
-import {
-  ElFormItem,
-  ElInput,
-  ElInputNumber,
-  ElSelect,
-  ElOption,
-  ElDatePicker,
-  ElSwitch,
-  ElRadioGroup,
-  ElRadio,
-  ElCheckboxGroup,
-  ElCheckbox,
-  ElTooltip,
-  ElIcon,
-} from 'element-plus'
+import { ElFormItem, ElInput, ElOption, ElRadio, ElCheckbox, ElTooltip, ElIcon } from 'element-plus'
+import { CONTROL_REGISTRY } from '@pro/hooks'
 
-import type { Component, VNode } from 'vue'
+import type { VNode } from 'vue'
 import type { ProFieldDef } from '@pro/utils'
 
 defineOptions({ name: 'ProFormField' })
@@ -30,34 +17,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:modelValue': [value: unknown]
 }>()
-
-/**
- * Placeholder control registry — will be replaced by CONTROL_REGISTRY
- * import from @pro/hooks once Agent 2a completes.
- * Architecture is correct: single source of truth for valueType → component mapping.
- */
-interface ControlEntry {
-  component: Component
-  defaultProps?: Record<string, unknown>
-}
-
-const FALLBACK_CONTROL_REGISTRY: Partial<Record<string, ControlEntry>> = {
-  text: { component: ElInput, defaultProps: { clearable: true } },
-  textarea: { component: ElInput, defaultProps: { type: 'textarea', rows: 3 } },
-  number: { component: ElInputNumber, defaultProps: { controlsPosition: 'right' } },
-  money: { component: ElInputNumber, defaultProps: { controlsPosition: 'right', precision: 2 } },
-  percent: {
-    component: ElInputNumber,
-    defaultProps: { controlsPosition: 'right', min: 0, max: 100 },
-  },
-  select: { component: ElSelect, defaultProps: { clearable: true } },
-  date: { component: ElDatePicker, defaultProps: { type: 'date' } },
-  dateRange: { component: ElDatePicker, defaultProps: { type: 'daterange' } },
-  dateTime: { component: ElDatePicker, defaultProps: { type: 'datetime' } },
-  switch: { component: ElSwitch },
-  radio: { component: ElRadioGroup },
-  checkbox: { component: ElCheckboxGroup },
-}
 
 const computedFieldProps = computed(() => {
   const base = props.field.fieldProps ?? {}
@@ -127,14 +86,7 @@ const FieldControl = defineComponent({
         return field.renderFormItem(modelValue, handleUpdate)
       }
 
-      const entry = FALLBACK_CONTROL_REGISTRY[field.valueType ?? 'text']
-      if (!entry) {
-        return h(ElInput, {
-          modelValue: modelValue as string | number | null,
-          'onUpdate:modelValue': handleUpdate,
-          clearable: true,
-        })
-      }
+      const entry = CONTROL_REGISTRY[field.valueType ?? 'text']
 
       const resolvedProps: Record<string, unknown> = {
         ...entry.defaultProps,

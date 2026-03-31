@@ -3,16 +3,22 @@ import { ProTable } from '@pro/table'
 import { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter } from '@pro/form'
 import { ProDescriptions } from '@pro/descriptions'
 import { checkDependencies } from '@pro/utils'
+import ProConfigProvider from './pro-config-provider.vue'
 
 import type { App } from 'vue'
 
 export { ProTable } from '@pro/table'
 export { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter } from '@pro/form'
 export { ProDescriptions } from '@pro/descriptions'
+export { ProConfigProvider }
 
 // Composables
 export { useProForm, useModalForm, useDrawerForm, useStepsForm } from '@pro/form'
 export { useProDescriptions } from '@pro/descriptions'
+
+// i18n
+export { useProLocale, resolveMessage, PRO_LOCALE_KEY } from '@pro/hooks'
+export type { ProLocaleContext, I18nLike } from '@pro/hooks'
 
 // Utils
 export { checkDependencies } from '@pro/utils'
@@ -26,6 +32,7 @@ const components = [
   StepsForm,
   QueryFilter,
   ProDescriptions,
+  ProConfigProvider,
 ]
 
 export const proComponentsPlugin = {
