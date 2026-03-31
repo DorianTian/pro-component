@@ -6,17 +6,16 @@
 /* ---- Layout: widen content area for table demos ---- */
 
 :root {
-  --vp-layout-max-width: 1440px;
+  --vp-layout-max-width: 1680px;
+}
+
+/* Widen the content area — default ~688px is too narrow for table demos */
+.VPDoc .content-container {
+  max-width: 1280px !important;
 }
 
 .vp-doc.container {
-  max-width: 1080px !important;
-}
-
-/* Widen the content area — default is too narrow for table demos */
-.VPDoc .content-container {
-  max-width: 1080px !important;
-  min-width: 820px;
+  max-width: 1280px !important;
 }
 
 /* ---- Brand tokens ---- */

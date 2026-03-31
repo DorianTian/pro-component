@@ -70,6 +70,16 @@ const hasCollapsibleOverflow = computed(() => {
   return searchableColumns.value.length >= itemsPerRow
 })
 
+/** Push action column to the right end of the last row */
+const actionOffset = computed(() => {
+  const itemsPerRow = Math.floor(GRID_COLUMNS / span.value)
+  const fieldCount = visibleColumns.value.length
+  const fieldsInLastRow = fieldCount % itemsPerRow
+  const slotsBeforeAction = fieldsInLastRow === 0 ? 0 : fieldsInLastRow
+  const emptySlots = itemsPerRow - slotsBeforeAction - 1
+  return Math.max(0, emptySlots) * span.value
+})
+
 function getColumnSearchConfig(col: ProColumnDef) {
   const valueType = col.valueType ?? 'text'
   return getSearchConfig(valueType)
@@ -145,7 +155,7 @@ function toggleCollapse(): void {
         </el-col>
 
         <!-- Action buttons — always right-aligned -->
-        <el-col :span="span" class="pro-query-filter__actions">
+        <el-col :span="span" :offset="actionOffset" class="pro-query-filter__actions">
           <el-form-item label=" ">
             <el-button
               type="primary"
@@ -227,7 +237,6 @@ function toggleCollapse(): void {
 
 .pro-query-filter__actions :deep(.el-form-item__content) {
   justify-content: flex-end;
-  flex-wrap: nowrap;
   gap: var(--pro-space-3);
 }
 
