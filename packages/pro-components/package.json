@@ -1,0 +1,37 @@
+{
+  "name": "@pro/pro-components",
+  "version": "0.0.1",
+  "description": "All Pro Components in one package",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.mjs",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./style": "./dist/style/index.css"
+  },
+  "sideEffects": ["dist/style/**"],
+  "files": ["dist"],
+  "scripts": {
+    "build": "rollup -c rollup.config.ts --configPlugin typescript",
+    "build:dts": "vue-tsc --declaration --emitDeclarationOnly --outDir dist/types",
+    "type-check": "vue-tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@pro/table": "workspace:*",
+    "@pro/form": "workspace:*",
+    "@pro/descriptions": "workspace:*",
+    "@pro/hooks": "workspace:*",
+    "@pro/utils": "workspace:*",
+    "@pro/themes": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": ">=3.4.0",
+    "element-plus": ">=2.9.0"
+  }
+}

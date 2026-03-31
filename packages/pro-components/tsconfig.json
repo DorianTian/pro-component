@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "baseUrl": ".",
+    "composite": true
+  },
+  "include": ["src/**/*.ts"],
+  "references": [
+    { "path": "../pro-table" },
+    { "path": "../pro-form" },
+    { "path": "../pro-descriptions" },
+    { "path": "../hooks" },
+    { "path": "../utils" },
+    { "path": "../themes" }
+  ]
+}
