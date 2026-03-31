@@ -125,9 +125,9 @@ const state = useProTableInternal(
       @reload="state.handleReload"
     >
       <template #columnSetting>
-        <ColumnSetting v-model:visible="state.showColumnSettingPanel.value">
+        <ColumnSetting>
           <el-tooltip content="Column Settings" placement="top">
-            <span class="pro-toolbar__icon" @click="state.handleToggleColumnSetting">
+            <span class="pro-toolbar__icon">
               <el-icon :size="18"><Setting /></el-icon>
             </span>
           </el-tooltip>

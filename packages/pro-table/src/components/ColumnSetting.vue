@@ -8,20 +8,12 @@ import { COLUMN_SETTING_INJECTION_KEY } from '../constants'
 defineOptions({ name: 'ProColumnSetting' })
 
 const props = defineProps({
-  visible: {
-    type: Boolean,
-    default: false,
-  },
   /** When provided, column visibility/order persists to localStorage under this key */
   persistKey: {
     type: String as PropType<string | undefined>,
     default: undefined,
   },
 })
-
-const emit = defineEmits<{
-  'update:visible': [value: boolean]
-}>()
 
 const { t } = useProLocale()
 const columnSettingCtx = inject(COLUMN_SETTING_INJECTION_KEY, null)
@@ -164,11 +156,10 @@ watch(
 
 <template>
   <el-popover
-    :visible="visible"
     placement="bottom-end"
     :width="280"
-    trigger="manual"
-    @update:visible="emit('update:visible', $event)"
+    trigger="click"
+    popper-class="pro-column-setting-popover"
   >
     <template #reference>
       <slot />
@@ -239,15 +230,16 @@ watch(
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 8px;
+  padding-bottom: var(--pro-spacing-sm, 8px);
   border-bottom: 1px solid var(--el-border-color-lighter);
-  margin-bottom: 8px;
+  margin-bottom: var(--pro-spacing-sm, 8px);
 }
 
 .pro-column-setting__item {
   display: flex;
   align-items: center;
-  padding: 4px 0;
+  padding: var(--pro-spacing-xs, 4px) 0;
+  border-radius: var(--pro-radius-sm, 4px);
   cursor: move;
 }
 
@@ -256,7 +248,7 @@ watch(
 }
 
 .pro-column-setting__drag-handle {
-  margin-right: 8px;
+  margin-right: var(--pro-spacing-sm, 8px);
   cursor: grab;
   color: var(--el-text-color-placeholder);
 }
@@ -264,13 +256,18 @@ watch(
 .pro-column-setting__fixed {
   margin-left: auto;
   display: flex;
-  gap: 4px;
+  gap: var(--pro-spacing-xs, 4px);
 }
 
 .pro-column-setting__fixed .el-icon {
   cursor: pointer;
   color: var(--el-text-color-placeholder);
   font-size: 14px;
+  transition: color var(--pro-transition-duration, 0.2s);
+}
+
+.pro-column-setting__fixed .el-icon:hover {
+  color: var(--el-color-primary);
 }
 
 .pro-column-setting__fixed .el-icon.is-active {
