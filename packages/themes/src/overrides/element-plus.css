@@ -1,0 +1,56 @@
+/* Pro Components — Element Plus Variable Override Map
+ * Maps --pro-* semantic tokens → --el-* variables.
+ * When a user imports @pro/themes, the entire app (including raw EP components)
+ * gets the Soft Lavender visual upgrade. */
+
+:root {
+  /* ---- Primary Color ---- */
+  --el-color-primary: var(--pro-color-primary);
+  --el-color-primary-light-3: #a99aef;
+  --el-color-primary-light-5: #bdb2f3;
+  --el-color-primary-light-7: #d6d0f7;
+  --el-color-primary-light-8: #e4e0f9;
+  --el-color-primary-light-9: var(--pro-color-primary-light);
+  --el-color-primary-dark-2: var(--pro-color-primary-hover);
+
+  /* ---- Semantic Colors ---- */
+  --el-color-success: var(--pro-color-success);
+  --el-color-warning: var(--pro-color-warning);
+  --el-color-danger: var(--pro-color-danger);
+  --el-color-info: var(--pro-color-info);
+
+  /* ---- Backgrounds ---- */
+  --el-bg-color: var(--pro-bg-elevated);
+  --el-bg-color-page: var(--pro-bg-base);
+  --el-bg-color-overlay: var(--pro-bg-elevated);
+  --el-fill-color-lighter: var(--pro-bg-sunken);
+
+  /* ---- Borders ---- */
+  --el-border-color: var(--pro-border-default);
+  --el-border-color-light: var(--pro-border-light);
+  --el-border-color-lighter: var(--pro-border-light);
+
+  /* ---- Text ---- */
+  --el-text-color-primary: var(--pro-text-primary);
+  --el-text-color-regular: var(--pro-text-secondary);
+  --el-text-color-secondary: var(--pro-text-tertiary);
+  --el-text-color-placeholder: var(--pro-text-tertiary);
+  --el-text-color-disabled: var(--pro-text-disabled);
+
+  /* ---- Shape ---- */
+  --el-border-radius-base: var(--pro-radius-sm);
+  --el-border-radius-small: var(--pro-radius-xs);
+  --el-border-radius-round: var(--pro-radius-pill);
+
+  /* ---- Typography ---- */
+  --el-font-family: var(--pro-font-family);
+  --el-font-size-base: var(--pro-text-base);
+  --el-font-size-small: var(--pro-text-sm);
+  --el-font-size-extra-small: var(--pro-text-xs);
+
+  /* ---- Shadows ---- */
+  --el-box-shadow: var(--pro-shadow-sm);
+  --el-box-shadow-light: var(--pro-shadow-md);
+  --el-box-shadow-lighter: var(--pro-shadow-sm);
+  --el-box-shadow-dark: var(--pro-shadow-lg);
+}

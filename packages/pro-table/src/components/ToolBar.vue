@@ -125,36 +125,36 @@ function handleToggleFullscreen(): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--pro-spacing-md, 16px) 0;
+  padding: var(--pro-space-5) 0;
 }
 
 .pro-toolbar__title {
-  font-size: var(--pro-font-size-lg, 16px);
-  font-weight: var(--pro-font-weight-semibold, 600);
-  color: var(--el-text-color-primary, #303133);
-  line-height: var(--pro-line-height-base, 1.5715);
+  font-size: var(--pro-text-lg);
+  font-weight: var(--pro-font-weight-semibold);
+  color: var(--pro-text-primary);
+  line-height: var(--pro-line-height-base);
 }
 
 .pro-toolbar__actions {
   display: flex;
   align-items: center;
-  gap: var(--pro-spacing-xs, 4px);
+  gap: var(--pro-space-1);
 }
 
 .pro-toolbar__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--pro-toolbar-icon-size, 32px);
-  height: var(--pro-toolbar-icon-size, 32px);
-  border-radius: var(--pro-radius-sm, 4px);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--pro-radius-sm);
   cursor: pointer;
-  color: var(--el-text-color-secondary, #909399);
-  transition: all var(--pro-transition-duration, 0.2s) var(--pro-transition-easing, ease);
+  color: var(--pro-text-tertiary);
+  transition: all var(--pro-transition-fast);
 }
 
 .pro-toolbar__icon:hover {
-  color: var(--el-color-primary, #409eff);
-  background: var(--pro-toolbar-icon-hover-bg, var(--el-fill-color-light, #f5f7fa));
+  color: var(--pro-color-primary);
+  background: var(--pro-bg-sunken);
 }
 </style>

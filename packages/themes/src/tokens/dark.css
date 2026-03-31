@@ -1,0 +1,35 @@
+/* Pro Components — Dark Mode Token Overrides (P2)
+ * Structure ready now. Component code needs zero changes when dark mode ships.
+ * Activated by ProConfigProvider theme="dark" → sets data-theme="dark" on root. */
+
+[data-theme='dark'] {
+  /* Text */
+  --pro-text-primary: #e4e4ec;
+  --pro-text-secondary: #9e9eae;
+  --pro-text-tertiary: #6e6e80;
+  --pro-text-disabled: #4e4e5e;
+  --pro-text-inverse: #1e1e2e;
+
+  /* Surfaces */
+  --pro-bg-base: #16161e;
+  --pro-bg-elevated: #1e1e2e;
+  --pro-bg-sunken: #12121a;
+  --pro-bg-overlay: rgba(0, 0, 0, 0.6);
+
+  /* Borders */
+  --pro-border-default: #2e2e3e;
+  --pro-border-light: #252535;
+
+  /* Shadows (darker, more opaque for dark surfaces) */
+  --pro-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --pro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.2);
+  --pro-shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  /* Scrollbar */
+  --pro-scrollbar-thumb: #3e3e4e;
+  --pro-scrollbar-thumb-hover: #5e5e6e;
+
+  /* Primary color adjustments for dark backgrounds */
+  --pro-color-primary-light: #2a2540;
+  --pro-color-primary-ultra-light: #1e1a30;
+}

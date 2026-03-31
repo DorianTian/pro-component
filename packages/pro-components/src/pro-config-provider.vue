@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, getCurrentInstance, onMounted, provide, watch } from 'vue'
+import { computed, getCurrentInstance, onMounted, provide, ref, watch, watchEffect } from 'vue'
 import { ElConfigProvider } from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import en from 'element-plus/es/locale/lang/en'
@@ -76,10 +76,38 @@ const t: ProLocaleContext['t'] = i18n
   : (key, params) => resolveMessage(messages.value, key, params)
 
 provide(PRO_LOCALE_KEY, { t, locale: currentLocale })
+
+const rootRef = ref<HTMLDivElement>()
+
+// Bridge Vue reactivity → DOM attributes for CSS token system
+watchEffect(() => {
+  const el = rootRef.value
+  if (!el) return
+  el.dataset.theme = props.theme
+  el.dataset.density = props.density
+})
+
+// Provide density + theme for child component access
+provide(
+  'pro-density',
+  computed(() => props.density),
+)
+provide(
+  'pro-theme',
+  computed(() => props.theme),
+)
 </script>
 
 <template>
-  <ElConfigProvider :locale="elLocale">
-    <slot />
-  </ElConfigProvider>
+  <div ref="rootRef" class="pro-config-provider">
+    <ElConfigProvider :locale="elLocale">
+      <slot />
+    </ElConfigProvider>
+  </div>
 </template>
+
+<style scoped>
+.pro-config-provider {
+  display: contents;
+}
+</style>

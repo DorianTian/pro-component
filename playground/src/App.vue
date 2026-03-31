@@ -204,48 +204,48 @@ async function fetchUsers(params: RequestParams): Promise<RequestResult> {
 <style>
 body {
   margin: 0;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background: var(--el-bg-color-page, #f0f2f5);
-  color: var(--el-text-color-primary, #303133);
+  font-family: var(--pro-font-family);
+  background: var(--pro-bg-base);
+  color: var(--pro-text-primary);
   -webkit-font-smoothing: antialiased;
 }
 
 .app-header {
   display: flex;
   align-items: baseline;
-  gap: 12px;
-  padding: 16px 24px;
-  background: var(--el-bg-color, #fff);
-  border-bottom: 1px solid var(--el-border-color-lighter, #e8e8e8);
+  gap: var(--pro-space-4);
+  padding: var(--pro-space-5) var(--pro-space-7);
+  background: var(--pro-bg-elevated);
+  border-bottom: 1px solid var(--pro-border-light);
 }
 .app-header h1 {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: var(--pro-text-lg);
+  font-weight: var(--pro-font-weight-bold);
 }
 .app-header__sub {
-  font-size: 13px;
-  color: var(--el-text-color-secondary, #909399);
+  font-size: var(--pro-text-sm);
+  color: var(--pro-text-tertiary);
 }
 
 .app-content {
-  padding: 20px 24px;
+  padding: var(--pro-space-6) var(--pro-space-7);
   max-width: 1400px;
   margin: 0 auto;
 }
 
 .card {
-  background: var(--el-bg-color, #fff);
-  border-radius: var(--el-border-radius-base, 4px);
-  padding: 0 20px 16px;
-  border: 1px solid var(--el-border-color-lighter, #ebeef5);
+  background: var(--pro-bg-elevated);
+  border-radius: var(--pro-radius-lg);
+  padding: 0 var(--pro-space-6) var(--pro-space-5);
+  border: 1px solid var(--pro-border-light);
+  box-shadow: var(--pro-shadow-sm);
 }
 
 .section-title {
-  margin: 24px 0 12px;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--el-text-color-primary, #303133);
+  margin: var(--pro-space-7) 0 var(--pro-space-4);
+  font-size: var(--pro-text-lg);
+  font-weight: var(--pro-font-weight-semibold);
+  color: var(--pro-text-primary);
 }
 </style>

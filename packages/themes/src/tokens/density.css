@@ -1,0 +1,34 @@
+/* Pro Components — Density Scale Tokens
+ * Controlled by ProConfigProvider via data-density attribute.
+ * Three levels: compact (information-dense), default, relaxed (breathing room). */
+
+:root,
+[data-density='default'] {
+  --pro-density-row-height: 44px;
+  --pro-density-cell-padding-v: 10px;
+  --pro-density-cell-padding-h: 16px;
+  --pro-density-input-height: 36px;
+  --pro-density-btn-height: 36px;
+  --pro-density-form-gap: 16px;
+  --pro-density-font-size: 13px;
+}
+
+[data-density='compact'] {
+  --pro-density-row-height: 36px;
+  --pro-density-cell-padding-v: 6px;
+  --pro-density-cell-padding-h: 12px;
+  --pro-density-input-height: 28px;
+  --pro-density-btn-height: 28px;
+  --pro-density-form-gap: 8px;
+  --pro-density-font-size: 12px;
+}
+
+[data-density='relaxed'] {
+  --pro-density-row-height: 52px;
+  --pro-density-cell-padding-v: 14px;
+  --pro-density-cell-padding-h: 20px;
+  --pro-density-input-height: 40px;
+  --pro-density-btn-height: 40px;
+  --pro-density-form-gap: 20px;
+  --pro-density-font-size: 14px;
+}

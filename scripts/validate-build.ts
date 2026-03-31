@@ -113,10 +113,10 @@ function validateCssOutput(pkgDir: string, pkgName: string): string[] {
   const errors: string[] = []
   const styleDir = resolve(pkgDir, 'dist', 'style')
   const hasSrcStyle = existsSync(resolve(pkgDir, 'src', 'style'))
-  const hasVariablesCss = existsSync(resolve(pkgDir, 'src', 'variables.css'))
+  const hasBaseCss = existsSync(resolve(pkgDir, 'src', 'base.css'))
   const isThemePackage = pkgName.startsWith('@pro/themes')
 
-  if (hasSrcStyle || hasVariablesCss || isThemePackage) {
+  if (hasSrcStyle || hasBaseCss || isThemePackage) {
     if (!existsSync(styleDir)) {
       errors.push(`${pkgName}: missing dist/style/ directory`)
     } else {

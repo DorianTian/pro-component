@@ -12,10 +12,12 @@
       "require": "./dist/cjs/index.js",
       "types": "./dist/types/index.d.ts"
     },
-    "./style": "./dist/style/index.css"
+    "./css": "./dist/esm/index.css",
+    "./css/*": "./dist/esm/*"
   },
   "sideEffects": [
-    "dist/style/**"
+    "*.css",
+    "dist/**/*.css"
   ],
   "files": [
     "dist"

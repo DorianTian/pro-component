@@ -182,12 +182,12 @@ function toggleCollapse(): void {
 
 <style scoped>
 .pro-query-filter {
-  padding: var(--pro-spacing-lg, 24px) var(--pro-spacing-lg, 24px) 0;
-  border-bottom: 1px solid var(--el-border-color-lighter, #ebeef5);
+  padding: var(--pro-space-7) var(--pro-space-7) 0;
+  border-bottom: 1px solid var(--pro-border-light);
 }
 
 .pro-query-filter :deep(.el-form-item) {
-  margin-bottom: var(--pro-spacing-lg, 24px);
+  margin-bottom: var(--pro-space-7);
 }
 
 .pro-query-filter :deep(.el-form-item__content) {
@@ -202,14 +202,14 @@ function toggleCollapse(): void {
 /* Focus ring — aligned with reference design */
 .pro-query-filter :deep(.el-input__wrapper:focus-within) {
   box-shadow:
-    0 0 0 1px var(--el-color-primary, #409eff),
-    var(--pro-search-form-input-focus-shadow, 0 0 0 3px rgba(64, 158, 255, 0.12)) !important;
+    0 0 0 1px var(--pro-color-primary),
+    var(--pro-shadow-focus) !important;
 }
 
 .pro-query-filter :deep(.el-select .el-input__wrapper:focus-within) {
   box-shadow:
-    0 0 0 1px var(--el-color-primary, #409eff),
-    var(--pro-search-form-input-focus-shadow, 0 0 0 3px rgba(64, 158, 255, 0.12)) !important;
+    0 0 0 1px var(--pro-color-primary),
+    var(--pro-shadow-focus) !important;
 }
 
 .pro-query-filter__actions {
@@ -221,6 +221,6 @@ function toggleCollapse(): void {
 }
 
 .pro-query-filter__collapse-icon {
-  margin-left: var(--pro-spacing-xs, 4px);
+  margin-left: var(--pro-space-1);
 }
 </style>

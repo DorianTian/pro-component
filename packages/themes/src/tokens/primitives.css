@@ -1,0 +1,69 @@
+/* Pro Components — Primitive Design Tokens
+ * Raw values: colors, spacing scale, radius, typography.
+ * These are the building blocks — semantic tokens reference these. */
+
+:root {
+  /* ---- Color: Primary (Lavender) ---- */
+  --pro-color-primary: #7c6ce7;
+  --pro-color-primary-hover: #6b5bd6;
+  --pro-color-primary-active: #5a4bc5;
+  --pro-color-primary-light: #f0edfb;
+  --pro-color-primary-ultra-light: #f8f7fd;
+
+  /* ---- Color: Semantic ---- */
+  --pro-color-success: #45b080;
+  --pro-color-success-light: #e8f5ee;
+  --pro-color-warning: #e5a336;
+  --pro-color-warning-light: #fdf4e4;
+  --pro-color-danger: #e05555;
+  --pro-color-danger-light: #fce8e8;
+  --pro-color-info: #6e6e80;
+  --pro-color-info-light: #f0f0f5;
+
+  /* ---- Spacing (10-step scale) ---- */
+  --pro-space-1: 4px;
+  --pro-space-2: 6px;
+  --pro-space-3: 8px;
+  --pro-space-4: 12px;
+  --pro-space-5: 16px;
+  --pro-space-6: 20px;
+  --pro-space-7: 24px;
+  --pro-space-8: 32px;
+  --pro-space-9: 40px;
+  --pro-space-10: 48px;
+
+  /* ---- Border Radius (layered: container → control → micro) ---- */
+  --pro-radius-xl: 16px;
+  --pro-radius-lg: 12px;
+  --pro-radius-md: 8px;
+  --pro-radius-sm: 6px;
+  --pro-radius-xs: 4px;
+  --pro-radius-pill: 20px;
+  --pro-radius-full: 50%;
+
+  /* ---- Typography: Font Stack ---- */
+  --pro-font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, 'Noto Sans SC', sans-serif;
+  --pro-font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Noto Sans Mono', monospace;
+
+  /* ---- Typography: Size Scale ---- */
+  --pro-text-xl: 24px;
+  --pro-text-lg: 16px;
+  --pro-text-md: 15px;
+  --pro-text-base: 14px;
+  --pro-text-sm: 13px;
+  --pro-text-xs: 12px;
+  --pro-text-xxs: 11px;
+  --pro-text-micro: 10px;
+
+  /* ---- Typography: Weight ---- */
+  --pro-font-weight-normal: 400;
+  --pro-font-weight-medium: 500;
+  --pro-font-weight-semibold: 600;
+  --pro-font-weight-bold: 700;
+
+  /* ---- Typography: Line Height ---- */
+  --pro-line-height-tight: 1.25;
+  --pro-line-height-base: 1.5;
+  --pro-line-height-relaxed: 1.75;
+}

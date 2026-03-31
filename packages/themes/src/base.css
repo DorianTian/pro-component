@@ -1,0 +1,14 @@
+/* Pro Components — Cascade Layer Order Declaration
+ * Must be the first CSS loaded to establish layer priority.
+ * Unlayered consumer styles automatically win over all layers. */
+@layer pro.reset, pro.tokens, pro.el-overrides, pro.components;
+
+/* Reduced motion: disable all pro transitions when user prefers */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --pro-transition-fast: 0ms;
+    --pro-transition-normal: 0ms;
+    --pro-transition-bounce: 0ms;
+    --pro-transition-slow: 0ms;
+  }
+}

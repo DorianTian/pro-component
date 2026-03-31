@@ -1,0 +1,42 @@
+/* Pro Components — Semantic Design Tokens
+ * Contextual tokens that reference primitives.
+ * Dark mode overrides swap these values — component code stays unchanged. */
+
+:root {
+  /* ---- Text Colors ---- */
+  --pro-text-primary: #1e1e2e;
+  --pro-text-secondary: #6e6e80;
+  --pro-text-tertiary: #9e9eae;
+  --pro-text-disabled: #c4c4d0;
+  --pro-text-inverse: #ffffff;
+
+  /* ---- Surface / Background ---- */
+  --pro-bg-base: #fafafc;
+  --pro-bg-elevated: #ffffff;
+  --pro-bg-sunken: #f4f4f8;
+  --pro-bg-overlay: rgba(30, 30, 46, 0.4);
+
+  /* ---- Border ---- */
+  --pro-border-default: #e4e4ec;
+  --pro-border-light: #ededf3;
+  --pro-border-focus: var(--pro-color-primary);
+
+  /* ---- Shadows ---- */
+  --pro-shadow-sm: 0 1px 3px rgba(30, 30, 46, 0.04), 0 1px 2px rgba(30, 30, 46, 0.06);
+  --pro-shadow-md: 0 4px 12px rgba(30, 30, 46, 0.06), 0 2px 4px rgba(30, 30, 46, 0.04);
+  --pro-shadow-lg: 0 12px 36px rgba(30, 30, 46, 0.08), 0 4px 12px rgba(30, 30, 46, 0.04);
+  --pro-shadow-focus: 0 0 0 3px rgba(124, 108, 231, 0.1);
+  --pro-shadow-focus-danger: 0 0 0 3px rgba(224, 85, 85, 0.1);
+
+  /* ---- Scrollbar ---- */
+  --pro-scrollbar-thumb: var(--pro-border-default);
+  --pro-scrollbar-thumb-hover: #c4c4d0;
+  --pro-scrollbar-track: transparent;
+  --pro-scrollbar-size: 6px;
+
+  /* ---- Motion ---- */
+  --pro-transition-fast: 150ms cubic-bezier(0.25, 0.1, 0.25, 1);
+  --pro-transition-normal: 250ms cubic-bezier(0.25, 0.1, 0.25, 1);
+  --pro-transition-bounce: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --pro-transition-slow: 500ms cubic-bezier(0.25, 0.1, 0.25, 1);
+}

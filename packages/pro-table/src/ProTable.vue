@@ -193,6 +193,10 @@ const state = useProTableInternal(
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  border-radius: var(--pro-radius-lg);
+  box-shadow: var(--pro-shadow-sm);
+  background: var(--pro-bg-elevated);
+  border: 1px solid var(--pro-border-light);
 }
 
 .pro-table :deep(*) {
@@ -200,41 +204,48 @@ const state = useProTableInternal(
 }
 
 .pro-table :deep(.el-table) {
-  --el-table-border-color: var(--pro-table-border-color, var(--el-border-color-lighter, #ebeef5));
+  --el-table-border-color: var(--pro-border-light);
 }
 
 .pro-table :deep(.el-table th.el-table__cell) {
-  background: var(--pro-table-header-bg, var(--el-fill-color-lighter, #fafafa));
-  font-weight: var(--pro-table-header-font-weight, 600);
-  color: var(--el-text-color-primary, #303133);
-  font-size: var(--pro-font-size-base, 14px);
+  background: var(--pro-bg-sunken);
+  font-weight: var(--pro-font-weight-semibold);
+  color: var(--pro-text-primary);
+  font-size: var(--pro-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pro-table :deep(.el-table td.el-table__cell) {
+  padding: var(--pro-density-cell-padding-v) var(--pro-density-cell-padding-h);
+  font-size: var(--pro-density-font-size);
 }
 
 .pro-table :deep(.el-table tr:hover > td.el-table__cell) {
-  background-color: var(--pro-table-row-hover-bg, var(--el-color-primary-light-9, #ecf5ff));
+  background-color: var(--pro-color-primary-ultra-light);
 }
 
 .pro-table :deep(.el-table--scrollable-x .el-table__body-wrapper) {
   scrollbar-width: thin;
-  scrollbar-color: var(--pro-scrollbar-thumb, #dcdfe6) var(--pro-scrollbar-track, transparent);
+  scrollbar-color: var(--pro-scrollbar-thumb) var(--pro-scrollbar-track);
 }
 
 .pro-table :deep(.el-table--scrollable-x .el-table__body-wrapper::-webkit-scrollbar) {
-  height: var(--pro-scrollbar-size, 6px);
+  height: var(--pro-scrollbar-size);
 }
 
 .pro-table :deep(.el-table--scrollable-x .el-table__body-wrapper::-webkit-scrollbar-thumb) {
-  background: var(--pro-scrollbar-thumb, #dcdfe6);
+  background: var(--pro-scrollbar-thumb);
   border-radius: 3px;
 }
 
 .pro-table :deep(.el-table--scrollable-x .el-table__body-wrapper::-webkit-scrollbar-track) {
-  background: var(--pro-scrollbar-track, transparent);
+  background: var(--pro-scrollbar-track);
 }
 
 .pro-table__pagination {
   display: flex;
   justify-content: flex-end;
-  padding: var(--pro-spacing-md, 16px) 0 var(--pro-spacing-xs, 4px);
+  padding: var(--pro-space-5) 0 var(--pro-space-1);
 }
 </style>

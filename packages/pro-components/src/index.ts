@@ -1,4 +1,4 @@
-import '@pro/themes/variables.css'
+import '@pro/themes'
 
 // Components
 import { ProTable } from '@pro/table'
