@@ -5,10 +5,14 @@
         <el-radio-group
           :model-value="compositeOperator"
           size="small"
-          @update:model-value="(v: string | number | boolean | undefined) => { if (v !== undefined) updateOperator(v) }"
+          @update:model-value="
+            (v: string | number | boolean | undefined) => {
+              if (v !== undefined) updateOperator(v)
+            }
+          "
         >
-          <el-radio-button value="AND">AND</el-radio-button>
-          <el-radio-button value="OR">OR</el-radio-button>
+          <el-radio-button value="AND"> AND </el-radio-button>
+          <el-radio-button value="OR"> OR </el-radio-button>
         </el-radio-group>
         <el-button v-if="depth > 0" size="small" type="danger" text @click="emit('remove')">
           Remove Group
@@ -77,7 +81,9 @@
             :max="100"
             :format-tooltip="(v: number) => `${v}%`"
             style="width: 200px"
-            @update:model-value="(v: number | number[]) => updateSimplePercentage(Array.isArray(v) ? v[0] : v)"
+            @update:model-value="
+              (v: number | number[]) => updateSimplePercentage(Array.isArray(v) ? v[0] : v)
+            "
           />
           <span style="margin-left: 8px">{{ simplePercentage }}%</span>
         </el-form-item>

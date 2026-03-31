@@ -23,6 +23,7 @@ export interface AppConfig {
 }
 
 /** Load configuration from environment variables with sensible defaults. */
+// eslint-disable-next-line complexity -- Config loader with env var fallbacks; complexity is from null-coalescing, not logic branches
 export function loadConfig(): AppConfig {
   const env = (process.env.NODE_ENV || 'development') as AppConfig['env']
 

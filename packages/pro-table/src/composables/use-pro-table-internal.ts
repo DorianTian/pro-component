@@ -63,7 +63,7 @@ export interface UseProTableInternalReturn {
 
   // Form state
   formValues: Ref<Record<string, unknown>>
-  sortState: Ref<{ prop: string; order: 'ascending' | 'descending' | null } | null>
+  sortState: Ref<{ prop: string; order: 'ascending' | 'descending' } | null>
 
   // Density
   densitySize: Ref<DensitySize>
@@ -100,6 +100,7 @@ export interface UseProTableInternalReturn {
  * Internal composable that manages all ProTable state.
  * Extracted from ProTable.vue script setup to keep the SFC lean.
  */
+// eslint-disable-next-line max-lines-per-function -- Composable orchestrator; splitting deferred to dedicated refactor
 export function useProTableInternal(
   options: UseProTableInternalOptions,
   externalInstance: UseProTableReturn | null,
@@ -107,8 +108,8 @@ export function useProTableInternal(
   const isExternalMode = computed(() => externalInstance !== null)
 
   // --- Internal state ---
-  const formValues = ref<Record<string, unknown>>({ ...options.initialValues.value })
-  const sortState = ref<{ prop: string; order: 'ascending' | 'descending' | null } | null>(null)
+  const formValues = ref({ ...options.initialValues.value })
+  const sortState = ref<{ prop: string; order: 'ascending' | 'descending' } | null>(null)
 
   // --- Internal pagination ---
   const paginationConfig = options.pagination.value
@@ -118,7 +119,7 @@ export function useProTableInternal(
       typeof paginationConfig === 'object' ? paginationConfig.defaultPageSize : DEFAULT_PAGE_SIZE,
     onChange(pag) {
       if (!isExternalMode.value) {
-        fetchData()
+        void fetchData()
         options.onPageChange(pag)
       }
     },
@@ -145,19 +146,19 @@ export function useProTableInternal(
 
   // --- Resolved active state ---
   const activeData = computed(() => {
-    if (isExternalMode.value) return externalInstance!.dataSource.value
+    if (externalInstance) return externalInstance.dataSource.value
     if (options.data?.value !== undefined) return options.data.value
     return internalRequest.data.value
   })
 
   const activeLoading = computed(() => {
-    if (isExternalMode.value) return externalInstance!.loading.value
+    if (externalInstance) return externalInstance.loading.value
     if (options.externalLoading?.value !== undefined) return options.externalLoading.value
     return internalRequest.loading.value
   })
 
   const activePagination = computed(() => {
-    if (isExternalMode.value) return externalInstance!.pagination
+    if (externalInstance) return externalInstance.pagination
     return {
       current: internalPagination.current,
       pageSize: internalPagination.pageSize,
@@ -173,7 +174,7 @@ export function useProTableInternal(
   const tableSize = computed(() => densitySize.value)
 
   // --- Column settings ---
-  const columnSettings = ref<ColumnSettingItem[]>(buildSettings(options.columns.value))
+  const columnSettings = ref(buildSettings(options.columns.value))
 
   function updateColumnSetting(key: string, updates: Partial<ColumnSettingItem>): void {
     const idx = columnSettings.value.findIndex((c) => c.key === key)
@@ -229,16 +230,17 @@ export function useProTableInternal(
 
   onMounted(() => {
     if (isRequestMode.value) {
-      fetchData()
+      void fetchData()
     }
   })
 
   // --- Helper functions ---
 
-  function resolveRowKey(): string | ((row: unknown) => string) {
-    const rk = options.rowSelection?.value?.rowKey
-    if (rk) return rk as string | ((row: unknown) => string)
-    return options.rowKey.value as string | ((row: unknown) => string)
+  function resolveRowKey(): (row: unknown) => string {
+    const rk = options.rowSelection?.value?.rowKey ?? options.rowKey.value
+    if (typeof rk === 'function') return rk as (row: unknown) => string
+    const key = rk
+    return (row: unknown) => String((row as Record<string, unknown>)[key])
   }
 
   function buildWrappedFetcher(): (params: RequestParams) => Promise<RequestResult> {
@@ -258,8 +260,8 @@ export function useProTableInternal(
   // --- Actions ---
 
   async function fetchData(): Promise<void> {
-    if (isExternalMode.value) {
-      await externalInstance!.reload()
+    if (externalInstance) {
+      await externalInstance.reload()
       return
     }
     if (!options.request) return
@@ -279,26 +281,26 @@ export function useProTableInternal(
   }
 
   function handleSearch(values: Record<string, unknown>): void {
-    if (isExternalMode.value) {
-      externalInstance!.setFormValues(values)
-      externalInstance!.reload(true)
+    if (externalInstance) {
+      externalInstance.setFormValues(values)
+      void externalInstance.reload(true)
       return
     }
     formValues.value = { ...values }
     internalPagination.setCurrent(1)
-    fetchData()
+    void fetchData()
   }
 
   function handleReset(): void {
-    if (isExternalMode.value) {
-      externalInstance!.reset()
+    if (externalInstance) {
+      externalInstance.reset()
       return
     }
     formValues.value = { ...options.initialValues.value }
     sortState.value = null
     internalPagination.reset()
     internalSelection.clearSelection()
-    fetchData()
+    void fetchData()
     options.onReset()
   }
 
@@ -307,44 +309,44 @@ export function useProTableInternal(
       ? { prop: sort.prop, order: sort.order as 'ascending' | 'descending' }
       : null
     options.onSortChange(sortState.value)
-    if (!isExternalMode.value) {
-      fetchData()
+    if (!externalInstance) {
+      void fetchData()
     }
   }
 
   function handleSelectionChange(rows: unknown[]): void {
-    if (isExternalMode.value) {
-      externalInstance!.selectedRows.value = rows
-      externalInstance!.selectedRowKeys.value = rows.map((r) => {
+    if (externalInstance) {
+      externalInstance.selectedRows.value = rows
+      externalInstance.selectedRowKeys.value = rows.map((r) => {
         const rk = options.rowKey.value
         return typeof rk === 'function' ? rk(r) : String((r as Record<string, unknown>)[rk])
       })
       return
     }
-    internalSelection.onSelectionChange(rows, activeData.value as unknown[])
+    internalSelection.onSelectionChange(rows, activeData.value)
   }
 
   function handlePageChange(page: number): void {
-    if (isExternalMode.value) {
-      externalInstance!.pagination.current.value = page
-      externalInstance!.reload()
+    if (externalInstance) {
+      externalInstance.pagination.current.value = page
+      void externalInstance.reload()
       return
     }
     internalPagination.setCurrent(page)
   }
 
   function handleSizeChange(size: number): void {
-    if (isExternalMode.value) {
-      externalInstance!.pagination.pageSize.value = size
-      externalInstance!.pagination.current.value = 1
-      externalInstance!.reload()
+    if (externalInstance) {
+      externalInstance.pagination.pageSize.value = size
+      externalInstance.pagination.current.value = 1
+      void externalInstance.reload()
       return
     }
     internalPagination.setPageSize(size)
   }
 
   function handleReload(): void {
-    fetchData()
+    void fetchData()
     options.onReload()
   }
 

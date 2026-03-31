@@ -62,7 +62,7 @@
           <el-option label="Paused" value="paused" />
           <el-option label="Completed" value="completed" />
         </el-select>
-        <el-button :icon="Refresh" @click="loadRules">Refresh</el-button>
+        <el-button :icon="Refresh" @click="loadRules"> Refresh </el-button>
       </div>
 
       <el-table v-loading="loading" :data="rules" stripe style="width: 100%">
@@ -71,7 +71,9 @@
         <el-table-column prop="target_version" label="Target Version" width="140" />
         <el-table-column prop="strategy" label="Strategy" width="130">
           <template #default="{ row }">
-            <el-tag size="small">{{ row.strategy }}</el-tag>
+            <el-tag size="small">
+              {{ row.strategy }}
+            </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="Status" width="120">
@@ -196,14 +198,14 @@ async function handlePause(id: number) {
   await ElMessageBox.confirm('Pause this grayscale rule?', 'Confirm')
   await pauseGrayscaleRule(id)
   ElMessage.success('Rule paused')
-  loadRules()
+  void loadRules()
 }
 
 async function handleResume(id: number) {
   await ElMessageBox.confirm('Resume this grayscale rule?', 'Confirm')
   await resumeGrayscaleRule(id)
   ElMessage.success('Rule resumed')
-  loadRules()
+  void loadRules()
 }
 
 async function handleComplete(id: number) {
@@ -214,12 +216,12 @@ async function handleComplete(id: number) {
   )
   await completeGrayscaleRule(id)
   ElMessage.success('Promoted to full release')
-  loadRules()
+  void loadRules()
 }
 
 function handleSaved() {
   showForm.value = false
-  loadRules()
+  void loadRules()
 }
 
 function formatDate(dateStr: string): string {
@@ -243,10 +245,7 @@ function describeRule(rule: GrayscaleCondition | CompositeRule): string {
   if (rule.type === 'department') {
     return `dept: [${rule.values?.join(', ') ?? ''}]`
   }
-  if (rule.type === 'percentage') {
-    return `${rule.value ?? 0}% traffic`
-  }
-  return JSON.stringify(rule)
+  return `${String(rule.value ?? 0)}% traffic`
 }
 
 onMounted(loadRules)

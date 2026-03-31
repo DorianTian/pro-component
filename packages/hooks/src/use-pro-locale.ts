@@ -23,8 +23,8 @@ export function useProLocale(): ProLocaleContext {
   const ctx = inject<ProLocaleContext | null>(PRO_LOCALE_KEY, null)
 
   if (!ctx && typeof __DEV__ !== 'undefined' && __DEV__) {
+    // eslint-disable-next-line no-console -- Dev-only warning for missing ProConfigProvider
     console.warn(
-      // eslint-disable-line no-console
       '[ProComponents] useProLocale() called without <ProConfigProvider>. ' +
         'Falling back to en-US defaults. Wrap your app with <ProConfigProvider> for full i18n support.',
     )

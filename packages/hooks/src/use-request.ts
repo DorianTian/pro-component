@@ -16,7 +16,7 @@ export interface UseRequestOptions<T = unknown> {
 export interface UseRequestReturn<T = unknown> {
   data: Ref<T[]>
   loading: Ref<boolean>
-  error: Ref<unknown | null>
+  error: Ref<unknown>
   total: Ref<number>
   /** Execute the request with given params. Returns a promise that resolves when done. */
   run: (params: RequestParams) => Promise<void>
@@ -28,6 +28,7 @@ export interface UseRequestReturn<T = unknown> {
  * Generic async request composable with loading/error state management,
  * debounce support, and automatic cancellation of stale requests.
  */
+// eslint-disable-next-line max-lines-per-function -- Request composable with debounce/cancel; inherently cohesive
 export function useRequest<T = unknown>(
   fetcher: (params: RequestParams) => Promise<RequestResult<T>>,
   options: UseRequestOptions<T> = {},
@@ -36,7 +37,7 @@ export function useRequest<T = unknown>(
 
   const data: Ref<T[]> = ref([]) as Ref<T[]>
   const loading = ref(false)
-  const error: Ref<unknown | null> = ref(null)
+  const error: Ref<unknown> = ref(null)
   const total = ref(0)
 
   /** Monotonically increasing request ID for stale cancellation */
@@ -94,7 +95,7 @@ export function useRequest<T = unknown>(
       return new Promise<void>((resolve) => {
         debounceTimer = setTimeout(() => {
           debounceTimer = null
-          executeRequest(params, requestId).then(resolve)
+          void executeRequest(params, requestId).then(resolve)
         }, debounceMs)
       })
     }

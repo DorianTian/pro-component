@@ -35,7 +35,7 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button :icon="Refresh" @click="loadMatrix">Refresh</el-button>
+          <el-button :icon="Refresh" @click="loadMatrix"> Refresh </el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -52,12 +52,16 @@
           <thead>
             <tr>
               <th class="corner-cell">Vue \ EP</th>
-              <th v-for="ep in epVersions" :key="ep">{{ ep }}</th>
+              <th v-for="ep in epVersions" :key="ep">
+                {{ ep }}
+              </th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="vue in vueVersions" :key="vue">
-              <td class="row-header">{{ vue }}</td>
+              <td class="row-header">
+                {{ vue }}
+              </td>
               <td
                 v-for="ep in epVersions"
                 :key="`${vue}-${ep}`"

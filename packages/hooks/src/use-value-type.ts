@@ -155,7 +155,7 @@ const TABLE_RENDER_MAP: Record<string, TableRenderConfig> = {
   checkbox: { component: 'ElTag', format: wrapFormat((v) => String(v)) },
   switch: { component: 'ElSwitch', format: wrapFormat((v) => (v ? 'Yes' : 'No')) },
   textarea: { component: 'span', format: wrapFormat((v) => String(v)) },
-  progress: { component: 'ElProgress', format: wrapFormat((v) => `${v}%`) },
+  progress: { component: 'ElProgress', format: wrapFormat((v) => `${String(v)}%`) },
   image: { component: 'ElImage', format: wrapFormat((v) => String(v)) },
   code: { component: 'pre', format: wrapFormat((v) => String(v)) },
 }

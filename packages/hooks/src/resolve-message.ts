@@ -9,11 +9,16 @@ export function resolveMessage(
   params?: Record<string, string | number>,
 ): string {
   if (!key) return ''
-  if (!messages) return key
 
-  const value = key
-    .split('.')
-    .reduce<unknown>((obj, k) => (obj as Record<string, unknown>)?.[k], messages)
+  let current: unknown = messages
+  for (const segment of key.split('.')) {
+    if (current === null || current === undefined || typeof current !== 'object') {
+      current = undefined
+      break
+    }
+    current = (current as Record<string, unknown>)[segment]
+  }
+  const value = current
 
   if (typeof value !== 'string') return key
   if (!params) return value

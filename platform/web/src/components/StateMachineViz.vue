@@ -10,16 +10,19 @@
           'state-pending': isPending(step.state),
         }"
       >
-        <el-icon v-if="isCompleted(step.state)" :size="20"><CircleCheckFilled /></el-icon>
+        <el-icon v-if="isCompleted(step.state)" :size="20">
+          <CircleCheckFilled />
+        </el-icon>
         <el-icon
           v-else-if="step.state === currentState && currentState !== 'failed'"
           :size="20"
           class="is-loading"
-          ><Loading
-        /></el-icon>
-        <el-icon v-else-if="step.state === 'failed' && currentState === 'failed'" :size="20"
-          ><CircleCloseFilled
-        /></el-icon>
+        >
+          <Loading />
+        </el-icon>
+        <el-icon v-else-if="step.state === 'failed' && currentState === 'failed'" :size="20">
+          <CircleCloseFilled />
+        </el-icon>
         <span v-else class="state-number">{{ index + 1 }}</span>
       </div>
       <span class="state-label">{{ step.label }}</span>

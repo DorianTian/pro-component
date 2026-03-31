@@ -19,5 +19,9 @@ async function gracefulShutdown(signal: string): Promise<void> {
   process.exit(0)
 }
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
-process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+process.on('SIGTERM', () => {
+  void gracefulShutdown('SIGTERM')
+})
+process.on('SIGINT', () => {
+  void gracefulShutdown('SIGINT')
+})

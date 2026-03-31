@@ -74,7 +74,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
     handleApiError(error)
-    return Promise.reject(error)
+    return Promise.reject(error instanceof Error ? error : new Error(String(error)))
   },
 )
 

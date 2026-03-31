@@ -11,7 +11,7 @@
       "outputs": ["dist/types/**"]
     },
     "type-check": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "^build:dts"],
       "inputs": ["src/**", "tsconfig.json"]
     },
     "test": {

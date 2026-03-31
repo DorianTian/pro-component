@@ -23,7 +23,7 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button :icon="Refresh" @click="loadVersionMaps">Refresh</el-button>
+          <el-button :icon="Refresh" @click="loadVersionMaps"> Refresh </el-button>
           <el-button
             type="primary"
             :icon="View"
@@ -185,7 +185,7 @@ function handleEdit(map: AppVersionMap) {
 function handleSaved() {
   showEditDialog.value = false
   editingMap.value = null
-  loadVersionMaps()
+  void loadVersionMaps()
 }
 
 function depNodeToTree(node: DependencyNode): TreeNode {
@@ -203,9 +203,7 @@ async function showDepsForPackage(packageName: string) {
   try {
     const result = await getPackageDeps(packageName)
     depsResult.value = result
-    if (result.tree) {
-      depsTreeData.value = depNodeToTree(result.tree)
-    }
+    depsTreeData.value = depNodeToTree(result.tree)
   } finally {
     depsLoading.value = false
   }
@@ -225,7 +223,7 @@ onMounted(() => {
   const queryAppId = route.query.appId as string
   if (queryAppId) {
     selectedAppId.value = queryAppId
-    loadVersionMaps()
+    void loadVersionMaps()
   }
 })
 </script>

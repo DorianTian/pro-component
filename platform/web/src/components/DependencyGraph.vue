@@ -1,13 +1,15 @@
 <template>
   <div class="dep-graph-container">
     <div v-if="loading" class="graph-loading">
-      <el-icon class="is-loading" :size="32"><Loading /></el-icon>
+      <el-icon class="is-loading" :size="32">
+        <Loading />
+      </el-icon>
       <span>Loading dependency graph...</span>
     </div>
     <div v-else-if="error" class="graph-error">
       <el-result icon="error" :sub-title="error">
         <template #extra>
-          <el-button @click="loadGraph">Retry</el-button>
+          <el-button @click="loadGraph"> Retry </el-button>
         </template>
       </el-result>
     </div>

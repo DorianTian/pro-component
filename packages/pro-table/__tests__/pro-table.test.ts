@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick } from 'vue'
+import { defineComponent, h } from 'vue'
 import { waitForReactiveSettle } from '../../hooks/src/test-utils'
 import ProTable from '../src/ProTable.vue'
 import { useProTable } from '../src/composables/use-pro-table'

@@ -7,7 +7,9 @@
   >
     <div v-if="versionMap" class="edit-content">
       <el-descriptions :column="1" border size="small" style="margin-bottom: 20px">
-        <el-descriptions-item label="Package">{{ versionMap.package_name }}</el-descriptions-item>
+        <el-descriptions-item label="Package">
+          {{ versionMap.package_name }}
+        </el-descriptions-item>
         <el-descriptions-item label="Current Resolved">
           {{ versionMap.resolved_version || '--' }}
         </el-descriptions-item>
@@ -16,8 +18,8 @@
       <el-form ref="formRef" :model="formData" :rules="formRules" label-width="130px">
         <el-form-item label="Mode">
           <el-radio-group v-model="versionMode">
-            <el-radio value="pinned">Pin Exact Version</el-radio>
-            <el-radio value="range">Semver Range</el-radio>
+            <el-radio value="pinned"> Pin Exact Version </el-radio>
+            <el-radio value="range"> Semver Range </el-radio>
           </el-radio-group>
         </el-form-item>
 
@@ -46,7 +48,7 @@
       </el-form>
     </div>
     <template #footer>
-      <el-button @click="visible = false">Cancel</el-button>
+      <el-button @click="visible = false"> Cancel </el-button>
       <el-button type="primary" :loading="submitting" @click="handleSubmit"> Save </el-button>
     </template>
   </el-dialog>

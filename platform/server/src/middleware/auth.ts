@@ -48,9 +48,7 @@ export function generateToken(payload: AuthPayload): string {
   const config = loadConfig()
   // jwt.sign expiresIn accepts string values like "24h" at runtime;
   // the type definition uses a branded StringValue from `ms`, so we cast.
-  return jwt.sign(
-    { ...payload },
-    config.jwt.secret,
-    { expiresIn: config.jwt.expiresIn } as jwt.SignOptions,
-  )
+  return jwt.sign({ ...payload }, config.jwt.secret, {
+    expiresIn: config.jwt.expiresIn,
+  } as jwt.SignOptions)
 }

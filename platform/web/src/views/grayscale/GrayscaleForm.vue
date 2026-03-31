@@ -58,10 +58,10 @@
 
       <el-form-item label="Strategy Type" prop="strategy">
         <el-radio-group v-model="formData.strategy" @change="handleStrategyChange">
-          <el-radio value="user_list">User List</el-radio>
-          <el-radio value="department">Department</el-radio>
-          <el-radio value="percentage">Percentage</el-radio>
-          <el-radio value="composite">Composite</el-radio>
+          <el-radio value="user_list"> User List </el-radio>
+          <el-radio value="department"> Department </el-radio>
+          <el-radio value="percentage"> Percentage </el-radio>
+          <el-radio value="composite"> Composite </el-radio>
         </el-radio-group>
       </el-form-item>
 
@@ -71,7 +71,7 @@
     </el-form>
 
     <template #footer>
-      <el-button @click="visible = false">Cancel</el-button>
+      <el-button @click="visible = false"> Cancel </el-button>
       <el-button type="primary" :loading="submitting" @click="handleSubmit"> Create </el-button>
     </template>
   </el-dialog>
@@ -147,8 +147,8 @@ watch(
 )
 
 function handleStrategyChange(val: string | number | boolean | undefined) {
+  if (!val) return
   const strategy = val as GrayscaleStrategy
-  if (!strategy) return
   if (strategy === 'composite') {
     ruleConfig.value = {
       operator: 'OR',

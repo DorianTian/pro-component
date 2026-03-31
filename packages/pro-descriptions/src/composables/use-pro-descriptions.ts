@@ -1,6 +1,5 @@
+import type { ComputedRef, VNode } from 'vue'
 import { computed } from 'vue'
-
-import type { VNode } from 'vue'
 import type { ProColumnDef, StatusType } from '@pro/utils'
 
 /** Processed description item ready for rendering */
@@ -33,7 +32,7 @@ export interface UseProDescriptionsOptions {
 }
 
 export interface UseProDescriptionsReturn {
-  descriptionItems: ReturnType<typeof computed<DescriptionItem[]>>
+  descriptionItems: ComputedRef<DescriptionItem[]>
 }
 
 /**
@@ -44,40 +43,94 @@ function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
   const keys = path.split('.')
   let current: unknown = obj
   for (const key of keys) {
-    if (current == null || typeof current !== 'object') return undefined
+    if (current === null || current === undefined || typeof current !== 'object') return undefined
     current = (current as Record<string, unknown>)[key]
   }
   return current
+}
+
+/** Format money values with locale-aware formatting */
+function formatMoney(value: unknown): string {
+  const formatted = Number(value).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+  return `$${formatted}`
+}
+
+/** Format date or dateTime values */
+function formatDateValue(value: unknown, isDateTime: boolean): string {
+  if (value instanceof Date) {
+    return isDateTime ? value.toLocaleString() : value.toLocaleDateString()
+  }
+  return typeof value === 'string' ? value : safeString(value)
+}
+
+/**
+ * Format a value based on its valueType for display in descriptions.
+ */
+/** Safely convert unknown value to string */
+function safeString(value: unknown): string {
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+  if (value instanceof Date) return value.toISOString()
+  const json = JSON.stringify(value)
+  return typeof json === 'string' ? json : ''
 }
 
 /**
  * Format a value based on its valueType for display in descriptions.
  */
 function formatValue(value: unknown, valueType: string): string {
-  if (value == null) return '-'
+  if (value === null || value === undefined) return '-'
 
   switch (valueType) {
     case 'money':
-      return `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-
+      return formatMoney(value)
     case 'percent':
-      return `${value}%`
-
+      return `${safeString(value)}%`
     case 'number':
-      return typeof value === 'number' ? value.toLocaleString() : String(value)
-
+      return typeof value === 'number' ? value.toLocaleString() : safeString(value)
     case 'date':
+      return formatDateValue(value, false)
     case 'dateTime':
-      if (value instanceof Date) {
-        return valueType === 'dateTime' ? value.toLocaleString() : value.toLocaleDateString()
-      }
-      return String(value)
-
-    case 'text':
-    case 'textarea':
-    case 'code':
+      return formatDateValue(value, true)
     default:
-      return String(value)
+      return safeString(value)
+  }
+}
+
+/** Resolve enum display text and status from column valueEnum */
+function resolveEnumEntry(
+  col: ProColumnDef,
+  rawValue: unknown,
+): { displayText?: string; statusType?: StatusType } {
+  if (!col.valueEnum || rawValue === null || rawValue === undefined) return {}
+  const enumKey =
+    typeof rawValue === 'string' || typeof rawValue === 'number' ? String(rawValue) : ''
+  if (!(enumKey in col.valueEnum)) return {}
+  return { displayText: col.valueEnum[enumKey].text, statusType: col.valueEnum[enumKey].status }
+}
+
+/** Resolve a single column definition into a DescriptionItem */
+function resolveDescriptionItem(col: ProColumnDef, data: Record<string, unknown>): DescriptionItem {
+  const dataIndexStr = Array.isArray(col.dataIndex) ? col.dataIndex.join('.') : col.dataIndex
+  const rawValue = getNestedValue(data, dataIndexStr)
+  const valueType = col.valueType ?? 'text'
+  const { displayText, statusType } = resolveEnumEntry(col, rawValue)
+  const formattedValue = displayText ?? formatValue(rawValue, valueType)
+
+  return {
+    dataIndex: col.key ?? dataIndexStr,
+    label: col.title,
+    value: rawValue,
+    formattedValue,
+    displayText,
+    statusType,
+    hasCustomRender: typeof col.descriptionsRender === 'function',
+    descriptionsRender: col.descriptionsRender,
+    column: col,
+    span: col.searchConfig?.span,
   }
 }
 
@@ -91,37 +144,7 @@ export function useProDescriptions(options: UseProDescriptionsOptions): UseProDe
   const descriptionItems = computed<DescriptionItem[]>(() => {
     return columns
       .filter((col) => !col.hideInDescriptions)
-      .map((col) => {
-        const dataIndexStr = Array.isArray(col.dataIndex) ? col.dataIndex.join('.') : col.dataIndex
-        const rawValue = getNestedValue(data, dataIndexStr)
-        const valueType = col.valueType ?? 'text'
-
-        let displayText: string | undefined
-        let statusType: StatusType | undefined
-
-        if (col.valueEnum && rawValue != null) {
-          const enumEntry = col.valueEnum[String(rawValue)]
-          if (enumEntry) {
-            displayText = enumEntry.text
-            statusType = enumEntry.status
-          }
-        }
-
-        const formattedValue = displayText ?? formatValue(rawValue, valueType)
-
-        return {
-          dataIndex: (col.key ?? dataIndexStr) as string,
-          label: col.title,
-          value: rawValue,
-          formattedValue,
-          displayText,
-          statusType,
-          hasCustomRender: typeof col.descriptionsRender === 'function',
-          descriptionsRender: col.descriptionsRender,
-          column: col,
-          span: col.searchConfig?.span,
-        }
-      })
+      .map((col) => resolveDescriptionItem(col, data))
   })
 
   return { descriptionItems }

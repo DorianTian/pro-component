@@ -5,7 +5,7 @@ import 'dayjs/locale/zh-cn'
 dayjs.extend(relativeTime)
 
 /** Locale-specific date format patterns */
-const DATE_FORMATS: Record<string, Record<string, string>> = {
+const DATE_FORMATS: Partial<Record<string, Record<string, string>>> = {
   'zh-CN': {
     date: 'YYYY-MM-DD',
     dateTime: 'YYYY-MM-DD HH:mm:ss',
@@ -22,7 +22,10 @@ export function formatDate(
   valueType: 'date' | 'dateTime',
   locale: string,
 ): string {
-  const fmt = DATE_FORMATS[locale]?.[valueType] ?? DATE_FORMATS['en-US'][valueType]
+  const localeFormats = DATE_FORMATS[locale]
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- en-US is always defined in DATE_FORMATS
+  const fallbackFormats = DATE_FORMATS['en-US']!
+  const fmt = localeFormats?.[valueType] ?? fallbackFormats[valueType]
   return dayjs(value).format(fmt)
 }
 

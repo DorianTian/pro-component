@@ -69,12 +69,13 @@ async function syncVersionBatch(
 /** Validate a single sync payload has required fields. */
 function validateSyncPayload(pkg: VersionSyncPayload): string | null {
   if (!pkg.packageName || !pkg.version) {
-    return `packageName and version are required for each package (missing in ${pkg.packageName ?? 'unknown'})`
+    return `packageName and version are required for each package (missing in ${pkg.packageName || 'unknown'})`
   }
   return null
 }
 
 /** POST /api/v1/versions/sync — npm publish hook receiver (single or batch) */
+// eslint-disable-next-line max-lines-per-function -- Route handler with validation + batch logic; splitting deferred
 syncRouter.post('/sync', auth, requirePermission('versions:sync'), async (ctx: Context) => {
   const body = ctx.request.body as VersionSyncPayload | { packages: VersionSyncPayload[] }
 
@@ -95,7 +96,11 @@ syncRouter.post('/sync', auth, requirePermission('versions:sync'), async (ctx: C
     }
 
     const db = getDb()
-    const results = await syncVersionBatch(db, body.packages, ctx.state.user!.username)
+    const results = await syncVersionBatch(
+      db,
+      body.packages,
+      (ctx.state.user as { username: string }).username,
+    )
 
     logger.info(
       { count: results.length, created: results.filter((r) => r.created).length },
@@ -127,7 +132,7 @@ syncRouter.post('/sync', auth, requirePermission('versions:sync'), async (ctx: C
       breakingChanges: singleBody.breakingChanges,
       sriHashes: singleBody.sriHashes,
     },
-    ctx.state.user!.username,
+    (ctx.state.user as { username: string }).username,
   )
 
   ctx.status = result.created ? 201 : 200

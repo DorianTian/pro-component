@@ -151,7 +151,10 @@ function collectRange(
   if (!rangeCollector.has(depName)) {
     rangeCollector.set(depName, new Map())
   }
-  rangeCollector.get(depName)!.set(requester, range)
+  const ranges = rangeCollector.get(depName)
+  if (ranges) {
+    ranges.set(requester, range)
+  }
 }
 
 /** Step 2: Detect diamond conflicts where no version satisfies all requesters. */

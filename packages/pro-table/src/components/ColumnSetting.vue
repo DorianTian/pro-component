@@ -2,7 +2,6 @@
 import { ref, computed, inject, watch, onMounted, type PropType } from 'vue'
 import { useProLocale } from '@pro/hooks'
 
-import type { ColumnSettingItem } from '../types'
 import { COLUMN_SETTING_INJECTION_KEY } from '../constants'
 
 defineOptions({ name: 'ProColumnSetting' })
@@ -91,10 +90,6 @@ function handleDragEnd(): void {
   draggedIndex.value = null
 }
 
-function handleClose(): void {
-  emit('update:visible', false)
-}
-
 // --- Persistence ---
 
 interface PersistedColumnState {
@@ -111,7 +106,7 @@ function persistState(): void {
     fixed: {},
   }
   localColumns.value.forEach((c) => {
-    if (c.fixed && c.fixed !== false) {
+    if (c.fixed) {
       state.fixed[c.key] = c.fixed
     }
   })

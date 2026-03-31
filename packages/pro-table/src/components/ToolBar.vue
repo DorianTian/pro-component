@@ -3,7 +3,7 @@ import { ref, inject, computed, type PropType, type VNode } from 'vue'
 import { useProLocale } from '@pro/hooks'
 
 import type { ToolbarConfig, DensitySize } from '../types'
-import { DENSITY_INJECTION_KEY, COLUMN_SETTING_INJECTION_KEY, DEFAULT_DENSITY } from '../constants'
+import { DENSITY_INJECTION_KEY, DEFAULT_DENSITY } from '../constants'
 
 defineOptions({ name: 'ProToolBar' })
 
@@ -73,7 +73,7 @@ function handleToggleFullscreen(): void {
       <template v-if="typeof headerTitle === 'string'">
         <span>{{ headerTitle }}</span>
       </template>
-      <component v-else :is="() => headerTitle" />
+      <component :is="() => headerTitle" v-else />
     </div>
 
     <div class="pro-toolbar__actions">

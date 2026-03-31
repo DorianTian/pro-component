@@ -16,7 +16,7 @@ const ROLE_HIERARCHY: Record<UserRole, number> = {
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<PlatformUser | null>(null)
-  const token = ref<string | null>(localStorage.getItem(TOKEN_STORAGE_KEY))
+  const token = ref(localStorage.getItem(TOKEN_STORAGE_KEY))
 
   const isLoggedIn = computed(() => !!token.value)
   const username = computed(() => user.value?.username ?? '')

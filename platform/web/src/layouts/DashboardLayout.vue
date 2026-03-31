@@ -2,7 +2,9 @@
   <el-container class="dashboard-layout">
     <el-aside :width="appStore.sidebarCollapsed ? '64px' : '220px'" class="sidebar">
       <div class="sidebar-header">
-        <el-icon :size="24" color="#409eff"><Box /></el-icon>
+        <el-icon :size="24" color="#409eff">
+          <Box />
+        </el-icon>
         <span v-show="!appStore.sidebarCollapsed" class="sidebar-title">Pro Components</span>
       </div>
       <el-menu
@@ -18,7 +20,9 @@
           <el-icon>
             <component :is="route.meta?.icon" />
           </el-icon>
-          <template #title>{{ route.meta?.title }}</template>
+          <template #title>
+            {{ route.meta?.title }}
+          </template>
         </el-menu-item>
       </el-menu>
     </el-aside>
@@ -42,9 +46,11 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item>
-                  <el-tag size="small" :type="roleTagType">{{ authStore.role }}</el-tag>
+                  <el-tag size="small" :type="roleTagType">
+                    {{ authStore.role }}
+                  </el-tag>
                 </el-dropdown-item>
-                <el-dropdown-item divided @click="handleLogout">Logout</el-dropdown-item>
+                <el-dropdown-item divided @click="handleLogout"> Logout </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>

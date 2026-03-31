@@ -106,9 +106,15 @@
         </el-alert>
 
         <el-descriptions :column="1" border size="small" style="margin-top: 16px">
-          <el-descriptions-item label="From">{{ currentVersion }}</el-descriptions-item>
-          <el-descriptions-item label="To">{{ formData.target_version }}</el-descriptions-item>
-          <el-descriptions-item label="Reason">{{ formData.reason }}</el-descriptions-item>
+          <el-descriptions-item label="From">
+            {{ currentVersion }}
+          </el-descriptions-item>
+          <el-descriptions-item label="To">
+            {{ formData.target_version }}
+          </el-descriptions-item>
+          <el-descriptions-item label="Reason">
+            {{ formData.reason }}
+          </el-descriptions-item>
           <el-descriptions-item label="Affected Apps">
             {{ preCheckResult?.affected_apps.join(', ') || '--' }}
           </el-descriptions-item>
@@ -121,8 +127,8 @@
     </div>
 
     <template #footer>
-      <el-button v-if="currentStep > 0" @click="currentStep--">Back</el-button>
-      <el-button @click="visible = false">Cancel</el-button>
+      <el-button v-if="currentStep > 0" @click="currentStep--"> Back </el-button>
+      <el-button @click="visible = false"> Cancel </el-button>
       <el-button v-if="currentStep === 0" type="primary" @click="handleNextToPreCheck">
         Run Pre-check
       </el-button>
@@ -188,7 +194,7 @@ const formRules: FormRules = {
     { required: true, message: 'Reason is mandatory for rollback', trigger: 'blur' },
     {
       min: MIN_REASON_LENGTH,
-      message: `Reason must be at least ${MIN_REASON_LENGTH} characters`,
+      message: `Reason must be at least ${String(MIN_REASON_LENGTH)} characters`,
       trigger: 'blur',
     },
   ],
@@ -209,7 +215,7 @@ async function handleNextToPreCheck() {
 
   try {
     preCheckResult.value = await rollbackPreCheck(props.versionId, formData.value.target_version)
-  } catch (err: unknown) {
+  } catch {
     ElMessage.error('Pre-check failed')
     currentStep.value = 0
   } finally {

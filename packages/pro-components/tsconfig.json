@@ -2,16 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "noEmit": true,
-    "paths": {
-      "@pro/table": ["../pro-table/src/index.ts"],
-      "@pro/form": ["../pro-form/src/index.ts"],
-      "@pro/descriptions": ["../pro-descriptions/src/index.ts"],
-      "@pro/hooks": ["../hooks/src/index.ts"],
-      "@pro/locale": ["../locale/src/index.ts"],
-      "@pro/utils": ["../utils/src/index.ts"],
-      "@pro/themes": ["../themes/src/index.ts"]
-    }
+    "noEmit": true
   },
   "include": ["src/**/*.ts", "src/**/*.vue"]
 }

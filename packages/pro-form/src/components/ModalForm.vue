@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { ElDialog } from 'element-plus'
 import ProForm from '../ProForm.vue'
 
@@ -35,7 +35,9 @@ const emit = defineEmits<{
 
 const dialogVisible = computed({
   get: () => props.modelValue,
-  set: (val: boolean) => emit('update:modelValue', val),
+  set: (val: boolean) => {
+    emit('update:modelValue', val)
+  },
 })
 
 function handleClose() {

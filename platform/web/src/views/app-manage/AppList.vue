@@ -22,7 +22,7 @@
           style="width: 300px"
           @input="debouncedSearch"
         />
-        <el-button :icon="Refresh" @click="loadApps">Refresh</el-button>
+        <el-button :icon="Refresh" @click="loadApps"> Refresh </el-button>
       </div>
 
       <el-table v-loading="loading" :data="apps" stripe style="width: 100%">
@@ -111,7 +111,7 @@ async function loadApps() {
 
 const debouncedSearch = useDebounceFn(() => {
   page.value = 1
-  loadApps()
+  void loadApps()
 }, SEARCH_DEBOUNCE_MS)
 
 function handleEdit(app: App) {
@@ -122,11 +122,11 @@ function handleEdit(app: App) {
 function handleSaved() {
   showCreateForm.value = false
   editingApp.value = null
-  loadApps()
+  void loadApps()
 }
 
 function goToVersions(appId: string) {
-  router.push({ path: '/version-map', query: { appId } })
+  void router.push({ path: '/version-map', query: { appId } })
 }
 
 function formatDate(dateStr: string): string {

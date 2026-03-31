@@ -1,5 +1,5 @@
 import { nextTick, type Component } from 'vue'
-import { mount, type MountingOptions } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 
 /**
  * Wait for Vue's reactive system to fully settle.
@@ -51,17 +51,14 @@ export function mountComposable<T>(
     },
   }
 
-  const mountOptions: MountingOptions<Record<string, unknown>> = {}
-  if (options?.provide) {
-    mountOptions.global = {
-      provide: options.provide,
-    }
-  }
-
-  const wrapper = mount(TestHost, mountOptions)
+  const wrapper = mount(TestHost, {
+    global: options?.provide ? { provide: options.provide } : undefined,
+  } as Record<string, unknown>)
 
   return {
     result,
-    unmount: () => wrapper.unmount(),
+    unmount: () => {
+      wrapper.unmount()
+    },
   }
 }

@@ -4,6 +4,8 @@ import { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter } from '@pro/for
 import { ProDescriptions } from '@pro/descriptions'
 import { checkDependencies } from '@pro/utils'
 
+import type { App } from 'vue'
+
 export { ProTable } from '@pro/table'
 export { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter } from '@pro/form'
 export { ProDescriptions } from '@pro/descriptions'
@@ -27,7 +29,7 @@ const components = [
 ]
 
 export const proComponentsPlugin = {
-  install(app: import('vue').App) {
+  install(app: App) {
     checkDependencies()
     components.forEach((component) => {
       if (component.name) {
@@ -38,8 +40,6 @@ export const proComponentsPlugin = {
 }
 
 // Types (separate group, always last)
-import type { App, Plugin } from 'vue'
-
 export type { RequestParams, RequestResult, StatusType, ValueType } from '@pro/utils'
 export type { ProFieldDef, StepFormDef, ProFormConfig, FormLayout, ProFormRule } from '@pro/utils'
 export type { ProColumnDef } from '@pro/utils'

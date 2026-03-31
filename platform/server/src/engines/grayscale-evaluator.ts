@@ -25,7 +25,7 @@ function isComposite(condition: GrayscaleCondition): condition is CompositeCondi
 }
 
 function evaluateComposite(condition: CompositeCondition, context: GrayscaleContext): boolean {
-  if (!condition.conditions || condition.conditions.length === 0) {
+  if (condition.conditions.length === 0) {
     return false
   }
 
@@ -33,12 +33,7 @@ function evaluateComposite(condition: CompositeCondition, context: GrayscaleCont
     return condition.conditions.every((c) => evaluateRule(c, context))
   }
 
-  if (condition.operator === 'OR') {
-    return condition.conditions.some((c) => evaluateRule(c, context))
-  }
-
-  // Unknown operator — deny by default
-  return false
+  return condition.conditions.some((c) => evaluateRule(c, context))
 }
 
 function evaluateLeaf(condition: LeafCondition, context: GrayscaleContext): boolean {

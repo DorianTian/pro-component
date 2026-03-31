@@ -27,7 +27,7 @@ importMapRouter.get('/api/v1/import-map', async (ctx: Context) => {
 
   ctx.set(
     'Cache-Control',
-    `public, max-age=${CDN_EDGE_MAX_AGE_S}, stale-while-revalidate=${CDN_EDGE_SWR_S}`,
+    `public, max-age=${String(CDN_EDGE_MAX_AGE_S)}, stale-while-revalidate=${String(CDN_EDGE_SWR_S)}`,
   )
   ctx.set('Vary', 'Accept-Encoding')
 

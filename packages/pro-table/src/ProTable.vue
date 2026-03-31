@@ -74,11 +74,21 @@ const state = useProTableInternal(
     rowSelection: toRef(props, 'rowSelection'),
     beforeRequest: props.beforeRequest,
     afterResponse: props.afterResponse,
-    onSelectionChange: (keys, rows) => emit('selection-change', keys, rows),
-    onSortChange: (s) => emit('sort-change', s),
-    onPageChange: (p) => emit('page-change', p),
-    onReload: () => emit('reload'),
-    onReset: () => emit('reset'),
+    onSelectionChange: (keys, rows) => {
+      emit('selection-change', keys, rows)
+    },
+    onSortChange: (s) => {
+      emit('sort-change', s)
+    },
+    onPageChange: (p) => {
+      emit('page-change', p)
+    },
+    onReload: () => {
+      emit('reload')
+    },
+    onReset: () => {
+      emit('reset')
+    },
   },
   externalInstance,
 )

@@ -34,7 +34,9 @@
         <div v-for="version in filteredVersions" :key="version.id" class="version-entry">
           <div class="version-header">
             <div class="version-left">
-              <h3 class="version-number">{{ version.version }}</h3>
+              <h3 class="version-number">
+                {{ version.version }}
+              </h3>
               <StatusBadge :status="version.status" />
               <el-tag v-if="hasBreakingChanges(version)" type="danger" size="small" effect="dark">
                 BREAKING
@@ -49,12 +51,16 @@
 
           <div v-if="hasBreakingChanges(version)" class="breaking-changes">
             <h4 class="breaking-title">
-              <el-icon color="#f56c6c"><Warning /></el-icon>
+              <el-icon color="#f56c6c">
+                <Warning />
+              </el-icon>
               Breaking Changes
             </h4>
             <ul>
               <li v-for="(change, i) in version.breaking_changes" :key="i" class="breaking-item">
-                <div class="breaking-description">{{ change.description }}</div>
+                <div class="breaking-description">
+                  {{ change.description }}
+                </div>
                 <div v-if="change.migration" class="migration-hint">
                   <strong>Migration:</strong> {{ change.migration }}
                 </div>

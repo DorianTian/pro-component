@@ -33,11 +33,9 @@ const emit = defineEmits<{
 
 const {
   currentStep,
-  totalSteps,
   isFirstStep,
   isLastStep,
   currentFields,
-  currentStepDef,
   steps: stepDefs,
   formValues,
   loading,

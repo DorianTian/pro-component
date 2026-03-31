@@ -133,7 +133,7 @@ export class ImportMapService {
       const esmUrl = `${cdnBase}/${name}/${version}/esm/index.mjs`
       imports[name] = esmUrl
 
-      await this.collectVersionMetadata(name, version, cdnBase, sriHashes, styles)
+      await this.collectVersionMetadata({ name, version, cdnBase, sriHashes, styles })
 
       const isTopLevel = versionMaps.some((vm) => vm.package_name === name)
       if (!isTopLevel) {
@@ -145,13 +145,14 @@ export class ImportMapService {
   }
 
   /** Collect SRI hashes and style URLs for a resolved version. */
-  private async collectVersionMetadata(
-    name: string,
-    version: string,
-    cdnBase: string,
-    sriHashes: Record<string, string>,
-    styles: string[],
-  ): Promise<void> {
+  private async collectVersionMetadata(opts: {
+    name: string
+    version: string
+    cdnBase: string
+    sriHashes: Record<string, string>
+    styles: string[]
+  }): Promise<void> {
+    const { name, version, cdnBase, sriHashes, styles } = opts
     const pkg = await this.versionRepo.findPackageByName(name)
     if (!pkg) return
 

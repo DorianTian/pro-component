@@ -34,15 +34,17 @@ const messages = computed<Record<string, unknown>>(() =>
 // --- Element Plus locale map ---
 const EL_LOCALE_MAP = { 'zh-CN': zhCn, 'en-US': en } as const
 
-const elLocale = computed(
-  () => EL_LOCALE_MAP[currentLocale.value as keyof typeof EL_LOCALE_MAP] ?? en,
-)
+const elLocale = computed(() => {
+  const mapped = (EL_LOCALE_MAP as Partial<Record<string, typeof en>>)[currentLocale.value]
+  return mapped ?? en
+})
 
 // --- vue-i18n detection (optional peer dependency) ---
 let i18n: I18nLike | null = null
 try {
   const instance = getCurrentInstance()
-  i18n = (instance?.appContext.config.globalProperties.$i18n as I18nLike) ?? null
+  const maybeI18n = instance?.appContext.config.globalProperties.$i18n as I18nLike | undefined
+  i18n = maybeI18n ?? null
 } catch {
   i18n = null
 }
@@ -50,8 +52,8 @@ try {
 // --- Mount: merge all locale messages once (idempotent) ---
 if (i18n) {
   onMounted(() => {
-    i18n!.global.mergeLocaleMessage('en-US', enUS as unknown as Record<string, unknown>)
-    i18n!.global.mergeLocaleMessage('zh-CN', zhCN as unknown as Record<string, unknown>)
+    i18n.global.mergeLocaleMessage('en-US', enUS as unknown as Record<string, unknown>)
+    i18n.global.mergeLocaleMessage('zh-CN', zhCN as unknown as Record<string, unknown>)
   })
 }
 
@@ -69,7 +71,7 @@ watch(
 
 // --- Provide locale context ---
 const t: ProLocaleContext['t'] = i18n
-  ? (key, params) => i18n!.global.t(key, (params ?? {}) as Record<string, unknown>)
+  ? (key, params) => i18n.global.t(key, (params ?? {}) as Record<string, unknown>)
   : (key, params) => resolveMessage(messages.value, key, params)
 
 provide(PRO_LOCALE_KEY, { t, locale: currentLocale })

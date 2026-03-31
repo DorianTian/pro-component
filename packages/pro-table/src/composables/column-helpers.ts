@@ -1,4 +1,5 @@
 import type { TableRenderConfig } from '@pro/hooks'
+import type { ValueType } from '@pro/utils'
 
 import type { ProColumnDef, ColumnSettingItem } from '../types'
 import { DEFAULT_SEARCH_ORDER } from '../constants'
@@ -9,7 +10,7 @@ import { DEFAULT_SEARCH_ORDER } from '../constants'
  */
 export function buildColumnSettings(cols: ProColumnDef[]): ColumnSettingItem[] {
   return cols.map((col, idx) => ({
-    key: col.key ?? String(col.dataIndex),
+    key: col.key ?? col.dataIndex,
     title: col.title,
     visible: !col.hideInTable,
     fixed: col.fixed ?? false,
@@ -29,19 +30,19 @@ export function buildVisibleColumns(
 
   return cols
     .filter((col) => {
-      const key = col.key ?? String(col.dataIndex)
+      const key = col.key ?? col.dataIndex
       const setting = settingMap.get(key)
       return setting ? setting.visible : !col.hideInTable
     })
     .sort((a, b) => {
-      const keyA = a.key ?? String(a.dataIndex)
-      const keyB = b.key ?? String(b.dataIndex)
+      const keyA = a.key ?? a.dataIndex
+      const keyB = b.key ?? b.dataIndex
       const orderA = settingMap.get(keyA)?.order ?? DEFAULT_SEARCH_ORDER
       const orderB = settingMap.get(keyB)?.order ?? DEFAULT_SEARCH_ORDER
       return orderA - orderB
     })
     .map((col) => {
-      const key = col.key ?? String(col.dataIndex)
+      const key = col.key ?? col.dataIndex
       const setting = settingMap.get(key)
       if (setting && setting.fixed !== false) {
         return { ...col, fixed: setting.fixed as 'left' | 'right' }
@@ -58,7 +59,7 @@ export function getCellValue(row: Record<string, unknown>, dataIndex: string): u
   const keys = dataIndex.split('.')
   let value: unknown = row
   for (const k of keys) {
-    if (value == null) return undefined
+    if (value === null || value === undefined) return undefined
     value = (value as Record<string, unknown>)[k]
   }
   return value
@@ -71,13 +72,13 @@ export function getCellValue(row: Record<string, unknown>, dataIndex: string): u
 export function formatCellValue(
   col: ProColumnDef,
   row: Record<string, unknown>,
-  getTableRenderConfig: (valueType: string) => TableRenderConfig,
+  getTableRenderConfig: (valueType: ValueType) => TableRenderConfig,
 ): string {
-  const value = getCellValue(row, String(col.dataIndex))
+  const value = getCellValue(row, col.dataIndex)
 
   if (col.valueEnum && value !== undefined && value !== null) {
-    const enumEntry = col.valueEnum[String(value)]
-    if (enumEntry) return enumEntry.text
+    const key = typeof value === 'string' || typeof value === 'number' ? String(value) : ''
+    if (key in col.valueEnum) return col.valueEnum[key].text
   }
 
   const renderConfig = getTableRenderConfig(col.valueType ?? 'text')

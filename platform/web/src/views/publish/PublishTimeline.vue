@@ -60,7 +60,7 @@ const total = ref(0)
 
 type TimelineType = 'primary' | 'success' | 'warning' | 'danger' | 'info'
 
-const EVENT_TYPE_MAP: Record<EventAction, TimelineType> = {
+const EVENT_TYPE_MAP: Partial<Record<EventAction, TimelineType>> = {
   publish: 'success',
   pin: 'primary',
   upgrade: 'primary',

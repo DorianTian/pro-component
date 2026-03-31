@@ -42,7 +42,7 @@ grayscaleRouter.post('/', auth, requirePermission('grayscale:create'), async (ct
       strategy: body.strategy as 'user_list' | 'department' | 'percentage' | 'composite',
       ruleConfig: body.ruleConfig as GrayscaleRuleConfig,
     },
-    ctx.state.user!.username,
+    (ctx.state.user as { username: string }).username,
   )
 
   ctx.status = 201
@@ -69,7 +69,10 @@ grayscaleRouter.put(
   requirePermission('grayscale:pause'),
   async (ctx: Context) => {
     const service = new GrayscaleService(getDb())
-    await service.pauseRule(parseInt(ctx.params.id, 10), ctx.state.user!.username)
+    await service.pauseRule(
+      parseInt(ctx.params.id, 10),
+      (ctx.state.user as { username: string }).username,
+    )
     ctx.status = 204
   },
 )
@@ -81,7 +84,10 @@ grayscaleRouter.put(
   requirePermission('grayscale:complete'),
   async (ctx: Context) => {
     const service = new GrayscaleService(getDb())
-    await service.completeRule(parseInt(ctx.params.id, 10), ctx.state.user!.username)
+    await service.completeRule(
+      parseInt(ctx.params.id, 10),
+      (ctx.state.user as { username: string }).username,
+    )
     ctx.status = 204
   },
 )

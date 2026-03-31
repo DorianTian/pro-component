@@ -1,5 +1,5 @@
 import { ref, computed, shallowRef, toRaw } from 'vue'
-import { ElForm } from 'element-plus'
+import type { ElForm } from 'element-plus'
 
 import type { ProFieldDef, StepFormDef, ProFormRule } from '@pro/utils'
 import type { UseStepsFormOptions, UseStepsFormReturn } from '../types'
@@ -9,11 +9,12 @@ import type { UseStepsFormOptions, UseStepsFormReturn } from '../types'
  * Maintains a single merged form values object across all steps.
  * Validates current step fields via el-form.validateField() before advancing.
  */
+// eslint-disable-next-line max-lines-per-function -- Step form orchestrator; splitting deferred to dedicated refactor
 export function useStepsForm(options: UseStepsFormOptions): UseStepsFormReturn {
   const { steps, onSubmit, onError, initialValues = {} } = options
 
   const currentStep = ref(0)
-  const formValues = ref<Record<string, unknown>>({ ...initialValues })
+  const formValues = ref({ ...initialValues })
   const loading = ref(false)
   const isSubmitting = ref(false)
   const formRef = shallowRef<InstanceType<typeof ElForm> | null>(null)

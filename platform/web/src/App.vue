@@ -9,8 +9,8 @@ import { useAppStore } from '@/stores/app'
 const appStore = useAppStore()
 
 onMounted(() => {
-  appStore.fetchApps()
-  appStore.fetchPackages()
+  void appStore.fetchApps()
+  void appStore.fetchPackages()
 })
 </script>
 

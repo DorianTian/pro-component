@@ -32,12 +32,15 @@ const { descriptionItems } = useProDescriptions({
   data: props.data,
 })
 
-const STATUS_TAG_TYPE_MAP: Record<StatusType, '' | 'success' | 'warning' | 'danger' | 'info'> = {
+const STATUS_TAG_TYPE_MAP: Record<
+  StatusType,
+  'success' | 'warning' | 'danger' | 'info' | undefined
+> = {
   success: 'success',
   warning: 'warning',
   danger: 'danger',
   info: 'info',
-  default: '',
+  default: undefined,
 }
 
 function renderItemContent(item: DescriptionItem) {
@@ -48,12 +51,8 @@ function renderItemContent(item: DescriptionItem) {
 
   // valueEnum → render as tag
   if (item.displayText) {
-    const tagType = item.statusType ? STATUS_TAG_TYPE_MAP[item.statusType] : ''
-    return h(
-      ElTag,
-      { type: tagType, size: 'small' },
-      { default: () => item.displayText },
-    )
+    const tagType = item.statusType ? STATUS_TAG_TYPE_MAP[item.statusType] : undefined
+    return h(ElTag, { type: tagType, size: 'small' }, { default: () => item.displayText })
   }
 
   // Default: formatted text

@@ -41,7 +41,7 @@ interface ControlEntry {
   defaultProps?: Record<string, unknown>
 }
 
-const FALLBACK_CONTROL_REGISTRY: Record<string, ControlEntry> = {
+const FALLBACK_CONTROL_REGISTRY: Partial<Record<string, ControlEntry>> = {
   text: { component: ElInput, defaultProps: { clearable: true } },
   textarea: { component: ElInput, defaultProps: { type: 'textarea', rows: 3 } },
   number: { component: ElInputNumber, defaultProps: { controlsPosition: 'right' } },
@@ -129,7 +129,11 @@ const FieldControl = defineComponent({
 
       const entry = FALLBACK_CONTROL_REGISTRY[field.valueType ?? 'text']
       if (!entry) {
-        return h(ElInput, { modelValue, 'onUpdate:modelValue': handleUpdate, clearable: true })
+        return h(ElInput, {
+          modelValue: modelValue as string | number | null,
+          'onUpdate:modelValue': handleUpdate,
+          clearable: true,
+        })
       }
 
       const resolvedProps: Record<string, unknown> = {

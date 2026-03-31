@@ -15,6 +15,7 @@ export class SyncService {
    * Handle npm publish webhook.
    * Idempotent: if the version already exists, skip creation.
    */
+  // eslint-disable-next-line complexity -- Sync workflow with multiple validation branches; cohesive as single method
   async syncVersion(
     input: VersionSyncRequest,
     operator: string,

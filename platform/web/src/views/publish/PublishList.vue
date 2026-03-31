@@ -2,7 +2,7 @@
   <div class="page-container">
     <div class="page-header">
       <h2>Publish Management</h2>
-      <el-button :icon="Refresh" @click="loadStatuses">Refresh</el-button>
+      <el-button :icon="Refresh" @click="loadStatuses"> Refresh </el-button>
     </div>
 
     <el-card shadow="never">

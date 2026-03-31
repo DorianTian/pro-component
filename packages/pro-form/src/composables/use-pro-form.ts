@@ -1,5 +1,5 @@
 import { ref, computed, shallowRef, toRaw } from 'vue'
-import { ElForm } from 'element-plus'
+import type { ElForm } from 'element-plus'
 
 import type { ProFieldDef, ProFormConfig, ProFormRule } from '@pro/utils'
 import type { UseProFormReturn } from '../types'
@@ -21,10 +21,11 @@ export const QUERY_FILTER_DEFAULT_COLLAPSE_THRESHOLD = 3
  * @param config - Form configuration with fields, initialValues, onSubmit, onError
  * @returns Reactive form state and control methods
  */
+// eslint-disable-next-line max-lines-per-function -- Form orchestrator composable; splitting deferred to dedicated refactor
 export function useProForm(config: ProFormConfig): UseProFormReturn {
   const { fields, initialValues = {}, onSubmit, onError } = config
 
-  const formValues = ref<Record<string, unknown>>({ ...initialValues })
+  const formValues = ref({ ...initialValues })
   const isSubmitting = ref(false)
   const loading = ref(false)
   const formRef = shallowRef<InstanceType<typeof ElForm> | null>(null)

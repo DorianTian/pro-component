@@ -35,7 +35,9 @@ const emit = defineEmits<{
 
 const drawerVisible = computed({
   get: () => props.modelValue,
-  set: (val: boolean) => emit('update:modelValue', val),
+  set: (val: boolean) => {
+    emit('update:modelValue', val)
+  },
 })
 
 function handleClose() {

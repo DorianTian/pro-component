@@ -45,7 +45,7 @@ versionRouter.post(
     await service.rollback(
       parseInt(ctx.params.id, 10),
       { reason: body.reason, targetVersion: body.targetVersion },
-      ctx.state.user!.username,
+      (ctx.state.user as { username: string }).username,
     )
 
     ctx.body = { success: true, cache_bust: true }
@@ -61,7 +61,11 @@ versionRouter.post(
     const body = ctx.request.body as { reason?: string }
 
     const service = new VersionService(getDb())
-    await service.deprecate(parseInt(ctx.params.id, 10), ctx.state.user!.username, body.reason)
+    await service.deprecate(
+      parseInt(ctx.params.id, 10),
+      (ctx.state.user as { username: string }).username,
+      body.reason,
+    )
 
     ctx.status = 204
   },

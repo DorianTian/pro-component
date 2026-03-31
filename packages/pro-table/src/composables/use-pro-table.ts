@@ -13,6 +13,7 @@ import { PRO_TABLE_INJECTION_KEY, DEFAULT_PAGE_SIZE } from '../constants'
  * Provides the instance via Vue's provide/inject so ProTable component
  * can auto-detect an external composable.
  */
+// eslint-disable-next-line max-lines-per-function -- Composable orchestrator; splitting deferred to dedicated refactor
 export function useProTable<T = Record<string, unknown>>(
   options: UseProTableOptions<T>,
 ): UseProTableReturn<T> {
@@ -46,12 +47,14 @@ export function useProTable<T = Record<string, unknown>>(
   })
 
   const rowOps = useRowOperation<T>({
-    dataSource: requestState.data as Ref<T[]>,
+    dataSource: requestState.data,
     current: paginationState.current,
     pageSize: paginationState.pageSize,
     total: paginationState.total,
     rowKey: rowKey as keyof T | ((row: T) => string),
-    onPageBack: () => reload(false),
+    onPageBack: () => {
+      void reload(false)
+    },
   })
 
   /** Build the wrapped fetcher that applies beforeRequest/afterResponse transforms */
@@ -62,7 +65,7 @@ export function useProTable<T = Record<string, unknown>>(
       }
       const transformedParams = beforeRequest ? beforeRequest(params) : params
       const raw = await requestFn(transformedParams)
-      return (afterResponse ? afterResponse(raw) : raw) as RequestResult<T>
+      return afterResponse ? afterResponse(raw) : raw
     }
   }
 
@@ -107,7 +110,7 @@ export function useProTable<T = Record<string, unknown>>(
 
   /** Replace the data source directly (for controlled/client-side mode) */
   function setDataSource(data: T[]): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Vue ref unwrapping requires runtime cast
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- Vue ref unwrapping requires runtime cast
     requestState.data.value = data as any
   }
 
@@ -120,7 +123,7 @@ export function useProTable<T = Record<string, unknown>>(
 
   const instance: UseProTableReturn<T> = {
     proTableProps,
-    dataSource: requestState.data as Ref<T[]>,
+    dataSource: requestState.data,
     loading: requestState.loading,
     pagination: {
       current: paginationState.current,

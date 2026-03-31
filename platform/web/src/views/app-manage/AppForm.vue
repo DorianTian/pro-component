@@ -24,7 +24,7 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="visible = false">Cancel</el-button>
+      <el-button @click="visible = false"> Cancel </el-button>
       <el-button type="primary" :loading="submitting" @click="handleSubmit">
         {{ isEditing ? 'Save' : 'Create' }}
       </el-button>

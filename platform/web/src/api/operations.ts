@@ -9,7 +9,7 @@ export function rollbackPreCheck(
   versionId: number,
   targetVersion: string,
 ): Promise<RollbackPreCheck> {
-  return apiGet<RollbackPreCheck>(`/versions/${versionId}/rollback/pre-check`, {
+  return apiGet<RollbackPreCheck>(`/versions/${String(versionId)}/rollback/pre-check`, {
     target_version: targetVersion,
   })
 }
@@ -18,14 +18,14 @@ export function rollbackPreCheck(
  * Execute rollback.
  */
 export function executeRollback(versionId: number, payload: RollbackPayload): Promise<Version> {
-  return apiPost<Version>(`/versions/${versionId}/rollback`, payload)
+  return apiPost<Version>(`/versions/${String(versionId)}/rollback`, payload)
 }
 
 /**
  * Deprecate a version.
  */
 export function deprecateVersion(versionId: number): Promise<Version> {
-  return apiPost<Version>(`/versions/${versionId}/deprecate`)
+  return apiPost<Version>(`/versions/${String(versionId)}/deprecate`)
 }
 
 /**

@@ -18,7 +18,7 @@ export function listGrayscaleRules(params?: {
  * Get a single grayscale rule by ID.
  */
 export function getGrayscaleRule(id: number): Promise<GrayscaleRule> {
-  return apiGet<GrayscaleRule>(`/grayscale/${id}`)
+  return apiGet<GrayscaleRule>(`/grayscale/${String(id)}`)
 }
 
 /**
@@ -32,19 +32,19 @@ export function createGrayscaleRule(payload: CreateGrayscalePayload): Promise<Gr
  * Pause a grayscale rule.
  */
 export function pauseGrayscaleRule(id: number): Promise<GrayscaleRule> {
-  return apiPut<GrayscaleRule>(`/grayscale/${id}/pause`)
+  return apiPut<GrayscaleRule>(`/grayscale/${String(id)}/pause`)
 }
 
 /**
  * Complete (promote to full release) a grayscale rule.
  */
 export function completeGrayscaleRule(id: number): Promise<GrayscaleRule> {
-  return apiPut<GrayscaleRule>(`/grayscale/${id}/complete`)
+  return apiPut<GrayscaleRule>(`/grayscale/${String(id)}/complete`)
 }
 
 /**
  * Resume a paused grayscale rule.
  */
 export function resumeGrayscaleRule(id: number): Promise<GrayscaleRule> {
-  return apiPut<GrayscaleRule>(`/grayscale/${id}/resume`)
+  return apiPut<GrayscaleRule>(`/grayscale/${String(id)}/resume`)
 }

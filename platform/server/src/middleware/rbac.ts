@@ -19,7 +19,7 @@ const ROLE_HIERARCHY: Record<Role, number> = {
  * Permission map: action -> minimum required role.
  * Roles at or above the minimum level are granted access.
  */
-const PERMISSION_MAP: Record<string, Role> = {
+const PERMISSION_MAP: Partial<Record<string, Role>> = {
   // Viewer permissions (all roles have these)
   'versions:read': 'viewer',
   'compat:read': 'viewer',

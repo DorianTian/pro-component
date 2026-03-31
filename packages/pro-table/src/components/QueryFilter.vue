@@ -42,10 +42,10 @@ const isCollapsed = ref(
 const labelWidth = computed(() => {
   if (typeof props.searchConfig === 'object' && props.searchConfig.labelWidth) {
     return typeof props.searchConfig.labelWidth === 'number'
-      ? `${props.searchConfig.labelWidth}px`
+      ? `${String(props.searchConfig.labelWidth)}px`
       : props.searchConfig.labelWidth
   }
-  return `${DEFAULT_LABEL_WIDTH}px`
+  return `${String(DEFAULT_LABEL_WIDTH)}px`
 })
 
 const searchableColumns = computed(() => {
@@ -95,7 +95,7 @@ function handleSearch(): void {
 function handleReset(): void {
   const resetValues: Record<string, unknown> = {}
   searchableColumns.value.forEach((col) => {
-    const key = String(col.dataIndex)
+    const key = col.dataIndex
     resetValues[key] = col.searchConfig?.defaultValue ?? undefined
   })
   emit('update:modelValue', resetValues)
@@ -160,7 +160,9 @@ function toggleCollapse(): void {
           <el-button type="primary" :loading="loading" @click="handleSearch">
             {{ t('pro.table.queryFilter.search') }}
           </el-button>
-          <el-button @click="handleReset"> {{ t('pro.table.queryFilter.reset') }} </el-button>
+          <el-button @click="handleReset">
+            {{ t('pro.table.queryFilter.reset') }}
+          </el-button>
           <el-button v-if="hasCollapsibleOverflow" link type="primary" @click="toggleCollapse">
             {{
               isCollapsed ? t('pro.table.queryFilter.expand') : t('pro.table.queryFilter.collapse')

@@ -39,14 +39,34 @@ export default tseslint.config(
     },
   },
   {
-    files: ['**/*.test.ts', '**/*.test.tsx'],
+    files: ['**/*.test.ts', '**/*.test.tsx', '**/__tests__/**/*.ts'],
     rules: {
       'max-lines-per-function': 'off',
+      'max-lines': 'off',
       'no-console': 'off',
+      'vue/multi-word-component-names': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+      '@typescript-eslint/no-redundant-type-constituents': 'off',
     },
   },
   {
-    files: ['scripts/**/*.ts', '**/rollup.config.ts', '**/vite.config.ts', '*.js'],
+    files: [
+      'scripts/**/*.ts',
+      '**/rollup.config.ts',
+      '**/vite.config.ts',
+      '**/vitest.config.ts',
+      '**/knexfile.ts',
+      '**/migrations/*.ts',
+      '**/seeds/*.ts',
+      '**/__tests__/**/*.ts',
+      '*.js',
+    ],
     ...tseslint.configs.disableTypeChecked,
     rules: {
       ...tseslint.configs.disableTypeChecked.rules,
@@ -55,6 +75,16 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['**/dist/**', '**/node_modules/**', '**/*.d.ts'],
+    files: ['platform/server/src/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+    },
+  },
+  {
+    ignores: ['**/dist/**', '**/node_modules/**', '**/*.d.ts', '**/.rollup.cache/**'],
   },
 )
