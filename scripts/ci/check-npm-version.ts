@@ -40,6 +40,7 @@ function isPublishablePackage(pkgPath: string): boolean {
       !('private' in pkg && (pkg as Record<string, unknown>).private)
     )
   } catch {
+    // Missing or malformed package.json -- skip this package
     return false
   }
 }

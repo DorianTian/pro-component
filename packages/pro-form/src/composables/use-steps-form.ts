@@ -54,6 +54,7 @@ export function useStepsForm(options: UseStepsFormOptions): UseStepsFormReturn {
       await formRef.value.validateField(currentFieldKeys)
       return true
     } catch {
+      // el-form.validateField rejects on validation failure -- treat as invalid
       return false
     }
   }

@@ -154,6 +154,7 @@ function hasBreaking(breakingChanges: string | null): boolean {
   try {
     return JSON.parse(breakingChanges).length > 0
   } catch {
+    // Malformed JSON in breaking_changes column -- treat as no breaking changes
     return false
   }
 }

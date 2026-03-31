@@ -112,6 +112,7 @@ watch(
     try {
       availableVersions.value = await getPackageVersions(map.package_name)
     } catch {
+      // API failure -- reset to empty so version dropdown shows nothing
       availableVersions.value = []
     }
   },

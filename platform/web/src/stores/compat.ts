@@ -21,6 +21,7 @@ export const useCompatStore = defineStore('compat', () => {
       const versions = await getPackageVersions(packageName)
       packageVersions.value = versions.map((v) => v.version)
     } catch {
+      // API failure -- reset to empty so UI shows no versions
       packageVersions.value = []
     }
   }

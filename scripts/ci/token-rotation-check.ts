@@ -51,6 +51,7 @@ function checkNpmTokenExpiry(): CredentialCheck {
     // npm doesn't expose token expiry directly
     return { name: 'NPM_TOKEN', source: 'env', daysUntilExpiry: null, status: 'ok' }
   } catch {
+    // npm whoami failed -- token is invalid or expired
     return { name: 'NPM_TOKEN', source: 'env', daysUntilExpiry: 0, status: 'expired' }
   }
 }

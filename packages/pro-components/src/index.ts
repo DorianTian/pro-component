@@ -13,6 +13,7 @@ export { ProDescriptions } from '@pro/descriptions'
 export { ProConfigProvider }
 
 // Composables
+export { useProTable } from '@pro/table'
 export { useProForm, useModalForm, useDrawerForm, useStepsForm } from '@pro/form'
 export { useProDescriptions } from '@pro/descriptions'
 
@@ -51,6 +52,7 @@ export const proComponentsPlugin = {
 export type { RequestParams, RequestResult, StatusType, ValueType } from '@pro/utils'
 export type { ProFieldDef, StepFormDef, ProFormConfig, FormLayout, ProFormRule } from '@pro/utils'
 export type { ProColumnDef } from '@pro/utils'
+export type { UseProTableReturn } from '@pro/table'
 export type {
   UseProFormReturn,
   UseModalFormReturn,

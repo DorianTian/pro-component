@@ -95,6 +95,7 @@ function findExistingCommentId(repo: string, prNumber: string, token: string): s
     ).trim()
     return result || null
   } catch {
+    // gh CLI failure -- no existing comment found
     return null
   }
 }

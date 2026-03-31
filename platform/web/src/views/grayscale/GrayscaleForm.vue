@@ -141,6 +141,7 @@ watch(
     try {
       availableVersions.value = await getPackageVersions(pkg.name)
     } catch {
+      // API failure -- reset to empty so version dropdown shows nothing
       availableVersions.value = []
     }
   },

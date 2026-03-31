@@ -35,6 +35,7 @@ export async function getCacheEpoch(): Promise<number> {
     const row = await db('cache_metadata').where('key', 'cache_epoch').first()
     return row?.value ?? 0
   } catch {
+    // DB or table not available -- default to epoch 0 (no cache invalidation)
     return 0
   }
 }

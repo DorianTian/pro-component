@@ -129,6 +129,7 @@ async function handlePackageChange(pkg: string) {
     const versions = await getPackageVersions(pkg)
     packageVersions.value = versions.map((v) => v.version)
   } catch {
+    // API failure -- reset to empty so UI shows no versions
     packageVersions.value = []
   }
 }

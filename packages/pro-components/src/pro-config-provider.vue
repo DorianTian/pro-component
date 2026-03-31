@@ -46,6 +46,7 @@ try {
   const maybeI18n = instance?.appContext.config.globalProperties.$i18n as I18nLike | undefined
   i18n = maybeI18n ?? null
 } catch {
+  // vue-i18n not installed or globalProperties access failed -- fall back to built-in resolver
   i18n = null
 }
 

@@ -216,6 +216,7 @@ async function handleNextToPreCheck() {
   try {
     preCheckResult.value = await rollbackPreCheck(props.versionId, formData.value.target_version)
   } catch {
+    // API failure -- show error and reset to first step for retry
     ElMessage.error('Pre-check failed')
     currentStep.value = 0
   } finally {

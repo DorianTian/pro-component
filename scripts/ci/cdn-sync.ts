@@ -112,6 +112,7 @@ async function waitForPropagation(ctx: SyncContext): Promise<void> {
           stdio: 'pipe',
         })
       } catch {
+        // PoP health check failed -- resource not yet propagated
         allReady = false
         break
       }
@@ -218,6 +219,7 @@ function isPublicPackage(dir: string): boolean {
     const pkg = JSON.parse(raw) as Record<string, unknown>
     return !pkg.private
   } catch {
+    // Missing or malformed package.json -- treat as non-public
     return false
   }
 }
