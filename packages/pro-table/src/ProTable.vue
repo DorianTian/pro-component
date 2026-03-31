@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { inject, toRef, type PropType, type VNode } from 'vue'
+import { Setting } from '@element-plus/icons-vue'
 
 import type { RequestParams, RequestResult } from '@pro/utils'
 import type {
@@ -122,10 +123,15 @@ const state = useProTableInternal(
       :toolbar-actions="toolbarActions"
       :toolbar="toolbar"
       @reload="state.handleReload"
-      @toggle-column-setting="state.handleToggleColumnSetting"
     >
       <template #columnSetting>
-        <ColumnSetting v-model:visible="state.showColumnSettingPanel.value" />
+        <ColumnSetting v-model:visible="state.showColumnSettingPanel.value">
+          <el-tooltip content="Column Settings" placement="top">
+            <span class="pro-toolbar__icon" @click="state.handleToggleColumnSetting">
+              <el-icon :size="18"><Setting /></el-icon>
+            </span>
+          </el-tooltip>
+        </ColumnSetting>
       </template>
     </ToolBar>
 

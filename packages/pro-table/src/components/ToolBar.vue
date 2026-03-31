@@ -114,12 +114,8 @@ function handleToggleFullscreen(): void {
         </template>
       </el-dropdown>
 
-      <!-- Column Setting -->
-      <el-tooltip v-if="isColumnSettingVisible" content="Column Settings" placement="top">
-        <span class="pro-toolbar__icon" @click="handleToggleColumnSetting">
-          <el-icon :size="18"><Setting /></el-icon>
-        </span>
-      </el-tooltip>
+      <!-- Column Setting (rendered via slot from ProTable, wraps the popover trigger) -->
+      <slot v-if="isColumnSettingVisible" name="columnSetting" />
 
       <!-- Fullscreen -->
       <el-tooltip v-if="isFullscreenVisible" content="Fullscreen" placement="top">
