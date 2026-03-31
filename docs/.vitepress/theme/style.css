@@ -52,28 +52,48 @@
 }
 
 /* Isolate demo previews from VitePress doc styles.
- * .vp-doc table/th/td rules leak into el-table's internal <table>,
- * causing header/body separation, double borders, and broken layout. */
-.vitepress-demo-plugin__preview {
-  /* Reset all inherited VitePress table styles */
-  & table,
-  & th,
-  & td,
-  & tr {
-    all: revert;
-  }
+ * VitePress .vp-doc sets display:block on <table>, border/radius on table/th/td,
+ * and alternating row backgrounds — all of which break el-table's internal layout
+ * since el-table renders header and body as SEPARATE <table> elements. */
 
-  /* Restore Element Plus and Pro Component styles after reset */
-  & .el-table,
-  & .el-form,
-  & .el-descriptions {
-    font-size: 14px;
-  }
+/* Reset VitePress table display/layout overrides */
+.vp-doc .vitepress-demo-plugin__preview table {
+  display: table;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: visible;
+  width: 100%;
+}
 
-  /* Ensure pro-table fills container without overflow */
-  & .pro-table {
-    overflow: hidden;
-  }
+/* Reset VitePress th/td styling */
+.vp-doc .vitepress-demo-plugin__preview th,
+.vp-doc .vitepress-demo-plugin__preview td {
+  border: none;
+  padding: 0;
+  background: none;
+  font-weight: inherit;
+  font-size: inherit;
+  color: inherit;
+  white-space: normal;
+}
+
+/* Reset VitePress tr striping and borders */
+.vp-doc .vitepress-demo-plugin__preview tr {
+  border: none;
+  background: none;
+  transition: none;
+}
+
+.vp-doc .vitepress-demo-plugin__preview tr:nth-child(2n) {
+  background: none;
+}
+
+/* Ensure pro-table fills container without overflow */
+.vitepress-demo-plugin__preview .pro-table {
+  overflow: hidden;
 }
 
 /* ---- API table ---- */
