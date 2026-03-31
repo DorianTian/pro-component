@@ -17,12 +17,18 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "type-check": "turbo type-check",
+    "build:cdn": "turbo build:cdn",
     "clean": "turbo clean",
     "dev:playground": "pnpm --filter playground dev",
     "validate-build": "tsx scripts/validate-build.ts",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "changeset publish"
+    "release": "changeset publish",
+    "docs:dev": "pnpm --filter docs dev",
+    "docs:build": "pnpm --filter docs build",
+    "docs:preview": "pnpm --filter docs preview",
+    "gen:api": "pnpm --filter docs gen:api",
+    "gen:changelog": "pnpm --filter docs gen:changelog"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.6.0",
@@ -51,6 +57,7 @@
     "turbo": "^2.0.0",
     "typescript": "^5.5.0",
     "typescript-eslint": "^8.0.0",
+    "vue-component-meta": "^3.2.6",
     "vue-tsc": "^2.0.0"
   }
 }

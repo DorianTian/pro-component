@@ -10,6 +10,11 @@
       "dependsOn": ["build"],
       "outputs": ["dist/types/**"]
     },
+    "build:cdn": {
+      "dependsOn": ["build"],
+      "outputs": ["cdn/dist/**"],
+      "cache": true
+    },
     "type-check": {
       "dependsOn": ["^build", "^build:dts"],
       "inputs": ["src/**", "tsconfig.json"]
@@ -33,6 +38,16 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "docs:dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build"]
+    },
+    "docs:build": {
+      "outputs": ["docs/.vitepress/dist/**"],
+      "dependsOn": ["^build"],
+      "inputs": ["docs/**", "packages/*/demos/**", "packages/*/src/**"]
     }
   }
 }

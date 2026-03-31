@@ -9,6 +9,10 @@
     { "path": "packages/pro-form" },
     { "path": "packages/pro-descriptions" },
     { "path": "packages/pro-components" },
-    { "path": "playground" }
+    { "path": "packages/vite-plugin" },
+    { "path": "cdn/build" },
+    { "path": "cdn/loader" },
+    { "path": "playground" },
+    { "path": "docs" }
   ]
 }
