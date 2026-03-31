@@ -24,6 +24,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@pro/locale": "workspace:*",
     "@pro/utils": "workspace:*"
   },
   "peerDependencies": {

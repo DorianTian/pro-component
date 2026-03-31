@@ -48,7 +48,17 @@ function resolveBuildContext(config: PackageConfig): ResolvedBuildContext {
 
   return {
     input: resolve(packageDir, 'src/index.ts'),
-    external: ['vue', 'element-plus', /^@pro\//, ...collectExternals(pkg), ...extraExternal],
+    external: [
+      'vue',
+      'vue-i18n',
+      'element-plus',
+      'dayjs',
+      'dayjs/plugin/relativeTime',
+      'dayjs/locale/zh-cn',
+      /^@pro\//,
+      ...collectExternals(pkg),
+      ...extraExternal,
+    ],
     basePlugins: [
       vue() as Plugin,
       nodeResolve({ extensions: ['.ts', '.tsx', '.vue', '.js'] }),
@@ -95,8 +105,13 @@ function createCjsConfig(ctx: ResolvedBuildContext): RollupOptions {
 
 /** Create UMD build configurations (standard + minified) */
 function createUmdConfigs(ctx: ResolvedBuildContext, umdName: string): RollupOptions[] {
-  const umdExternal = ['vue', 'element-plus']
-  const umdGlobals = { vue: 'Vue', 'element-plus': 'ElementPlus' }
+  const umdExternal = ['vue', 'vue-i18n', 'element-plus', 'dayjs']
+  const umdGlobals: Record<string, string> = {
+    vue: 'Vue',
+    'vue-i18n': 'VueI18n',
+    'element-plus': 'ElementPlus',
+    dayjs: 'dayjs',
+  }
 
   const standard: RollupOptions = {
     input: ctx.input,
