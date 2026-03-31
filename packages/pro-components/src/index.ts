@@ -11,6 +11,7 @@ import {
   LightFilter,
   ProFormDependency,
   ProFormList,
+  SchemaForm,
 } from '@pro/form'
 import { ProDescriptions } from '@pro/descriptions'
 import { checkDependencies } from '@pro/utils'
@@ -28,6 +29,7 @@ export {
   LightFilter,
   ProFormDependency,
   ProFormList,
+  SchemaForm,
 } from '@pro/form'
 export { ProDescriptions } from '@pro/descriptions'
 export { ProConfigProvider }
@@ -55,6 +57,7 @@ const components = [
   LightFilter,
   ProFormDependency,
   ProFormList,
+  SchemaForm,
   ProDescriptions,
   ProConfigProvider,
 ]

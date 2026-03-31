@@ -7,6 +7,7 @@ import QueryFilter from './components/QueryFilter.vue'
 import LightFilter from './components/LightFilter.vue'
 import ProFormDependency from './components/ProFormDependency.vue'
 import ProFormList from './components/ProFormList.vue'
+import SchemaForm from './components/SchemaForm.vue'
 
 export {
   ProForm,
@@ -17,6 +18,7 @@ export {
   LightFilter,
   ProFormDependency,
   ProFormList,
+  SchemaForm,
 }
 
 // Composables
