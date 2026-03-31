@@ -146,7 +146,9 @@ watch(
   },
 )
 
-function handleStrategyChange(strategy: GrayscaleStrategy) {
+function handleStrategyChange(val: string | number | boolean | undefined) {
+  const strategy = val as GrayscaleStrategy
+  if (!strategy) return
   if (strategy === 'composite') {
     ruleConfig.value = {
       operator: 'OR',

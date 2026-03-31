@@ -5,7 +5,7 @@
         <el-radio-group
           :model-value="compositeOperator"
           size="small"
-          @update:model-value="updateOperator"
+          @update:model-value="(v: string | number | boolean | undefined) => { if (v !== undefined) updateOperator(v) }"
         >
           <el-radio-button value="AND">AND</el-radio-button>
           <el-radio-button value="OR">OR</el-radio-button>
@@ -77,7 +77,7 @@
             :max="100"
             :format-tooltip="(v: number) => `${v}%`"
             style="width: 200px"
-            @update:model-value="updateSimplePercentage"
+            @update:model-value="(v: number | number[]) => updateSimplePercentage(Array.isArray(v) ? v[0] : v)"
           />
           <span style="margin-left: 8px">{{ simplePercentage }}%</span>
         </el-form-item>

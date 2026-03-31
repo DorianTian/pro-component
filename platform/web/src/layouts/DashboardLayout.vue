@@ -65,7 +65,9 @@ import { useAppStore } from '@/stores/app'
 import { useAuthStore } from '@/stores/auth'
 import AppBreadcrumb from '@/components/Breadcrumb.vue'
 
-const ROLE_TAG_TYPE_MAP: Record<string, string> = {
+type TagType = 'success' | 'warning' | 'danger' | 'info' | 'primary'
+
+const ROLE_TAG_TYPE_MAP: Record<string, TagType> = {
   admin: 'danger',
   operator: 'warning',
   publisher: 'success',
