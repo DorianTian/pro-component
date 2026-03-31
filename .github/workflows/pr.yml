@@ -1,0 +1,563 @@
+name: PR Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+jobs:
+  # ──────────────────────────────────────────────
+  # Stage 1: Lint + Type Check (no build dependency)
+  # ──────────────────────────────────────────────
+  lint:
+    name: Lint + Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      status: ${{ steps.result.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          turbo-token: ${{ secrets.TURBO_TOKEN }}
+          turbo-team: ${{ secrets.TURBO_TEAM }}
+
+      - name: ESLint
+        run: pnpm lint
+
+      - name: Prettier check
+        run: pnpm format:check
+
+      - name: Type check (vue-tsc)
+        run: pnpm type-check
+
+      - name: Set result
+        id: result
+        if: always()
+        run: echo "status=${{ job.status == 'success' && 'pass' || 'fail' }}" >> $GITHUB_OUTPUT
+
+  # ──────────────────────────────────────────────
+  # Stage 2: Build (topological via Turborepo)
+  # ──────────────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      status: ${{ steps.result.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          turbo-token: ${{ secrets.TURBO_TOKEN }}
+          turbo-team: ${{ secrets.TURBO_TEAM }}
+
+      - name: Turbo build (topological)
+        run: pnpm build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-artifacts
+          path: packages/*/dist
+          retention-days: 1
+
+      - name: Save PR branch sizes
+        if: github.event_name == 'pull_request'
+        run: SAVE_SIZES=true SIZES_SAVE_PATH=pr-sizes.json npx tsx scripts/ci/bundle-size-diff.ts
+
+      - name: Upload size data
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-sizes
+          path: pr-sizes.json
+          retention-days: 1
+
+      - name: Set result
+        id: result
+        if: always()
+        run: echo "status=${{ job.status == 'success' && 'pass' || 'fail' }}" >> $GITHUB_OUTPUT
+
+  # ──────────────────────────────────────────────
+  # Stage 2b: Build base branch for size comparison
+  # ──────────────────────────────────────────────
+  build-base:
+    name: Build Base (for size diff)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          turbo-token: ${{ secrets.TURBO_TOKEN }}
+          turbo-team: ${{ secrets.TURBO_TEAM }}
+
+      - name: Build base
+        run: pnpm build
+
+      - name: Collect sizes
+        run: SAVE_SIZES=true SIZES_SAVE_PATH=base-sizes.json npx tsx scripts/ci/bundle-size-diff.ts
+
+      - name: Upload base sizes
+        uses: actions/upload-artifact@v4
+        with:
+          name: base-sizes
+          path: base-sizes.json
+          retention-days: 1
+
+  # ──────────────────────────────────────────────
+  # Stage 3: Validate Build Output
+  # ──────────────────────────────────────────────
+  validate-build:
+    name: Validate Build
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      status: ${{ steps.result.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-artifacts
+          path: packages
+
+      - name: Run build validation
+        run: pnpm validate-build
+
+      - name: Set result
+        id: result
+        if: always()
+        run: echo "status=${{ job.status == 'success' && 'pass' || 'fail' }}" >> $GITHUB_OUTPUT
+
+  # ──────────────────────────────────────────────
+  # Stage 3: Vitest Unit + Integration Tests
+  # ──────────────────────────────────────────────
+  test:
+    name: Unit + Integration Tests
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      status: ${{ steps.result.outputs.status }}
+      coverage: ${{ steps.coverage.outputs.summary }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          turbo-token: ${{ secrets.TURBO_TOKEN }}
+          turbo-team: ${{ secrets.TURBO_TEAM }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-artifacts
+          path: packages
+
+      - name: Run Vitest
+        run: pnpm turbo test -- --reporter=verbose --coverage
+
+      - name: Extract coverage summary
+        id: coverage
+        if: always()
+        run: |
+          if [ -f coverage/coverage-summary.json ]; then
+            TOTAL=$(cat coverage/coverage-summary.json | jq -r '.total | "Lines: \(.lines.pct)% | Branches: \(.branches.pct)% | Functions: \(.functions.pct)%"')
+            echo "summary=$TOTAL" >> $GITHUB_OUTPUT
+          else
+            echo "summary=Coverage data not available" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 7
+
+      - name: Set result
+        id: result
+        if: always()
+        run: echo "status=${{ job.status == 'success' && 'pass' || 'fail' }}" >> $GITHUB_OUTPUT
+
+  # ──────────────────────────────────────────────
+  # Stage 3: Cypress Component Testing
+  # ──────────────────────────────────────────────
+  e2e:
+    name: Cypress Component Tests
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      status: ${{ steps.result.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-artifacts
+          path: packages
+
+      - name: Cypress install
+        uses: cypress-io/github-action@v6
+        with:
+          runTests: false
+
+      - name: Cypress component tests
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          component: true
+          command: pnpm turbo test:e2e --no-cache
+
+      - name: Upload Cypress screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: e2e/cypress/screenshots
+          retention-days: 7
+
+      - name: Upload Cypress videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos
+          path: e2e/cypress/videos
+          retention-days: 3
+
+      - name: Set result
+        id: result
+        if: always()
+        run: echo "status=${{ job.status == 'success' && 'pass' || 'fail' }}" >> $GITHUB_OUTPUT
+
+  # ──────────────────────────────────────────────
+  # Stage 3: Compat Quick (2 combos)
+  # ──────────────────────────────────────────────
+  compat-latest:
+    name: Compat (Latest)
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      status: ${{ steps.result.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-artifacts
+          path: packages
+
+      - name: Install latest Vue + Element Plus
+        run: pnpm add -Dw vue@latest element-plus@latest --no-lockfile
+
+      - name: Run tests with latest versions
+        run: pnpm turbo test --no-cache
+
+      - name: Set result
+        id: result
+        if: always()
+        run: echo "status=${{ job.status == 'success' && 'pass' || 'fail' }}" >> $GITHUB_OUTPUT
+
+  compat-minimum:
+    name: Compat (Minimum)
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      status: ${{ steps.result.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-artifacts
+          path: packages
+
+      - name: Install minimum Vue + Element Plus
+        run: pnpm add -Dw vue@3.4.0 element-plus@2.9.0 --no-lockfile
+
+      - name: Run tests with minimum versions
+        run: pnpm turbo test --no-cache
+
+      - name: Set result
+        id: result
+        if: always()
+        run: echo "status=${{ job.status == 'success' && 'pass' || 'fail' }}" >> $GITHUB_OUTPUT
+
+  # ──────────────────────────────────────────────
+  # Stage 3: Security Gate
+  # ──────────────────────────────────────────────
+  security:
+    name: Security Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      status: ${{ steps.result.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: pnpm audit
+        run: pnpm audit --audit-level=high || true
+
+      - name: pnpm audit (production only — strict)
+        run: pnpm audit --prod --audit-level=high
+
+      - name: License check
+        run: npx tsx scripts/ci/license-check.ts
+
+      - name: Set result
+        id: result
+        if: always()
+        run: echo "status=${{ job.status == 'success' && 'pass' || 'fail' }}" >> $GITHUB_OUTPUT
+
+  # ──────────────────────────────────────────────
+  # Stage 3: Docs Build Verification
+  # ──────────────────────────────────────────────
+  docs-build:
+    name: Docs Build
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      status: ${{ steps.result.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-artifacts
+          path: packages
+
+      - name: Build VitePress docs
+        run: pnpm --filter docs build
+
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-preview
+          path: docs/.vitepress/dist
+          retention-days: 3
+
+      - name: Set result
+        id: result
+        if: always()
+        run: echo "status=${{ job.status == 'success' && 'pass' || 'fail' }}" >> $GITHUB_OUTPUT
+
+  # ──────────────────────────────────────────────
+  # Stage 4: PR Preview Deploy
+  # ──────────────────────────────────────────────
+  preview:
+    name: PR Preview
+    needs: [build, docs-build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      docs-url: ${{ steps.deploy-docs.outputs.url }}
+      pkg-info: ${{ steps.pkg-preview.outputs.info }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Download docs artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-preview
+          path: docs-dist
+
+      - name: Deploy docs preview
+        id: deploy-docs
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: docs-dist
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: 'PR #${{ github.event.pull_request.number }} docs preview'
+          alias: pr-${{ github.event.pull_request.number }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_DOCS_SITE_ID }}
+        continue-on-error: true
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-artifacts
+          path: packages
+
+      - name: Publish PR preview packages (pkg-pr-new)
+        id: pkg-preview
+        run: |
+          npx pkg-pr-new publish \
+            --compact \
+            --comment=off \
+            packages/pro-table \
+            packages/pro-form \
+            packages/pro-descriptions \
+            packages/hooks \
+            packages/utils \
+            packages/themes \
+            packages/pro-components 2>&1 | tee pkg-pr-new-output.txt
+
+          # Extract install commands from output
+          INFO=$(grep -E "^(npm i|pnpm add)" pkg-pr-new-output.txt | head -20 || echo "Preview packages published")
+          echo "info<<EOF" >> $GITHUB_OUTPUT
+          echo "$INFO" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+  # ──────────────────────────────────────────────
+  # Stage 5: Bundle Size Diff
+  # ──────────────────────────────────────────────
+  size-diff:
+    name: Bundle Size Diff
+    needs: [build, build-base]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Download base sizes
+        uses: actions/download-artifact@v4
+        with:
+          name: base-sizes
+          path: .
+
+      - name: Download PR sizes
+        uses: actions/download-artifact@v4
+        with:
+          name: pr-sizes
+          path: .
+
+      - name: Compute size diff
+        run: |
+          BASE_SIZES_PATH=base-sizes.json \
+          SIZE_DIFF_OUTPUT=size-diff.md \
+          npx tsx scripts/ci/bundle-size-diff.ts
+
+      - name: Upload size diff
+        uses: actions/upload-artifact@v4
+        with:
+          name: size-diff
+          path: size-diff.md
+          retention-days: 1
+
+  # ──────────────────────────────────────────────
+  # Stage 6: Summary Bot (PR Comment)
+  # ──────────────────────────────────────────────
+  summary:
+    name: PR Summary
+    needs:
+      [
+        lint,
+        build,
+        validate-build,
+        test,
+        e2e,
+        compat-latest,
+        compat-minimum,
+        security,
+        docs-build,
+        preview,
+        size-diff,
+      ]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Download size diff
+        uses: actions/download-artifact@v4
+        with:
+          name: size-diff
+          path: .
+        continue-on-error: true
+
+      - name: Post PR summary comment
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+          LINT_STATUS: ${{ needs.lint.outputs.status }}
+          BUILD_STATUS: ${{ needs.build.outputs.status }}
+          VALIDATE_STATUS: ${{ needs.validate-build.outputs.status }}
+          TEST_STATUS: ${{ needs.test.outputs.status }}
+          E2E_STATUS: ${{ needs.e2e.outputs.status }}
+          COMPAT_LATEST_STATUS: ${{ needs.compat-latest.outputs.status }}
+          COMPAT_MIN_STATUS: ${{ needs.compat-minimum.outputs.status }}
+          SECURITY_STATUS: ${{ needs.security.outputs.status }}
+          DOCS_STATUS: ${{ needs.docs-build.outputs.status }}
+          COVERAGE_SUMMARY: ${{ needs.test.outputs.coverage }}
+          DOCS_PREVIEW_URL: ${{ needs.preview.outputs.docs-url }}
+          PKG_PREVIEW_INFO: ${{ needs.preview.outputs.pkg-info }}
+        run: npx tsx scripts/ci/pr-summary-comment.ts
