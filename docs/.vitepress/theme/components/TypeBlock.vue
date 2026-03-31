@@ -22,10 +22,15 @@ defineProps<{
 
 <style scoped>
 .type-block {
-  margin: 12px 0;
+  margin: 16px 0;
   border: 1px solid var(--vp-c-divider);
   border-radius: 8px;
   overflow: hidden;
+  transition: border-color 0.25s;
+}
+
+.type-block:hover {
+  border-color: var(--vp-c-brand-1);
 }
 
 .type-block__header {

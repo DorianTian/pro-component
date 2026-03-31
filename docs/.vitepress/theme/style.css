@@ -222,6 +222,7 @@
 /* ---- Input focus ring in demos ---- */
 
 .vitepress-demo-plugin__preview .el-input__wrapper:focus-within {
-  box-shadow: 0 0 0 1px var(--el-color-primary, #409eff),
+  box-shadow:
+    0 0 0 1px var(--el-color-primary, #409eff),
     0 0 0 3px rgba(64, 158, 255, 0.12) !important;
 }

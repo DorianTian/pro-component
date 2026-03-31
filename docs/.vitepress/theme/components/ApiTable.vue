@@ -134,12 +134,7 @@ if (key) {
 <style scoped>
 .api-section {
   margin: 24px 0;
-}
-
-.api-doc-empty {
-  padding: 24px;
-  background-color: var(--vp-c-bg-soft);
-  border-radius: 8px;
-  color: var(--vp-c-text-2);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 </style>

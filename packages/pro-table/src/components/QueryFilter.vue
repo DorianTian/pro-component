@@ -201,12 +201,14 @@ function toggleCollapse(): void {
 
 /* Focus ring — aligned with reference design */
 .pro-query-filter :deep(.el-input__wrapper:focus-within) {
-  box-shadow: 0 0 0 1px var(--el-color-primary, #409eff),
+  box-shadow:
+    0 0 0 1px var(--el-color-primary, #409eff),
     var(--pro-search-form-input-focus-shadow, 0 0 0 3px rgba(64, 158, 255, 0.12)) !important;
 }
 
 .pro-query-filter :deep(.el-select .el-input__wrapper:focus-within) {
-  box-shadow: 0 0 0 1px var(--el-color-primary, #409eff),
+  box-shadow:
+    0 0 0 1px var(--el-color-primary, #409eff),
     var(--pro-search-form-input-focus-shadow, 0 0 0 3px rgba(64, 158, 255, 0.12)) !important;
 }
 
