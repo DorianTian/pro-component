@@ -56,39 +56,46 @@
  * and alternating row backgrounds — all of which break el-table's internal layout
  * since el-table renders header and body as SEPARATE <table> elements. */
 
-/* Reset VitePress table display/layout overrides */
-.vp-doc .vitepress-demo-plugin__preview table {
-  display: table;
-  margin: 0;
-  border: none;
-  border-radius: 0;
-  border-collapse: separate;
-  border-spacing: 0;
-  overflow: visible;
-  width: 100%;
+/* Reset VitePress table display/layout overrides.
+ * !important is necessary — VitePress injects its default theme CSS at runtime,
+ * and load order varies between dev/build. This is docs-only CSS, not shipped. */
+.vp-doc .vitepress-demo-plugin__preview table,
+.vp-doc .vp-raw table {
+  display: table !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  overflow: visible !important;
+  width: 100% !important;
 }
 
 /* Reset VitePress th/td styling */
 .vp-doc .vitepress-demo-plugin__preview th,
-.vp-doc .vitepress-demo-plugin__preview td {
-  border: none;
-  padding: 0;
-  background: none;
-  font-weight: inherit;
-  font-size: inherit;
-  color: inherit;
-  white-space: normal;
+.vp-doc .vitepress-demo-plugin__preview td,
+.vp-doc .vp-raw th,
+.vp-doc .vp-raw td {
+  border: none !important;
+  padding: 0 !important;
+  background: none !important;
+  font-weight: inherit !important;
+  font-size: inherit !important;
+  color: inherit !important;
+  white-space: normal !important;
 }
 
 /* Reset VitePress tr striping and borders */
-.vp-doc .vitepress-demo-plugin__preview tr {
-  border: none;
-  background: none;
-  transition: none;
+.vp-doc .vitepress-demo-plugin__preview tr,
+.vp-doc .vp-raw tr {
+  border: none !important;
+  background: none !important;
+  transition: none !important;
 }
 
-.vp-doc .vitepress-demo-plugin__preview tr:nth-child(2n) {
-  background: none;
+.vp-doc .vitepress-demo-plugin__preview tr:nth-child(2n),
+.vp-doc .vp-raw tr:nth-child(2n) {
+  background: none !important;
 }
 
 /* Ensure pro-table fills container without overflow */
