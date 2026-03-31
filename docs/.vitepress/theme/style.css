@@ -51,11 +51,29 @@
   border-top: 1px solid var(--vp-c-divider);
 }
 
-/* Prevent demo previews from inheriting doc typography */
-.vitepress-demo-plugin__preview .el-table,
-.vitepress-demo-plugin__preview .el-form,
-.vitepress-demo-plugin__preview .el-descriptions {
-  font-size: 14px;
+/* Isolate demo previews from VitePress doc styles.
+ * .vp-doc table/th/td rules leak into el-table's internal <table>,
+ * causing header/body separation, double borders, and broken layout. */
+.vitepress-demo-plugin__preview {
+  /* Reset all inherited VitePress table styles */
+  & table,
+  & th,
+  & td,
+  & tr {
+    all: revert;
+  }
+
+  /* Restore Element Plus and Pro Component styles after reset */
+  & .el-table,
+  & .el-form,
+  & .el-descriptions {
+    font-size: 14px;
+  }
+
+  /* Ensure pro-table fills container without overflow */
+  & .pro-table {
+    overflow: hidden;
+  }
 }
 
 /* ---- API table ---- */
@@ -123,22 +141,23 @@
 
 /* ---- Markdown table improvements (Slots tables etc.) ---- */
 
-.vp-doc table {
+/* Only style markdown tables — exclude demo preview tables */
+.vp-doc table:not(.el-table__body):not(.el-table__header):not(.el-table__footer) {
   border: 1px solid var(--vp-c-divider);
   border-radius: 8px;
   overflow: hidden;
 }
 
-.vp-doc table th {
+.vp-doc table:not(.el-table__body):not(.el-table__header):not(.el-table__footer) th {
   background-color: var(--vp-c-bg-soft);
   white-space: nowrap;
 }
 
-.vp-doc table tr:last-child td {
+.vp-doc table:not(.el-table__body):not(.el-table__header):not(.el-table__footer) tr:last-child td {
   border-bottom: none;
 }
 
-.vp-doc table tbody tr:hover td {
+.vp-doc table:not(.el-table__body):not(.el-table__header):not(.el-table__footer) tbody tr:hover td {
   background-color: var(--vp-c-bg-soft);
 }
 

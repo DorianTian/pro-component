@@ -235,6 +235,7 @@ const state = useProTableInternal(
   display: flex;
   flex-direction: column;
   background: var(--pro-bg-elevated);
+  overflow: hidden;
 }
 
 .pro-table :deep(*) {
@@ -243,6 +244,24 @@ const state = useProTableInternal(
 
 .pro-table :deep(.el-table) {
   --el-table-border-color: var(--pro-border-light);
+}
+
+/* Prevent el-table from overflowing container width */
+.pro-table :deep(.el-table__header-wrapper),
+.pro-table :deep(.el-table__body-wrapper) {
+  overflow-x: auto;
+}
+
+/* Checkbox column vertical alignment */
+.pro-table :deep(.el-table-column--selection .cell) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Remove last row bottom border for clean look */
+.pro-table :deep(.el-table__body tr:last-child td.el-table__cell) {
+  border-bottom: none;
 }
 
 .pro-table :deep(.el-table th.el-table__cell) {
@@ -284,7 +303,7 @@ const state = useProTableInternal(
 .pro-table__pagination {
   display: flex;
   justify-content: flex-end;
-  padding: var(--pro-space-5) 0 var(--pro-space-1);
+  padding: var(--pro-space-4) 0 var(--pro-space-1);
 }
 
 .pro-table--fullscreen {
