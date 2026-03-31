@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "baseUrl": ".",
+    "composite": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue"],
+  "references": [
+    { "path": "../utils" },
+    { "path": "../hooks" },
+    { "path": "../themes" }
+  ]
+}
