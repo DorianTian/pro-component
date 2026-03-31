@@ -147,6 +147,14 @@ Two usage modes:
 
 Detection via provide/inject — component checks if an external composable instance exists, uses it if found, otherwise creates its own.
 
+### Mode Switch Behavior
+
+When ProTable props change from `request` mode to `data` mode (or vice versa) at runtime:
+
+1. **request → data**: Cancel any in-flight request. Clear loading state. Pagination resets to page 1. Form values and sort/filter state are preserved (they may still be relevant for the controlled data).
+2. **data → request**: Trigger initial request immediately with current form values and pagination. Selection state is cleared (row references may no longer be valid).
+3. **Warning**: Mode switching at runtime is an edge case. ProTable emits a `warn` event when this occurs. Components should generally not switch modes — if both props are provided, request mode takes precedence (existing behavior).
+
 ### ProTable Props
 
 ```typescript
@@ -397,6 +405,16 @@ Loader handles:
 
 Loader itself is versioned: `/pro-loader@1.js`, with `@latest` redirect. Changes must be backward compatible.
 
+### Partial Cache Consistency
+
+The Service Worker caches import maps and their referenced resources as a **cache group**:
+
+1. When caching a new import map response, the SW creates a cache group keyed by `importMapHash`
+2. All resources referenced in the import map (JS modules, CSS files) are fetched and cached together
+3. **Atomic swap**: The new cache group only becomes active after ALL resources are successfully cached. If any resource fetch fails, the entire group is discarded and the previous cache group remains active
+4. **Cleanup**: On successful swap, the previous cache group is deleted (keep max 2 groups for rollback)
+5. **Quota management**: Before caching, check `navigator.storage.estimate()`. If available storage < 50MB, evict oldest cache group first
+
 ### Import Map Generation Logic
 
 ```
@@ -415,6 +433,16 @@ Request: appId=user-center, userId=dorian
 - **Immutable resources**: URLs include version + content hash, `Cache-Control: immutable, max-age=31536000`
 - **API responses**: `max-age=60, stale-while-revalidate=300`, CDN edge cached
 - **Loader script**: short cache for `@latest`, long cache for versioned (`@1`)
+
+### Cache Invalidation Strategy
+
+**Composite cache key**: `{appId}:{userId}:{versionFingerprint}`
+
+- `versionFingerprint` = SHA-256 of sorted `{packageName}@{resolvedVersion}` pairs
+- Fingerprint changes when: version mapping changes, dependency resolution changes, or grayscale rule changes
+- **TTL**: 60 seconds for API response cache, 300 seconds for CDN edge cache (stale-while-revalidate)
+- **Active invalidation**: Grayscale rule CRUD and version mapping updates increment a global `cache_epoch` counter. Import map endpoint includes `cache_epoch` in the cache key, ensuring all cached entries become stale immediately after any rule/mapping change
+- **LRU eviction**: Max 10,000 entries per API instance, evicting least-recently-used entries
 
 ### Dev/Prod Alignment
 
@@ -622,6 +650,17 @@ GET  /health/resolution                 # deep health check (no version prefix)
 
 Percentage-based rules use hash (not random) for deterministic user assignment.
 
+### Grayscale vs Pinned Version Precedence
+
+**Rule: Grayscale takes precedence over pinned versions**, with guardrails:
+
+1. When a grayscale rule targets users of a pinned app, the grayscale version is served instead of the pinned version
+2. **Dashboard warning**: Creating a grayscale rule for an app with active version pins triggers a ⚠️ confirmation dialog explaining the override
+3. **Role requirement**: Only `admin` role can create grayscale rules that override pins (`operator` role insufficient)
+4. **Audit trail**: Override events logged with `action: "grayscale_override_pin"`, capturing both the pinned version and the grayscale target version
+
+Rationale: Pinned versions represent steady-state configuration. Grayscale is an explicit operational intent for controlled rollout. Blocking grayscale on pinned apps would force the riskier path of unpin → update → re-pin.
+
 ### CDN Publish State Machine
 
 ```
@@ -652,6 +691,16 @@ If propagation times out: mark as `propagating`, do NOT block npm publish side, 
 - Database migrations via Knex/Drizzle, expand-contract pattern
 - API versioned: `/api/v1/`, `/api/v2/` — tolerant reader pattern for unknown fields
 - Component library release calls Platform API as fire-and-forget + retry, not blocking
+
+### Transaction Semantics
+
+Multi-package version updates (e.g., publishing @pro/table@2.1.0 + @pro/hooks@2.1.0 together) use database transactions:
+
+1. All version record inserts wrapped in a single Knex transaction
+2. Dependency resolution runs within the same transaction (reads see the new versions)
+3. Import map cache invalidation happens AFTER transaction commit (not before)
+4. If any insert fails, entire transaction rolls back — no partial version state
+5. The sync endpoint accepts batch payloads: `POST /api/v1/versions/sync` with `{ packages: [...] }`
 
 ---
 
@@ -731,7 +780,30 @@ Using Vitest browser mode or Playwright:
 
 ---
 
-## 9. Documentation (VitePress)
+## 9. Accessibility
+
+### Baseline
+All Pro Components inherit Element Plus's built-in a11y support (ARIA roles, keyboard navigation on standard controls). The following additional requirements apply to custom interactive patterns introduced by Pro Components.
+
+### Component-Specific Requirements
+
+| Component | Requirement |
+|-----------|-------------|
+| ProTable ColumnSetting | Drag-to-reorder: `aria-grabbed`, `aria-dropeffect`, keyboard reorder via Arrow keys + Space |
+| ProTable ToolBar | Density selector: `role="radiogroup"` with `aria-label`; Column settings trigger: `aria-haspopup="dialog"` |
+| QueryFilter collapse/expand | Toggle button: `aria-expanded`, `aria-controls` pointing to collapsible region |
+| ModalForm / DrawerForm | Focus trap inside modal/drawer; return focus to trigger on close; `aria-modal="true"` |
+| StepsForm | `aria-current="step"` on active step; step validation errors announced via `aria-live="polite"` |
+| ProDescriptions | Semantic `<dl>/<dt>/<dd>` structure when not using el-descriptions |
+
+### Testing
+- Keyboard navigation: every interactive element reachable via Tab, activatable via Enter/Space
+- Screen reader: test with VoiceOver (macOS) for critical flows (table CRUD, form submit, modal open/close)
+- Color contrast: all custom tokens in @pro/themes must meet WCAG 2.1 AA (4.5:1 for text, 3:1 for UI)
+
+---
+
+## 10. Documentation (VitePress)
 
 ### Structure
 
@@ -778,7 +850,7 @@ Demo `.vue` files live in each component package's `demos/` directory. VitePress
 
 ---
 
-## 10. CI/CD Pipeline
+## 11. CI/CD Pipeline
 
 ### PR Pipeline
 
@@ -880,7 +952,23 @@ Dashboard "Rollback" →
 
 ---
 
-## 11. Deferred Items (P2)
+### Observability (P1 Baseline)
+
+While comprehensive metrics and alerting are deferred to P2, the following baseline observability is required at launch:
+
+| Endpoint | Health Check |
+|----------|-------------|
+| Platform API | `GET /health` returns `{ status: "ok", db: "connected", uptime: N }` |
+| Import Map API | `GET /api/v1/import-map/health` returns `{ status: "ok", cache_size: N, cache_epoch: N }` |
+| CDN | Nightly CI job validates: all active version assets return 200, SRI hashes match |
+
+**Structured logging** (pino): All API requests logged with `requestId`, `duration`, `statusCode`, `userId`. Error responses include `error.code` and `error.message`.
+
+**Error budget alert**: If import-map endpoint error rate > 1% over 5 minutes, send notification via configured channel (Slack/WeChat). Implementation in Plan 6 nightly health check.
+
+---
+
+## 12. Deferred Items (P2)
 
 The following items are acknowledged but deferred to future iterations:
 

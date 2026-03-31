@@ -22,7 +22,7 @@ pro-components/
 ├── .npmrc                            # pnpm config (strict peer deps, etc.)
 ├── .gitignore
 ├── .prettierrc                       # Prettier config
-├── .eslintrc.cjs                     # ESLint config
+├── eslint.config.js                  # ESLint flat config (ESLint 9+)
 ├── scripts/
 │   ├── rollup.base.ts                # Shared Rollup config factory
 │   ├── build.ts                      # Build orchestration script
@@ -35,6 +35,7 @@ pro-components/
 │   │   ├── rollup.config.ts
 │   │   └── src/
 │   │       ├── index.ts
+│   │       ├── logger.ts             # Scoped logger utility
 │   │       ├── version-check.ts      # Runtime peer version check
 │   │       └── types.ts              # Shared type utilities
 │   ├── hooks/
@@ -107,7 +108,7 @@ pro-components/
 - [ ] **Step 1: Initialize git repo**
 
 ```bash
-cd /Users/tianqiyin/Desktop/workspace/projects/pro-components
+# Run from project root directory
 git init
 ```
 
@@ -129,7 +130,7 @@ git init
     "build:dts": "turbo build:dts",
     "test": "turbo test",
     "test:e2e": "turbo test:e2e",
-    "lint": "eslint . --ext .ts,.tsx,.vue",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "type-check": "turbo type-check",
@@ -138,15 +139,15 @@ git init
     "validate-build": "tsx scripts/validate-build.ts"
   },
   "devDependencies": {
+    "acorn": "^8.12.0",
     "@rollup/plugin-commonjs": "^28.0.0",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-terser": "^0.4.0",
     "@rollup/plugin-typescript": "^12.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0",
-    "@vue/eslint-config-typescript": "^14.0.0",
+    "@eslint/js": "^9.0.0",
     "eslint": "^9.0.0",
     "eslint-plugin-vue": "^9.0.0",
+    "typescript-eslint": "^8.0.0",
     "prettier": "^3.0.0",
     "rollup": "^4.0.0",
     "rollup-plugin-dts": "^6.0.0",
@@ -248,7 +249,7 @@ git commit -m "chore: init monorepo root config"
 ### Task 2: ESLint + Prettier Config
 
 **Files:**
-- Create: `.eslintrc.cjs`
+- Create: `eslint.config.js`
 - Create: `.prettierrc`
 - Create: `.prettierignore`
 
@@ -276,45 +277,66 @@ coverage/
 pnpm-lock.yaml
 ```
 
-- [ ] **Step 3: Create .eslintrc.cjs**
+- [ ] **Step 3: Create eslint.config.js (ESLint 9+ flat config)**
 
 ```javascript
-module.exports = {
-  root: true,
-  env: {
-    node: true,
-    browser: true,
-    es2022: true,
+import eslint from '@eslint/js'
+import tseslint from 'typescript-eslint'
+import pluginVue from 'eslint-plugin-vue'
+
+export default tseslint.config(
+  eslint.configs.recommended,
+  ...tseslint.configs.strictTypeChecked,
+  ...pluginVue.configs['flat/recommended'],
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+        extraFileExtensions: ['.vue'],
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
+      '@typescript-eslint/no-floating-promises': 'error',
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'eqeqeq': ['error', 'always'],
+      'max-lines': ['error', { max: 400, skipBlankLines: true, skipComments: true }],
+      'max-lines-per-function': ['error', { max: 50, skipBlankLines: true, skipComments: true }],
+      'max-params': ['error', 4],
+      'complexity': ['error', 10],
+      'max-depth': ['error', 4],
+      'no-console': 'error',
+    },
   },
-  parser: 'vue-eslint-parser',
-  parserOptions: {
-    parser: '@typescript-eslint/parser',
-    ecmaVersion: 2022,
-    sourceType: 'module',
+  {
+    files: ['**/*.vue'],
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser,
+      },
+    },
   },
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:vue/vue3-recommended',
-  ],
-  rules: {
-    'no-console': ['warn', { allow: ['warn', 'error'] }],
-    'no-debugger': 'warn',
-    '@typescript-eslint/no-explicit-any': 'off',
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    'vue/multi-word-component-names': 'off',
-    'vue/require-default-prop': 'off',
+  {
+    files: ['**/*.test.ts', '**/*.test.tsx'],
+    rules: {
+      'max-lines-per-function': 'off',
+      'no-console': 'off',
+    },
   },
-  ignorePatterns: ['dist/', 'node_modules/', '.turbo/', 'coverage/'],
-}
+  {
+    ignores: ['**/dist/**', '**/node_modules/**', '**/*.d.ts'],
+  },
+)
 ```
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add .eslintrc.cjs .prettierrc .prettierignore
-git commit -m "chore: add ESLint + Prettier config"
+git add eslint.config.js .prettierrc .prettierignore
+git commit -m "chore: add ESLint flat config + Prettier config"
 ```
 
 ---
@@ -354,7 +376,7 @@ git commit -m "chore: add ESLint + Prettier config"
       "cache": false
     },
     "lint": {
-      "inputs": ["src/**", "*.cjs", "*.ts"]
+      "inputs": ["src/**", "*.js", "*.ts"]
     },
     "clean": {
       "cache": false
@@ -394,6 +416,7 @@ import commonjs from '@rollup/plugin-commonjs'
 import postcss from 'rollup-plugin-postcss'
 import terser from '@rollup/plugin-terser'
 
+/** Configuration options for the shared Rollup build factory */
 export interface PackageConfig {
   /** Absolute path to the package directory */
   packageDir: string
@@ -405,125 +428,152 @@ export interface PackageConfig {
   extraPlugins?: Plugin[]
 }
 
-function readPkg(packageDir: string) {
-  const raw = readFileSync(resolve(packageDir, 'package.json'), 'utf-8')
-  return JSON.parse(raw)
+interface ResolvedBuildContext {
+  input: string
+  external: (string | RegExp)[]
+  basePlugins: Plugin[]
+  packageDir: string
 }
 
-export function createRollupConfig(config: PackageConfig): RollupOptions[] {
-  const { packageDir, umdName, extraExternal = [], extraPlugins = [] } = config
+/** Read and parse a package.json from the given directory */
+function readPkg(packageDir: string): Record<string, unknown> {
+  const raw = readFileSync(resolve(packageDir, 'package.json'), 'utf-8')
+  return JSON.parse(raw) as Record<string, unknown>
+}
+
+/** Resolve shared build context (input, externals, base plugins) from config */
+function resolveBuildContext(config: PackageConfig): ResolvedBuildContext {
+  const { packageDir, extraExternal = [], extraPlugins = [] } = config
   const pkg = readPkg(packageDir)
-  const input = resolve(packageDir, 'src/index.ts')
+  const deps = pkg.dependencies as Record<string, string> | undefined
+  const peerDeps = pkg.peerDependencies as Record<string, string> | undefined
 
-  const external = [
-    'vue',
-    'element-plus',
-    /^@pro\//,
-    ...Object.keys(pkg.dependencies || {}),
-    ...Object.keys(pkg.peerDependencies || {}),
-    ...extraExternal,
-  ]
+  return {
+    input: resolve(packageDir, 'src/index.ts'),
+    external: [
+      'vue',
+      'element-plus',
+      /^@pro\//,
+      ...Object.keys(deps ?? {}),
+      ...Object.keys(peerDeps ?? {}),
+      ...extraExternal,
+    ],
+    basePlugins: [
+      vue(),
+      nodeResolve({ extensions: ['.ts', '.tsx', '.vue', '.js'] }),
+      commonjs(),
+      ...extraPlugins,
+    ],
+    packageDir,
+  }
+}
 
-  const basePlugins: Plugin[] = [
-    vue(),
-    nodeResolve({ extensions: ['.ts', '.tsx', '.vue', '.js'] }),
-    commonjs(),
-    ...extraPlugins,
-  ]
+/** Create ESM build configuration */
+function createEsmConfig(ctx: ResolvedBuildContext): RollupOptions {
+  return {
+    input: ctx.input,
+    output: {
+      format: 'esm',
+      dir: resolve(ctx.packageDir, 'dist/esm'),
+      entryFileNames: '[name].mjs',
+      chunkFileNames: '[name]-[hash].mjs',
+      preserveModules: false,
+    },
+    external: ctx.external,
+    plugins: [
+      ...ctx.basePlugins,
+      typescript({
+        tsconfig: resolve(ctx.packageDir, 'tsconfig.json'),
+        declaration: false,
+      }),
+      postcss({ extract: resolve(ctx.packageDir, 'dist/style/index.css'), minimize: true }),
+    ],
+  }
+}
 
+/** Create CJS build configuration */
+function createCjsConfig(ctx: ResolvedBuildContext): RollupOptions {
+  return {
+    input: ctx.input,
+    output: {
+      format: 'cjs',
+      dir: resolve(ctx.packageDir, 'dist/cjs'),
+      entryFileNames: '[name].js',
+      exports: 'named',
+    },
+    external: ctx.external,
+    plugins: [
+      ...ctx.basePlugins,
+      typescript({
+        tsconfig: resolve(ctx.packageDir, 'tsconfig.json'),
+        declaration: false,
+      }),
+      postcss({ inject: false }),
+    ],
+  }
+}
+
+/** Create UMD build configuration (standard + minified) */
+function createUmdConfigs(ctx: ResolvedBuildContext, umdName: string): RollupOptions[] {
+  const umdExternal = ['vue', 'element-plus']
+  const umdGlobals = { vue: 'Vue', 'element-plus': 'ElementPlus' }
+
+  const standard: RollupOptions = {
+    input: ctx.input,
+    output: {
+      format: 'umd',
+      file: resolve(ctx.packageDir, 'dist/umd/index.js'),
+      name: umdName,
+      globals: umdGlobals,
+      exports: 'named',
+    },
+    external: umdExternal,
+    plugins: [
+      ...ctx.basePlugins,
+      typescript({
+        tsconfig: resolve(ctx.packageDir, 'tsconfig.json'),
+        declaration: false,
+      }),
+      postcss({ inject: true, minimize: true }),
+      terser(),
+    ],
+  }
+
+  const minified: RollupOptions = {
+    input: ctx.input,
+    output: {
+      format: 'umd',
+      file: resolve(ctx.packageDir, 'dist/umd/index.min.js'),
+      name: umdName,
+      globals: umdGlobals,
+      exports: 'named',
+      sourcemap: true,
+    },
+    external: umdExternal,
+    plugins: [
+      ...ctx.basePlugins,
+      typescript({
+        tsconfig: resolve(ctx.packageDir, 'tsconfig.json'),
+        declaration: false,
+      }),
+      postcss({ inject: true, minimize: true }),
+      terser({ format: { comments: false } }),
+    ],
+  }
+
+  return [standard, minified]
+}
+
+/** Create all Rollup build configurations (ESM + CJS + optional UMD) */
+export function createRollupConfig(config: PackageConfig): RollupOptions[] {
+  const ctx = resolveBuildContext(config)
   const configs: RollupOptions[] = [
-    // ESM build
-    {
-      input,
-      output: {
-        format: 'esm',
-        dir: resolve(packageDir, 'dist/esm'),
-        entryFileNames: '[name].mjs',
-        chunkFileNames: '[name]-[hash].mjs',
-        preserveModules: false,
-      },
-      external,
-      plugins: [
-        ...basePlugins,
-        typescript({
-          tsconfig: resolve(packageDir, 'tsconfig.json'),
-          declaration: false,
-        }),
-        postcss({ extract: resolve(packageDir, 'dist/style/index.css'), minimize: true }),
-      ],
-    },
-    // CJS build
-    {
-      input,
-      output: {
-        format: 'cjs',
-        dir: resolve(packageDir, 'dist/cjs'),
-        entryFileNames: '[name].js',
-        exports: 'named',
-      },
-      external,
-      plugins: [
-        ...basePlugins,
-        typescript({
-          tsconfig: resolve(packageDir, 'tsconfig.json'),
-          declaration: false,
-        }),
-        postcss({ inject: false }),
-      ],
-    },
+    createEsmConfig(ctx),
+    createCjsConfig(ctx),
   ]
 
-  // UMD build (only for packages with umdName)
-  if (umdName) {
-    configs.push({
-      input,
-      output: {
-        format: 'umd',
-        file: resolve(packageDir, 'dist/umd/index.js'),
-        name: umdName,
-        globals: {
-          vue: 'Vue',
-          'element-plus': 'ElementPlus',
-        },
-        exports: 'named',
-      },
-      external: ['vue', 'element-plus'],
-      plugins: [
-        ...basePlugins,
-        typescript({
-          tsconfig: resolve(packageDir, 'tsconfig.json'),
-          declaration: false,
-        }),
-        postcss({ inject: true, minimize: true }),
-        terser(),
-      ],
-    })
-
-    // UMD minified
-    configs.push({
-      input,
-      output: {
-        format: 'umd',
-        file: resolve(packageDir, 'dist/umd/index.min.js'),
-        name: umdName,
-        globals: {
-          vue: 'Vue',
-          'element-plus': 'ElementPlus',
-        },
-        exports: 'named',
-        sourcemap: true,
-      },
-      external: ['vue', 'element-plus'],
-      plugins: [
-        ...basePlugins,
-        typescript({
-          tsconfig: resolve(packageDir, 'tsconfig.json'),
-          declaration: false,
-        }),
-        postcss({ inject: true, minimize: true }),
-        terser({ format: { comments: false } }),
-      ],
-    })
+  if (config.umdName) {
+    configs.push(...createUmdConfigs(ctx, config.umdName))
   }
 
   return configs
@@ -551,6 +601,14 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { parse } from 'acorn'
 
+/* eslint-disable no-console -- CLI script uses console for structured output */
+const log = {
+  result: (msg: string) => console.log(msg),
+  fail: (msg: string) => console.error(msg),
+  warn: (msg: string) => console.warn(msg),
+}
+/* eslint-enable no-console */
+
 const PACKAGES_DIR = resolve(import.meta.dirname, '../packages')
 const VUE_RUNTIME_MARKERS = [
   'createApp',
@@ -560,31 +618,37 @@ const VUE_RUNTIME_MARKERS = [
   'createVNode',
 ]
 
+/** Result of validating a single package's build output */
 interface ValidationResult {
   package: string
   errors: string[]
   warnings: string[]
 }
 
-function validateExports(pkgDir: string, pkgJson: any): string[] {
+/** Validate that package.json export fields point to existing files */
+function validateExports(pkgDir: string, pkgJson: Record<string, unknown>): string[] {
   const errors: string[] = []
 
-  if (pkgJson.main && !existsSync(resolve(pkgDir, pkgJson.main))) {
-    errors.push(`main field points to missing file: ${pkgJson.main}`)
+  const main = pkgJson.main as string | undefined
+  const mod = pkgJson.module as string | undefined
+  const types = pkgJson.types as string | undefined
+
+  if (main && !existsSync(resolve(pkgDir, main))) {
+    errors.push(`main field points to missing file: ${main}`)
   }
-  if (pkgJson.module && !existsSync(resolve(pkgDir, pkgJson.module))) {
-    errors.push(`module field points to missing file: ${pkgJson.module}`)
+  if (mod && !existsSync(resolve(pkgDir, mod))) {
+    errors.push(`module field points to missing file: ${mod}`)
   }
-  if (pkgJson.types && !existsSync(resolve(pkgDir, pkgJson.types))) {
-    errors.push(`types field points to missing file: ${pkgJson.types}`)
+  if (types && !existsSync(resolve(pkgDir, types))) {
+    errors.push(`types field points to missing file: ${types}`)
   }
 
-  if (pkgJson.exports) {
-    for (const [key, value] of Object.entries(pkgJson.exports)) {
-      const exportMap = value as Record<string, string>
-      for (const [condition, path] of Object.entries(exportMap)) {
-        if (typeof path === 'string' && !existsSync(resolve(pkgDir, path))) {
-          errors.push(`exports["${key}"]["${condition}"] points to missing file: ${path}`)
+  const exports = pkgJson.exports as Record<string, Record<string, string>> | undefined
+  if (exports) {
+    for (const [key, value] of Object.entries(exports)) {
+      for (const [condition, filePath] of Object.entries(value)) {
+        if (typeof filePath === 'string' && !existsSync(resolve(pkgDir, filePath))) {
+          errors.push(`exports["${key}"]["${condition}"] points to missing file: ${filePath}`)
         }
       }
     }
@@ -593,6 +657,7 @@ function validateExports(pkgDir: string, pkgJson: any): string[] {
   return errors
 }
 
+/** Detect accidentally bundled Vue runtime code in ESM output */
 function validateNoVueRuntime(pkgDir: string): string[] {
   const errors: string[] = []
   const esmDir = resolve(pkgDir, 'dist/esm')
@@ -615,6 +680,7 @@ function validateNoVueRuntime(pkgDir: string): string[] {
   return errors
 }
 
+/** Verify ESM output files are syntactically valid ES modules */
 function validateEsmValidity(pkgDir: string): string[] {
   const errors: string[] = []
   const esmDir = resolve(pkgDir, 'dist/esm')
@@ -635,6 +701,28 @@ function validateEsmValidity(pkgDir: string): string[] {
   return errors
 }
 
+/** Validate that packages with style sources produce CSS output */
+function validateCssOutput(pkgDir: string, pkgName: string): string[] {
+  const errors: string[] = []
+  const styleDir = resolve(pkgDir, 'dist', 'style')
+  const hasSrcStyle = existsSync(resolve(pkgDir, 'src', 'style'))
+  const isThemePackage = pkgName.startsWith('@pro/themes')
+
+  if (hasSrcStyle || isThemePackage) {
+    if (!existsSync(styleDir)) {
+      errors.push(`${pkgName}: missing dist/style/ directory`)
+    } else {
+      const cssFiles = readdirSync(styleDir).filter((f) => f.endsWith('.css'))
+      if (cssFiles.length === 0) {
+        errors.push(`${pkgName}: dist/style/ contains no CSS files`)
+      }
+    }
+  }
+
+  return errors
+}
+
+/** Validate that type declaration files are generated */
 function validateDts(pkgDir: string): string[] {
   const errors: string[] = []
   const typesDir = resolve(pkgDir, 'dist/types')
@@ -662,7 +750,7 @@ async function main() {
 
   for (const dir of pkgDirs) {
     const pkgDir = resolve(PACKAGES_DIR, dir)
-    const pkgJson = JSON.parse(readFileSync(resolve(pkgDir, 'package.json'), 'utf-8'))
+    const pkgJson = JSON.parse(readFileSync(resolve(pkgDir, 'package.json'), 'utf-8')) as Record<string, unknown>
     const errors: string[] = []
     const warnings: string[] = []
 
@@ -675,6 +763,7 @@ async function main() {
     errors.push(...validateExports(pkgDir, pkgJson))
     errors.push(...validateNoVueRuntime(pkgDir))
     errors.push(...validateEsmValidity(pkgDir))
+    errors.push(...validateCssOutput(pkgDir, pkgJson.name as string))
     errors.push(...validateDts(pkgDir))
 
     if (errors.length > 0) hasErrors = true
@@ -684,16 +773,16 @@ async function main() {
   // Print results
   for (const result of results) {
     const status = result.errors.length > 0 ? 'FAIL' : result.warnings.length > 0 ? 'WARN' : 'PASS'
-    console.log(`\n[${status}] ${result.package}`)
-    for (const err of result.errors) console.error(`  ERROR: ${err}`)
-    for (const warn of result.warnings) console.warn(`  WARN: ${warn}`)
+    log.result(`\n[${status}] ${result.package}`)
+    for (const err of result.errors) log.fail(`  ERROR: ${err}`)
+    for (const w of result.warnings) log.warn(`  WARN: ${w}`)
   }
 
   if (hasErrors) {
-    console.error('\nBuild validation FAILED')
+    log.fail('\nBuild validation FAILED')
     process.exit(1)
   } else {
-    console.log('\nBuild validation PASSED')
+    log.result('\nBuild validation PASSED')
   }
 }
 
@@ -717,6 +806,7 @@ git commit -m "feat: add build output validation script"
 - Create: `packages/utils/rollup.config.ts`
 - Create: `packages/utils/src/index.ts`
 - Create: `packages/utils/src/types.ts`
+- Create: `packages/utils/src/logger.ts`
 - Create: `packages/utils/src/version-check.ts`
 
 - [ ] **Step 1: Create packages/utils/package.json**
@@ -783,11 +873,11 @@ export default createRollupConfig({
 export interface RequestParams {
   current: number
   pageSize: number
-  [key: string]: any
+  [key: string]: unknown
 }
 
 /** Standard response format from request functions */
-export interface RequestResult<T = any> {
+export interface RequestResult<T = unknown> {
   data: T[]
   total: number
   success: boolean
@@ -815,14 +905,49 @@ export type ValueType =
   | 'code'
 ```
 
-- [ ] **Step 5: Create packages/utils/src/version-check.ts**
+- [ ] **Step 5: Create packages/utils/src/logger.ts**
+
+```typescript
+const PREFIX = '[@pro]'
+
+declare const __DEV__: boolean
+
+/** Logger interface for structured, scoped log output */
+export interface Logger {
+  warn: (message: string, ...args: unknown[]) => void
+  error: (message: string, ...args: unknown[]) => void
+  info: (message: string, ...args: unknown[]) => void
+}
+
+/** Create a scoped logger that only emits warn/info in dev mode */
+export function createLogger(scope: string): Logger {
+  const tag = `${PREFIX}[${scope}]`
+  return {
+    warn: (message, ...args) => {
+      if (__DEV__) console.warn(tag, message, ...args)  // eslint-disable-line no-console
+    },
+    error: (message, ...args) => {
+      console.error(tag, message, ...args)  // eslint-disable-line no-console
+    },
+    info: (message, ...args) => {
+      if (__DEV__) console.info(tag, message, ...args)  // eslint-disable-line no-console
+    },
+  }
+}
+```
+
+- [ ] **Step 6: Create packages/utils/src/version-check.ts**
 
 ```typescript
 import { version as vueVersion } from 'vue'
+import { createLogger } from './logger'
+
+const logger = createLogger('version-check')
 
 const MIN_VUE_VERSION = '3.4.0'
 const MIN_EP_VERSION = '2.9.0'
 
+/** Compare two semver strings, returns true if current >= minimum */
 function compareVersions(current: string, minimum: string): boolean {
   const cur = current.split('.').map(Number)
   const min = minimum.split('.').map(Number)
@@ -842,17 +967,19 @@ function compareVersions(current: string, minimum: string): boolean {
  */
 export function checkDependencies(): void {
   if (!compareVersions(vueVersion, MIN_VUE_VERSION)) {
-    console.warn(
-      `[@pro/components] Vue ${vueVersion} detected, minimum required ${MIN_VUE_VERSION}. ` +
+    logger.warn(
+      `Vue ${vueVersion} detected, minimum required ${MIN_VUE_VERSION}. ` +
         'Some features may not work correctly.',
     )
   }
 }
 ```
 
-- [ ] **Step 6: Create packages/utils/src/index.ts**
+- [ ] **Step 7: Create packages/utils/src/index.ts**
 
 ```typescript
+export { createLogger } from './logger'
+export type { Logger } from './logger'
 export { checkDependencies } from './version-check'
 export type {
   RequestParams,
@@ -862,11 +989,11 @@ export type {
 } from './types'
 ```
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add packages/utils/
-git commit -m "feat: scaffold @pro/utils package"
+git commit -m "feat: scaffold @pro/utils package with logger"
 ```
 
 ---
@@ -947,7 +1074,7 @@ export default createRollupConfig({
 
 ```typescript
 // Composables will be added in Plan 2
-// Placeholder export to ensure build works
+/** Current hooks package version — placeholder export to ensure build works */
 export const HOOKS_VERSION = '0.0.1'
 ```
 
@@ -1063,6 +1190,7 @@ export default createRollupConfig({
 ```typescript
 import './variables.css'
 
+/** Current themes package version */
 export const THEMES_VERSION = '0.0.1'
 ```
 
@@ -1140,12 +1268,14 @@ export default createRollupConfig({
 - [ ] **Step 4: Create packages/resolvers/src/index.ts**
 
 ```typescript
+/** Resolved component information for unplugin-vue-components */
 interface ComponentInfo {
   name: string
   from: string
   sideEffects?: string
 }
 
+/** Function signature for unplugin-vue-components resolver */
 type ComponentResolverFunction = (componentName: string) => ComponentInfo | undefined
 
 /**
@@ -1304,7 +1434,6 @@ defineOptions({ name: 'ProTable' })
 import ProTable from './ProTable.vue'
 
 export { ProTable }
-export default ProTable
 ```
 
 - [ ] **Step 6: Create packages/pro-form/ (same pattern)**
@@ -1402,7 +1531,6 @@ defineOptions({ name: 'ProForm' })
 import ProForm from './ProForm.vue'
 
 export { ProForm }
-export default ProForm
 ```
 
 - [ ] **Step 7: Create packages/pro-descriptions/ (same pattern)**
@@ -1500,7 +1628,6 @@ defineOptions({ name: 'ProDescriptions' })
 import ProDescriptions from './ProDescriptions.vue'
 
 export { ProDescriptions }
-export default ProDescriptions
 ```
 
 - [ ] **Step 8: Commit**
@@ -1623,7 +1750,8 @@ import { checkDependencies } from '@pro/utils'
 
 const components = [ProTable, ProForm, ProDescriptions]
 
-export const install: Plugin = {
+/** Vue plugin to install all Pro Components globally via app.use() */
+export const proComponentsPlugin: Plugin = {
   install(app: App) {
     checkDependencies()
     components.forEach((component) => {
@@ -1631,8 +1759,6 @@ export const install: Plugin = {
     })
   },
 }
-
-export default install
 ```
 
 - [ ] **Step 5: Commit**
@@ -1732,12 +1858,12 @@ export default defineConfig({
 import { createApp } from 'vue'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
-import ProComponents from '@pro/pro-components'
+import { proComponentsPlugin } from '@pro/pro-components'
 import App from './App.vue'
 
 const app = createApp(App)
 app.use(ElementPlus)
-app.use(ProComponents)
+app.use(proComponentsPlugin)
 app.mount('#app')
 ```
 
@@ -1769,10 +1895,19 @@ git commit -m "feat: add Vite playground app"
 
 ### Task 13: Install Dependencies + Verify Full Build
 
+- [ ] **Step 0: Verify environment**
+
+```bash
+node -v  # Must be >= 18.0.0
+pnpm -v  # Must be >= 9.0.0
+```
+
+If either version is below the minimum, upgrade before proceeding. The root `package.json` enforces these via the `engines` field.
+
 - [ ] **Step 1: Install all dependencies**
 
 ```bash
-cd /Users/tianqiyin/Desktop/workspace/projects/pro-components
+# Run from project root directory
 pnpm install
 ```
 
@@ -1847,7 +1982,7 @@ Replace `.changeset/config.json` with:
 ```json
 {
   "$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
-  "changelog": ["@changesets/changelog-github", { "repo": "your-org/pro-components" }],
+  "changelog": ["@changesets/changelog-github", { "repo": "TODO: replace with actual GitHub org/repo" }],
   "commit": false,
   "fixed": [
     ["@pro/table", "@pro/form", "@pro/descriptions", "@pro/pro-components"]

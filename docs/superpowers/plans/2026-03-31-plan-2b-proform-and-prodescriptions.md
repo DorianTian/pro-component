@@ -27,6 +27,7 @@ packages/
 │   ├── vitest.config.ts                            # Vitest config
 │   ├── src/
 │   │   ├── index.ts                                # Public exports
+│   │   ├── injection-keys.ts                       # Typed InjectionKey symbols
 │   │   ├── types/
 │   │   │   └── index.ts                            # ProForm-specific types
 │   │   ├── composables/
@@ -42,12 +43,12 @@ packages/
 │   │   │   └── StepsForm.vue                       # Multi-step form
 │   │   └── ProForm.vue                             # Main form component
 │   └── __tests__/
-│       ├── use-pro-form.spec.ts                    # Unit tests for composable
-│       ├── pro-form.spec.ts                        # Integration tests for ProForm
-│       ├── modal-form.spec.ts                      # Integration tests for ModalForm
-│       ├── drawer-form.spec.ts                     # Integration tests for DrawerForm
-│       ├── steps-form.spec.ts                      # Integration tests for StepsForm
-│       └── query-filter.spec.ts                    # Integration tests for QueryFilter
+│       ├── use-pro-form.test.ts                    # Unit tests for composable
+│       ├── pro-form.test.ts                        # Integration tests for ProForm
+│       ├── modal-form.test.ts                      # Integration tests for ModalForm
+│       ├── drawer-form.test.ts                     # Integration tests for DrawerForm
+│       ├── steps-form.test.ts                      # Integration tests for StepsForm
+│       └── query-filter.test.ts                    # Integration tests for QueryFilter
 ├── pro-descriptions/
 │   ├── package.json                                # Update: add test script, vitest dep
 │   ├── vitest.config.ts                            # Vitest config
@@ -57,8 +58,8 @@ packages/
 │   │   │   └── use-pro-descriptions.ts             # Core descriptions composable
 │   │   └── ProDescriptions.vue                     # Main component
 │   └── __tests__/
-│       ├── use-pro-descriptions.spec.ts            # Unit tests for composable
-│       └── pro-descriptions.spec.ts                # Integration tests
+│       ├── use-pro-descriptions.test.ts            # Unit tests for composable
+│       └── pro-descriptions.test.ts                # Integration tests
 └── pro-components/src/
     └── index.ts                                    # Update: re-export new components
 ```
@@ -90,7 +91,7 @@ export interface ProFormRule {
   max?: number
   type?: 'string' | 'number' | 'boolean' | 'array' | 'object' | 'email' | 'url'
   pattern?: RegExp
-  validator?: (rule: any, value: any, callback: (error?: Error) => void) => void
+  validator?: (rule: unknown, value: unknown, callback: (error?: Error) => void) => void
 }
 
 /**
@@ -111,9 +112,9 @@ export interface ProFieldDef {
   valueEnum?: Record<string, { text: string; status?: StatusType }>
 
   /** Element Plus form-item props passthrough */
-  fieldProps?: Record<string, any>
+  fieldProps?: Record<string, unknown>
   /** Form item wrapper props (label-width, etc.) */
-  formItemProps?: Record<string, any>
+  formItemProps?: Record<string, unknown>
 
   /** Grid span (out of 24) for responsive layout */
   span?: number
@@ -123,13 +124,13 @@ export interface ProFieldDef {
   /** Validation rules */
   rules?: ProFormRule[]
   /** Default value */
-  defaultValue?: any
+  defaultValue?: unknown
 
   /** Hide this field in the form */
   hideInForm?: boolean
 
   /** Custom render function — overrides valueType rendering */
-  render?: (modelValue: any, onChange: (val: any) => void) => VNode
+  renderFormItem?: (modelValue: unknown, onChange: (val: unknown) => void) => VNode
 
   /** Placeholder text */
   placeholder?: string
@@ -148,7 +149,7 @@ export interface ProFieldDef {
    * Dynamic field props — compute props based on current form values.
    * Return partial fieldProps merged over static fieldProps.
    */
-  getFieldProps?: (formValues: Record<string, any>) => Record<string, any>
+  getFieldProps?: (formValues: Record<string, unknown>) => Record<string, unknown>
 }
 
 /** Step definition for StepsForm */
@@ -173,11 +174,13 @@ export interface ProFormConfig {
   /** Field definitions */
   fields: ProFieldDef[]
   /** Initial form values */
-  initialValues?: Record<string, any>
-  /** Submit handler — return true to indicate success, false to keep form open */
-  onSubmit?: (values: Record<string, any>) => Promise<boolean>
+  initialValues?: Record<string, unknown>
+  /** Submit handler — receives validated form values */
+  onSubmit?: (values: Record<string, unknown>) => Promise<boolean>
+  /** Error handler — called when submit throws */
+  onError?: (error: Error) => void
   /** Element Plus form props passthrough */
-  formProps?: Record<string, any>
+  formProps?: Record<string, unknown>
   /** Label width */
   labelWidth?: string | number
   /** Whether to show action buttons (submit/reset) */
@@ -285,7 +288,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    include: ['__tests__/**/*.spec.ts'],
+    include: ['__tests__/**/*.test.ts'],
     coverage: {
       provider: 'v8',
       include: ['src/**/*.{ts,vue}'],
@@ -319,11 +322,11 @@ git commit -m "chore(form): add vitest config and test scripts"
 ## Task 3: useProForm Composable — Tests First
 
 **Files:**
-- Create: `packages/pro-form/__tests__/use-pro-form.spec.ts`
+- Create: `packages/pro-form/__tests__/use-pro-form.test.ts`
 
 - [ ] **Step 1: Write failing tests for useProForm**
 
-Create `packages/pro-form/__tests__/use-pro-form.spec.ts`:
+Create `packages/pro-form/__tests__/use-pro-form.test.ts`:
 
 ```typescript
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -523,7 +526,62 @@ describe('useProForm', () => {
       const result = await submit()
       expect(result).toBe(false)
     })
+
+    it('should reject concurrent submit calls — second call returns false while first is in-flight', async () => {
+      let resolveSubmit: (value: boolean) => void
+      const onSubmit = vi.fn().mockReturnValue(
+        new Promise<boolean>((resolve) => {
+          resolveSubmit = resolve
+        }),
+      )
+      const { submit, setFieldValue } = useProForm({
+        fields: createTestFields(),
+        onSubmit,
+      })
+      setFieldValue('name', 'Test')
+
+      // First submit starts
+      const firstPromise = submit()
+      await nextTick()
+
+      // Second submit while first is in-flight
+      const secondResult = await submit()
+      expect(secondResult).toBe(false)
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+
+      // Resolve first
+      resolveSubmit!(true)
+      await firstPromise
+    })
+
+    it('should call onError handler when submit throws', async () => {
+      const testError = new Error('Server error')
+      const onSubmit = vi.fn().mockRejectedValue(testError)
+      const onError = vi.fn()
+      const { submit, setFieldValue } = useProForm({
+        fields: createTestFields(),
+        onSubmit,
+        onError,
+      })
+      setFieldValue('name', 'Test')
+      const result = await submit()
+      expect(result).toBe(false)
+      expect(onError).toHaveBeenCalledWith(testError)
+    })
   })
+
+  /*
+   * NOTE: Each test should verify ONE assertion concept. Split tests like:
+   * // BAD
+   * it('validates and submits', () => {
+   *   expect(isValid).toBe(true)
+   *   expect(submitted).toBe(true)  // Different concept
+   * })
+   *
+   * // GOOD
+   * it('validates form fields', () => { expect(isValid).toBe(true) })
+   * it('submits after validation', () => { expect(submitted).toBe(true) })
+   */
 
   describe('validation rules', () => {
     it('should collect validation rules from field definitions', () => {
@@ -575,7 +633,7 @@ Expected: Tests fail because `../src/composables/use-pro-form` does not exist.
 - [ ] **Step 3: Commit failing tests**
 
 ```bash
-git add packages/pro-form/__tests__/use-pro-form.spec.ts
+git add packages/pro-form/__tests__/use-pro-form.test.ts
 git commit -m "test(form): add failing unit tests for useProForm composable"
 ```
 
@@ -598,9 +656,11 @@ import type { ProFieldDef, ProFormConfig, ProFormRule } from '@pro/utils'
 /** Return type of useProForm composable */
 export interface UseProFormReturn {
   /** Current form values — reactive ref */
-  formValues: Ref<Record<string, any>>
-  /** Whether the form is currently submitting */
+  formValues: Ref<Record<string, unknown>>
+  /** Whether the form is currently in loading state */
   loading: Ref<boolean>
+  /** Whether a submit is currently in-flight (concurrent submission guard) */
+  isSubmitting: Ref<boolean>
   /** Visible fields (filtered by hideInForm, sorted by order) */
   visibleFields: ComputedRef<ProFieldDef[]>
   /** Validation rules collected from field definitions */
@@ -608,17 +668,17 @@ export interface UseProFormReturn {
   /** Whether any field value has changed from initial */
   isDirty: ComputedRef<boolean>
   /** Set a single field value */
-  setFieldValue: (field: string, value: any) => void
+  setFieldValue: (field: string, value: unknown) => void
   /** Set multiple field values at once (merges) */
-  setFieldsValue: (values: Record<string, any>) => void
+  setFieldsValue: (values: Record<string, unknown>) => void
   /** Get a single field's current value */
-  getFieldValue: (field: string) => any
+  getFieldValue: (field: string) => unknown
   /** Reset all fields to initialValues */
   resetFields: () => void
-  /** Trigger submit — runs onSubmit handler, returns success boolean */
+  /** Trigger submit — validates via el-form, then runs onSubmit handler */
   submit: () => Promise<boolean>
   /** Ref to bind to el-form for programmatic validation */
-  formRef: Ref<any>
+  formRef: Ref<InstanceType<typeof import('element-plus').ElForm> | null>
 }
 
 /** Options for useModalForm composable */
@@ -630,7 +690,7 @@ export interface UseModalFormOptions extends ProFormConfig {
   /** Whether to close dialog on submit success */
   closeOnSubmit?: boolean
   /** el-dialog props passthrough */
-  dialogProps?: Record<string, any>
+  dialogProps?: Record<string, unknown>
 }
 
 /** Return type of useModalForm */
@@ -638,7 +698,7 @@ export interface UseModalFormReturn extends UseProFormReturn {
   /** Whether the dialog is visible */
   visible: Ref<boolean>
   /** Open the dialog */
-  open: (initialValues?: Record<string, any>) => void
+  open: (initialValues?: Record<string, unknown>) => void
   /** Close the dialog */
   close: () => void
 }
@@ -652,7 +712,7 @@ export interface UseDrawerFormOptions extends ProFormConfig {
   /** Whether to close drawer on submit success */
   closeOnSubmit?: boolean
   /** el-drawer props passthrough */
-  drawerProps?: Record<string, any>
+  drawerProps?: Record<string, unknown>
 }
 
 /** Return type of useDrawerForm */
@@ -660,7 +720,7 @@ export interface UseDrawerFormReturn extends UseProFormReturn {
   /** Whether the drawer is visible */
   visible: Ref<boolean>
   /** Open the drawer */
-  open: (initialValues?: Record<string, any>) => void
+  open: (initialValues?: Record<string, unknown>) => void
   /** Close the drawer */
   close: () => void
 }
@@ -670,11 +730,13 @@ export interface UseStepsFormOptions {
   /** Step definitions with their field groups */
   steps: import('@pro/utils').StepFormDef[]
   /** Submit handler — receives merged values from all steps */
-  onSubmit?: (values: Record<string, any>) => Promise<boolean>
+  onSubmit?: (values: Record<string, unknown>) => Promise<boolean>
+  /** Error handler — called when submit throws */
+  onError?: (error: Error) => void
   /** Initial form values */
-  initialValues?: Record<string, any>
+  initialValues?: Record<string, unknown>
   /** Element Plus form props passthrough */
-  formProps?: Record<string, any>
+  formProps?: Record<string, unknown>
   /** Label width */
   labelWidth?: string | number
 }
@@ -696,12 +758,14 @@ export interface UseStepsFormReturn {
   /** All step definitions */
   steps: import('@pro/utils').StepFormDef[]
   /** Merged form values across all steps */
-  formValues: Ref<Record<string, any>>
+  formValues: Ref<Record<string, unknown>>
   /** Loading state during submit */
   loading: Ref<boolean>
+  /** Whether a submit is currently in-flight (concurrent submission guard) */
+  isSubmitting: Ref<boolean>
   /** Validation rules for current step fields */
   validationRules: ComputedRef<Record<string, ProFormRule[]>>
-  /** Go to next step (validates current step first) */
+  /** Go to next step (validates current step fields via el-form first) */
   nextStep: () => Promise<boolean>
   /** Go to previous step */
   prevStep: () => void
@@ -712,24 +776,61 @@ export interface UseStepsFormReturn {
   /** Reset all steps to initial state */
   resetFields: () => void
   /** Ref to bind to el-form */
-  formRef: Ref<any>
+  formRef: Ref<InstanceType<typeof import('element-plus').ElForm> | null>
 }
 ```
 
-- [ ] **Step 2: Implement useProForm composable**
+- [ ] **Step 2: Create injection keys (Symbol-based, no magic strings)**
+
+Create `packages/pro-form/src/injection-keys.ts`:
+
+```typescript
+import type { InjectionKey } from 'vue'
+import type { UseProFormReturn } from './types'
+
+/** ProForm context injection key — typed Symbol, not a magic string */
+export const PRO_FORM_INJECTION_KEY: InjectionKey<UseProFormReturn> = Symbol('proForm')
+
+/**
+ * ProFormField context injection key — for nested field communication.
+ * Fields can inject this to access parent form context.
+ */
+export interface ProFormFieldContext {
+  fieldPath: string
+  disabled: boolean
+}
+
+export const PRO_FORM_FIELD_INJECTION_KEY: InjectionKey<ProFormFieldContext> = Symbol('proFormField')
+```
+
+- [ ] **Step 3: Implement useProForm composable**
 
 Create `packages/pro-form/src/composables/use-pro-form.ts`:
 
 ```typescript
-import { ref, computed, shallowRef } from 'vue'
+// External
+import { ref, computed, shallowRef, toRaw } from 'vue'
+import { ElForm } from 'element-plus'
+
+// Type imports (separate group, always last)
 import type { ProFieldDef, ProFormConfig, ProFormRule } from '@pro/utils'
 import type { UseProFormReturn } from '../types'
+
+/** Grid layout total columns for form row spans */
+export const GRID_TOTAL_COLUMNS = 24
+/** Default gutter between form grid columns (px) */
+export const GRID_GUTTER = 16
+/** Default label width for form items */
+export const DEFAULT_LABEL_WIDTH = '100px'
+/** Default field count threshold before QueryFilter collapses */
+export const QUERY_FILTER_DEFAULT_COLLAPSE_THRESHOLD = 3
 
 /**
  * Core composable for schema-driven form state management.
  * Manages form values, validation rules, dirty tracking, submit flow.
+ * Integrates with el-form.validate() for Element Plus native validation.
  *
- * @param config - Form configuration with fields, initialValues, onSubmit
+ * @param config - Form configuration with fields, initialValues, onSubmit, onError
  * @returns Reactive form state and control methods
  */
 export function useProForm(config: ProFormConfig): UseProFormReturn {
@@ -737,11 +838,13 @@ export function useProForm(config: ProFormConfig): UseProFormReturn {
     fields,
     initialValues = {},
     onSubmit,
+    onError,
   } = config
 
-  const formValues = ref<Record<string, any>>({ ...initialValues })
+  const formValues = ref<Record<string, unknown>>({ ...initialValues })
+  const isSubmitting = ref(false)
   const loading = ref(false)
-  const formRef = shallowRef<any>(null)
+  const formRef = shallowRef<InstanceType<typeof ElForm> | null>(null)
 
   const snapshotInitial = { ...initialValues }
 
@@ -772,15 +875,15 @@ export function useProForm(config: ProFormConfig): UseProFormReturn {
     return false
   })
 
-  function setFieldValue(field: string, value: any): void {
+  function setFieldValue(field: string, value: unknown): void {
     formValues.value = { ...formValues.value, [field]: value }
   }
 
-  function setFieldsValue(values: Record<string, any>): void {
+  function setFieldsValue(values: Record<string, unknown>): void {
     formValues.value = { ...formValues.value, ...values }
   }
 
-  function getFieldValue(field: string): any {
+  function getFieldValue(field: string): unknown {
     return formValues.value[field]
   }
 
@@ -789,17 +892,28 @@ export function useProForm(config: ProFormConfig): UseProFormReturn {
   }
 
   async function submit(): Promise<boolean> {
-    if (!onSubmit) {
-      return false
+    if (isSubmitting.value) return false  // Prevent concurrent submissions
+
+    if (!formRef.value) {
+      throw new Error('Form ref not initialized — ensure ProForm is mounted')
     }
 
-    loading.value = true
     try {
-      const result = await onSubmit({ ...formValues.value })
-      return result
-    } catch (error) {
-      throw error
+      isSubmitting.value = true
+      loading.value = true
+      // Validate via Element Plus form
+      const isValid = await formRef.value.validate().catch(() => false)
+      if (!isValid) return false
+
+      await onSubmit?.(toRaw(formValues.value))
+      return true
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        onError?.(error)
+      }
+      return false
     } finally {
+      isSubmitting.value = false
       loading.value = false
     }
   }
@@ -807,6 +921,7 @@ export function useProForm(config: ProFormConfig): UseProFormReturn {
   return {
     formValues,
     loading,
+    isSubmitting,
     visibleFields,
     validationRules,
     isDirty,
@@ -820,20 +935,20 @@ export function useProForm(config: ProFormConfig): UseProFormReturn {
 }
 ```
 
-- [ ] **Step 3: Verify tests pass**
+- [ ] **Step 4: Verify tests pass**
 
 ```bash
 cd /Users/tianqiyin/Desktop/workspace/projects/pro-components
 pnpm --filter @pro/form test 2>&1
 ```
 
-Expected: All tests in `use-pro-form.spec.ts` pass.
+Expected: All tests in `use-pro-form.test.ts` pass.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add packages/pro-form/src/types/index.ts packages/pro-form/src/composables/use-pro-form.ts
-git commit -m "feat(form): implement useProForm composable with state, validation, submit"
+git add packages/pro-form/src/types/index.ts packages/pro-form/src/injection-keys.ts packages/pro-form/src/composables/use-pro-form.ts
+git commit -m "feat(form): implement useProForm composable with el-form validation, injection keys"
 ```
 
 ---
@@ -847,34 +962,28 @@ git commit -m "feat(form): implement useProForm composable with state, validatio
 
 Create `packages/pro-form/src/components/ProFormField.vue`:
 
+**NOTE:** ProFormField MUST NOT duplicate the valueType-to-component mapping. It imports `CONTROL_REGISTRY` from `@pro/hooks` — single source of truth for all valueType resolution across ProTable, ProForm, and ProDescriptions.
+
 ```vue
 <script setup lang="ts">
-import { computed, h } from 'vue'
-import {
-  ElFormItem,
-  ElInput,
-  ElInputNumber,
-  ElSelect,
-  ElOption,
-  ElDatePicker,
-  ElSwitch,
-  ElRadioGroup,
-  ElRadio,
-  ElCheckboxGroup,
-  ElCheckbox,
-} from 'element-plus'
+import { computed } from 'vue'
+import { ElFormItem } from 'element-plus'
+import { CONTROL_REGISTRY } from '@pro/hooks'
+
+import type { Component } from 'vue'
 import type { ProFieldDef } from '@pro/utils'
+import type { ControlRegistryEntry } from '@pro/hooks'
 
 defineOptions({ name: 'ProFormField' })
 
 const props = defineProps<{
   field: ProFieldDef
-  modelValue: any
-  formValues?: Record<string, any>
+  modelValue: unknown
+  formValues?: Record<string, unknown>
 }>()
 
 const emit = defineEmits<{
-  'update:modelValue': [value: any]
+  'update:modelValue': [value: unknown]
 }>()
 
 const computedFieldProps = computed(() => {
@@ -886,147 +995,57 @@ const computedFieldProps = computed(() => {
   return base
 })
 
-const placeholder = computed(() => {
-  if (props.field.placeholder) return props.field.placeholder
-  const vt = props.field.valueType ?? 'text'
-  const isInput = ['text', 'textarea', 'number', 'money', 'percent'].includes(vt)
-  return isInput ? `Please enter ${props.field.title}` : `Please select ${props.field.title}`
-})
-
-function handleUpdate(val: any) {
+function handleUpdate(val: unknown) {
   emit('update:modelValue', val)
 }
 
-function renderControl() {
-  const vt = props.field.valueType ?? 'text'
-  const mergedProps = {
+/**
+ * Resolve the control component and props for a given valueType.
+ * Uses the shared CONTROL_REGISTRY from @pro/hooks — single source of truth.
+ */
+function resolveControl(
+  field: ProFieldDef,
+  modelValue: unknown,
+  onChange: (value: unknown) => void,
+): { component: Component; props: Record<string, unknown> } {
+  // Custom render takes highest priority
+  if (field.renderFormItem) {
+    return {
+      component: field.renderFormItem as unknown as Component,
+      props: { modelValue, 'onUpdate:modelValue': onChange },
+    }
+  }
+
+  const entry = CONTROL_REGISTRY[field.valueType ?? 'text']
+  if (!entry) {
+    console.warn(`[ProFormField] Unknown valueType: ${field.valueType}, falling back to text`)
+    return resolveControl({ ...field, valueType: 'text' }, modelValue, onChange)
+  }
+
+  const resolvedProps: Record<string, unknown> = {
+    ...entry.defaultProps,
     ...computedFieldProps.value,
-    disabled: props.field.disabled,
-    readonly: props.field.readonly,
+    disabled: field.disabled,
+    readonly: field.readonly,
+    modelValue,
+    'onUpdate:modelValue': onChange,
   }
 
-  switch (vt) {
-    case 'text':
-      return h(ElInput, {
-        modelValue: props.modelValue,
-        'onUpdate:modelValue': handleUpdate,
-        placeholder: placeholder.value,
-        ...mergedProps,
-      })
-
-    case 'textarea':
-      return h(ElInput, {
-        modelValue: props.modelValue,
-        'onUpdate:modelValue': handleUpdate,
-        type: 'textarea',
-        placeholder: placeholder.value,
-        ...mergedProps,
-      })
-
-    case 'number':
-    case 'money':
-    case 'percent':
-      return h(ElInputNumber, {
-        modelValue: props.modelValue,
-        'onUpdate:modelValue': handleUpdate,
-        placeholder: placeholder.value,
-        controlsPosition: 'right',
-        ...mergedProps,
-      })
-
-    case 'select':
-      return h(
-        ElSelect,
-        {
-          modelValue: props.modelValue,
-          'onUpdate:modelValue': handleUpdate,
-          placeholder: placeholder.value,
-          ...mergedProps,
-        },
-        {
-          default: () =>
-            Object.entries(props.field.valueEnum ?? {}).map(([value, config]) =>
-              h(ElOption, { key: value, label: config.text, value }),
-            ),
-        },
-      )
-
-    case 'date':
-      return h(ElDatePicker, {
-        modelValue: props.modelValue,
-        'onUpdate:modelValue': handleUpdate,
-        type: 'date',
-        placeholder: placeholder.value,
-        ...mergedProps,
-      })
-
-    case 'dateRange':
-      return h(ElDatePicker, {
-        modelValue: props.modelValue,
-        'onUpdate:modelValue': handleUpdate,
-        type: 'daterange',
-        startPlaceholder: 'Start date',
-        endPlaceholder: 'End date',
-        ...mergedProps,
-      })
-
-    case 'dateTime':
-      return h(ElDatePicker, {
-        modelValue: props.modelValue,
-        'onUpdate:modelValue': handleUpdate,
-        type: 'datetime',
-        placeholder: placeholder.value,
-        ...mergedProps,
-      })
-
-    case 'switch':
-      return h(ElSwitch, {
-        modelValue: props.modelValue,
-        'onUpdate:modelValue': handleUpdate,
-        ...mergedProps,
-      })
-
-    case 'radio':
-      return h(
-        ElRadioGroup,
-        {
-          modelValue: props.modelValue,
-          'onUpdate:modelValue': handleUpdate,
-          ...mergedProps,
-        },
-        {
-          default: () =>
-            Object.entries(props.field.valueEnum ?? {}).map(([value, config]) =>
-              h(ElRadio, { key: value, value }, { default: () => config.text }),
-            ),
-        },
-      )
-
-    case 'checkbox':
-      return h(
-        ElCheckboxGroup,
-        {
-          modelValue: props.modelValue ?? [],
-          'onUpdate:modelValue': handleUpdate,
-          ...mergedProps,
-        },
-        {
-          default: () =>
-            Object.entries(props.field.valueEnum ?? {}).map(([value, config]) =>
-              h(ElCheckbox, { key: value, value }, { default: () => config.text }),
-            ),
-        },
-      )
-
-    default:
-      return h(ElInput, {
-        modelValue: props.modelValue,
-        'onUpdate:modelValue': handleUpdate,
-        placeholder: placeholder.value,
-        ...mergedProps,
-      })
+  // valueEnum -> options for select/radio/checkbox
+  if (field.valueEnum && ['select', 'radio', 'checkbox'].includes(field.valueType ?? '')) {
+    resolvedProps.options = Object.entries(field.valueEnum).map(([value, config]) => ({
+      label: typeof config === 'string' ? config : config.text,
+      value,
+      disabled: typeof config === 'object' ? config.disabled : false,
+    }))
   }
+
+  return { component: entry.component, props: resolvedProps }
 }
+
+const controlResult = computed(() =>
+  resolveControl(props.field, props.modelValue, handleUpdate),
+)
 </script>
 
 <template>
@@ -1041,7 +1060,7 @@ function renderControl() {
         <el-icon style="margin-left: 4px; cursor: help"><QuestionFilled /></el-icon>
       </el-tooltip>
     </template>
-    <component :is="() => field.render ? field.render(modelValue, handleUpdate) : renderControl()" />
+    <component :is="controlResult.component" v-bind="controlResult.props" />
   </ElFormItem>
 </template>
 ```
@@ -1058,11 +1077,11 @@ git commit -m "feat(form): add ProFormField component for valueType-based field 
 ## Task 6: ProForm Component — Tests First
 
 **Files:**
-- Create: `packages/pro-form/__tests__/pro-form.spec.ts`
+- Create: `packages/pro-form/__tests__/pro-form.test.ts`
 
 - [ ] **Step 1: Write integration tests for ProForm**
 
-Create `packages/pro-form/__tests__/pro-form.spec.ts`:
+Create `packages/pro-form/__tests__/pro-form.test.ts`:
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
@@ -1072,7 +1091,7 @@ import ElementPlus from 'element-plus'
 import ProForm from '../src/ProForm.vue'
 import type { ProFieldDef } from '@pro/utils'
 
-function createWrapper(props: Record<string, any> = {}, options: Record<string, any> = {}) {
+function createWrapper(props: Record<string, unknown> = {}, options: Record<string, unknown> = {}) {
   return mount(ProForm, {
     props,
     global: {
@@ -1148,6 +1167,21 @@ describe('ProForm', () => {
       ]
       const wrapper = createWrapper({ fields })
       expect(wrapper.find('.el-switch').exists()).toBe(true)
+    })
+
+    it('should render custom renderFormItem when provided', () => {
+      const fields: ProFieldDef[] = [
+        {
+          dataIndex: 'custom',
+          title: 'Custom',
+          valueType: 'text',
+          renderFormItem: (modelValue: unknown, onChange: (val: unknown) => void) =>
+            h('div', { class: 'custom-control', onClick: () => onChange('clicked') }, `Value: ${modelValue}`),
+        },
+      ]
+      const wrapper = createWrapper({ fields, initialValues: { custom: 'hello' } })
+      expect(wrapper.find('.custom-control').exists()).toBe(true)
+      expect(wrapper.text()).toContain('Value: hello')
     })
   })
 
@@ -1261,7 +1295,7 @@ Expected: Tests fail because ProForm.vue is still a placeholder.
 - [ ] **Step 3: Commit failing tests**
 
 ```bash
-git add packages/pro-form/__tests__/pro-form.spec.ts
+git add packages/pro-form/__tests__/pro-form.test.ts
 git commit -m "test(form): add failing integration tests for ProForm component"
 ```
 
@@ -1280,9 +1314,11 @@ Replace `packages/pro-form/src/ProForm.vue` with:
 <script setup lang="ts">
 import { computed, provide, toRefs } from 'vue'
 import { ElForm, ElFormItem, ElButton, ElRow, ElCol } from 'element-plus'
-import type { ProFieldDef, ProFormConfig, FormLayout } from '@pro/utils'
-import { useProForm } from './composables/use-pro-form'
+import { useProForm, GRID_GUTTER, DEFAULT_LABEL_WIDTH } from './composables/use-pro-form'
+import { PRO_FORM_INJECTION_KEY } from './injection-keys'
 import ProFormField from './components/ProFormField.vue'
+
+import type { ProFieldDef, ProFormConfig, FormLayout } from '@pro/utils'
 import type { UseProFormReturn } from './types'
 
 defineOptions({ name: 'ProForm' })
@@ -1291,9 +1327,10 @@ const props = withDefaults(
   defineProps<{
     layout?: FormLayout
     fields: ProFieldDef[]
-    initialValues?: Record<string, any>
-    onSubmit?: (values: Record<string, any>) => Promise<boolean>
-    formProps?: Record<string, any>
+    initialValues?: Record<string, unknown>
+    onSubmit?: (values: Record<string, unknown>) => Promise<boolean>
+    onError?: (error: Error) => void
+    formProps?: Record<string, unknown>
     labelWidth?: string | number
     showActions?: boolean
     submitText?: string
@@ -1310,7 +1347,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  submit: [values: Record<string, any>]
+  submit: [values: Record<string, unknown>]
   reset: []
 }>()
 
@@ -1319,6 +1356,7 @@ const formConfig: ProFormConfig = {
   fields: props.fields,
   initialValues: props.initialValues,
   onSubmit: props.onSubmit,
+  onError: props.onError,
   formProps: props.formProps,
   labelWidth: props.labelWidth,
   showActions: props.showActions,
@@ -1330,6 +1368,7 @@ const formConfig: ProFormConfig = {
 const {
   formValues,
   loading,
+  isSubmitting,
   visibleFields,
   validationRules,
   isDirty,
@@ -1341,9 +1380,10 @@ const {
   formRef,
 } = useProForm(formConfig)
 
-provide<UseProFormReturn>('proForm', {
+provide(PRO_FORM_INJECTION_KEY, {
   formValues,
   loading,
+  isSubmitting,
   visibleFields,
   validationRules,
   isDirty,
@@ -1369,13 +1409,14 @@ function handleReset() {
   emit('reset')
 }
 
-function handleFieldUpdate(dataIndex: string, value: any) {
+function handleFieldUpdate(dataIndex: string, value: unknown) {
   setFieldValue(dataIndex, value)
 }
 
 defineExpose({
   formValues,
   loading,
+  isSubmitting,
   isDirty,
   setFieldValue,
   setFieldsValue,
@@ -1393,11 +1434,11 @@ defineExpose({
     :rules="validationRules"
     :inline="layout === 'inline'"
     :label-position="layout === 'vertical' ? 'top' : 'right'"
-    :label-width="labelWidth ?? '80px'"
+    :label-width="labelWidth ?? DEFAULT_LABEL_WIDTH"
     v-bind="formProps"
     class="pro-form"
   >
-    <ElRow :gutter="16">
+    <ElRow :gutter="GRID_GUTTER">
       <ElCol
         v-for="field in visibleFields"
         :key="field.key ?? field.dataIndex"
@@ -1463,11 +1504,11 @@ git commit -m "feat(form): implement ProForm with schema-driven field rendering"
 **Files:**
 - Create: `packages/pro-form/src/composables/use-modal-form.ts`
 - Create: `packages/pro-form/src/components/ModalForm.vue`
-- Create: `packages/pro-form/__tests__/modal-form.spec.ts`
+- Create: `packages/pro-form/__tests__/modal-form.test.ts`
 
 - [ ] **Step 1: Write failing tests for ModalForm**
 
-Create `packages/pro-form/__tests__/modal-form.spec.ts`:
+Create `packages/pro-form/__tests__/modal-form.test.ts`:
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
@@ -1477,7 +1518,7 @@ import ElementPlus from 'element-plus'
 import ModalForm from '../src/components/ModalForm.vue'
 import type { ProFieldDef } from '@pro/utils'
 
-function createWrapper(props: Record<string, any> = {}) {
+function createWrapper(props: Record<string, unknown> = {}) {
   return mount(ModalForm, {
     props,
     global: {
@@ -1626,7 +1667,7 @@ describe('ModalForm', () => {
 
 ```bash
 cd /Users/tianqiyin/Desktop/workspace/projects/pro-components
-pnpm --filter @pro/form test -- __tests__/modal-form.spec.ts 2>&1 | head -20
+pnpm --filter @pro/form test -- __tests__/modal-form.test.ts 2>&1 | head -20
 ```
 
 - [ ] **Step 3: Implement useModalForm composable**
@@ -1635,8 +1676,9 @@ Create `packages/pro-form/src/composables/use-modal-form.ts`:
 
 ```typescript
 import { ref, watch } from 'vue'
-import type { ProFormConfig } from '@pro/utils'
 import { useProForm } from './use-pro-form'
+
+import type { ProFormConfig } from '@pro/utils'
 import type { UseModalFormReturn } from '../types'
 
 /**
@@ -1647,7 +1689,7 @@ export function useModalForm(config: ProFormConfig): UseModalFormReturn {
   const visible = ref(false)
   const proForm = useProForm(config)
 
-  function open(initialValues?: Record<string, any>): void {
+  function open(initialValues?: Record<string, unknown>): void {
     if (initialValues) {
       proForm.setFieldsValue(initialValues)
     }
@@ -1682,8 +1724,9 @@ Create `packages/pro-form/src/components/ModalForm.vue`:
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { ElDialog } from 'element-plus'
-import type { ProFieldDef, FormLayout } from '@pro/utils'
 import ProForm from '../ProForm.vue'
+
+import type { ProFieldDef, FormLayout } from '@pro/utils'
 
 defineOptions({ name: 'ModalForm' })
 
@@ -1693,12 +1736,12 @@ const props = withDefaults(
     title?: string
     width?: string | number
     fields: ProFieldDef[]
-    initialValues?: Record<string, any>
-    onSubmit?: (values: Record<string, any>) => Promise<boolean>
-    formProps?: Record<string, any>
+    initialValues?: Record<string, unknown>
+    onSubmit?: (values: Record<string, unknown>) => Promise<boolean>
+    formProps?: Record<string, unknown>
     labelWidth?: string | number
     layout?: FormLayout
-    dialogProps?: Record<string, any>
+    dialogProps?: Record<string, unknown>
   }>(),
   {
     modelValue: false,
@@ -1710,7 +1753,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
-  submit: [values: Record<string, any>]
+  submit: [values: Record<string, unknown>]
 }>()
 
 const dialogVisible = computed({
@@ -1722,7 +1765,7 @@ function handleClose() {
   dialogVisible.value = false
 }
 
-async function handleSubmit(values: Record<string, any>): Promise<boolean> {
+async function handleSubmit(values: Record<string, unknown>): Promise<boolean> {
   if (!props.onSubmit) return false
   const result = await props.onSubmit(values)
   if (result) {
@@ -1763,7 +1806,7 @@ watch(dialogVisible, (val) => {
 
 ```bash
 cd /Users/tianqiyin/Desktop/workspace/projects/pro-components
-pnpm --filter @pro/form test -- __tests__/modal-form.spec.ts 2>&1
+pnpm --filter @pro/form test -- __tests__/modal-form.test.ts 2>&1
 ```
 
 Expected: All ModalForm tests pass.
@@ -1771,7 +1814,7 @@ Expected: All ModalForm tests pass.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/pro-form/src/composables/use-modal-form.ts packages/pro-form/src/components/ModalForm.vue packages/pro-form/__tests__/modal-form.spec.ts
+git add packages/pro-form/src/composables/use-modal-form.ts packages/pro-form/src/components/ModalForm.vue packages/pro-form/__tests__/modal-form.test.ts
 git commit -m "feat(form): add ModalForm with dialog wrapper, auto-close on submit success"
 ```
 
@@ -1782,11 +1825,11 @@ git commit -m "feat(form): add ModalForm with dialog wrapper, auto-close on subm
 **Files:**
 - Create: `packages/pro-form/src/composables/use-drawer-form.ts`
 - Create: `packages/pro-form/src/components/DrawerForm.vue`
-- Create: `packages/pro-form/__tests__/drawer-form.spec.ts`
+- Create: `packages/pro-form/__tests__/drawer-form.test.ts`
 
 - [ ] **Step 1: Write failing tests for DrawerForm**
 
-Create `packages/pro-form/__tests__/drawer-form.spec.ts`:
+Create `packages/pro-form/__tests__/drawer-form.test.ts`:
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
@@ -1796,7 +1839,7 @@ import ElementPlus from 'element-plus'
 import DrawerForm from '../src/components/DrawerForm.vue'
 import type { ProFieldDef } from '@pro/utils'
 
-function createWrapper(props: Record<string, any> = {}) {
+function createWrapper(props: Record<string, unknown> = {}) {
   return mount(DrawerForm, {
     props,
     global: {
@@ -1906,8 +1949,9 @@ Create `packages/pro-form/src/composables/use-drawer-form.ts`:
 
 ```typescript
 import { ref, watch } from 'vue'
-import type { ProFormConfig } from '@pro/utils'
 import { useProForm } from './use-pro-form'
+
+import type { ProFormConfig } from '@pro/utils'
 import type { UseDrawerFormReturn } from '../types'
 
 /**
@@ -1918,7 +1962,7 @@ export function useDrawerForm(config: ProFormConfig): UseDrawerFormReturn {
   const visible = ref(false)
   const proForm = useProForm(config)
 
-  function open(initialValues?: Record<string, any>): void {
+  function open(initialValues?: Record<string, unknown>): void {
     if (initialValues) {
       proForm.setFieldsValue(initialValues)
     }
@@ -1953,8 +1997,9 @@ Create `packages/pro-form/src/components/DrawerForm.vue`:
 <script setup lang="ts">
 import { computed } from 'vue'
 import { ElDrawer } from 'element-plus'
-import type { ProFieldDef, FormLayout } from '@pro/utils'
 import ProForm from '../ProForm.vue'
+
+import type { ProFieldDef, FormLayout } from '@pro/utils'
 
 defineOptions({ name: 'DrawerForm' })
 
@@ -1964,12 +2009,12 @@ const props = withDefaults(
     title?: string
     width?: string | number
     fields: ProFieldDef[]
-    initialValues?: Record<string, any>
-    onSubmit?: (values: Record<string, any>) => Promise<boolean>
-    formProps?: Record<string, any>
+    initialValues?: Record<string, unknown>
+    onSubmit?: (values: Record<string, unknown>) => Promise<boolean>
+    formProps?: Record<string, unknown>
     labelWidth?: string | number
     layout?: FormLayout
-    drawerProps?: Record<string, any>
+    drawerProps?: Record<string, unknown>
   }>(),
   {
     modelValue: false,
@@ -1981,7 +2026,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
-  submit: [values: Record<string, any>]
+  submit: [values: Record<string, unknown>]
 }>()
 
 const drawerVisible = computed({
@@ -1993,7 +2038,7 @@ function handleClose() {
   drawerVisible.value = false
 }
 
-async function handleSubmit(values: Record<string, any>): Promise<boolean> {
+async function handleSubmit(values: Record<string, unknown>): Promise<boolean> {
   if (!props.onSubmit) return false
   const result = await props.onSubmit(values)
   if (result) {
@@ -2028,7 +2073,7 @@ async function handleSubmit(values: Record<string, any>): Promise<boolean> {
 
 ```bash
 cd /Users/tianqiyin/Desktop/workspace/projects/pro-components
-pnpm --filter @pro/form test -- __tests__/drawer-form.spec.ts 2>&1
+pnpm --filter @pro/form test -- __tests__/drawer-form.test.ts 2>&1
 ```
 
 Expected: All DrawerForm tests pass.
@@ -2036,7 +2081,7 @@ Expected: All DrawerForm tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/pro-form/src/composables/use-drawer-form.ts packages/pro-form/src/components/DrawerForm.vue packages/pro-form/__tests__/drawer-form.spec.ts
+git add packages/pro-form/src/composables/use-drawer-form.ts packages/pro-form/src/components/DrawerForm.vue packages/pro-form/__tests__/drawer-form.test.ts
 git commit -m "feat(form): add DrawerForm with drawer wrapper, auto-close on submit"
 ```
 
@@ -2047,11 +2092,11 @@ git commit -m "feat(form): add DrawerForm with drawer wrapper, auto-close on sub
 **Files:**
 - Create: `packages/pro-form/src/composables/use-steps-form.ts`
 - Create: `packages/pro-form/src/components/StepsForm.vue`
-- Create: `packages/pro-form/__tests__/steps-form.spec.ts`
+- Create: `packages/pro-form/__tests__/steps-form.test.ts`
 
 - [ ] **Step 1: Write failing tests for StepsForm**
 
-Create `packages/pro-form/__tests__/steps-form.spec.ts`:
+Create `packages/pro-form/__tests__/steps-form.test.ts`:
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
@@ -2087,7 +2132,7 @@ function createSteps(): StepFormDef[] {
   ]
 }
 
-function createWrapper(props: Record<string, any> = {}) {
+function createWrapper(props: Record<string, unknown> = {}) {
   return mount(StepsForm, {
     props,
     global: {
@@ -2274,6 +2319,39 @@ describe('StepsForm component', () => {
     })
   })
 
+  describe('step validation blocking advancement', () => {
+    it('should block nextStep when el-form.validate() fails for current step fields', async () => {
+      // This test verifies that nextStep() calls validateCurrentStep()
+      // which uses formRef.value.validateField() on current step's field keys.
+      // When validation fails (e.g., required field is empty), nextStep returns false.
+      const stepsWithRequired: StepFormDef[] = [
+        {
+          title: 'Step 1',
+          fields: [
+            { dataIndex: 'name', title: 'Name', valueType: 'text', rules: [{ required: true, message: 'Required' }] },
+          ],
+        },
+        {
+          title: 'Step 2',
+          fields: [
+            { dataIndex: 'age', title: 'Age', valueType: 'number' },
+          ],
+        },
+      ]
+      const wrapper = createWrapper({ steps: stepsWithRequired })
+
+      // Try to advance without filling required field
+      const nextBtn = wrapper.find('.pro-steps-form__next')
+      await nextBtn.trigger('click')
+      await nextTick()
+
+      // Should still be on step 0 because validation failed
+      const formItems = wrapper.findAll('.el-form-item')
+      expect(formItems.length).toBe(1)
+      // The field rendered should still be 'name' (step 0)
+    })
+  })
+
   describe('submit', () => {
     it('should call onSubmit when Submit button is clicked on last step', async () => {
       const onSubmit = vi.fn().mockResolvedValue(true)
@@ -2306,21 +2384,25 @@ describe('StepsForm component', () => {
 Create `packages/pro-form/src/composables/use-steps-form.ts`:
 
 ```typescript
-import { ref, computed, shallowRef } from 'vue'
+import { ref, computed, shallowRef, toRaw } from 'vue'
+import { ElForm } from 'element-plus'
+
 import type { ProFieldDef, StepFormDef, ProFormRule } from '@pro/utils'
 import type { UseStepsFormOptions, UseStepsFormReturn } from '../types'
 
 /**
  * Composable for multi-step form with step validation and navigation.
  * Maintains a single merged form values object across all steps.
+ * Validates current step fields via el-form.validateField() before advancing.
  */
 export function useStepsForm(options: UseStepsFormOptions): UseStepsFormReturn {
-  const { steps, onSubmit, initialValues = {} } = options
+  const { steps, onSubmit, onError, initialValues = {} } = options
 
   const currentStep = ref(0)
-  const formValues = ref<Record<string, any>>({ ...initialValues })
+  const formValues = ref<Record<string, unknown>>({ ...initialValues })
   const loading = ref(false)
-  const formRef = shallowRef<any>(null)
+  const isSubmitting = ref(false)
+  const formRef = shallowRef<InstanceType<typeof ElForm> | null>(null)
 
   const snapshotInitial = { ...initialValues }
 
@@ -2346,13 +2428,31 @@ export function useStepsForm(options: UseStepsFormOptions): UseStepsFormReturn {
     return rules
   })
 
-  async function nextStep(): Promise<boolean> {
-    if (currentStep.value >= steps.length - 1) {
+  /**
+   * Validate current step fields via el-form.validateField().
+   * Returns true if all current step fields pass validation.
+   */
+  async function validateCurrentStep(): Promise<boolean> {
+    if (!formRef.value) return false
+    const currentFieldKeys = steps[currentStep.value].fields.map(f => f.dataIndex)
+    try {
+      await formRef.value.validateField(currentFieldKeys)
+      return true
+    } catch {
       return false
     }
-    // TODO: integrate with el-form validate() for step validation
-    currentStep.value++
-    return true
+  }
+
+  async function nextStep(): Promise<boolean> {
+    // Validate current step fields before advancing
+    const isValid = await validateCurrentStep()
+    if (!isValid) return false
+
+    if (currentStep.value < steps.length - 1) {
+      currentStep.value++
+      return true
+    }
+    return false
   }
 
   function prevStep(): void {
@@ -2366,15 +2466,21 @@ export function useStepsForm(options: UseStepsFormOptions): UseStepsFormReturn {
   }
 
   async function submit(): Promise<boolean> {
+    if (isSubmitting.value) return false  // Prevent concurrent submissions
     if (!onSubmit) return false
 
-    loading.value = true
     try {
-      const result = await onSubmit({ ...formValues.value })
+      isSubmitting.value = true
+      loading.value = true
+      const result = await onSubmit(toRaw(formValues.value))
       return result
-    } catch (error) {
-      throw error
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        onError?.(error)
+      }
+      return false
     } finally {
+      isSubmitting.value = false
       loading.value = false
     }
   }
@@ -2394,6 +2500,7 @@ export function useStepsForm(options: UseStepsFormOptions): UseStepsFormReturn {
     steps,
     formValues,
     loading,
+    isSubmitting,
     validationRules,
     nextStep,
     prevStep,
@@ -2412,18 +2519,21 @@ Create `packages/pro-form/src/components/StepsForm.vue`:
 ```vue
 <script setup lang="ts">
 import { ElSteps, ElStep, ElForm, ElButton, ElRow, ElCol } from 'element-plus'
-import type { StepFormDef, FormLayout } from '@pro/utils'
 import { useStepsForm } from '../composables/use-steps-form'
+import { GRID_GUTTER } from '../composables/use-pro-form'
 import ProFormField from './ProFormField.vue'
+
+import type { StepFormDef, FormLayout } from '@pro/utils'
 
 defineOptions({ name: 'StepsForm' })
 
 const props = withDefaults(
   defineProps<{
     steps: StepFormDef[]
-    initialValues?: Record<string, any>
-    onSubmit?: (values: Record<string, any>) => Promise<boolean>
-    formProps?: Record<string, any>
+    initialValues?: Record<string, unknown>
+    onSubmit?: (values: Record<string, unknown>) => Promise<boolean>
+    onError?: (error: Error) => void
+    formProps?: Record<string, unknown>
     labelWidth?: string | number
     layout?: FormLayout
   }>(),
@@ -2433,7 +2543,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  submit: [values: Record<string, any>]
+  submit: [values: Record<string, unknown>]
   stepChange: [step: number]
 }>()
 
@@ -2457,6 +2567,7 @@ const {
   steps: props.steps,
   initialValues: props.initialValues,
   onSubmit: props.onSubmit,
+  onError: props.onError,
   formProps: props.formProps,
   labelWidth: props.labelWidth,
 })
@@ -2480,7 +2591,7 @@ async function handleSubmit() {
   }
 }
 
-function handleFieldUpdate(dataIndex: string, value: any) {
+function handleFieldUpdate(dataIndex: string, value: unknown) {
   formValues.value = { ...formValues.value, [dataIndex]: value }
 }
 
@@ -2515,7 +2626,7 @@ defineExpose({
       v-bind="formProps"
       class="pro-steps-form__form"
     >
-      <ElRow :gutter="16">
+      <ElRow :gutter="GRID_GUTTER">
         <ElCol
           v-for="field in currentFields"
           :key="field.key ?? field.dataIndex"
@@ -2578,7 +2689,7 @@ defineExpose({
 
 ```bash
 cd /Users/tianqiyin/Desktop/workspace/projects/pro-components
-pnpm --filter @pro/form test -- __tests__/steps-form.spec.ts 2>&1
+pnpm --filter @pro/form test -- __tests__/steps-form.test.ts 2>&1
 ```
 
 Expected: All StepsForm tests pass.
@@ -2586,7 +2697,7 @@ Expected: All StepsForm tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/pro-form/src/composables/use-steps-form.ts packages/pro-form/src/components/StepsForm.vue packages/pro-form/__tests__/steps-form.spec.ts
+git add packages/pro-form/src/composables/use-steps-form.ts packages/pro-form/src/components/StepsForm.vue packages/pro-form/__tests__/steps-form.test.ts
 git commit -m "feat(form): add StepsForm with multi-step navigation, per-step validation"
 ```
 
@@ -2596,11 +2707,11 @@ git commit -m "feat(form): add StepsForm with multi-step navigation, per-step va
 
 **Files:**
 - Create: `packages/pro-form/src/components/QueryFilter.vue`
-- Create: `packages/pro-form/__tests__/query-filter.spec.ts`
+- Create: `packages/pro-form/__tests__/query-filter.test.ts`
 
 - [ ] **Step 1: Write failing tests for QueryFilter**
 
-Create `packages/pro-form/__tests__/query-filter.spec.ts`:
+Create `packages/pro-form/__tests__/query-filter.test.ts`:
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
@@ -2610,7 +2721,7 @@ import ElementPlus from 'element-plus'
 import QueryFilter from '../src/components/QueryFilter.vue'
 import type { ProFieldDef } from '@pro/utils'
 
-function createWrapper(props: Record<string, any> = {}) {
+function createWrapper(props: Record<string, unknown> = {}) {
   return mount(QueryFilter, {
     props,
     global: {
@@ -2744,17 +2855,18 @@ Create `packages/pro-form/src/components/QueryFilter.vue`:
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { ElForm, ElFormItem, ElButton, ElRow, ElCol } from 'element-plus'
-import type { ProFieldDef } from '@pro/utils'
-import { useProForm } from '../composables/use-pro-form'
+import { useProForm, QUERY_FILTER_DEFAULT_COLLAPSE_THRESHOLD } from '../composables/use-pro-form'
 import ProFormField from './ProFormField.vue'
+
+import type { ProFieldDef } from '@pro/utils'
 
 defineOptions({ name: 'QueryFilter' })
 
 const props = withDefaults(
   defineProps<{
     fields: ProFieldDef[]
-    initialValues?: Record<string, any>
-    formProps?: Record<string, any>
+    initialValues?: Record<string, unknown>
+    formProps?: Record<string, unknown>
     labelWidth?: string | number
     /** Whether to start collapsed */
     defaultCollapsed?: boolean
@@ -2765,13 +2877,13 @@ const props = withDefaults(
   }>(),
   {
     defaultCollapsed: false,
-    collapseThreshold: 3,
+    collapseThreshold: QUERY_FILTER_DEFAULT_COLLAPSE_THRESHOLD,
     span: 8,
   },
 )
 
 const emit = defineEmits<{
-  search: [values: Record<string, any>]
+  search: [values: Record<string, unknown>]
   reset: []
 }>()
 
@@ -2812,7 +2924,7 @@ function toggleCollapse() {
   collapsed.value = !collapsed.value
 }
 
-function handleFieldUpdate(dataIndex: string, value: any) {
+function handleFieldUpdate(dataIndex: string, value: unknown) {
   setFieldValue(dataIndex, value)
 }
 
@@ -2878,7 +2990,7 @@ defineExpose({
 
 ```bash
 cd /Users/tianqiyin/Desktop/workspace/projects/pro-components
-pnpm --filter @pro/form test -- __tests__/query-filter.spec.ts 2>&1
+pnpm --filter @pro/form test -- __tests__/query-filter.test.ts 2>&1
 ```
 
 Expected: All QueryFilter tests pass.
@@ -2886,7 +2998,7 @@ Expected: All QueryFilter tests pass.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add packages/pro-form/src/components/QueryFilter.vue packages/pro-form/__tests__/query-filter.spec.ts
+git add packages/pro-form/src/components/QueryFilter.vue packages/pro-form/__tests__/query-filter.test.ts
 git commit -m "feat(form): add QueryFilter with inline layout, collapse/expand support"
 ```
 
@@ -2902,6 +3014,7 @@ git commit -m "feat(form): add QueryFilter with inline layout, collapse/expand s
 Replace `packages/pro-form/src/index.ts` with:
 
 ```typescript
+// Components — Vue SFC default exports re-exported as named
 import ProForm from './ProForm.vue'
 import ModalForm from './components/ModalForm.vue'
 import DrawerForm from './components/DrawerForm.vue'
@@ -2910,11 +3023,16 @@ import QueryFilter from './components/QueryFilter.vue'
 
 export { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter }
 
-export { useProForm } from './composables/use-pro-form'
+// Composables
+export { useProForm, GRID_TOTAL_COLUMNS, GRID_GUTTER, DEFAULT_LABEL_WIDTH, QUERY_FILTER_DEFAULT_COLLAPSE_THRESHOLD } from './composables/use-pro-form'
 export { useModalForm } from './composables/use-modal-form'
 export { useDrawerForm } from './composables/use-drawer-form'
 export { useStepsForm } from './composables/use-steps-form'
 
+// Injection keys
+export { PRO_FORM_INJECTION_KEY, PRO_FORM_FIELD_INJECTION_KEY } from './injection-keys'
+
+// Types (separate group, always last)
 export type {
   UseProFormReturn,
   UseModalFormOptions,
@@ -2924,8 +3042,6 @@ export type {
   UseStepsFormOptions,
   UseStepsFormReturn,
 } from './types'
-
-export default ProForm
 ```
 
 - [ ] **Step 2: Verify all form tests pass**
@@ -3013,7 +3129,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    include: ['__tests__/**/*.spec.ts'],
+    include: ['__tests__/**/*.test.ts'],
     coverage: {
       provider: 'v8',
       include: ['src/**/*.{ts,vue}'],
@@ -3047,11 +3163,11 @@ git commit -m "chore(descriptions): add vitest config and test scripts"
 ## Task 14: useProDescriptions Composable — Tests First
 
 **Files:**
-- Create: `packages/pro-descriptions/__tests__/use-pro-descriptions.spec.ts`
+- Create: `packages/pro-descriptions/__tests__/use-pro-descriptions.test.ts`
 
 - [ ] **Step 1: Write failing tests for useProDescriptions**
 
-Create `packages/pro-descriptions/__tests__/use-pro-descriptions.spec.ts`:
+Create `packages/pro-descriptions/__tests__/use-pro-descriptions.test.ts`:
 
 ```typescript
 import { describe, it, expect } from 'vitest'
@@ -3207,7 +3323,7 @@ describe('useProDescriptions', () => {
           dataIndex: 'name',
           title: 'Name',
           valueType: 'text',
-          descriptionsRender: (value: any) => `Custom: ${value}`,
+          descriptionsRender: (value: unknown) => `Custom: ${value}`,
         },
       ]
       const { descriptionItems } = useProDescriptions({
@@ -3233,7 +3349,7 @@ Expected: Tests fail because composable doesn't exist.
 - [ ] **Step 3: Commit failing tests**
 
 ```bash
-git add packages/pro-descriptions/__tests__/use-pro-descriptions.spec.ts
+git add packages/pro-descriptions/__tests__/use-pro-descriptions.test.ts
 git commit -m "test(descriptions): add failing unit tests for useProDescriptions composable"
 ```
 
@@ -3260,7 +3376,7 @@ export interface DescriptionItem {
   /** Display label */
   label: string
   /** Raw value from data */
-  value: any
+  value: unknown
   /** Formatted value for display (e.g., "$1,234.56") */
   formattedValue: string
   /** Resolved text for valueEnum types */
@@ -3270,7 +3386,7 @@ export interface DescriptionItem {
   /** Whether this item has a custom descriptionsRender */
   hasCustomRender: boolean
   /** Custom render function if defined */
-  descriptionsRender?: (value: any, row: any) => VNode | string
+  descriptionsRender?: (value: unknown, row: Record<string, unknown>) => VNode | string
   /** Original column definition */
   column: ProColumnDef
   /** Span in descriptions layout */
@@ -3279,7 +3395,7 @@ export interface DescriptionItem {
 
 export interface UseProDescriptionsOptions {
   columns: ProColumnDef[]
-  data: Record<string, any>
+  data: Record<string, unknown>
 }
 
 export interface UseProDescriptionsReturn {
@@ -3290,12 +3406,12 @@ export interface UseProDescriptionsReturn {
  * Resolve a dot-notation path on an object.
  * E.g., getNestedValue({ user: { name: 'Alice' } }, 'user.name') => 'Alice'
  */
-function getNestedValue(obj: Record<string, any>, path: string): any {
+function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
   const keys = path.split('.')
-  let current: any = obj
+  let current: unknown = obj
   for (const key of keys) {
-    if (current == null) return undefined
-    current = current[key]
+    if (current == null || typeof current !== 'object') return undefined
+    current = (current as Record<string, unknown>)[key]
   }
   return current
 }
@@ -3303,7 +3419,7 @@ function getNestedValue(obj: Record<string, any>, path: string): any {
 /**
  * Format a value based on its valueType for display in descriptions.
  */
-function formatValue(value: any, valueType: string): string {
+function formatValue(value: unknown, valueType: string): string {
   if (value == null) return '-'
 
   switch (valueType) {
@@ -3398,11 +3514,11 @@ git commit -m "feat(descriptions): implement useProDescriptions composable with 
 ## Task 16: ProDescriptions Component — Tests First
 
 **Files:**
-- Create: `packages/pro-descriptions/__tests__/pro-descriptions.spec.ts`
+- Create: `packages/pro-descriptions/__tests__/pro-descriptions.test.ts`
 
 - [ ] **Step 1: Write integration tests for ProDescriptions**
 
-Create `packages/pro-descriptions/__tests__/pro-descriptions.spec.ts`:
+Create `packages/pro-descriptions/__tests__/pro-descriptions.test.ts`:
 
 ```typescript
 import { describe, it, expect } from 'vitest'
@@ -3412,7 +3528,7 @@ import ElementPlus from 'element-plus'
 import ProDescriptions from '../src/ProDescriptions.vue'
 import type { ProColumnDef } from '@pro/utils'
 
-function createWrapper(props: Record<string, any> = {}) {
+function createWrapper(props: Record<string, unknown> = {}) {
   return mount(ProDescriptions, {
     props,
     global: {
@@ -3543,7 +3659,7 @@ describe('ProDescriptions', () => {
           dataIndex: 'name',
           title: 'Name',
           valueType: 'text',
-          descriptionsRender: (value: any) => h('span', { class: 'custom-render' }, `Custom: ${value}`),
+          descriptionsRender: (value: unknown) => h('span', { class: 'custom-render' }, `Custom: ${value}`),
         },
       ]
       const wrapper = createWrapper({
@@ -3615,7 +3731,7 @@ describe('ProDescriptions', () => {
 
 ```bash
 cd /Users/tianqiyin/Desktop/workspace/projects/pro-components
-pnpm --filter @pro/descriptions test -- __tests__/pro-descriptions.spec.ts 2>&1 | head -20
+pnpm --filter @pro/descriptions test -- __tests__/pro-descriptions.test.ts 2>&1 | head -20
 ```
 
 Expected: Tests fail because ProDescriptions.vue is still a placeholder.
@@ -3623,7 +3739,7 @@ Expected: Tests fail because ProDescriptions.vue is still a placeholder.
 - [ ] **Step 3: Commit failing tests**
 
 ```bash
-git add packages/pro-descriptions/__tests__/pro-descriptions.spec.ts
+git add packages/pro-descriptions/__tests__/pro-descriptions.test.ts
 git commit -m "test(descriptions): add failing integration tests for ProDescriptions"
 ```
 
@@ -3642,8 +3758,9 @@ Replace `packages/pro-descriptions/src/ProDescriptions.vue` with:
 <script setup lang="ts">
 import { h } from 'vue'
 import { ElDescriptions, ElDescriptionsItem, ElTag, ElSkeleton } from 'element-plus'
-import type { ProColumnDef, StatusType } from '@pro/utils'
 import { useProDescriptions } from './composables/use-pro-descriptions'
+
+import type { ProColumnDef, StatusType } from '@pro/utils'
 import type { DescriptionItem } from './composables/use-pro-descriptions'
 
 defineOptions({ name: 'ProDescriptions' })
@@ -3651,13 +3768,13 @@ defineOptions({ name: 'ProDescriptions' })
 const props = withDefaults(
   defineProps<{
     columns: ProColumnDef[]
-    data: Record<string, any>
+    data: Record<string, unknown>
     title?: string
     column?: number
     border?: boolean
     loading?: boolean
     size?: 'large' | 'default' | 'small'
-    descriptionsProps?: Record<string, any>
+    descriptionsProps?: Record<string, unknown>
   }>(),
   {
     column: 3,
@@ -3689,7 +3806,7 @@ function renderItemContent(item: DescriptionItem) {
   // valueEnum → render as tag
   if (item.displayText) {
     const tagType = item.statusType ? statusTagTypeMap[item.statusType] : ''
-    return h(ElTag, { type: tagType as any, size: 'small' }, { default: () => item.displayText })
+    return h(ElTag, { type: tagType as '' | 'success' | 'warning' | 'danger' | 'info', size: 'small' }, { default: () => item.displayText })
   }
 
   // Default: formatted text
@@ -3759,18 +3876,20 @@ git commit -m "feat(descriptions): implement ProDescriptions with valueType form
 Replace `packages/pro-descriptions/src/index.ts` with:
 
 ```typescript
+// Component — Vue SFC default export re-exported as named
 import ProDescriptions from './ProDescriptions.vue'
 
 export { ProDescriptions }
 
+// Composable
 export { useProDescriptions } from './composables/use-pro-descriptions'
+
+// Types (separate group, always last)
 export type {
   DescriptionItem,
   UseProDescriptionsOptions,
   UseProDescriptionsReturn,
 } from './composables/use-pro-descriptions'
-
-export default ProDescriptions
 ```
 
 - [ ] **Step 2: Commit**
@@ -3793,9 +3912,14 @@ Replace `packages/pro-components/src/index.ts` with:
 
 ```typescript
 // Components
-export { ProTable } from '@pro/table'
-export { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter } from '@pro/form'
-export { ProDescriptions } from '@pro/descriptions'
+import { ProTable } from '@pro/table'
+import { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter } from '@pro/form'
+import { ProDescriptions } from '@pro/descriptions'
+import { checkDependencies } from '@pro/utils'
+
+export { ProTable }
+export { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter }
+export { ProDescriptions }
 
 // Composables
 export { useProForm, useModalForm, useDrawerForm, useStepsForm } from '@pro/form'
@@ -3804,28 +3928,11 @@ export { useProDescriptions } from '@pro/descriptions'
 // Utils
 export { checkDependencies } from '@pro/utils'
 
-// Types
-export type { RequestParams, RequestResult, StatusType, ValueType } from '@pro/utils'
-export type { ProFieldDef, StepFormDef, ProFormConfig, FormLayout, ProFormRule } from '@pro/utils'
-export type {
-  UseProFormReturn,
-  UseModalFormReturn,
-  UseDrawerFormReturn,
-  UseStepsFormReturn,
-} from '@pro/form'
-export type { DescriptionItem, UseProDescriptionsReturn } from '@pro/descriptions'
-
 // Install function for app.use()
-import type { App, Plugin } from 'vue'
-import { ProTable } from '@pro/table'
-import { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter } from '@pro/form'
-import { ProDescriptions } from '@pro/descriptions'
-import { checkDependencies } from '@pro/utils'
-
 const components = [ProTable, ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter, ProDescriptions]
 
-export const install: Plugin = {
-  install(app: App) {
+export const proComponentsPlugin = {
+  install(app: import('vue').App) {
     checkDependencies()
     components.forEach((component) => {
       if (component.name) {
@@ -3835,7 +3942,17 @@ export const install: Plugin = {
   },
 }
 
-export default install
+// Types (separate group, always last)
+import type { App, Plugin } from 'vue'
+export type { RequestParams, RequestResult, StatusType, ValueType } from '@pro/utils'
+export type { ProFieldDef, StepFormDef, ProFormConfig, FormLayout, ProFormRule } from '@pro/utils'
+export type {
+  UseProFormReturn,
+  UseModalFormReturn,
+  UseDrawerFormReturn,
+  UseStepsFormReturn,
+} from '@pro/form'
+export type { DescriptionItem, UseProDescriptionsReturn } from '@pro/descriptions'
 ```
 
 - [ ] **Step 2: Commit**
@@ -3850,11 +3967,11 @@ git commit -m "feat(pro-components): re-export ProForm variants and ProDescripti
 ## Task 20: Cross-Component Integration Tests
 
 **Files:**
-- Create: `packages/pro-form/__tests__/cross-component.spec.ts`
+- Create: `packages/pro-form/__tests__/cross-component.test.ts`
 
 - [ ] **Step 1: Write cross-component integration tests**
 
-Create `packages/pro-form/__tests__/cross-component.spec.ts`:
+Create `packages/pro-form/__tests__/cross-component.test.ts`:
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
@@ -3987,7 +4104,7 @@ describe('Cross-component column compatibility', () => {
   describe('valueType rendering consistency', () => {
     const valueTypeCases: Array<{
       valueType: string
-      rawValue: any
+      rawValue: unknown
       expectedSearchControl: string
       expectedDescriptionContains: string
     }> = [
@@ -4020,7 +4137,7 @@ describe('Cross-component column compatibility', () => {
     valueTypeCases.forEach(({ valueType, rawValue, expectedSearchControl, expectedDescriptionContains }) => {
       it(`${valueType}: should render correct search control and description format`, () => {
         const columns: ProColumnDef[] = [
-          { dataIndex: 'field', title: 'Field', valueType: valueType as any },
+          { dataIndex: 'field', title: 'Field', valueType: valueType as import('@pro/utils').ValueType },
         ]
 
         // Test QueryFilter renders correct control
@@ -4048,7 +4165,7 @@ describe('Cross-component column compatibility', () => {
 
 ```bash
 cd /Users/tianqiyin/Desktop/workspace/projects/pro-components
-pnpm --filter @pro/form test -- __tests__/cross-component.spec.ts 2>&1
+pnpm --filter @pro/form test -- __tests__/cross-component.test.ts 2>&1
 ```
 
 Expected: All cross-component tests pass.
@@ -4056,7 +4173,7 @@ Expected: All cross-component tests pass.
 - [ ] **Step 3: Commit**
 
 ```bash
-git add packages/pro-form/__tests__/cross-component.spec.ts
+git add packages/pro-form/__tests__/cross-component.test.ts
 git commit -m "test: add cross-component integration tests for shared columns contract"
 ```
 
@@ -4123,6 +4240,18 @@ git commit -m "chore: format and lint pass for ProForm + ProDescriptions"
 
 - [ ] **Spec coverage:** All items from Section 4 (ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter, ProDescriptions) are implemented
 - [ ] **Type consistency:** `ProFieldDef` types defined in `@pro/utils`, referenced consistently across `@pro/form` and cross-component tests
+- [ ] **Zero `any`:** All code uses `unknown` + type guards or specific types; no `Record<string, any>` anywhere
+- [ ] **No `export default` in .ts:** All .ts files use named exports only; Vue SFC exempted
+- [ ] **InjectionKey symbols:** `provide`/`inject` use typed `InjectionKey<T>` symbols, not magic strings
+- [ ] **el-form.validate() integration:** `submit()` calls `formRef.value.validate()` before executing `onSubmit`
+- [ ] **Concurrent submit guard:** `isSubmitting` ref prevents double-submit in both `useProForm` and `useStepsForm`
+- [ ] **Step validation:** `nextStep()` calls `validateCurrentStep()` which uses `formRef.value.validateField()` on current step fields
+- [ ] **CONTROL_REGISTRY:** ProFormField uses shared `CONTROL_REGISTRY` from `@pro/hooks`, not a local switch statement
+- [ ] **Named constants:** `GRID_TOTAL_COLUMNS`, `GRID_GUTTER`, `DEFAULT_LABEL_WIDTH`, `QUERY_FILTER_DEFAULT_COLLAPSE_THRESHOLD` replace magic numbers
+- [ ] **Test file naming:** All test files use `.test.ts` pattern (not `.spec.ts`)
+- [ ] **Import type separation:** `import type` always in separate group at end of imports
+- [ ] **catch (error: unknown):** All catch blocks use `(error: unknown)` with `instanceof` narrowing
+- [ ] **One assertion concept per test:** Tests verify single concepts; note added for developers
 - [ ] **ProColumnDef reuse:** ProDescriptions uses the same `ProColumnDef` as ProTable — `hideInDescriptions`, `descriptionsRender`, `valueType` all respected
 - [ ] **Headless-first architecture:** Each component has a composable (useProForm, useModalForm, useDrawerForm, useStepsForm, useProDescriptions) that owns state, and a thin Vue component for rendering
 - [ ] **TDD discipline:** Every feature has tests written before implementation; tests verified to fail, then implementation makes them pass
@@ -4133,3 +4262,4 @@ git commit -m "chore: format and lint pass for ProForm + ProDescriptions"
 - [ ] **StepsForm state:** Form values persist across steps; validation is per-step; navigation is bounded
 - [ ] **Value formatting:** Money (`$1,234.56`), percent (`85.5%`), valueEnum text resolution consistent between ProForm search controls and ProDescriptions display
 - [ ] **Cross-component test:** Verified same `ProColumnDef[]` array works for QueryFilter search fields and ProDescriptions display items with correct filtering and formatting
+- [ ] **Missing test coverage:** Concurrent submit guard, ProFormField custom render, el-form.validate() blocking step advancement — all covered

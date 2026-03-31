@@ -315,11 +315,25 @@ export default defineConfig({
 ```typescript
 import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
+import type { Component } from 'vue'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import ApiTable from './components/ApiTable.vue'
 import TypeBlock from './components/TypeBlock.vue'
 import './style.css'
+
+/**
+ * Type guard: checks whether a value is a Vue component (SFC or object component).
+ */
+function isVueComponent(value: unknown): value is Component {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    (typeof (value as Record<string, unknown>).setup === 'function' ||
+     typeof (value as Record<string, unknown>).render === 'function' ||
+     typeof (value as Record<string, unknown>).template === 'string')
+  )
+}
 
 /**
  * Custom VitePress theme that registers Element Plus and all Pro Components
@@ -340,21 +354,18 @@ const theme: Theme = {
         '../../packages/pro-*/src/index.ts',
         { eager: true },
       )
-      for (const [path, mod] of Object.entries(proComponents)) {
-        const module = mod as Record<string, any>
+      for (const [, mod] of Object.entries(proComponents)) {
+        const module = mod as Record<string, unknown>
         // Each package exports named components — register them all
         for (const [exportName, exportValue] of Object.entries(module)) {
-          if (
-            typeof exportValue === 'object' &&
-            exportValue !== null &&
-            (exportValue as any).__name
-          ) {
+          if (isVueComponent(exportValue)) {
             app.component(exportName, exportValue)
           }
         }
       }
     } catch {
       // Pro Components packages may not exist yet during initial docs setup
+      // eslint-disable-next-line no-console -- docs-only warning, not production code
       console.warn('[docs] Pro Components not found — demos will not render')
     }
 
@@ -364,6 +375,8 @@ const theme: Theme = {
   },
 }
 
+// VitePress requires a default export from the theme entry file.
+// This is a framework constraint — theme/index.ts is exempt from the named-export rule.
 export default theme
 ```
 
@@ -608,6 +621,15 @@ import { writeFileSync, mkdirSync, existsSync } from 'node:fs'
 const ROOT = resolve(import.meta.dirname, '..')
 const OUTPUT_DIR = resolve(ROOT, 'docs/api-data')
 
+/** CLI logger wrapper — keeps raw console calls out of script body */
+const log = {
+  ok: (msg: string) => process.stdout.write(`[OK] ${msg}\n`),
+  skip: (msg: string) => process.stdout.write(`[SKIP] ${msg}\n`),
+  fail: (msg: string) => process.stderr.write(`[FAIL] ${msg}\n`),
+  error: (msg: string) => process.stderr.write(`${msg}\n`),
+  info: (msg: string) => process.stdout.write(`${msg}\n`),
+}
+
 interface PropDoc {
   name: string
   type: string
@@ -644,6 +666,23 @@ const COMPONENTS: Record<string, string> = {
   ProDescriptions: 'packages/pro-descriptions/src/ProDescriptions.vue',
 }
 
+interface TagDef {
+  name: string
+  description: string
+  type: string
+  default?: string
+  required?: boolean
+  values?: string[]
+  text?: string
+}
+
+interface ComponentMeta {
+  props: TagDef[]
+  events: TagDef[]
+  slots: TagDef[]
+  exposed: TagDef[]
+}
+
 function cleanTypeString(raw: string): string {
   // Simplify complex union types for readability
   return raw
@@ -652,10 +691,10 @@ function cleanTypeString(raw: string): string {
     .trim()
 }
 
-function extractDescription(tags: Record<string, any>[] | undefined): string {
+function extractDescription(tags: TagDef[] | undefined): string {
   if (!tags || tags.length === 0) return ''
   const descTag = tags.find(
-    (t: Record<string, any>) => t.name === 'description' || t.name === 'desc',
+    (t: TagDef) => t.name === 'description' || t.name === 'desc',
   )
   return descTag?.text ?? ''
 }
@@ -695,7 +734,7 @@ function main() {
   const tsConfigPath = resolve(ROOT, 'tsconfig.json')
 
   if (!existsSync(tsConfigPath)) {
-    console.error('tsconfig.json not found at project root')
+    log.error('tsconfig.json not found at project root')
     process.exit(1)
   }
 
@@ -710,7 +749,7 @@ function main() {
     const fullPath = resolve(ROOT, relativePath)
 
     if (!existsSync(fullPath)) {
-      console.warn(`[SKIP] ${name}: source file not found at ${relativePath}`)
+      log.skip(`${name}: source file not found at ${relativePath}`)
       continue
     }
 
@@ -718,9 +757,10 @@ function main() {
       const api = extractApi(checker, fullPath)
       const outputFile = join(OUTPUT_DIR, `${name}.json`)
       writeFileSync(outputFile, JSON.stringify(api, null, 2), 'utf-8')
-      console.log(`[OK] ${name} → ${outputFile} (${api.props.length} props, ${api.events.length} events, ${api.slots.length} slots)`)
-    } catch (err) {
-      console.error(`[FAIL] ${name}: ${(err as Error).message}`)
+      log.ok(`${name} → ${outputFile} (${api.props.length} props, ${api.events.length} events, ${api.slots.length} slots)`)
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err)
+      log.fail(`${name}: ${message}`)
       hasErrors = true
     }
   }
@@ -728,11 +768,11 @@ function main() {
   checker.dispose()
 
   if (hasErrors) {
-    console.error('\nAPI doc generation completed with errors')
+    log.error('\nAPI doc generation completed with errors')
     process.exit(1)
   }
 
-  console.log('\nAPI doc generation completed successfully')
+  log.info('\nAPI doc generation completed successfully')
 }
 
 main()
@@ -915,7 +955,7 @@ function main() {
   }
 
   writeFileSync(OUTPUT_FILE, lines.join('\n'), 'utf-8')
-  console.log(`Changelog generated → ${OUTPUT_FILE}`)
+  process.stdout.write(`Changelog generated → ${OUTPUT_FILE}\n`)
 }
 
 main()
@@ -1840,7 +1880,6 @@ async function request(params: RequestParams): Promise<RequestResult<EmployeeRec
 
 ```vue
 <script setup lang="ts">
-import { h } from 'vue'
 import { ProTable } from '@pro/table'
 import type { ProColumnDef } from '@pro/utils'
 
@@ -1944,7 +1983,6 @@ const data: ValueTypeRecord[] = [
 
 ```vue
 <script setup lang="ts">
-import { h, ref } from 'vue'
 import { ProTable } from '@pro/table'
 import type { ProColumnDef, RequestParams, RequestResult } from '@pro/utils'
 import { ElButton, ElMessage, ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus'
@@ -2086,7 +2124,15 @@ const fields = [
   },
 ]
 
-async function handleSubmit(values: Record<string, any>) {
+interface BasicFormValues {
+  name: string
+  email: string
+  role: string
+  birthday: string
+  bio: string
+}
+
+async function handleSubmit(values: BasicFormValues) {
   // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 1000))
   ElMessage.success(`提交成功: ${JSON.stringify(values)}`)
@@ -2129,7 +2175,14 @@ const fields = [
   },
 ]
 
-async function handleSubmit(values: Record<string, any>) {
+interface LayoutFormValues {
+  firstName: string
+  lastName: string
+  phone: string
+  gender: string
+}
+
+async function handleSubmit(_values: LayoutFormValues) {
   await new Promise((resolve) => setTimeout(resolve, 500))
   return true
 }
@@ -2194,7 +2247,14 @@ const fields = [
   },
 ]
 
-async function handleSubmit(values: Record<string, any>) {
+interface ModalFormValues {
+  taskName: string
+  priority: string
+  deadline: string
+  description: string
+}
+
+async function handleSubmit(_values: ModalFormValues) {
   await new Promise((resolve) => setTimeout(resolve, 1000))
   ElMessage.success('任务创建成功')
   return true
@@ -2279,7 +2339,16 @@ const steps = [
   },
 ]
 
-async function handleSubmit(values: Record<string, any>) {
+interface StepsFormValues {
+  companyName: string
+  industry: string
+  contactName: string
+  contactPhone: string
+  contactEmail: string
+  notes: string
+}
+
+async function handleSubmit(values: StepsFormValues) {
   await new Promise((resolve) => setTimeout(resolve, 1000))
   ElMessage.success(`注册完成: ${JSON.stringify(values)}`)
   return true
@@ -2521,7 +2590,7 @@ Schema 驱动的数据表格，内置搜索表单、分页、列设置、工具�
 ### ProColumnDef
 
 ```typescript
-interface ProColumnDef<T = any> {
+interface ProColumnDef<T = Record<string, unknown>> {
   dataIndex: keyof T | string
   title: string
   key?: string
@@ -2539,11 +2608,11 @@ interface ProColumnDef<T = any> {
   searchConfig?: {
     order?: number
     span?: number
-    defaultValue?: any
+    defaultValue?: unknown
     rules?: FormRule[]
     render?: () => VNode
   }
-  descriptionsRender?: (value: any, row: T) => VNode
+  descriptionsRender?: (value: unknown, row: T) => VNode
 }
 ```
 
@@ -2553,14 +2622,14 @@ interface ProColumnDef<T = any> {
 interface RequestParams {
   current: number
   pageSize: number
-  [key: string]: any
+  [key: string]: unknown
 }
 ```
 
 ### RequestResult
 
 ```typescript
-interface RequestResult<T = any> {
+interface RequestResult<T = Record<string, unknown>> {
   data: T[]
   total: number
   success: boolean
@@ -2620,8 +2689,8 @@ outline: deep
 interface ProFormProps {
   layout?: 'horizontal' | 'vertical' | 'inline'
   fields: ProFieldDef[]
-  initialValues?: Record<string, any>
-  onSubmit?: (values: Record<string, any>) => Promise<boolean>
+  initialValues?: Record<string, unknown>
+  onSubmit?: (values: Record<string, unknown>) => Promise<boolean>
   formProps?: Partial<ElFormProps>
 }
 ```
@@ -2639,7 +2708,7 @@ interface ProFieldDef {
   searchConfig?: {
     order?: number
     span?: number
-    defaultValue?: any
+    defaultValue?: unknown
     rules?: FormRule[]
     render?: () => VNode
   }
@@ -2665,7 +2734,7 @@ interface StepsFormProps {
     title: string
     fields: ProFieldDef[]
   }>
-  onSubmit?: (values: Record<string, any>) => Promise<boolean>
+  onSubmit?: (values: Record<string, unknown>) => Promise<boolean>
 }
 ```
 ````
@@ -2708,7 +2777,7 @@ outline: deep
 ### ProDescriptionsProps
 
 ```typescript
-interface ProDescriptionsProps<T = Record<string, any>> {
+interface ProDescriptionsProps<T = Record<string, unknown>> {
   title?: string
   columns: ProColumnDef<T>[]
   data: T
@@ -2768,12 +2837,12 @@ const {
   dataSource,           // Ref<T[]> — 当前页数据
   loading,              // Ref<boolean> — 加载状态
   pagination,           // Reactive — 分页状态
-  formValues,           // Ref<Record<string, any>> — 搜索表单值
+  formValues,           // Ref<Record<string, unknown>> — 搜索表单值
   selectedRows,         // Ref<T[]> — 选中行数据
   selectedRowKeys,      // Ref<string[]> — 选中行 key
   clearSelection,       // () => void — 清空选中
   sortState,            // Ref<SortState | null> — 排序状态
-  filterState,          // Ref<Record<string, any>> — 筛选状态
+  filterState,          // Ref<Record<string, unknown>> — 筛选状态
   reload,               // (resetPage?: boolean) => Promise<void> — 重新请求
   reset,                // () => void — 重置所有状态
   setFormValues,        // (values) => void — 设置搜索表单值
@@ -2804,7 +2873,7 @@ const {
 ## Options
 
 ```typescript
-interface UseProTableOptions<T = Record<string, any>> {
+interface UseProTableOptions<T = Record<string, unknown>> {
   /** 列定义 */
   columns: ProColumnDef<T>[]
 
@@ -2818,13 +2887,13 @@ interface UseProTableOptions<T = Record<string, any>> {
   defaultPageSize?: number
 
   /** 默认搜索表单值 */
-  defaultFormValues?: Record<string, any>
+  defaultFormValues?: Record<string, unknown>
 
   /** 请求前参数处理 */
   beforeRequest?: (params: RequestParams) => RequestParams
 
   /** 响应后数据处理 */
-  afterResponse?: (raw: any) => RequestResult<T>
+  afterResponse?: (raw: unknown) => RequestResult<T>
 
   /** 是否组件挂载时自动发起首次请求，默认 true */
   immediate?: boolean
@@ -2842,11 +2911,11 @@ interface UseProTableOptions<T = Record<string, any>> {
 | `dataSource` | `Ref<T[]>` | 当前页数据 |
 | `loading` | `Ref<boolean>` | 加载状态 |
 | `pagination` | `Reactive<PaginationState>` | 分页状态（current、pageSize、total） |
-| `formValues` | `Ref<Record<string, any>>` | 搜索表单当前值 |
+| `formValues` | `Ref<Record<string, unknown>>` | 搜索表单当前值 |
 | `selectedRows` | `Ref<T[]>` | 当前选中的行数据 |
 | `selectedRowKeys` | `Ref<string[]>` | 当前选中行的 key 数组 |
 | `sortState` | `Ref<SortState \| null>` | 当前排序状态 |
-| `filterState` | `Ref<Record<string, any>>` | 当前筛选状态 |
+| `filterState` | `Ref<Record<string, unknown>>` | 当前筛选状态 |
 | `clearSelection` | `() => void` | 清空行选中 |
 | `reload` | `(resetPage?: boolean) => Promise<void>` | 重新请求，resetPage=true 时回到第一页 |
 | `reset` | `() => void` | 重置所有状态（表单、分页、排序、筛选） |
@@ -2895,12 +2964,12 @@ import { useProForm } from '@pro/hooks'
 
 const {
   proFormProps,         // 绑定到 <ProForm /> 的 props
-  formValues,           // Ref<Record<string, any>> — 表单值
+  formValues,           // Ref<Record<string, unknown>> — 表单值
   loading,              // Ref<boolean> — 提交中状态
-  setFieldValue,        // (field: string, value: any) => void
-  setFieldsValue,       // (values: Record<string, any>) => void
-  getFieldValue,        // (field: string) => any
-  getFieldsValue,       // () => Record<string, any>
+  setFieldValue,        // (field: string, value: unknown) => void
+  setFieldsValue,       // (values: Record<string, unknown>) => void
+  getFieldValue,        // (field: string) => unknown
+  getFieldsValue,       // () => Record<string, unknown>
   validateFields,       // (fields?: string[]) => Promise<boolean>
   resetFields,          // () => void — 重置为初始值
   submit,               // () => Promise<boolean> — 触发验证 + 提交
@@ -2923,10 +2992,10 @@ interface UseProFormOptions {
   fields: ProFieldDef[]
 
   /** 初始值 */
-  initialValues?: Record<string, any>
+  initialValues?: Record<string, unknown>
 
   /** 提交回调，返回 true 表示成功 */
-  onSubmit?: (values: Record<string, any>) => Promise<boolean>
+  onSubmit?: (values: Record<string, unknown>) => Promise<boolean>
 
   /** 表单布局 */
   layout?: 'horizontal' | 'vertical' | 'inline'
@@ -2938,12 +3007,12 @@ interface UseProFormOptions {
 | 返回值 | 类型 | 说明 |
 |--------|------|------|
 | `proFormProps` | `ComputedRef<ProFormProps>` | 绑定到 ProForm 组件的 props 对象 |
-| `formValues` | `Ref<Record<string, any>>` | 当前表单值 |
+| `formValues` | `Ref<Record<string, unknown>>` | 当前表单值 |
 | `loading` | `Ref<boolean>` | 提交中状态 |
-| `setFieldValue` | `(field: string, value: any) => void` | 设置单个字段值 |
-| `setFieldsValue` | `(values: Record<string, any>) => void` | 批量设置字段值 |
-| `getFieldValue` | `(field: string) => any` | 获取单个字段值 |
-| `getFieldsValue` | `() => Record<string, any>` | 获取所有字段值 |
+| `setFieldValue` | `(field: string, value: unknown) => void` | 设置单个字段值 |
+| `setFieldsValue` | `(values: Record<string, unknown>) => void` | 批量设置字段值 |
+| `getFieldValue` | `(field: string) => unknown` | 获取单个字段值 |
+| `getFieldsValue` | `() => Record<string, unknown>` | 获取所有字段值 |
 | `validateFields` | `(fields?: string[]) => Promise<boolean>` | 验证指定字段（不传则全部验证） |
 | `resetFields` | `() => void` | 重置为初始值 |
 | `submit` | `() => Promise<boolean>` | 触发验证并调用 onSubmit |
@@ -2998,7 +3067,7 @@ const {
 ## Options
 
 ```typescript
-interface UseProDescriptionsOptions<T = Record<string, any>> {
+interface UseProDescriptionsOptions<T = Record<string, unknown>> {
   /** 列定义，复用 ProColumnDef */
   columns: ProColumnDef<T>[]
 
@@ -3042,7 +3111,7 @@ const { proDescriptionsProps, setData } = useProDescriptions({
 })
 
 // 从表格行点击事件获取数据
-function handleRowClick(row: any) {
+function handleRowClick(row: unknown) {
   setData(row)
   drawerVisible.value = true
 }

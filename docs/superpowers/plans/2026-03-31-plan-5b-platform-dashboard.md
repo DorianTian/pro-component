@@ -33,8 +33,11 @@ platform/web/
 │   ├── router/
 │   │   └── index.ts
 │   ├── stores/
-│   │   ├── auth.ts
-│   │   └── app.ts
+│   │   ├── auth.ts                    # Auth state + JWT + usePermission composable
+│   │   ├── app.ts                     # App list + package list + sidebar
+│   │   ├── grayscale.ts               # Grayscale rule management state
+│   │   ├── compat.ts                  # Compatibility matrix state
+│   │   └── version.ts                 # Version management + publish status state
 │   ├── api/
 │   │   ├── client.ts                    # Typed axios instance + interceptors
 │   │   ├── types.ts                     # All API request/response types
@@ -552,12 +555,16 @@ export interface HealthStatus {
 
 ```typescript
 import axios from 'axios'
-import type { ApiResponse } from './types'
 import { ElMessage } from 'element-plus'
+
+import type { ApiResponse } from './types'
+
+/** HTTP request timeout for API calls (ms) */
+const API_TIMEOUT_MS = 15_000
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
-  timeout: 15000,
+  timeout: API_TIMEOUT_MS,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -571,27 +578,49 @@ apiClient.interceptors.request.use((config) => {
   return config
 })
 
+/**
+ * Global error handler for API failures.
+ * Shows user-friendly messages and handles auth expiry.
+ *
+ * Error recovery strategy:
+ * - 401: Clear token and redirect to login (session expired)
+ * - 403: Show permission denied message (role insufficient)
+ * - 5xx: Show generic server error with retry suggestion
+ * - Network error: Show connectivity message
+ * - Other 4xx: Show server-provided error message
+ */
+function handleApiError(error: unknown): void {
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status
+
+    if (status === 401) {
+      localStorage.removeItem('pro_platform_token')
+      window.location.href = '/login'
+      return
+    }
+
+    if (status === 403) {
+      ElMessage.error('Permission denied')
+      return
+    }
+
+    if (status !== undefined && status >= 500) {
+      ElMessage.error('Server error — please try again later')
+      return
+    }
+
+    const message = (error.response?.data as Record<string, unknown> | undefined)?.message
+    ElMessage.error(typeof message === 'string' ? message : 'Request failed')
+    return
+  }
+
+  ElMessage.error('Network error — check your connection')
+}
+
 apiClient.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
-    if (axios.isAxiosError(error)) {
-      const status = error.response?.status
-      const message = error.response?.data?.message || error.message
-
-      if (status === 401) {
-        localStorage.removeItem('pro_platform_token')
-        window.location.href = '/login'
-        return Promise.reject(error)
-      }
-
-      if (status === 403) {
-        ElMessage.error('Permission denied for this operation')
-        return Promise.reject(error)
-      }
-
-      ElMessage.error(`Request failed: ${message}`)
-    }
-
+    handleApiError(error)
     return Promise.reject(error)
   },
 )
@@ -628,7 +657,7 @@ export async function apiDelete<T>(url: string): Promise<T> {
   return response.data.data
 }
 
-export { apiClient }
+export { apiClient, handleApiError }
 ```
 
 - [ ] **Step 3: Commit**
@@ -1061,7 +1090,48 @@ export const useAuthStore = defineStore('auth', () => {
     clearAuth,
   }
 })
+
+// --- Role-based UI rendering composable ---
+
+/**
+ * Composable for role-based UI visibility.
+ * Hides actions the current user doesn't have permission for.
+ *
+ * NOTE: All destructive action buttons (rollback, deprecate, delete) MUST be hidden
+ * when the user lacks permission. Use `v-if="canRollback"` not `disabled`.
+ * This prevents UI confusion where a button appears clickable but rejects on the server.
+ */
+export function usePermission() {
+  const authStore = useAuthStore()
+
+  const canPublish = computed(() =>
+    authStore.hasPermission('publisher'),
+  )
+  const canManageGrayscale = computed(() =>
+    authStore.hasPermission('operator'),
+  )
+  const canRollback = computed(() => authStore.role === 'admin')
+  const canManageUsers = computed(() => authStore.role === 'admin')
+  const canDeprecate = computed(() => authStore.role === 'admin')
+  const canEditApp = computed(() =>
+    authStore.hasPermission('operator'),
+  )
+
+  return { canPublish, canManageGrayscale, canRollback, canManageUsers, canDeprecate, canEditApp }
+}
 ```
+
+> **Implementation note — Required Pinia Stores:**
+> The dashboard needs the following stores for complex state management:
+> - `stores/auth.ts` — Authentication state, JWT token, user role (defined below)
+> - `stores/app.ts` — App list + package list + sidebar state (defined below)
+> - `stores/grayscale.ts` — Grayscale rule management state (list, filters, CRUD loading states)
+> - `stores/compat.ts` — Compatibility matrix state (selected package/version, results cache)
+> - `stores/version.ts` — Version management state (version maps per app, publish statuses)
+>
+> The `grayscale`, `compat`, and `version` stores should be created when implementing their
+> respective pages (Tasks 8-10). They follow the same pattern as `app.ts` below: Pinia
+> composition API, typed refs, async actions with loading state.
 
 - [ ] **Step 3: Create platform/web/src/stores/app.ts**
 
@@ -1710,10 +1780,13 @@ async function loadApps() {
   }
 }
 
+/** Debounce delay for search input (ms) */
+const SEARCH_DEBOUNCE_MS = 300
+
 const debouncedSearch = useDebounceFn(() => {
   page.value = 1
   loadApps()
-}, 300)
+}, SEARCH_DEBOUNCE_MS)
 
 function handleEdit(app: App) {
   editingApp.value = app
@@ -2851,11 +2924,16 @@ import StateMachineViz from '@/components/StateMachineViz.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
 import PublishTimeline from './PublishTimeline.vue'
 
+/** Auto-refresh interval for publish status polling (ms) */
+const AUTO_REFRESH_INTERVAL_MS = 5_000
+/** Default page size for publish status list */
+const DEFAULT_PAGE_SIZE = 20
+
 const statuses = ref<CdnPublishStatus[]>([])
 const loading = ref(false)
 const stateFilter = ref('')
 const page = ref(1)
-const pageSize = ref(20)
+const pageSize = ref(DEFAULT_PAGE_SIZE)
 const total = ref(0)
 const autoRefresh = ref(false)
 let refreshTimer: ReturnType<typeof setInterval> | null = null
@@ -2881,7 +2959,7 @@ function toggleAutoRefresh(enabled: boolean) {
     refreshTimer = null
   }
   if (enabled) {
-    refreshTimer = setInterval(loadStatuses, 5000)
+    refreshTimer = setInterval(loadStatuses, AUTO_REFRESH_INTERVAL_MS)
   }
 }
 
@@ -4787,6 +4865,8 @@ git commit -m "feat(platform): add Rollback dialog with pre-check and two-step c
 - [ ] All API types match the database schema from the design spec Section 7
 - [ ] Router guards set page title
 - [ ] RBAC is enforced in the UI via `authStore.hasPermission()` — operator for mutations, admin for rollback
+- [ ] Destructive action buttons (rollback, deprecate, delete) use `v-if` not `disabled` — hidden when user lacks permission
+- [ ] `usePermission()` composable used for role-based UI visibility across all pages
 - [ ] Rollback dialog enforces mandatory reason field (minimum 10 characters)
 - [ ] Rollback flows through pre-check before execution
 - [ ] CDN publish state machine covers all 5 states: uploading -> propagating -> verifying -> active / failed
@@ -4800,3 +4880,9 @@ git commit -m "feat(platform): add Rollback dialog with pre-check and two-step c
 - [ ] No `console.log` in production code — errors handled via `ElMessage`
 - [ ] TypeScript strict mode — no `any` types, proper `unknown` + narrowing for error handling
 - [ ] Vite dev server proxies `/api` to backend at port 3100
+- [ ] All Pinia stores listed: auth, app, grayscale, compat, version
+- [ ] Global error handler (`handleApiError`) covers 401, 403, 5xx, and network errors
+- [ ] Magic numbers extracted to named constants (timeouts, intervals, page sizes, debounce delays)
+- [ ] Import order follows convention: external libs -> internal absolute -> relative -> `import type`
+- [ ] No `.ts` files use `export default` (Vue SFC and `vite.config.ts` exempt)
+- [ ] All components under 400 lines

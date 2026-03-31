@@ -1071,6 +1071,9 @@ git commit -m "feat(platform): add Knex migrations for all 8 tables"
 import type { Knex } from 'knex'
 import bcrypt from 'bcryptjs'
 
+// NOTE: Seed functions are exempt from the 50-line rule — they are declarative data,
+// not logic. However, consider extracting helper factories (e.g. seedUsers, seedPackages)
+// if the seed grows beyond 200 lines.
 export async function seed(knex: Knex): Promise<void> {
   // Clean all tables in reverse FK order
   await knex('version_events').del()
@@ -1475,6 +1478,18 @@ const ROLE_HIERARCHY: Record<Role, number> = {
 }
 
 /**
+ * Role-based access control matrix.
+ *
+ * | Action                  | viewer | publisher | operator | admin |
+ * |-------------------------|--------|-----------|----------|-------|
+ * | Read versions/compat    | Y      | Y         | Y        | Y     |
+ * | Publish new version     |        | Y         |          | Y     |
+ * | Manage grayscale        |        |           | Y        | Y     |
+ * | Grayscale override pin  |        |           |          | Y     |
+ * | Rollback version        |        |           |          | Y     |
+ * | Deprecate version       |        |           |          | Y     |
+ * | Manage users/roles      |        |           |          | Y     |
+ *
  * Permission map: action -> minimum required role.
  * Roles at or above the minimum level are granted access.
  */
@@ -1503,6 +1518,7 @@ const PERMISSION_MAP: Record<string, Role> = {
   'versions:rollback': 'admin',
   'versions:deprecate': 'admin',
   'users:manage': 'admin',
+  'grayscale:override_pin': 'admin',  // Grayscale overriding a pinned version requires admin
 }
 
 /**
@@ -1763,6 +1779,11 @@ export interface ResolveResult {
  * 2. Recursively expand dependencies
  * 3. Deduplicate: when the same package appears multiple times, compute range intersection
  * 4. Detect diamond conflicts: when range intersection is empty
+ *
+ * NOTE: This function exceeds 50 lines. When implementing, split into:
+ * - `resolveTopLevel(requests, registry)` — Step 1 (top-level resolution loop)
+ * - `detectDiamondConflicts(rangeCollector, registry)` — Step 2 (diamond detection)
+ * - Keep `expandDependencies` as a nested helper (it uses closure over `resolved`, `visited`, etc.)
  */
 export function resolve(
   requests: Array<{ name: string; pinnedVersion?: string; versionRange?: string }>,
@@ -2259,6 +2280,68 @@ describe('semver-resolver', () => {
       expect(result.resolved.get('@pro/utils')).toBe('1.0.3')
     })
   })
+
+  // ============================================================
+  // Additional edge case test fixtures
+  // ============================================================
+  describe('edge cases — extended', () => {
+    it('handles pre-release versions', () => {
+      expect(highestSatisfying('^1.0.0', ['1.0.0', '1.1.0-beta.1', '1.1.0'])).toBe('1.1.0')
+    })
+
+    it('handles build metadata (ignored in comparison)', () => {
+      expect(highestSatisfying('1.0.0', ['1.0.0+build.1', '1.0.0+build.2'])).toBe('1.0.0+build.2')
+    })
+
+    it('handles complex OR ranges', () => {
+      expect(highestSatisfying('>=1.2.0 <2.0.0 || >=3.0.0', ['1.3.0', '2.5.0', '3.1.0'])).toBe('3.1.0')
+    })
+
+    it('handles hyphen ranges', () => {
+      expect(highestSatisfying('1.0.0 - 2.0.0', ['0.9.0', '1.5.0', '2.0.0', '2.1.0'])).toBe('2.0.0')
+    })
+
+    it('returns null for empty intersection in diamond dependency', () => {
+      const conflictEntries: VersionEntry[] = [
+        {
+          name: 'pkg-a',
+          version: '1.0.0',
+          dependencies: { 'element-plus': '>=2.2.0 <2.4.0' },
+          peerDependencies: {},
+        },
+        {
+          name: 'pkg-b',
+          version: '1.0.0',
+          dependencies: { 'element-plus': '^2.4.0' },
+          peerDependencies: {},
+        },
+        { name: 'element-plus', version: '2.2.0', dependencies: {}, peerDependencies: {} },
+        { name: 'element-plus', version: '2.3.0', dependencies: {}, peerDependencies: {} },
+        { name: 'element-plus', version: '2.4.0', dependencies: {}, peerDependencies: {} },
+        { name: 'element-plus', version: '2.5.0', dependencies: {}, peerDependencies: {} },
+      ]
+      const conflictRegistry = createRegistry(conflictEntries)
+
+      const result = resolve(
+        [
+          { name: 'pkg-a', pinnedVersion: '1.0.0' },
+          { name: 'pkg-b', pinnedVersion: '1.0.0' },
+        ],
+        conflictRegistry,
+      )
+
+      expect(result.conflicts.length).toBeGreaterThan(0)
+      const epConflict = result.conflicts.find((c) => c.dependency === 'element-plus')
+      expect(epConflict).toBeDefined()
+      expect(epConflict!.required).toHaveProperty('pkg-a@1.0.0', '>=2.2.0 <2.4.0')
+      expect(epConflict!.required).toHaveProperty('pkg-b@1.0.0', '^2.4.0')
+      expect(epConflict!.suggestion).toContain('Conflict')
+    })
+
+    it('handles tilde ranges', () => {
+      expect(highestSatisfying('~1.2.3', ['1.2.2', '1.2.5', '1.3.0'])).toBe('1.2.5')
+    })
+  })
 })
 ```
 
@@ -2406,7 +2489,67 @@ function evaluatePercentage(
   const bucket = hashToPercentage(value)
   return bucket < percentage
 }
+
+// --- Grayscale vs Pinned Version — Precedence Rule ---
+
+interface ResolvedVersion {
+  version: string
+  source: 'grayscale' | 'pinned' | 'latest'
+}
+
+interface ResolutionContext {
+  appId: string
+  userId: string
+}
+
+interface AuditLogEntry {
+  action: string
+  appId: string
+  userId: string
+  pinnedVersion?: string
+  grayscaleVersion?: string
+}
+
+/**
+ * Resolve the effective version for a user.
+ *
+ * Priority order:
+ * 1. Active grayscale rule targeting this user -> grayscale version (overrides pin)
+ * 2. Pinned version for this app -> pinned version
+ * 3. Latest active version -> default
+ *
+ * When grayscale overrides a pin:
+ * - Requires admin role (operator insufficient)
+ * - Audit logged as 'grayscale_override_pin'
+ * - Dashboard shows warning on creation
+ */
+async function resolveEffectiveVersion(
+  appId: string,
+  userId: string,
+  context: ResolutionContext,
+): Promise<ResolvedVersion> {
+  // Check grayscale first (takes precedence)
+  const grayscaleVersion = await evaluateGrayscaleRules(appId, userId)
+  if (grayscaleVersion) {
+    const pinnedVersion = await getPinnedVersion(appId)
+    if (pinnedVersion) {
+      await auditLog({
+        action: 'grayscale_override_pin',
+        appId,
+        userId,
+        pinnedVersion: pinnedVersion.version,
+        grayscaleVersion: grayscaleVersion.version,
+      })
+    }
+    return grayscaleVersion
+  }
+
+  // Fall back to pin, then default
+  return (await getPinnedVersion(appId)) ?? (await getLatestActiveVersion(appId))
+}
 ```
+
+> **Implementation note:** `evaluateGrayscaleRules`, `getPinnedVersion`, `getLatestActiveVersion`, and `auditLog` are service-layer functions to be implemented in the import-map service. The precedence rule above defines the resolution contract.
 
 - [ ] **Step 3: Write hash tests**
 
@@ -2755,11 +2898,12 @@ beforeAll(async () => {
       directory: './migrations',
       extension: 'ts',
     })
-  } catch (err) {
+  } catch (err: unknown) {
     // If DB doesn't exist, skip integration tests gracefully
     // Unit tests (engines, utils) don't need DB
     if ((err as NodeJS.ErrnoException).code === 'ER_BAD_DB_ERROR') {
-      console.warn('Test database not available — DB-dependent tests will be skipped')
+      // Test DB not available — DB-dependent tests will be skipped
+      // Intentionally silent: pino logger is set to 'silent' in test env
     }
   }
 })
@@ -3373,6 +3517,11 @@ export class SyncService {
 
 - [ ] **Step 3: Create platform/server/src/modules/sync/router.ts**
 
+> **Implementation note — Transaction semantics for multi-package publish:**
+> The sync endpoint MUST accept batch payloads (array of packages) in addition to single-package payloads.
+> Multi-package publishes (e.g., releasing `@pro/table` + `@pro/hooks` together) MUST be wrapped in a
+> Knex transaction to ensure atomicity — all inserts succeed or none do. No partial version state.
+
 ```typescript
 import Router from 'koa-router'
 import { auth } from '../../middleware/auth.js'
@@ -3380,23 +3529,109 @@ import { requirePermission } from '../../middleware/rbac.js'
 import { SyncService } from './service.js'
 import { getDb } from '../../db.js'
 import type { Context } from 'koa'
+import type { Knex } from 'knex'
+import { logger } from '../../logger.js'
 
 export const syncRouter = new Router({ prefix: '/api/v1/versions' })
 
-// POST /api/v1/versions/sync — npm publish hook receiver
+// --- Types for batch sync ---
+
+interface VersionSyncPayload {
+  packageName: string
+  version: string
+  dependencies?: Record<string, string>
+  peerDependencies?: Record<string, string>
+  cdnPath?: string
+  changelog?: string
+  breakingChanges?: string[]
+  sriHashes?: Record<string, string>
+}
+
+interface SyncResult {
+  packageName: string
+  versionId: number
+  created: boolean
+}
+
+/**
+ * Sync multiple package versions atomically.
+ * All inserts succeed or none do — no partial version state.
+ */
+async function syncVersionBatch(
+  db: Knex,
+  packages: VersionSyncPayload[],
+  operator: string,
+): Promise<SyncResult[]> {
+  return db.transaction(async (trx) => {
+    const results: SyncResult[] = []
+    const syncService = new SyncService(trx)
+
+    for (const pkg of packages) {
+      const result = await syncService.syncVersion(
+        {
+          packageName: pkg.packageName,
+          version: pkg.version,
+          dependencies: pkg.dependencies,
+          peerDependencies: pkg.peerDependencies,
+          cdnPath: pkg.cdnPath,
+          changelog: pkg.changelog,
+          breakingChanges: pkg.breakingChanges,
+          sriHashes: pkg.sriHashes,
+        },
+        operator,
+      )
+
+      results.push({
+        packageName: pkg.packageName,
+        versionId: result.versionId,
+        created: result.created,
+      })
+    }
+
+    // Dependency resolution within same transaction (sees new versions)
+    // Future: call resolveDependencies(trx, result.versionId) here
+
+    return results
+  })
+  // Cache invalidation happens AFTER transaction commits (outside the transaction)
+}
+
+// POST /api/v1/versions/sync — npm publish hook receiver (single or batch)
 syncRouter.post('/sync', auth, requirePermission('versions:sync'), async (ctx: Context) => {
-  const body = ctx.request.body as {
-    packageName?: string
-    version?: string
-    dependencies?: Record<string, string>
-    peerDependencies?: Record<string, string>
-    cdnPath?: string
-    changelog?: string
-    breakingChanges?: string[]
-    sriHashes?: Record<string, string>
+  const body = ctx.request.body as VersionSyncPayload | { packages: VersionSyncPayload[] }
+
+  // Support both single-package and batch payloads
+  if ('packages' in body && Array.isArray(body.packages)) {
+    // Batch mode — transactional
+    if (body.packages.length === 0) {
+      ctx.status = 400
+      ctx.body = { code: 'VALIDATION_ERROR', message: 'packages array must not be empty' }
+      return
+    }
+
+    for (const pkg of body.packages) {
+      if (!pkg.packageName || !pkg.version) {
+        ctx.status = 400
+        ctx.body = {
+          code: 'VALIDATION_ERROR',
+          message: `packageName and version are required for each package (missing in ${pkg.packageName ?? 'unknown'})`,
+        }
+        return
+      }
+    }
+
+    const db = getDb()
+    const results = await syncVersionBatch(db, body.packages, ctx.state.user!.username)
+
+    const anyCreated = results.some((r) => r.created)
+    ctx.status = anyCreated ? 201 : 200
+    ctx.body = { results }
+    return
   }
 
-  if (!body.packageName || !body.version) {
+  // Single-package mode (backward compatible)
+  const singleBody = body as VersionSyncPayload
+  if (!singleBody.packageName || !singleBody.version) {
     ctx.status = 400
     ctx.body = { code: 'VALIDATION_ERROR', message: 'packageName and version are required' }
     return
@@ -3405,14 +3640,14 @@ syncRouter.post('/sync', auth, requirePermission('versions:sync'), async (ctx: C
   const service = new SyncService(getDb())
   const result = await service.syncVersion(
     {
-      packageName: body.packageName,
-      version: body.version,
-      dependencies: body.dependencies,
-      peerDependencies: body.peerDependencies,
-      cdnPath: body.cdnPath,
-      changelog: body.changelog,
-      breakingChanges: body.breakingChanges,
-      sriHashes: body.sriHashes,
+      packageName: singleBody.packageName,
+      version: singleBody.version,
+      dependencies: singleBody.dependencies,
+      peerDependencies: singleBody.peerDependencies,
+      cdnPath: singleBody.cdnPath,
+      changelog: singleBody.changelog,
+      breakingChanges: singleBody.breakingChanges,
+      sriHashes: singleBody.sriHashes,
     },
     ctx.state.user!.username,
   )
@@ -3776,15 +4011,35 @@ import { LRUCache } from 'lru-cache'
 import { loadConfig } from '../../config.js'
 import type { ImportMapResponse } from '../../types/api.js'
 import { logger } from '../../logger.js'
+import { getDb } from '../../db.js'
 
+/**
+ * Named constants for cache configuration.
+ * These are defaults — production values come from AppConfig.
+ */
+const IMPORT_MAP_CACHE_MAX_ENTRIES = 10_000
+const IMPORT_MAP_CACHE_TTL_MS = 60_000
+const CDN_EDGE_MAX_AGE_S = 60
+const CDN_EDGE_SWR_S = 300
+
+/**
+ * Import map cache with composite key and active invalidation.
+ *
+ * Key structure: `{appId}:{userId}:{cacheEpoch}`
+ * - cacheEpoch is a global counter incremented on any version mapping or grayscale rule change
+ * - This ensures all cached entries become stale immediately after changes
+ *
+ * TTL: 60s for API response cache, 300s for CDN edge (stale-while-revalidate)
+ * LRU capacity: 10,000 entries per API instance
+ */
 let cache: LRUCache<string, ImportMapResponse> | null = null
 
 function getCache(): LRUCache<string, ImportMapResponse> {
   if (!cache) {
     const config = loadConfig()
     cache = new LRUCache<string, ImportMapResponse>({
-      max: config.cache.importMapMaxSize,
-      ttl: config.cache.importMapTtlMs,
+      max: config.cache.importMapMaxSize || IMPORT_MAP_CACHE_MAX_ENTRIES,
+      ttl: config.cache.importMapTtlMs || IMPORT_MAP_CACHE_TTL_MS,
     })
     logger.info(
       { maxSize: config.cache.importMapMaxSize, ttlMs: config.cache.importMapTtlMs },
@@ -3792,6 +4047,33 @@ function getCache(): LRUCache<string, ImportMapResponse> {
     )
   }
   return cache
+}
+
+/** Get current cache epoch from DB (global invalidation counter) */
+export async function getCacheEpoch(): Promise<number> {
+  try {
+    const db = getDb()
+    const row = await db('cache_metadata').where('key', 'cache_epoch').first()
+    return row?.value ?? 0
+  } catch {
+    return 0
+  }
+}
+
+/** Increment cache epoch — called after version mapping or grayscale rule changes */
+export async function invalidateImportMapCache(): Promise<void> {
+  try {
+    const db = getDb()
+    await db('cache_metadata')
+      .where('key', 'cache_epoch')
+      .increment('value', 1)
+  } catch {
+    // cache_metadata table may not exist yet — graceful degradation
+    logger.warn('Failed to increment cache epoch — cache_metadata table may not exist')
+  }
+
+  // Also clear local LRU (other instances will see new epoch on next request)
+  getCache().clear()
 }
 
 /**
@@ -3827,6 +4109,12 @@ export function setCached(key: string, value: ImportMapResponse): void {
 export function clearCache(): void {
   getCache().clear()
 }
+
+export function getCacheSize(): number {
+  return getCache().size
+}
+
+export { CDN_EDGE_MAX_AGE_S, CDN_EDGE_SWR_S }
 ```
 
 - [ ] **Step 2: Create platform/server/src/modules/import-map/service.ts**
@@ -3869,6 +4157,11 @@ export class ImportMapService {
    * 5. Diamond dependency check -> range intersection, conflict error if incompatible
    * 6. Generate import map + modulepreload + CSS links + SRI hashes
    * 7. Cache result (key: appId + userId + version fingerprint)
+   *
+   * NOTE: This method exceeds 50 lines. When implementing, split into private helpers:
+   * - `evaluateGrayscaleOverrides(appId, userId)` — Step 2
+   * - `buildImportMapResponse(resolved, versionMaps, cdnBase)` — Step 6
+   * - `checkCacheOrBuild(appId, userId, result, versionMaps)` — Steps 5-7
    */
   async generate(appId: string, userId?: string): Promise<ImportMapResponse> {
     const config = loadConfig()
@@ -4030,6 +4323,7 @@ export class ImportMapService {
 import Router from 'koa-router'
 import { ImportMapService } from './service.js'
 import { getDb } from '../../db.js'
+import { CDN_EDGE_MAX_AGE_S, CDN_EDGE_SWR_S } from './cache.js'
 import type { Context } from 'koa'
 
 export const importMapRouter = new Router()
@@ -4053,8 +4347,8 @@ importMapRouter.get('/api/v1/import-map', async (ctx: Context) => {
   const service = new ImportMapService(getDb())
   const result = await service.generate(appId, userId)
 
-  // CDN edge cache headers
-  ctx.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300')
+  // CDN edge cache headers — use named constants
+  ctx.set('Cache-Control', `public, max-age=${CDN_EDGE_MAX_AGE_S}, stale-while-revalidate=${CDN_EDGE_SWR_S}`)
   ctx.set('Vary', 'Accept-Encoding')
 
   ctx.body = result
@@ -4359,6 +4653,7 @@ import { requirePermission } from '../../middleware/rbac.js'
 import { GrayscaleService } from './service.js'
 import { getDb } from '../../db.js'
 import type { Context } from 'koa'
+import type { GrayscaleRuleConfig } from '../../types/grayscale.js'
 
 export const grayscaleRouter = new Router({ prefix: '/api/v1/grayscale' })
 
@@ -4388,7 +4683,7 @@ grayscaleRouter.post('/', auth, requirePermission('grayscale:create'), async (ct
       packageName: body.packageName,
       targetVersion: body.targetVersion,
       strategy: body.strategy as 'user_list' | 'department' | 'percentage' | 'composite',
-      ruleConfig: body.ruleConfig as any,
+      ruleConfig: body.ruleConfig as GrayscaleRuleConfig,
     },
     ctx.state.user!.username,
   )
@@ -4697,6 +4992,7 @@ import Router from 'koa-router'
 import { getDb } from '../../db.js'
 import { loadConfig } from '../../config.js'
 import { logger } from '../../logger.js'
+import { getCacheSize, getCacheEpoch } from '../import-map/cache.js'
 import type { Context } from 'koa'
 
 export const healthRouter = new Router()
@@ -4709,6 +5005,8 @@ interface HealthStatus {
   }
   version: string
   uptime: number
+  cacheSize: number
+  cacheEpoch: number
 }
 
 interface CheckResult {
@@ -4716,6 +5014,21 @@ interface CheckResult {
   latencyMs: number
   message?: string
 }
+
+/**
+ * GET /health — Simple health check endpoint (P1 observability baseline).
+ * No auth, no version prefix. Used by Kubernetes liveness probes.
+ */
+healthRouter.get('/health', async (ctx: Context) => {
+  const dbStatus = await getDb().raw('SELECT 1').then(() => 'connected').catch(() => 'disconnected')
+  ctx.body = {
+    status: dbStatus === 'connected' ? 'ok' : 'degraded',
+    db: dbStatus,
+    uptime: process.uptime(),
+    cacheSize: getCacheSize(),
+    cacheEpoch: await getCacheEpoch(),
+  }
+})
 
 /**
  * GET /health/resolution — Deep health check.
@@ -4786,6 +5099,8 @@ healthRouter.get('/health/resolution', async (ctx: Context) => {
     checks,
     version: process.env.npm_package_version || '0.0.1',
     uptime: startTime,
+    cacheSize: getCacheSize(),
+    cacheEpoch: await getCacheEpoch(),
   }
 
   ctx.status = healthStatus.status === 'healthy' ? 200 : 503

@@ -42,6 +42,10 @@ Coordinator prompt:
 
 You are executing Phase 1 of the pro-components project.
 
+IMPORTANT PREREQUISITES:
+- Verify Node.js >= 18 and pnpm >= 9 before starting (node -v, pnpm -v)
+- IGNORE hard-coded paths in the plan — use the actual working directory
+
 1. Read the plan: docs/superpowers/plans/2026-03-31-plan-1-monorepo-foundation.md
 2. Read the project CLAUDE.md for code standards
 3. Execute all 14 tasks sequentially
@@ -49,14 +53,18 @@ You are executing Phase 1 of the pro-components project.
 5. After each task: run relevant validation, commit
 
 Known violations to fix during implementation:
-- ESLint config: use flat config (eslint.config.js) not .eslintrc.cjs (ESLint 9+)
-- ESLint rules: add no-explicit-any: error, consistent-type-imports: error, no-floating-promises: error, prefer-const: error, no-var: error, eqeqeq: error, max-lines: 400, max-lines-per-function: 50, max-params: 4, complexity: 10, max-depth: 4
+- ESLint: flat config format (eslint.config.js), NOT .eslintrc.cjs (ESLint 9+ requires flat config)
+- ESLint mandatory rules: @typescript-eslint/no-explicit-any: error, @typescript-eslint/consistent-type-imports: error, @typescript-eslint/no-floating-promises: error, prefer-const: error, no-var: error, eqeqeq: [error, always], max-lines: [error, { max: 400 }], max-lines-per-function: [error, { max: 50 }], max-params: [error, { max: 4 }], complexity: [error, { max: 10 }], max-depth: [error, { max: 4 }], no-console: error
 - Replace all `any` with `unknown` or specific types
 - Remove all `export default` from .ts files
 - Remove commented-out code
 - Add JSDoc to all exported functions/interfaces
 - createRollupConfig: split into createEsmConfig/createCjsConfig/createUmdConfig (under 50 lines each)
+- validate-build.ts: add CSS output validation (verify .css files exist in dist/style/)
 - version-check.ts: use logger wrapper instead of console.warn
+- Add acorn to root devDependencies (needed for AST validation in build scripts)
+- Fix changesets config: update placeholder repo name to actual repository name
+- Fix .changeset/config.json "linked" and "fixed" groups to match actual package names
 
 After all tasks complete, run full verification:
   pnpm build && pnpm type-check && pnpm lint && pnpm validate-build
@@ -99,9 +107,17 @@ Known violations to fix:
 - Remove `export default ProTable` from index.ts, named export only
 - Test utilities: do NOT export from @pro/hooks main entry. Use separate export path `@pro/hooks/test-utils`
 - ToolBar.vue: don't use array index as v-for key
-- Magic numbers: extract DEFAULT_PAGE_SIZE, DEFAULT_LABEL_WIDTH etc to constants
-- Boolean props: ellipsis → isEllipsis, copyable → isCopyable (or document exemption)
+- Magic numbers: extract DEFAULT_PAGE_SIZE, DEFAULT_LABEL_WIDTH etc to named constants (no magic numbers/strings)
+- Boolean props: use is/has/can/should prefix (ellipsis → isEllipsis, copyable → isCopyable, or document exemption)
 - All test files: use .test.ts not .spec.ts
+
+CRITICAL cross-plan dependency:
+- useValueType MUST export CONTROL_REGISTRY map for Plan 2b (ProForm) reuse — ProFormField imports this registry instead of implementing its own control switch
+- ColumnSetting: add optional `persistKey` prop for localStorage persistence of column visibility/order
+
+Additional:
+- Add ProRequestError structured error type (extends Error, includes statusCode, response body)
+- Verify all catch blocks use (error: unknown) + instanceof narrowing
 
 After completion: pnpm --filter @pro/hooks test && pnpm --filter @pro/table test && pnpm build
 ```
@@ -122,14 +138,19 @@ You are Implementer Agent 2b. Your scope is @pro/form and @pro/descriptions.
 
 Known violations to fix:
 - ALL `any` → `unknown` or specific types. formRef: use `InstanceType<typeof ElForm> | null` not `any`
-- renderControl() in ProFormField.vue: refactor to strategy map pattern (CONTROL_RENDERERS Record), keep under 50 lines
+- ProFormField MUST import CONTROL_REGISTRY from @pro/hooks, NOT implement its own switch. Use resolveControl() function with the shared registry
 - Remove all `export default` from .ts files
-- Provide key: use `InjectionKey<T>` symbol, not magic string 'proForm'
-- catch (error) → catch (error: unknown)
+- InjectionKey: use Symbol(), not magic string 'proForm' — `const PRO_FORM_KEY: InjectionKey<ProFormContext> = Symbol('proForm')`
+- catch (error) → catch (error: unknown) + instanceof narrowing
 - Magic numbers: extract GRID_TOTAL_COLUMNS=24, GRID_GUTTER=16
 - Import order: import type at end as separate group
 - All test files: .test.ts not .spec.ts
 - One assertion concept per test (split multi-assertion tests)
+
+CRITICAL integration requirements:
+- useProForm MUST integrate el-form.validate() — not optional. The submit() function must call formRef.value?.validate() before executing submit handler
+- StepsForm must validate current step via formRef.validateField() before advancing to next step
+- Add concurrent submission guard: `const isSubmitting = ref(false)` — prevent double-submit
 
 After completion: pnpm --filter @pro/form test && pnpm --filter @pro/descriptions test && pnpm build
 ```
@@ -159,6 +180,13 @@ Known violations to fix:
 - Validate all external input with zod schemas
 - Test files: .test.ts
 
+CRITICAL architecture requirements:
+- Multi-package publish: wrap in Knex transaction — all packages in a release must be committed atomically, rollback on any failure
+- Cache: composite key with cacheEpoch counter, TTL 60s, LRU 10k entries. Cache invalidation must bump epoch, not just flush
+- Grayscale takes precedence over pinned versions (admin role required for override). Resolution order: grayscale rules → pinned → semver resolve
+- Semver tests: add pre-release (1.0.0-alpha.1), build metadata (1.0.0+build.1), complex OR ranges (>=1.2.0 || <0.2.0), hyphen ranges (1.0.0 - 2.0.0), tilde ranges (~1.2.3)
+- Add /health endpoint with DB status (knex.raw('SELECT 1')), uptime, cache size, version info
+
 After completion: cd platform/server && pnpm test && pnpm build
 ```
 
@@ -182,6 +210,12 @@ Known violations to fix:
 - API client: validate response shapes at runtime (type guard or zod)
 - Magic numbers/strings → named constants
 - Import order: external → internal → relative → import type
+
+CRITICAL architecture requirements:
+- Add Pinia stores for grayscale, compat, version (not just auth + app) — each domain gets its own store
+- Implement usePermission composable for role-based UI: `const { hasPermission, isAdmin } = usePermission()`
+- Hide unauthorized actions with v-if, not disabled — users should not see actions they cannot perform
+- Add global API error handler: 401 → auto-logout + redirect to login, 403 → permission denied toast, 500+ → retry message with exponential backoff
 
 After completion: cd platform/web && pnpm type-check && pnpm build
 ```
@@ -213,7 +247,13 @@ You are the Code Review Agent for Phase 2.
    f. JSDoc on all exported interfaces/functions
    g. No console.log/warn/error in src/ (only in test files)
 5. Run: pnpm lint — must pass with zero warnings
-6. Report findings. Fix any issues found.
+6. Cross-check critical integration points:
+   a. ProFormField uses CONTROL_REGISTRY from @pro/hooks (no hardcoded switch/case)
+   b. useProForm calls el-form.validate() in submit() — validation is mandatory, not skippable
+   c. Grayscale evaluator has precedence over pinned versions in semver resolver
+   d. All catch blocks use (error: unknown) + instanceof narrowing — no bare catch(e)
+   e. Verify: No `any` in any src/ files (grep -r 'any' packages/*/src/ platform/*/src/)
+7. Report findings. Fix any issues found.
 ```
 
 ---
@@ -259,12 +299,13 @@ You are Implementer Agent 4. Your scope is CDN distribution (loader, SW, Vite pl
 4. You own: cdn/, packages/vite-plugin/
 5. DO NOT touch: packages/*/src/ (read-only), platform/, docs/
 
-CRITICAL fix: bundle.ts uses require() in ESM module — will crash at runtime. Use import instead.
+CRITICAL fix: bundle.ts uses require() in ESM module — will crash at runtime. Replace with fs.readFile + JSON.parse (not import).
 
 Known violations to fix:
-- ALL `(window as any)` → extend Window interface in global.d.ts
-- API response: add runtime validation (type guard) before using
+- ALL `(window as any)` → extend Window interface in global.d.ts instead of casting
+- API response: add runtime validation (type guard) before using — create isValidImportMapResponse type guard function
 - SW handleCacheImportMap: validate importMap shape before caching
+- SW cache: atomic cache groups — all resources for a version must be cached together or none (use Cache.addAll, not individual Cache.put)
 - buildErrorPageHtml: split into helper functions (under 50 lines each)
 - Magic numbers: extract timeouts to named constants
 - Use logger wrapper for console calls in browser code
@@ -280,7 +321,20 @@ pnpm docs:build
 pnpm test
 ```
 
-Then dispatch Reviewer Agent (same pattern as Phase 2).
+Then dispatch Reviewer Agent (same pattern as Phase 2, plus these Phase 3 cross-checks):
+
+```
+Additional Phase 3 reviewer cross-checks:
+- Cross-check: ProFormField uses CONTROL_REGISTRY from @pro/hooks (no hardcoded switch)
+- Cross-check: useProForm calls el-form.validate() in submit()
+- Cross-check: Grayscale evaluator has precedence over pinned versions
+- Cross-check: All catch blocks use (error: unknown) + instanceof
+- Verify: No `any` in any src/ files
+- CDN-specific: bundle.ts does NOT use require() — uses fs.readFile + JSON.parse
+- CDN-specific: (window as any) replaced with extended Window interface in global.d.ts
+- CDN-specific: SW uses atomic cache groups (Cache.addAll not individual Cache.put)
+- CDN-specific: isValidImportMapResponse type guard exists and is used
+```
 
 ---
 
@@ -296,9 +350,19 @@ You are Implementer Agent 6. Your scope is CI/CD pipelines.
 
 1. Read: docs/superpowers/plans/2026-03-31-plan-6-cicd-pipeline.md
 2. Read: CLAUDE.md for code standards
-3. Execute all 10 tasks
+3. Execute all tasks (Task 1, 2, 3a, 3b, 3c, 3d, 4, 5, 6, 7, 8, 9, 10, 11)
 4. You own: .github/, scripts/ci/
 5. DO NOT touch: packages/*/src/, platform/*/src/
+
+CRITICAL implementation notes:
+- Task 3 is split into 4 sub-tasks (3a/3b/3c/3d) — execute sequentially
+- Create scripts/ci/logger.ts FIRST (Task 3a) — all other CI scripts import from it
+- Add rollback workflow (.github/workflows/rollback.yml) in Task 9
+- Release workflow: both npm-publish and cdn-sync jobs use `environment: production` for approval gate
+- All CI scripts must use logger wrapper, not raw console.log/warn/error
+- Each script file <= 400 lines, functions <= 50 lines
+- No `any` — use `unknown` or specific types
+- No `export default` in .ts files
 
 After completion:
 - Verify YAML syntax: yamllint .github/workflows/*.yml
@@ -308,7 +372,21 @@ After completion:
 
 **Phase 4 completion gate**: All workflows valid, scripts type-check.
 
-Final Reviewer dispatch covers the entire project.
+Final Reviewer dispatch covers the entire project with these mandatory cross-checks:
+
+```
+Final Reviewer cross-checks (ALL phases):
+- Cross-check: ProFormField uses CONTROL_REGISTRY from @pro/hooks (no hardcoded switch)
+- Cross-check: useProForm calls el-form.validate() in submit()
+- Cross-check: Grayscale evaluator has precedence over pinned versions
+- Cross-check: All catch blocks use (error: unknown) + instanceof
+- Verify: No `any` in any src/ files (grep -rn 'any' packages/*/src/ platform/*/src/ cdn/src/ scripts/)
+- Verify: No `export default` in .ts files (grep -rn 'export default' --include='*.ts' --exclude='*.vue')
+- Verify: No raw console.log/warn/error in production code
+- Verify: All CI scripts import from scripts/ci/logger.ts
+- Verify: rollback.yml uses environment: production
+- Verify: release.yml npm-publish and cdn-sync use environment: production
+```
 
 ---
 

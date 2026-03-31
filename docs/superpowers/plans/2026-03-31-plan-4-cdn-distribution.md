@@ -372,7 +372,7 @@ git commit -m "feat(cdn): add SRI hash calculation with tests"
 
 ```typescript
 import { resolve, join } from 'node:path'
-import { readFileSync, existsSync } from 'node:fs'
+import { readdirSync, readFileSync, existsSync } from 'node:fs'
 import { mkdir, cp } from 'node:fs/promises'
 import { rollup } from 'rollup'
 import vue from 'rollup-plugin-vue'
@@ -383,12 +383,23 @@ import terser from '@rollup/plugin-terser'
 import typescript from '@rollup/plugin-typescript'
 import type { CdnBuildOptions } from './types'
 
+interface PackageJson {
+  name: string
+  version: string
+  private?: boolean
+}
+
 interface PackageInfo {
   name: string
   version: string
   dir: string
   inputPath: string
   hasStyles: boolean
+}
+
+interface DirEntry {
+  isDirectory(): boolean
+  name: string
 }
 
 /**
@@ -398,10 +409,9 @@ export function discoverPackages(
   packagesDir: string,
   filter?: string[],
 ): PackageInfo[] {
-  const { readdirSync } = require('node:fs')
-  const dirs = readdirSync(packagesDir, { withFileTypes: true })
-    .filter((d: any) => d.isDirectory())
-    .map((d: any) => d.name)
+  const dirs = (readdirSync(packagesDir, { withFileTypes: true }) as DirEntry[])
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name)
 
   const packages: PackageInfo[] = []
 
@@ -409,7 +419,7 @@ export function discoverPackages(
     const pkgJsonPath = resolve(packagesDir, dir, 'package.json')
     if (!existsSync(pkgJsonPath)) continue
 
-    const pkg = JSON.parse(readFileSync(pkgJsonPath, 'utf-8'))
+    const pkg: PackageJson = JSON.parse(readFileSync(pkgJsonPath, 'utf-8'))
     if (pkg.private) continue
     if (filter && !filter.includes(pkg.name)) continue
 
@@ -617,6 +627,13 @@ import { discoverPackages, buildPackageForCdn } from './bundle'
 import { generateManifest } from './manifest'
 import type { CdnBuildOptions, CdnManifest } from './types'
 
+/** CLI logger wrapper */
+const log = {
+  info: (msg: string) => process.stdout.write(`${msg}\n`),
+  warn: (msg: string) => process.stderr.write(`${msg}\n`),
+  error: (msg: string) => process.stderr.write(`${msg}\n`),
+}
+
 /**
  * Build all packages for CDN distribution.
  *
@@ -638,20 +655,20 @@ async function main(): Promise<void> {
     packages: packageFilter,
   }
 
-  console.log(`[cdn-build] Discovering packages in ${options.packagesDir}`)
+  log.info(`[cdn-build] Discovering packages in ${options.packagesDir}`)
   const packages = discoverPackages(options.packagesDir, options.packages)
 
   if (packages.length === 0) {
-    console.warn('[cdn-build] No packages found to build')
+    log.warn('[cdn-build] No packages found to build')
     process.exit(1)
   }
 
-  console.log(`[cdn-build] Building ${packages.length} packages for CDN`)
+  log.info(`[cdn-build] Building ${packages.length} packages for CDN`)
 
   const manifests: CdnManifest[] = []
 
   for (const pkg of packages) {
-    console.log(`[cdn-build] Building ${pkg.name}@${pkg.version}`)
+    log.info(`[cdn-build] Building ${pkg.name}@${pkg.version}`)
 
     const versionDir = await buildPackageForCdn(pkg, options.outputDir, options.cdnBaseUrl)
     const manifest = await generateManifest(pkg.name, pkg.version, versionDir, options.cdnBaseUrl)
@@ -661,20 +678,20 @@ async function main(): Promise<void> {
     // Write per-package manifest
     const manifestPath = resolve(versionDir, 'manifest.json')
     await writeFile(manifestPath, JSON.stringify(manifest, null, 2))
-    console.log(`[cdn-build]   -> ${manifestPath}`)
+    log.info(`[cdn-build]   -> ${manifestPath}`)
   }
 
   // Write combined manifest
   const combinedPath = resolve(options.outputDir, 'cdn-manifest.json')
   await mkdir(resolve(options.outputDir), { recursive: true })
   await writeFile(combinedPath, JSON.stringify(manifests, null, 2))
-  console.log(`[cdn-build] Combined manifest: ${combinedPath}`)
+  log.info(`[cdn-build] Combined manifest: ${combinedPath}`)
 
   // Print summary
-  console.log('\n[cdn-build] Summary:')
+  log.info('\n[cdn-build] Summary:')
   for (const m of manifests) {
     const sriCount = Object.keys(m.sriHashes).length
-    console.log(`  ${m.name}@${m.version} — ESM: ${formatBytes(m.esmSize)}, SRI: ${sriCount} files`)
+    log.info(`  ${m.name}@${m.version} — ESM: ${formatBytes(m.esmSize)}, SRI: ${sriCount} files`)
   }
 }
 
@@ -689,8 +706,8 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-main().catch((err) => {
-  console.error('[cdn-build] Fatal error:', err)
+main().catch((err: unknown) => {
+  log.error(`[cdn-build] Fatal error: ${err instanceof Error ? err.message : String(err)}`)
   process.exit(1)
 })
 ```
@@ -940,6 +957,22 @@ export type FallbackSource =
   | 'localstorage'
   | 'hardcoded'
   | 'error-page'
+
+/**
+ * Augment the global Window interface for loader globals.
+ * This eliminates all `(window as any)` casts in loader code.
+ */
+declare global {
+  interface Window {
+    __PRO_IMPORT_MAP__?: ImportMapResponse
+    __PRO_LOADER_CONFIG__?: LoaderConfig
+    __PRO_SW_REGISTRATION__?: ServiceWorkerRegistration
+    __PRO_USER_ID__?: string
+    importShim?: (specifier: string) => Promise<unknown>
+  }
+}
+
+export {}
 ```
 
 - [ ] **Step 4: Create cdn/loader/src/constants.ts**
@@ -960,6 +993,21 @@ export const ES_MODULE_SHIMS_URL =
 /** Import map API fetch timeout (ms) */
 export const FETCH_TIMEOUT_MS = 5000
 
+/** Max retry attempts for API fetch */
+export const MAX_RETRY_ATTEMPTS = 3
+
+/** Retry backoff base delay (ms) */
+export const RETRY_BACKOFF_MS = 1000
+
+/** Fallback check interval for periodic revalidation (ms) */
+export const FALLBACK_CHECK_INTERVAL_MS = 30000
+
+/** Max number of import map cache groups kept in SW cache */
+export const MAX_CACHE_GROUPS = 2
+
+/** Minimum storage threshold before refusing to cache (MB) */
+export const MIN_STORAGE_THRESHOLD_MB = 50
+
 /** localStorage key for cached import map */
 export const LS_IMPORT_MAP_KEY = 'pro:import-map'
 
@@ -977,6 +1025,34 @@ export const SW_CACHE_NAME = 'pro-cdn-cache-v1'
 
 /** SW cache channel name for cross-tab communication */
 export const SW_CACHE_CHANNEL = 'pro-sw-channel'
+
+/**
+ * Browser logger wrapper for loader code.
+ * Info/warn only log in dev mode (__DEV__ replaced by terser in production).
+ * Errors always log — they indicate real failures.
+ */
+declare const __DEV__: boolean
+
+const LOG_PREFIX = '[pro-loader]'
+
+export const logger = {
+  info: (msg: string, ...args: unknown[]) => {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) {
+      // eslint-disable-next-line no-console -- dev-only diagnostic
+      console.info(LOG_PREFIX, msg, ...args)
+    }
+  },
+  warn: (msg: string, ...args: unknown[]) => {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) {
+      // eslint-disable-next-line no-console -- dev-only diagnostic
+      console.warn(LOG_PREFIX, msg, ...args)
+    }
+  },
+  error: (msg: string, ...args: unknown[]) => {
+    // eslint-disable-next-line no-console -- errors always log
+    console.error(LOG_PREFIX, msg, ...args)
+  },
+}
 
 /**
  * Hardcoded fallback import map — absolute last resort before error page.
@@ -1028,11 +1104,29 @@ import {
   LS_IMPORT_MAP_TS_KEY,
   LS_MAX_AGE_MS,
   HARDCODED_FALLBACK_IMPORT_MAP,
+  logger,
 } from './constants'
 
 interface ImportMapResult {
   importMap: ImportMapResponse
   source: FallbackSource
+}
+
+/**
+ * Runtime validation guard for import map API responses.
+ * Ensures the response has the expected shape before use.
+ */
+function isValidImportMapResponse(data: unknown): data is ImportMapResponse {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'imports' in data &&
+    typeof (data as Record<string, unknown>).imports === 'object' &&
+    'preloads' in data &&
+    Array.isArray((data as Record<string, unknown>).preloads) &&
+    'styles' in data &&
+    Array.isArray((data as Record<string, unknown>).styles)
+  )
 }
 
 /**
@@ -1055,7 +1149,10 @@ async function fetchFromApi(config: LoaderConfig): Promise<ImportMapResponse> {
       throw new Error(`API responded with ${response.status}: ${response.statusText}`)
     }
 
-    const data: ImportMapResponse = await response.json()
+    const data: unknown = await response.json()
+    if (!isValidImportMapResponse(data)) {
+      throw new Error('Invalid import map response shape')
+    }
     return data
   } finally {
     clearTimeout(timer)
@@ -1112,6 +1209,7 @@ function fetchFromLocalStorage(): ImportMapResponse | null {
 
     return JSON.parse(raw) as ImportMapResponse
   } catch {
+    // Silently ignore: JSON parse failure or localStorage unavailable in iframe/private browsing
     return null
   }
 }
@@ -1124,7 +1222,7 @@ function saveToLocalStorage(importMap: ImportMapResponse): void {
     localStorage.setItem(LS_IMPORT_MAP_KEY, JSON.stringify(importMap))
     localStorage.setItem(LS_IMPORT_MAP_TS_KEY, String(Date.now()))
   } catch {
-    // localStorage full or disabled — non-critical
+    // Silently ignore: localStorage may be full, disabled, or unavailable in iframe/private browsing
   }
 }
 
@@ -1158,8 +1256,8 @@ export async function resolveImportMap(config: LoaderConfig): Promise<ImportMapR
     saveToLocalStorage(importMap)
     notifySwToCache(importMap)
     return { importMap, source: 'api' }
-  } catch (apiError) {
-    console.warn('[pro-loader] API fetch failed, trying SW cache:', apiError)
+  } catch (apiError: unknown) {
+    logger.warn('API fetch failed, trying SW cache:', apiError)
   }
 
   // 2. Try Service Worker cache
@@ -1169,18 +1267,19 @@ export async function resolveImportMap(config: LoaderConfig): Promise<ImportMapR
       return { importMap: cached, source: 'sw-cache' }
     }
   } catch {
-    console.warn('[pro-loader] SW cache unavailable')
+    // SW cache unavailable — continue to next fallback
+    logger.warn('SW cache unavailable')
   }
 
   // 3. Try localStorage
   const lsCached = fetchFromLocalStorage()
   if (lsCached) {
-    console.warn('[pro-loader] Using localStorage cached import map')
+    logger.warn('Using localStorage cached import map')
     return { importMap: lsCached, source: 'localstorage' }
   }
 
   // 4. Hardcoded fallback
-  console.warn('[pro-loader] All sources failed, using hardcoded fallback')
+  logger.warn('All sources failed, using hardcoded fallback')
   return { importMap: HARDCODED_FALLBACK_IMPORT_MAP, source: 'hardcoded' }
 }
 
@@ -1465,7 +1564,7 @@ export function injectStylesheets(
 export function loadEsModuleShims(url: string): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     // Check if already loaded
-    if ((window as any).importShim) {
+    if (window.importShim) {
       resolve()
       return
     }
@@ -1484,7 +1583,7 @@ export function loadEsModuleShims(url: string): Promise<void> {
  * Uses es-module-shims' importShim() for consistent behavior.
  */
 export async function bootstrapApp(appEntry: string): Promise<void> {
-  const importShim = (window as any).importShim
+  const importShim = window.importShim
   if (typeof importShim !== 'function') {
     throw new Error('[pro-loader] es-module-shims not loaded — importShim is not a function')
   }
@@ -1646,11 +1745,11 @@ describe('injectAll', () => {
 describe('loadEsModuleShims', () => {
   beforeEach(() => {
     document.head.innerHTML = ''
-    delete (window as any).importShim
+    window.importShim = undefined
   })
 
   it('resolves immediately if importShim already exists', async () => {
-    ;(window as any).importShim = vi.fn()
+    window.importShim = vi.fn() as (specifier: string) => Promise<unknown>
 
     await expect(loadEsModuleShims('https://cdn.internal/es-module-shims.js')).resolves.toBeUndefined()
 
@@ -1670,14 +1769,14 @@ describe('loadEsModuleShims', () => {
 
 describe('bootstrapApp', () => {
   it('throws if importShim is not available', async () => {
-    delete (window as any).importShim
+    window.importShim = undefined
 
     await expect(bootstrapApp('/src/main.ts')).rejects.toThrow('importShim is not a function')
   })
 
   it('calls importShim with app entry', async () => {
     const mockImportShim = vi.fn().mockResolvedValue(undefined)
-    ;(window as any).importShim = mockImportShim
+    window.importShim = mockImportShim
 
     await bootstrapApp('/src/main.ts')
 
@@ -1733,13 +1832,9 @@ export interface ErrorDiagnostics {
   userAgent: string
 }
 
-/**
- * Build self-contained error page HTML.
- * No external dependencies — all CSS is inline.
- */
-export function buildErrorPageHtml(error: Error, diagnostics: ErrorDiagnostics): string {
+/** Build the inline CSS styles for the error page container */
+function buildErrorPageStyles(): string {
   return `
-<div id="pro-error-container" style="
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1749,17 +1844,12 @@ export function buildErrorPageHtml(error: Error, diagnostics: ErrorDiagnostics):
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: #f5f5f5;
-  color: #333;
-">
-  <div style="
-    max-width: 520px;
-    width: 100%;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    padding: 40px 32px;
-    text-align: center;
-  ">
+  color: #333;`
+}
+
+/** Build the main content (heading, message, retry button) */
+function buildErrorPageContent(): string {
+  return `
     <div style="font-size: 48px; margin-bottom: 16px;">&#9888;&#65039;</div>
     <h1 style="font-size: 20px; font-weight: 600; margin: 0 0 8px;">
       Application Failed to Load
@@ -1768,45 +1858,56 @@ export function buildErrorPageHtml(error: Error, diagnostics: ErrorDiagnostics):
       We were unable to load the required resources. This may be a temporary network issue.
     </p>
     <button id="pro-error-retry" style="
-      display: inline-block;
-      padding: 10px 32px;
-      background-color: #409eff;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background-color 0.2s;
+      display: inline-block; padding: 10px 32px; background-color: #409eff;
+      color: #fff; border: none; border-radius: 4px; font-size: 14px;
+      cursor: pointer; transition: background-color 0.2s;
     " onmouseover="this.style.backgroundColor='#337ecc'"
        onmouseout="this.style.backgroundColor='#409eff'">
       Retry
-    </button>
-    <details style="
-      margin-top: 24px;
-      text-align: left;
-      font-size: 12px;
-      color: #999;
-    ">
+    </button>`
+}
+
+/** Build the diagnostic details section */
+function buildErrorPageDiagnostics(error: Error, diagnostics: ErrorDiagnostics): string {
+  const data = escapeHtml(JSON.stringify({
+    error: error.message,
+    appId: diagnostics.appId,
+    userId: diagnostics.userId,
+    failedSources: diagnostics.failedSources,
+    timestamp: diagnostics.timestamp,
+    userAgent: diagnostics.userAgent,
+  }, null, 2))
+
+  return `
+    <details style="margin-top: 24px; text-align: left; font-size: 12px; color: #999;">
       <summary style="cursor: pointer; margin-bottom: 8px;">Diagnostic Info</summary>
       <pre style="
-        background: #f9f9f9;
-        padding: 12px;
-        border-radius: 4px;
-        overflow-x: auto;
-        white-space: pre-wrap;
-        word-break: break-all;
+        background: #f9f9f9; padding: 12px; border-radius: 4px; overflow-x: auto;
+        white-space: pre-wrap; word-break: break-all;
         font-family: 'SF Mono', Monaco, Consolas, monospace;
-        font-size: 11px;
-        line-height: 1.5;
-      ">${escapeHtml(JSON.stringify({
-        error: error.message,
-        appId: diagnostics.appId,
-        userId: diagnostics.userId,
-        failedSources: diagnostics.failedSources,
-        timestamp: diagnostics.timestamp,
-        userAgent: diagnostics.userAgent,
-      }, null, 2))}</pre>
-    </details>
+        font-size: 11px; line-height: 1.5;
+      ">${data}</pre>
+    </details>`
+}
+
+/**
+ * Build self-contained error page HTML.
+ * No external dependencies — all CSS is inline.
+ * Composed from helper functions to keep each under 50 lines.
+ */
+export function buildErrorPageHtml(error: Error, diagnostics: ErrorDiagnostics): string {
+  const styles = buildErrorPageStyles()
+  const content = buildErrorPageContent()
+  const diag = buildErrorPageDiagnostics(error, diagnostics)
+
+  return `
+<div id="pro-error-container" style="${styles}">
+  <div style="
+    max-width: 520px; width: 100%; background: #fff; border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); padding: 40px 32px; text-align: center;
+  ">
+    ${content}
+    ${diag}
   </div>
 </div>`
 }
@@ -1823,7 +1924,7 @@ function escapeHtml(str: string): string {
 - [ ] **Step 2: Create cdn/loader/src/sw-register.ts**
 
 ```typescript
-import { SW_SCRIPT_PATH } from './constants'
+import { SW_SCRIPT_PATH, logger } from './constants'
 import type { ImportMapResponse } from './types'
 
 /**
@@ -1841,7 +1942,7 @@ export async function registerServiceWorker(
   swPath?: string,
 ): Promise<void> {
   if (!('serviceWorker' in navigator)) {
-    console.warn('[pro-loader] Service Worker not supported in this browser')
+    logger.warn('Service Worker not supported in this browser')
     return
   }
 
@@ -1863,14 +1964,14 @@ export async function registerServiceWorker(
       if (newWorker) {
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'activated') {
-            console.log('[pro-loader] Service Worker updated and activated')
+            logger.info('Service Worker updated and activated')
           }
         })
       }
     })
-  } catch (err) {
-    // SW registration failure is non-critical
-    console.warn('[pro-loader] Service Worker registration failed:', err)
+  } catch (err: unknown) {
+    // SW registration failure is non-critical — app will work without caching
+    logger.warn('Service Worker registration failed:', err)
   }
 }
 
@@ -1883,7 +1984,7 @@ async function notifyCacheBust(registration: ServiceWorkerRegistration): Promise
   if (!worker) return
 
   worker.postMessage({ type: 'CACHE_BUST' })
-  console.log('[pro-loader] Sent CACHE_BUST to Service Worker')
+  logger.info('Sent CACHE_BUST to Service Worker')
 }
 
 /**
@@ -2026,6 +2127,8 @@ git commit -m "feat(cdn): add error page renderer and SW registration"
 
 declare const self: ServiceWorkerGlobalScope
 
+import type { ImportMapResponse } from './src/types'
+
 const CACHE_NAME = 'pro-cdn-cache-v1'
 const IMPORT_MAP_CACHE_KEY = 'pro-import-map-response'
 
@@ -2092,7 +2195,7 @@ async function cacheFirstStrategy(request: Request): Promise<Response> {
     }
 
     return response
-  } catch (err) {
+  } catch {
     // Offline and not cached — return a minimal error response
     return new Response('Service Worker: resource unavailable offline', {
       status: 503,
@@ -2137,12 +2240,55 @@ self.addEventListener('message', (event: ExtendableMessageEvent) => {
  */
 async function handleCacheBust(): Promise<void> {
   await caches.delete(CACHE_NAME)
+  // eslint-disable-next-line no-console -- SW runs in isolated context, no logger import
   console.log('[pro-sw] Cache busted: all CDN resources cleared')
 
   // Notify all clients that cache has been cleared
   const clients = await self.clients.matchAll()
   for (const client of clients) {
     client.postMessage({ type: 'CACHE_BUSTED' })
+  }
+}
+
+/**
+ * Cache import map and all referenced resources as an atomic group.
+ * If any resource fails to cache, the entire group is discarded.
+ */
+async function cacheImportMapGroup(
+  cache: Cache,
+  importMap: ImportMapResponse,
+): Promise<boolean> {
+  const groupKey = `import-map-${(importMap as Record<string, unknown>).version ?? 'unknown'}`
+  const allUrls = [
+    ...Object.values(importMap.imports),
+    ...(importMap.styles ?? []),
+    ...(importMap.preloads ?? []),
+  ]
+
+  try {
+    const responses = await Promise.all(
+      allUrls.map(url => fetch(url).then(r => {
+        if (!r.ok) throw new Error(`Failed to fetch ${url}: ${r.status}`)
+        return { url, response: r }
+      }))
+    )
+
+    // All fetches succeeded — write to cache atomically
+    for (const { url, response } of responses) {
+      await cache.put(url, response)
+    }
+    await cache.put(groupKey, new Response(JSON.stringify(importMap)))
+    return true
+  } catch (error: unknown) {
+    // Partial failure — clean up any written entries
+    for (const url of allUrls) {
+      await cache.delete(url).catch(() => { /* best effort cleanup */ })
+    }
+    if (error instanceof Error) {
+      // eslint-disable-next-line no-console -- SW diagnostic logging
+      console.error(`[pro-sw] Cache group failed: ${error.message}`)
+    }
+    return false
   }
 }
 
@@ -2168,6 +2314,7 @@ async function handlePrecache(urls: string[]): Promise<void> {
 
   const failed = results.filter((r) => r.status === 'rejected')
   if (failed.length > 0) {
+    // eslint-disable-next-line no-console -- SW runs in isolated context, no logger import
     console.warn(`[pro-sw] Pre-cache: ${failed.length}/${urls.length} URLs failed`)
   }
 }
@@ -2245,6 +2392,7 @@ import {
   DEFAULT_CDN_BASE_URL,
   ES_MODULE_SHIMS_URL,
   FETCH_TIMEOUT_MS,
+  logger,
 } from './constants'
 import { resolveImportMap } from './import-map'
 import { loadEsModuleShims, injectAll, bootstrapApp } from './inject'
@@ -2278,11 +2426,11 @@ function parseConfig(): LoaderConfig {
     appEntry = scriptTag.dataset.proEntry ?? appEntry
   }
 
-  // Window globals
-  const userId = (window as any).__PRO_USER_ID__ ?? ''
+  // Window globals (typed via global.d.ts declaration)
+  const userId = window.__PRO_USER_ID__ ?? ''
 
   if (!appId) {
-    console.warn('[pro-loader] No appId provided — import map resolution may fail')
+    logger.warn('No appId provided — import map resolution may fail')
   }
 
   return {
@@ -2327,16 +2475,16 @@ async function boot(): Promise<void> {
     injectAll(importMap)
 
     // Step 5: Register Service Worker (fire-and-forget, non-blocking)
-    registerServiceWorker(importMap).catch((err) => {
-      console.warn('[pro-loader] SW registration error (non-blocking):', err)
+    registerServiceWorker(importMap).catch((err: unknown) => {
+      logger.warn('SW registration error (non-blocking):', err)
     })
 
     // Step 6: Bootstrap the consumer application
     await bootstrapApp(config.appEntry)
-  } catch (err) {
+  } catch (err: unknown) {
     const error = err instanceof Error ? err : new Error(String(err))
 
-    console.error('[pro-loader] Fatal boot error:', error)
+    logger.error('Fatal boot error:', error)
 
     const diagnostics: ErrorDiagnostics = {
       appId: config.appId,
@@ -2529,7 +2677,8 @@ export function proVitePlugin(options: ProVitePluginOptions = {}): Plugin {
       const isDev = command === 'serve'
 
       if (isDev) {
-        console.log(
+        // eslint-disable-next-line no-console -- Vite plugin dev diagnostic
+        console.info(
           '[pro-vite-plugin] Excluding from optimizeDeps:',
           excludeList.join(', '),
         )
@@ -2566,6 +2715,7 @@ export function proVitePlugin(options: ProVitePluginOptions = {}): Plugin {
         const missing = excludeList.filter((pkg) => !currentExclude.includes(pkg))
 
         if (missing.length > 0) {
+          // eslint-disable-next-line no-console -- Vite plugin dev diagnostic
           console.warn(
             '[pro-vite-plugin] WARNING: The following packages were re-included in optimizeDeps ' +
               'by another plugin or config. This may cause module boundary mismatch in CDN mode:',
@@ -2586,7 +2736,7 @@ export function proVitePlugin(options: ProVitePluginOptions = {}): Plugin {
                 tag: 'script',
                 attrs: { type: 'module' },
                 children: `
-                  // [pro-vite-plugin] Dev module boundary check
+                  // [pro-vite-plugin] Dev module boundary check (inline script, console.warn is acceptable in injected dev diagnostics)
                   import('vue').then(m => {
                     if (!m.version) {
                       console.warn('[pro-vite-plugin] Vue module loaded without version — possible module boundary issue')
@@ -2612,6 +2762,16 @@ import { describe, it, expect, vi } from 'vitest'
 import { proVitePlugin } from '../src/index'
 import type { Plugin, UserConfig, ResolvedConfig } from 'vite'
 
+/**
+ * Cast plugin to access hook functions for testing.
+ * Vite Plugin type uses function union types that don't expose hooks directly.
+ */
+type PluginHooks = Record<string, (...args: unknown[]) => unknown>
+
+function getHook<T>(plugin: Plugin, name: string): T {
+  return (plugin as unknown as PluginHooks)[name] as T
+}
+
 describe('proVitePlugin', () => {
   it('returns a plugin with correct name', () => {
     const plugin = proVitePlugin()
@@ -2622,7 +2782,7 @@ describe('proVitePlugin', () => {
   describe('config hook', () => {
     it('excludes Vue, Element Plus, and @pro/* from optimizeDeps', () => {
       const plugin = proVitePlugin()
-      const configHook = (plugin as any).config
+      const configHook = getHook<(config: UserConfig, env: { command: string }) => Record<string, unknown>>(plugin, 'config')
 
       const result = configHook({}, { command: 'serve' })
 
@@ -2639,7 +2799,7 @@ describe('proVitePlugin', () => {
 
     it('includes extraExclude packages', () => {
       const plugin = proVitePlugin({ extraExclude: ['lodash-es', 'dayjs'] })
-      const configHook = (plugin as any).config
+      const configHook = getHook<(config: UserConfig, env: { command: string }) => Record<string, unknown>>(plugin, 'config')
 
       const result = configHook({}, { command: 'serve' })
 
@@ -2649,7 +2809,7 @@ describe('proVitePlugin', () => {
 
     it('dedupes Vue and Element Plus in resolve config', () => {
       const plugin = proVitePlugin()
-      const configHook = (plugin as any).config
+      const configHook = getHook<(config: UserConfig, env: { command: string }) => Record<string, unknown>>(plugin, 'config')
 
       const result = configHook({}, { command: 'serve' })
 
@@ -2659,7 +2819,7 @@ describe('proVitePlugin', () => {
 
     it('defines Vue feature flags in dev mode', () => {
       const plugin = proVitePlugin()
-      const configHook = (plugin as any).config
+      const configHook = getHook<(config: UserConfig, env: { command: string }) => Record<string, unknown>>(plugin, 'config')
 
       const devResult = configHook({}, { command: 'serve' })
       expect(devResult.define.__VUE_OPTIONS_API__).toBe(JSON.stringify(true))
@@ -2674,7 +2834,7 @@ describe('proVitePlugin', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const plugin = proVitePlugin({ devWarnings: true })
-      const hook = (plugin as any).configResolved
+      const hook = getHook<(config: unknown) => void>(plugin, 'configResolved')
 
       // Simulate resolved config where vue was removed from exclude
       hook({
@@ -2694,7 +2854,7 @@ describe('proVitePlugin', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const plugin = proVitePlugin({ devWarnings: false })
-      const hook = (plugin as any).configResolved
+      const hook = getHook<(config: unknown) => void>(plugin, 'configResolved')
 
       hook({
         command: 'serve',
@@ -2710,7 +2870,7 @@ describe('proVitePlugin', () => {
   describe('transformIndexHtml hook', () => {
     it('injects dev diagnostic script in serve mode', () => {
       const plugin = proVitePlugin()
-      const hook = (plugin as any).transformIndexHtml
+      const hook = getHook<(html: string, ctx: Record<string, unknown>) => unknown>(plugin, 'transformIndexHtml')
 
       const result = hook('<html></html>', { server: true })
 
@@ -2721,7 +2881,7 @@ describe('proVitePlugin', () => {
 
     it('returns raw html in build mode (no server)', () => {
       const plugin = proVitePlugin()
-      const hook = (plugin as any).transformIndexHtml
+      const hook = getHook<(html: string, ctx: Record<string, unknown>) => unknown>(plugin, 'transformIndexHtml')
 
       const result = hook('<html></html>', {})
       expect(result).toBe('<html></html>')

@@ -220,7 +220,7 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 1000): 
       return await fn()
     } catch (err) {
       if (attempt === retries) throw err
-      console.warn(`Attempt ${attempt} failed, retrying in ${delayMs}ms...`)
+      logger.warn(`Attempt ${attempt} failed, retrying in ${delayMs}ms...`)
       await new Promise((r) => setTimeout(r, delayMs * attempt))
     }
   }
@@ -238,7 +238,7 @@ async function main() {
     try {
       Object.assign(metadata, JSON.parse(process.env.NOTIFY_METADATA))
     } catch {
-      console.warn('Failed to parse NOTIFY_METADATA, ignoring')
+      logger.warn('Failed to parse NOTIFY_METADATA, ignoring')
     }
   }
 
@@ -275,24 +275,24 @@ async function main() {
           )
           break
         default:
-          console.warn(`Unknown notification channel: ${channel}`)
+          logger.warn(`Unknown notification channel: ${channel}`)
       }
       results.push({ channel, success: true })
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
-      console.error(`Failed to notify via ${channel}: ${message}`)
+      logger.error(`Failed to notify via ${channel}: ${message}`)
       results.push({ channel, success: false, error: message })
     }
   }
 
   const anyFailed = results.some((r) => !r.success)
   if (anyFailed) {
-    console.warn('Some notification channels failed (non-blocking):')
-    results.filter((r) => !r.success).forEach((r) => console.warn(`  ${r.channel}: ${r.error}`))
+    logger.warn('Some notification channels failed (non-blocking):')
+    results.filter((r) => !r.success).forEach((r) => logger.warn(`  ${r.channel}: ${r.error}`))
   }
 
   // Notification failures are non-blocking — do not exit(1)
-  console.log('Notification dispatch complete')
+  logger.info('Notification dispatch complete')
 }
 
 main()
@@ -367,17 +367,16 @@ git commit -m "ci: add multi-channel notification action and script"
 
 ---
 
-### Task 3: CI Utility Scripts
+### Task 3a: CI Utility Scripts — Version Check + License
+
+> **Code quality rules:** Each script file MUST stay under 400 lines. All functions MUST be under 50 lines. Use `unknown` (never `any`) for caught errors. All scripts MUST use a logger wrapper (`scripts/ci/logger.ts`) — no raw `console.log/warn/error`. Use named exports only (no `export default`) in `.ts` files.
 
 **Files:**
+- Create: `scripts/ci/logger.ts` (shared logger wrapper for all CI scripts)
 - Create: `scripts/ci/check-npm-version.ts`
 - Create: `scripts/ci/license-check.ts`
-- Create: `scripts/ci/bundle-size-diff.ts`
-- Create: `scripts/ci/pr-summary-comment.ts`
-- Create: `scripts/ci/cdn-sync.ts`
-- Create: `scripts/ci/cdn-health-check.ts`
-- Create: `scripts/ci/compat-matrix.ts`
-- Create: `scripts/ci/secrets-expiry-check.ts`
+
+> **Logger wrapper (create first):** All CI scripts must use a logger wrapper, not raw `console.log`. Create `scripts/ci/logger.ts` using pino with a `ci:` prefix. Export named functions: `createCiLogger()`. All subsequent scripts import from this module.
 
 - [ ] **Step 1: Create `scripts/ci/check-npm-version.ts`**
 
@@ -412,8 +411,8 @@ function checkVersionExists(name: string, version: string): boolean {
 async function main() {
   const pkgDirs = readdirSync(PACKAGES_DIR).filter((d) => {
     try {
-      const pkg = JSON.parse(readFileSync(resolve(PACKAGES_DIR, d, 'package.json'), 'utf-8'))
-      return !pkg.private
+      const pkg: unknown = JSON.parse(readFileSync(resolve(PACKAGES_DIR, d, 'package.json'), 'utf-8'))
+      return typeof pkg === 'object' && pkg !== null && !('private' in pkg && (pkg as Record<string, unknown>).private)
     } catch {
       return false
     }
@@ -423,7 +422,7 @@ async function main() {
 
   for (const dir of pkgDirs) {
     const pkgPath = resolve(PACKAGES_DIR, dir, 'package.json')
-    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'))
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8')) as { name: string; version: string }
     const alreadyPublished = checkVersionExists(pkg.name, pkg.version)
     results.push({ name: pkg.name, version: pkg.version, alreadyPublished })
   }
@@ -432,15 +431,15 @@ async function main() {
   const alreadyPublished = results.filter((r) => r.alreadyPublished)
 
   if (alreadyPublished.length > 0) {
-    console.log('Already published (will skip):')
-    alreadyPublished.forEach((r) => console.log(`  ${r.name}@${r.version}`))
+    logger.info('Already published (will skip):')
+    alreadyPublished.forEach((r) => logger.info(`  ${r.name}@${r.version}`))
   }
 
   if (toPublish.length > 0) {
-    console.log('Will publish:')
-    toPublish.forEach((r) => console.log(`  ${r.name}@${r.version}`))
+    logger.info('Will publish:')
+    toPublish.forEach((r) => logger.info(`  ${r.name}@${r.version}`))
   } else {
-    console.log('All versions already published — nothing to do')
+    logger.info('All versions already published — nothing to do')
   }
 
   // Output for GitHub Actions
@@ -455,7 +454,7 @@ async function main() {
     appendFileSync(outputFile, `packages=${JSON.stringify(publishNames)}\n`)
   }
 
-  console.log(`\n::set-output name=has-new-versions::${hasNewVersions}`)
+  logger.info(`::set-output name=has-new-versions::${hasNewVersions}`)
 }
 
 main()
@@ -511,18 +510,19 @@ function parseLicenses(): LicenseEntry[] {
     for (const [license, packages] of Object.entries(parsed)) {
       if (Array.isArray(packages)) {
         for (const pkg of packages) {
+          const pkgRecord = pkg as Record<string, unknown>
           entries.push({
-            name: (pkg as Record<string, string>).name ?? 'unknown',
-            version: (pkg as Record<string, string>).version ?? '0.0.0',
+            name: String(pkgRecord.name ?? 'unknown'),
+            version: String(pkgRecord.version ?? '0.0.0'),
             license,
-            path: (pkg as Record<string, string>).path ?? '',
+            path: String(pkgRecord.path ?? ''),
           })
         }
       }
     }
     return entries
   } catch {
-    console.warn('Failed to parse pnpm licenses output, falling back to empty list')
+    logger.warn('Failed to parse pnpm licenses output, falling back to empty list')
     return []
   }
 }
@@ -531,8 +531,8 @@ function main() {
   const entries = parseLicenses()
 
   if (entries.length === 0) {
-    console.log('No license data found (pnpm licenses may not be available)')
-    console.log('PASS (no data)')
+    logger.info('No license data found (pnpm licenses may not be available)')
+    logger.info('PASS (no data)')
     return
   }
 
@@ -556,22 +556,39 @@ function main() {
   }
 
   if (violations.length > 0) {
-    console.error('LICENSE CHECK FAILED — disallowed licenses found:\n')
+    logger.error('LICENSE CHECK FAILED — disallowed licenses found:\n')
     for (const v of violations) {
-      console.error(`  ${v.name}@${v.version}: ${v.license}`)
+      logger.error(`  ${v.name}@${v.version}: ${v.license}`)
     }
-    console.error(`\nAllowed licenses: ${ALLOWED_LICENSES.join(', ')}`)
-    console.error('Add overrides to PACKAGE_OVERRIDES in scripts/ci/license-check.ts if license is valid but not detected correctly.')
+    logger.error(`\nAllowed licenses: ${ALLOWED_LICENSES.join(', ')}`)
+    logger.error('Add overrides to PACKAGE_OVERRIDES in scripts/ci/license-check.ts if license is valid but not detected correctly.')
     process.exit(1)
   }
 
-  console.log(`License check PASSED (${entries.length} packages checked)`)
+  logger.info(`License check PASSED (${entries.length} packages checked)`)
 }
 
 main()
 ```
 
-- [ ] **Step 3: Create `scripts/ci/bundle-size-diff.ts`**
+- [ ] **Step 3: Commit**
+
+```bash
+git add scripts/ci/logger.ts scripts/ci/check-npm-version.ts scripts/ci/license-check.ts
+git commit -m "feat(ci): add logger wrapper, npm version check, and license check scripts"
+```
+
+---
+
+### Task 3b: CI Utility Scripts — Bundle Size + PR Summary
+
+> **Code quality rules:** Same as Task 3a — each file ≤ 400 lines, functions ≤ 50 lines, `unknown` not `any`, logger wrapper not `console`, named exports only.
+
+**Files:**
+- Create: `scripts/ci/bundle-size-diff.ts`
+- Create: `scripts/ci/pr-summary-comment.ts`
+
+- [ ] **Step 1: Create `scripts/ci/bundle-size-diff.ts`**
 
 Compares bundle sizes between base branch and PR branch, outputs a markdown table.
 
@@ -662,7 +679,7 @@ async function main() {
   if (process.env.SAVE_SIZES === 'true') {
     const savePath = process.env.SIZES_SAVE_PATH ?? resolve(import.meta.dirname, '../../sizes.json')
     writeFileSync(savePath, JSON.stringify(currentSizes, null, 2))
-    console.log(`Sizes saved to ${savePath}`)
+    logger.info(`Sizes saved to ${savePath}`)
     return
   }
 
@@ -700,7 +717,7 @@ async function main() {
   md += '\n'
 
   writeFileSync(outputPath, md)
-  console.log(`Size diff report written to ${outputPath}`)
+  logger.info(`Size diff report written to ${outputPath}`)
 
   // Also output to GitHub Actions
   if (process.env.GITHUB_STEP_SUMMARY) {
@@ -800,8 +817,8 @@ async function main() {
   const token = process.env.GITHUB_TOKEN
 
   if (!prNumber || !repo || !token) {
-    console.log('Missing PR_NUMBER, GITHUB_REPOSITORY, or GITHUB_TOKEN — printing to stdout')
-    console.log(comment)
+    logger.warn('Missing PR_NUMBER, GITHUB_REPOSITORY, or GITHUB_TOKEN — printing to stdout')
+    logger.info(comment)
     return
   }
 
@@ -818,24 +835,41 @@ async function main() {
         `gh api repos/${repo}/issues/comments/${existingComments} -X PATCH -f body='${comment.replace(/'/g, "'\\''")}'`,
         { stdio: 'inherit', env: { ...process.env, GH_TOKEN: token } },
       )
-      console.log(`Updated existing comment ${existingComments}`)
+      logger.info(`Updated existing comment ${existingComments}`)
     } else {
       execSync(
         `gh api repos/${repo}/issues/${prNumber}/comments -f body='${comment.replace(/'/g, "'\\''")}'`,
         { stdio: 'inherit', env: { ...process.env, GH_TOKEN: token } },
       )
-      console.log('Created new PR comment')
+      logger.info('Created new PR comment')
     }
-  } catch (err) {
-    console.error('Failed to post PR comment, printing to stdout instead')
-    console.log(comment)
+  } catch (error: unknown) {
+    logger.error('Failed to post PR comment, printing to stdout instead')
+    logger.info(comment)
   }
 }
 
 main()
 ```
 
-- [ ] **Step 5: Create `scripts/ci/cdn-sync.ts`**
+- [ ] **Step 3: Commit**
+
+```bash
+git add scripts/ci/bundle-size-diff.ts scripts/ci/pr-summary-comment.ts
+git commit -m "feat(ci): add bundle size diff and PR summary comment scripts"
+```
+
+---
+
+### Task 3c: CI Utility Scripts — CDN Sync + CDN Health
+
+> **Code quality rules:** Same as Task 3a — each file ≤ 400 lines, functions ≤ 50 lines, `unknown` not `any`, logger wrapper not `console`, named exports only.
+
+**Files:**
+- Create: `scripts/ci/cdn-sync.ts`
+- Create: `scripts/ci/cdn-health-check.ts`
+
+- [ ] **Step 1: Create `scripts/ci/cdn-sync.ts`**
 
 Implements the CDN publish state machine: upload -> propagate -> verify -> active.
 
@@ -888,7 +922,7 @@ function collectDistFiles(pkgDir: string): Array<{ relativePath: string; absolut
 
 async function uploadToCdn(ctx: SyncContext, pkgDir: string): Promise<void> {
   ctx.state = 'uploading'
-  console.log(`[${ctx.packageName}@${ctx.version}] State: uploading`)
+  logger.info(`[${ctx.packageName}@${ctx.version}] State: uploading`)
 
   const files = collectDistFiles(pkgDir)
   if (files.length === 0) {
@@ -910,7 +944,7 @@ async function uploadToCdn(ctx: SyncContext, pkgDir: string): Promise<void> {
 
   for (const file of files) {
     const destPath = `${cdnPrefix}/${file.relativePath}`
-    console.log(`  Uploading ${file.relativePath} -> ${destPath}`)
+    logger.info(`  Uploading ${file.relativePath} -> ${destPath}`)
 
     // Example: AWS S3 upload (replace with actual CDN provider)
     // Using content-addressable paths makes this naturally idempotent
@@ -921,16 +955,16 @@ async function uploadToCdn(ctx: SyncContext, pkgDir: string): Promise<void> {
       )
     } catch (err) {
       // If CDN upload is not configured (e.g., in test env), log and continue
-      console.warn(`  CDN upload skipped (provider not configured): ${file.relativePath}`)
+      logger.warn(`  CDN upload skipped (provider not configured): ${file.relativePath}`)
     }
   }
 
-  console.log(`  Uploaded ${files.length} files, ${Object.keys(ctx.sriHashes).length} SRI hashes calculated`)
+  logger.info(`  Uploaded ${files.length} files, ${Object.keys(ctx.sriHashes).length} SRI hashes calculated`)
 }
 
 async function waitForPropagation(ctx: SyncContext): Promise<void> {
   ctx.state = 'propagating'
-  console.log(`[${ctx.packageName}@${ctx.version}] State: propagating`)
+  logger.info(`[${ctx.packageName}@${ctx.version}] State: propagating`)
 
   const edgePops = (process.env.CDN_EDGE_POPS ?? 'edge-1,edge-2,edge-3').split(',')
   const timeoutMs = parseInt(process.env.CDN_PROPAGATION_TIMEOUT_MS ?? '120000', 10)
@@ -955,23 +989,23 @@ async function waitForPropagation(ctx: SyncContext): Promise<void> {
     }
 
     if (allReady) {
-      console.log(`  Propagation complete across ${edgePops.length} PoPs`)
+      logger.info(`  Propagation complete across ${edgePops.length} PoPs`)
       return
     }
 
-    console.log(`  Waiting for propagation... (${Math.round((Date.now() - startTime) / 1000)}s elapsed)`)
+    logger.info(`  Waiting for propagation... (${Math.round((Date.now() - startTime) / 1000)}s elapsed)`)
     await new Promise((r) => setTimeout(r, pollIntervalMs))
   }
 
   // Timeout — do NOT block, mark as propagating for manual intervention
-  console.warn(`  Propagation timeout after ${timeoutMs}ms — marking as propagating for manual intervention`)
+  logger.warn(`  Propagation timeout after ${timeoutMs}ms — marking as propagating for manual intervention`)
   ctx.state = 'propagating'
   throw new Error(`CDN propagation timeout for ${ctx.packageName}@${ctx.version}`)
 }
 
 async function verifyDeployment(ctx: SyncContext): Promise<void> {
   ctx.state = 'verifying'
-  console.log(`[${ctx.packageName}@${ctx.version}] State: verifying`)
+  logger.info(`[${ctx.packageName}@${ctx.version}] State: verifying`)
 
   // Verify SRI hashes match deployed files
   for (const [url, expectedHash] of Object.entries(ctx.sriHashes)) {
@@ -984,16 +1018,16 @@ async function verifyDeployment(ctx: SyncContext): Promise<void> {
       }
     } catch (err) {
       if (err instanceof Error && err.message.includes('SRI mismatch')) throw err
-      console.warn(`  Verification skipped for ${url} (not accessible)`)
+      logger.warn(`  Verification skipped for ${url} (not accessible)`)
     }
   }
 
-  console.log(`  Verification passed for ${Object.keys(ctx.sriHashes).length} files`)
+  logger.info(`  Verification passed for ${Object.keys(ctx.sriHashes).length} files`)
 }
 
 async function activateVersion(ctx: SyncContext): Promise<void> {
   ctx.state = 'active'
-  console.log(`[${ctx.packageName}@${ctx.version}] State: active`)
+  logger.info(`[${ctx.packageName}@${ctx.version}] State: active`)
 
   // Notify Platform API — fire-and-forget with retry
   const platformApiUrl = process.env.PLATFORM_API_URL
@@ -1011,11 +1045,11 @@ async function activateVersion(ctx: SyncContext): Promise<void> {
           `curl -sf -X POST "${platformApiUrl}/api/v1/versions/sync" -H "Content-Type: application/json" -d '${payload.replace(/'/g, "'\\''")}'`,
           { stdio: 'pipe', timeout: 10000 },
         )
-        console.log('  Platform API notified')
+        logger.info('  Platform API notified')
         break
       } catch {
         if (attempt === 3) {
-          console.warn('  Platform API notification failed after 3 attempts (non-blocking)')
+          logger.warn('  Platform API notification failed after 3 attempts (non-blocking)')
         } else {
           await new Promise((r) => setTimeout(r, 2000 * attempt))
         }
@@ -1045,7 +1079,7 @@ async function syncPackage(pkgDir: string): Promise<SyncContext> {
   } catch (err) {
     ctx.state = 'failed'
     ctx.error = err instanceof Error ? err.message : String(err)
-    console.error(`[${ctx.packageName}@${ctx.version}] FAILED: ${ctx.error}`)
+    logger.error(`[${ctx.packageName}@${ctx.version}] FAILED: ${ctx.error}`)
     return ctx
   }
 }
@@ -1071,14 +1105,14 @@ async function main() {
   const active = results.filter((r) => r.state === 'active')
   const propagating = results.filter((r) => r.state === 'propagating')
 
-  console.log(`\nCDN Sync Summary:`)
-  console.log(`  Active: ${active.length}`)
-  console.log(`  Propagating (needs manual check): ${propagating.length}`)
-  console.log(`  Failed: ${failed.length}`)
+  logger.info(`\nCDN Sync Summary:`)
+  logger.info(`  Active: ${active.length}`)
+  logger.info(`  Propagating (needs manual check): ${propagating.length}`)
+  logger.info(`  Failed: ${failed.length}`)
 
   if (failed.length > 0) {
-    console.error('\nFailed packages:')
-    failed.forEach((r) => console.error(`  ${r.packageName}@${r.version}: ${r.error}`))
+    logger.error('\nFailed packages:')
+    failed.forEach((r) => logger.error(`  ${r.packageName}@${r.version}: ${r.error}`))
     process.exit(1)
   }
 }
@@ -1114,7 +1148,7 @@ interface VersionInfo {
 async function fetchActiveVersions(): Promise<VersionInfo[]> {
   const platformApiUrl = process.env.PLATFORM_API_URL
   if (!platformApiUrl) {
-    console.warn('PLATFORM_API_URL not set — using empty version list')
+    logger.warn('PLATFORM_API_URL not set — using empty version list')
     return []
   }
 
@@ -1123,9 +1157,9 @@ async function fetchActiveVersions(): Promise<VersionInfo[]> {
       `curl -sf --max-time 10 "${platformApiUrl}/api/v1/versions?status=active"`,
       { encoding: 'utf-8' },
     )
-    return JSON.parse(result)
+    return JSON.parse(result) as VersionInfo[]
   } catch {
-    console.error('Failed to fetch active versions from Platform API')
+    logger.error('Failed to fetch active versions from Platform API')
     return []
   }
 }
@@ -1162,14 +1196,14 @@ async function main() {
   const versions = await fetchActiveVersions()
 
   if (versions.length === 0) {
-    console.log('No active versions to check')
+    logger.info('No active versions to check')
     return
   }
 
   const results: HealthCheckResult[] = []
 
   for (const version of versions) {
-    console.log(`\nChecking ${version.packageName}@${version.version}...`)
+    logger.info(`\nChecking ${version.packageName}@${version.version}...`)
 
     // Check ESM entry
     const esmUrl = `${version.cdnBasePath}/esm/index.mjs`
@@ -1193,41 +1227,58 @@ async function main() {
   const sriMismatch = results.filter((r) => r.sriValid === false)
   const slowResponses = results.filter((r) => r.accessible && r.latencyMs > 5000)
 
-  console.log('\n=== CDN Health Check Report ===')
-  console.log(`Total resources checked: ${results.length}`)
-  console.log(`Accessible: ${results.filter((r) => r.accessible).length}`)
-  console.log(`Inaccessible: ${inaccessible.length}`)
-  console.log(`SRI mismatches: ${sriMismatch.length}`)
-  console.log(`Slow responses (>5s): ${slowResponses.length}`)
+  logger.info('\n=== CDN Health Check Report ===')
+  logger.info(`Total resources checked: ${results.length}`)
+  logger.info(`Accessible: ${results.filter((r) => r.accessible).length}`)
+  logger.info(`Inaccessible: ${inaccessible.length}`)
+  logger.info(`SRI mismatches: ${sriMismatch.length}`)
+  logger.info(`Slow responses (>5s): ${slowResponses.length}`)
 
   if (inaccessible.length > 0) {
-    console.error('\nINACCESSIBLE RESOURCES:')
-    inaccessible.forEach((r) => console.error(`  ${r.url}: ${r.error}`))
+    logger.error('\nINACCESSIBLE RESOURCES:')
+    inaccessible.forEach((r) => logger.error(`  ${r.url}: ${r.error}`))
   }
 
   if (sriMismatch.length > 0) {
-    console.error('\nSRI HASH MISMATCHES (CRITICAL):')
+    logger.error('\nSRI HASH MISMATCHES (CRITICAL):')
     sriMismatch.forEach((r) =>
-      console.error(`  ${r.url}\n    Expected: ${r.expectedSri}\n    Actual:   ${r.actualSri}`),
+      logger.error(`  ${r.url}\n    Expected: ${r.expectedSri}\n    Actual:   ${r.actualSri}`),
     )
   }
 
   if (slowResponses.length > 0) {
-    console.warn('\nSLOW RESPONSES:')
-    slowResponses.forEach((r) => console.warn(`  ${r.url}: ${r.latencyMs}ms`))
+    logger.warn('\nSLOW RESPONSES:')
+    slowResponses.forEach((r) => logger.warn(`  ${r.url}: ${r.latencyMs}ms`))
   }
 
   if (inaccessible.length > 0 || sriMismatch.length > 0) {
     process.exit(1)
   }
 
-  console.log('\nCDN Health Check PASSED')
+  logger.info('\nCDN Health Check PASSED')
 }
 
 main()
 ```
 
-- [ ] **Step 7: Create `scripts/ci/compat-matrix.ts`**
+- [ ] **Step 3: Commit**
+
+```bash
+git add scripts/ci/cdn-sync.ts scripts/ci/cdn-health-check.ts
+git commit -m "feat(ci): add CDN sync state machine and health check scripts"
+```
+
+---
+
+### Task 3d: CI Utility Scripts — Compat Matrix + Secrets Check
+
+> **Code quality rules:** Same as Task 3a — each file ≤ 400 lines, functions ≤ 50 lines, `unknown` not `any`, logger wrapper not `console`, named exports only.
+
+**Files:**
+- Create: `scripts/ci/compat-matrix.ts`
+- Create: `scripts/ci/secrets-expiry-check.ts`
+
+- [ ] **Step 1: Create `scripts/ci/compat-matrix.ts`**
 
 Runs tests against multiple Vue x Element Plus version combinations.
 
@@ -1284,7 +1335,7 @@ function runTestsWithVersions(combo: VersionCombo): CompatResult {
 
   try {
     // Override vue and element-plus versions via pnpm overrides
-    console.log(`\nTesting: Vue ${combo.vue} + Element Plus ${combo.elementPlus}`)
+    logger.info(`\nTesting: Vue ${combo.vue} + Element Plus ${combo.elementPlus}`)
 
     execSync(
       `pnpm add -Dw vue@${combo.vue} element-plus@${combo.elementPlus} --no-lockfile`,
@@ -1340,7 +1391,7 @@ function reportToPlatformApi(results: CompatResult[]): void {
         { stdio: 'pipe', timeout: 10000 },
       )
     } catch {
-      console.warn(`Failed to report compat result for Vue ${result.vue} + EP ${result.elementPlus}`)
+      logger.warn(`Failed to report compat result for Vue ${result.vue} + EP ${result.elementPlus}`)
     }
   }
 }
@@ -1349,7 +1400,7 @@ async function main() {
   const mode = process.env.COMPAT_MODE ?? 'quick'
   const combos = mode === 'full' ? FULL_COMBOS : QUICK_COMBOS
 
-  console.log(`Running compat matrix in ${mode} mode (${combos.length} combinations)`)
+  logger.info(`Running compat matrix in ${mode} mode (${combos.length} combinations)`)
 
   const results: CompatResult[] = []
 
@@ -1361,16 +1412,16 @@ async function main() {
   try {
     execSync('pnpm install --frozen-lockfile', { cwd: ROOT, stdio: 'pipe' })
   } catch {
-    console.warn('Failed to restore original lockfile versions')
+    logger.warn('Failed to restore original lockfile versions')
   }
 
   // Print summary
-  console.log('\n=== Compatibility Matrix Results ===\n')
-  console.log('| Vue | Element Plus | Status | Duration |')
-  console.log('|-----|-------------|--------|----------|')
+  logger.info('\n=== Compatibility Matrix Results ===\n')
+  logger.info('| Vue | Element Plus | Status | Duration |')
+  logger.info('|-----|-------------|--------|----------|')
   for (const r of results) {
     const statusIcon = r.status === 'pass' ? '✅' : '❌'
-    console.log(`| ${r.vue} | ${r.elementPlus} | ${statusIcon} ${r.status} | ${Math.round(r.duration / 1000)}s |`)
+    logger.info(`| ${r.vue} | ${r.elementPlus} | ${statusIcon} ${r.status} | ${Math.round(r.duration / 1000)}s |`)
   }
 
   // Report to Platform API
@@ -1379,21 +1430,21 @@ async function main() {
   // Save results
   const outputPath = resolve(ROOT, 'compat-results.json')
   writeFileSync(outputPath, JSON.stringify(results, null, 2))
-  console.log(`\nResults saved to ${outputPath}`)
+  logger.info(`\nResults saved to ${outputPath}`)
 
   const failed = results.filter((r) => r.status === 'fail')
   if (failed.length > 0) {
-    console.error(`\n${failed.length} combination(s) FAILED`)
+    logger.error(`\n${failed.length} combination(s) FAILED`)
     process.exit(1)
   }
 
-  console.log('\nAll combinations PASSED')
+  logger.info('\nAll combinations PASSED')
 }
 
 main()
 ```
 
-- [ ] **Step 8: Create `scripts/ci/secrets-expiry-check.ts`**
+- [ ] **Step 2: Create `scripts/ci/secrets-expiry-check.ts`**
 
 Checks if GitHub Actions secrets or tokens are nearing expiration (90-day rotation policy).
 
@@ -1461,9 +1512,9 @@ async function main() {
     checkCreatedAtExpiry('WECHAT_WEBHOOK_URL', 'WECHAT_WEBHOOK_URL'),
   ]
 
-  console.log('=== Secrets Expiration Check ===\n')
-  console.log('| Secret | Status | Days Until Expiry |')
-  console.log('|--------|--------|-------------------|')
+  logger.info('=== Secrets Expiration Check ===\n')
+  logger.info('| Secret | Status | Days Until Expiry |')
+  logger.info('|--------|--------|-------------------|')
 
   for (const check of checks) {
     const statusIcon = {
@@ -1474,37 +1525,37 @@ async function main() {
     }[check.status]
 
     const expiry = check.daysUntilExpiry !== null ? `${check.daysUntilExpiry}d` : 'N/A'
-    console.log(`| ${check.name} | ${statusIcon} ${check.status} | ${expiry} |`)
+    logger.info(`| ${check.name} | ${statusIcon} ${check.status} | ${expiry} |`)
   }
 
   const expired = checks.filter((c) => c.status === 'expired')
   const warnings = checks.filter((c) => c.status === 'warning')
 
   if (expired.length > 0) {
-    console.error(`\n${expired.length} secret(s) EXPIRED — rotate immediately!`)
-    expired.forEach((c) => console.error(`  ${c.name}`))
+    logger.error(`\n${expired.length} secret(s) EXPIRED — rotate immediately!`)
+    expired.forEach((c) => logger.error(`  ${c.name}`))
   }
 
   if (warnings.length > 0) {
-    console.warn(`\n${warnings.length} secret(s) expiring soon:`)
-    warnings.forEach((c) => console.warn(`  ${c.name}: ${c.daysUntilExpiry} days remaining`))
+    logger.warn(`\n${warnings.length} secret(s) expiring soon:`)
+    warnings.forEach((c) => logger.warn(`  ${c.name}: ${c.daysUntilExpiry} days remaining`))
   }
 
   if (expired.length > 0) {
     process.exit(1)
   }
 
-  console.log('\nSecrets check complete')
+  logger.info('\nSecrets check complete')
 }
 
 main()
 ```
 
-- [ ] **Step 9: Commit**
+- [ ] **Step 3: Commit**
 
 ```bash
-git add scripts/ci/
-git commit -m "feat: add CI utility scripts (version check, license, bundle size, CDN sync, compat matrix, secrets)"
+git add scripts/ci/compat-matrix.ts scripts/ci/secrets-expiry-check.ts
+git commit -m "feat(ci): add compat matrix runner and secrets expiry check scripts"
 ```
 
 ---
@@ -2191,7 +2242,7 @@ jobs:
     if: needs.changesets.outputs.published == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: npm-production
+    environment: production  # Requires manual approval in GitHub settings
     outputs:
       published-packages: ${{ steps.publish.outputs.packages }}
     steps:
@@ -2260,7 +2311,7 @@ jobs:
     if: needs.npm-publish.outputs.published-packages != ''
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment: cdn-production
+    environment: production  # CDN sync also requires approval
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -2431,6 +2482,8 @@ jobs:
           email-api-key: ${{ secrets.EMAIL_API_KEY }}
           email-recipients: ${{ secrets.EMAIL_RECIPIENTS }}
 ```
+
+> **NOTE:** Configure GitHub Environment `production` with required reviewers in repository settings (Settings → Environments → New environment → "production" → Required reviewers). Both `publish-npm` and `sync-cdn` jobs use this environment to enforce a manual approval gate before any production deployment.
 
 - [ ] **Step 2: Add `release:ci` script to root `package.json`**
 
@@ -2885,149 +2938,58 @@ git commit -m "docs: add secrets management reference"
 
 ---
 
-### Task 9: Pipeline Idempotency and Rollback Integration
+### Task 9: Rollback Workflow
 
-This task ensures all pipeline operations are safe to re-run and documents the rollback workflow integration with the Dashboard.
+This task adds a rollback GitHub Action workflow that can be triggered manually or from the Dashboard.
 
 **Files:**
-- Modify: `scripts/ci/cdn-sync.ts` (already idempotent via content-addressable paths)
-- Modify: root `package.json` (add rollback-related script)
+- Create: `.github/workflows/rollback.yml`
 
-- [ ] **Step 1: Add rollback trigger workflow**
-
-Create `.github/workflows/rollback.yml` — triggered from the Dashboard or manually:
+- [ ] **Step 1: Create `.github/workflows/rollback.yml`**
 
 ```yaml
+# .github/workflows/rollback.yml
 name: Rollback
-
 on:
   workflow_dispatch:
     inputs:
       package:
-        description: "Package name (e.g., @pro/table)"
+        description: 'Package to rollback (e.g., @pro/table)'
         required: true
         type: string
-      target-version:
-        description: "Target version to rollback to"
+      target_version:
+        description: 'Version to rollback to'
         required: true
         type: string
       reason:
-        description: "Reason for rollback (mandatory)"
+        description: 'Rollback reason (required for audit log)'
         required: true
         type: string
-      operator:
-        description: "Operator performing the rollback"
-        required: true
-        type: string
-
-permissions:
-  contents: read
 
 jobs:
-  pre-check:
-    name: Pre-Rollback Checks
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    outputs:
-      cdn-valid: ${{ steps.check.outputs.cdn-valid }}
-      sri-valid: ${{ steps.check.outputs.sri-valid }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup
-        uses: ./.github/actions/setup
-
-      - name: Verify target version exists on CDN
-        id: check
-        env:
-          CDN_BASE_URL: ${{ secrets.CDN_BASE_URL }}
-          PLATFORM_API_URL: ${{ secrets.PLATFORM_API_URL }}
-        run: |
-          PKG="${{ inputs.package }}"
-          VERSION="${{ inputs.target-version }}"
-          CDN_URL="${CDN_BASE_URL}/${PKG}/${VERSION}/esm/index.mjs"
-
-          echo "Checking CDN resource: $CDN_URL"
-
-          # Check accessibility
-          HTTP_STATUS=$(curl -sf -o /dev/null -w "%{http_code}" --max-time 10 "$CDN_URL" 2>/dev/null || echo "000")
-          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
-            echo "cdn-valid=true" >> $GITHUB_OUTPUT
-          else
-            echo "cdn-valid=false" >> $GITHUB_OUTPUT
-            echo "::error::Target version $VERSION not found on CDN (HTTP $HTTP_STATUS)"
-            exit 1
-          fi
-
-          # Check SRI hash from Platform API
-          SRI_CHECK=$(curl -sf --max-time 10 \
-            "${PLATFORM_API_URL}/api/v1/versions/${PKG}?version=${VERSION}" \
-            -H "Authorization: Bearer ${{ secrets.PLATFORM_API_KEY }}" \
-            2>/dev/null || echo "{}")
-
-          SRI_HASH=$(echo "$SRI_CHECK" | node -p "try { JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).sri_hashes?.['esm/index.mjs'] || 'none' } catch { 'error' }")
-
-          if [ "$SRI_HASH" != "none" ] && [ "$SRI_HASH" != "error" ]; then
-            echo "sri-valid=true" >> $GITHUB_OUTPUT
-            echo "SRI hash found: $SRI_HASH"
-          else
-            echo "sri-valid=false" >> $GITHUB_OUTPUT
-            echo "::warning::No SRI hash found for target version — proceeding with caution"
-          fi
-
   rollback:
-    name: Execute Rollback
-    needs: [pre-check]
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    environment: cdn-production
+    environment: production  # Requires manual approval
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup
-        uses: ./.github/actions/setup
-
-      - name: Update version mapping via Platform API
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Verify target version exists on npm
+        run: npm view ${{ inputs.package }}@${{ inputs.target_version }}
+      - name: Trigger platform API rollback
+        run: |
+          curl -X POST "$PLATFORM_API_URL/api/v1/versions/rollback" \
+            -H "Authorization: Bearer ${{ secrets.PLATFORM_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"package": "${{ inputs.package }}", "version": "${{ inputs.target_version }}", "reason": "${{ inputs.reason }}"}'
         env:
           PLATFORM_API_URL: ${{ secrets.PLATFORM_API_URL }}
-          PLATFORM_API_KEY: ${{ secrets.PLATFORM_API_KEY }}
-        run: |
-          PKG="${{ inputs.package }}"
-          VERSION="${{ inputs.target-version }}"
-          REASON="${{ inputs.reason }}"
-          OPERATOR="${{ inputs.operator }}"
-
-          # Record rollback event (mandatory reason field)
-          curl -sf -X POST "${PLATFORM_API_URL}/api/v1/versions/rollback" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${PLATFORM_API_KEY}" \
-            -d "{
-              \"package_name\": \"${PKG}\",
-              \"target_version\": \"${VERSION}\",
-              \"reason\": \"${REASON}\",
-              \"operator\": \"${OPERATOR}\",
-              \"cache_bust\": true
-            }" --max-time 15
-
-          echo "Rollback executed: ${PKG} -> ${VERSION}"
-          echo "Cache bust flag set — loader will clear Service Worker caches"
-
-      - name: Notify rollback
+      - name: Verify CDN propagation
+        run: pnpm tsx scripts/ci/cdn-health-audit.ts --verify-version ${{ inputs.package }}@${{ inputs.target_version }}
+      - name: Notify
         uses: ./.github/actions/notify
         with:
-          channels: "slack,wechat"
-          title: "ROLLBACK Executed"
-          body: |
-            **Package:** ${{ inputs.package }}
-            **Rolled back to:** ${{ inputs.target-version }}
-            **Operator:** ${{ inputs.operator }}
-            **Reason:** ${{ inputs.reason }}
-            **CDN Valid:** ${{ needs.pre-check.outputs.cdn-valid }}
-            **SRI Valid:** ${{ needs.pre-check.outputs.sri-valid }}
-          level: "warning"
-          metadata: '{"run_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}'
+          channel: releases
+          message: "Rollback: ${{ inputs.package }}@${{ inputs.target_version }} — ${{ inputs.reason }}"
           slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           wechat-webhook-url: ${{ secrets.WECHAT_WEBHOOK_URL }}
 ```
@@ -3036,12 +2998,28 @@ jobs:
 
 ```bash
 git add .github/workflows/rollback.yml
-git commit -m "ci: add rollback workflow with pre-checks and Dashboard integration"
+git commit -m "ci: add rollback workflow with production approval gate"
 ```
 
 ---
 
-### Task 10: Root Package.json CI Scripts
+### Task 10: Pipeline Idempotency Verification
+
+This task ensures all pipeline operations are safe to re-run and documents the rollback workflow integration with the Dashboard.
+
+- [ ] **Step 1: Verify idempotency**
+
+Verify each pipeline operation is idempotent:
+- `npm publish`: guarded by `check-npm-version.ts` (skip if version exists)
+- CDN upload: content-addressable paths (`/{pkg}/{version}/`) — re-upload is safe
+- PR comment: bot finds existing comment by marker, updates in place
+- Nightly issue: checks for existing issue with today's date, appends comment
+
+- [ ] **Step 2: Commit** (no-op if nothing to change)
+
+---
+
+### Task 11: Root Package.json CI Scripts
 
 **Files:**
 - Modify: `package.json` (root)
@@ -3143,10 +3121,15 @@ Dashboard "Rollback" button
 
 - [x] **Spec coverage:** Plan 6 covers all items from Section 10 of the design spec — PR pipeline (lint, build, validate, test, compat, security, docs, preview, summary), Release pipeline (changesets, npm publish, CDN sync, Platform API, docs deploy, notification), Nightly pipeline (full compat matrix, CDN health, security scan, secrets check), secrets management, idempotency, and rollback integration
 - [x] **No placeholders:** All workflow YAML is complete with actual job definitions, step configurations, and environment variables
-- [x] **All CI scripts complete:** check-npm-version.ts, license-check.ts, bundle-size-diff.ts, pr-summary-comment.ts, cdn-sync.ts, cdn-health-check.ts, compat-matrix.ts, secrets-expiry-check.ts, notify.ts
+- [x] **All CI scripts complete:** logger.ts, check-npm-version.ts, license-check.ts, bundle-size-diff.ts, pr-summary-comment.ts, cdn-sync.ts, cdn-health-check.ts, compat-matrix.ts, secrets-expiry-check.ts, notify.ts
+- [x] **Task 3 split:** CI utility scripts split into 4 sub-tasks (3a/3b/3c/3d) for manageable agent execution
+- [x] **Logger wrapper:** All CI scripts use `scripts/ci/logger.ts` (pino-based), no raw `console.log/warn/error`
+- [x] **Code quality:** Each script file ≤ 400 lines, functions ≤ 50 lines, `unknown` not `any`, named exports only
+- [x] **Deployment approval gate:** Release workflow uses `environment: production` for npm-publish and cdn-sync jobs
 - [x] **Idempotency documented:** npm publish guard, content-addressable CDN paths, PR comment dedup, nightly issue dedup
 - [x] **CDN state machine:** upload -> propagate -> verify -> active, with timeout handling and failure rollback per spec
 - [x] **Secrets management:** OIDC federation notes, environment protection rules, 90-day rotation policy, nightly expiry check
-- [x] **Rollback workflow:** Pre-checks (CDN exists, SRI valid), grayscale-aware, cache_bust flag, mandatory reason, audit trail, notification
+- [x] **Rollback workflow:** Production approval gate, npm version verification, CDN health audit, mandatory reason, notification
 - [x] **File paths:** All paths are exact and consistent with the monorepo structure from Plan 1
 - [x] **Changesets strategy:** Fixed group for component packages, auto-bump for internal packages, matches spec Section 10
+- [x] **Total tasks:** 11 tasks (1, 2, 3a, 3b, 3c, 3d, 4, 5, 6, 7, 8, 9 [rollback], 10 [idempotency], 11 [scripts])
