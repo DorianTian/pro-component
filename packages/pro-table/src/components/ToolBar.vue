@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, inject, computed, type PropType, type VNode } from 'vue'
-import { Refresh, DCaret, Setting, FullScreen } from '@element-plus/icons-vue'
+import { inject, computed, type PropType, type VNode } from 'vue'
+import { Refresh, DCaret, FullScreen } from '@element-plus/icons-vue'
 import { useProLocale } from '@pro/hooks'
 
 import type { ToolbarConfig, DensitySize } from '../types'
@@ -50,13 +50,6 @@ function handleDensityChange(size: DensitySize): void {
     densityCtx.size.value = size
   }
   emit('densityChange', size)
-}
-
-const isColumnSettingPanelOpen = ref(false)
-
-function handleToggleColumnSetting(): void {
-  isColumnSettingPanelOpen.value = !isColumnSettingPanelOpen.value
-  emit('toggleColumnSetting')
 }
 
 function handleReload(): void {
@@ -132,35 +125,36 @@ function handleToggleFullscreen(): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0;
+  padding: var(--pro-spacing-md, 16px) 0;
 }
 
 .pro-toolbar__title {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: var(--pro-font-size-lg, 16px);
+  font-weight: var(--pro-font-weight-semibold, 600);
   color: var(--el-text-color-primary, #303133);
+  line-height: var(--pro-line-height-base, 1.5715);
 }
 
 .pro-toolbar__actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--pro-spacing-xs, 4px);
 }
 
 .pro-toolbar__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
+  width: var(--pro-toolbar-icon-size, 32px);
+  height: var(--pro-toolbar-icon-size, 32px);
+  border-radius: var(--pro-radius-sm, 4px);
   cursor: pointer;
   color: var(--el-text-color-secondary, #909399);
-  transition: all 0.2s;
+  transition: all var(--pro-transition-duration, 0.2s) var(--pro-transition-easing, ease);
 }
 
 .pro-toolbar__icon:hover {
   color: var(--el-color-primary, #409eff);
-  background: var(--el-fill-color-light, #f5f7fa);
+  background: var(--pro-toolbar-icon-hover-bg, var(--el-fill-color-light, #f5f7fa));
 }
 </style>
