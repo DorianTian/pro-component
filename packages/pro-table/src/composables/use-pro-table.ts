@@ -110,8 +110,7 @@ export function useProTable<T = Record<string, unknown>>(
 
   /** Replace the data source directly (for controlled/client-side mode) */
   function setDataSource(data: T[]): void {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- Vue ref unwrapping requires runtime cast
-    requestState.data.value = data as any
+    requestState.data.value = data as unknown as typeof requestState.data.value
   }
 
   const proTableProps: ComputedRef<Record<string, unknown>> = computed(() => ({
