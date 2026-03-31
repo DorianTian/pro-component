@@ -10,6 +10,12 @@ import {
 } from 'element-plus'
 
 import type { ValueType } from '@pro/utils'
+import {
+  formatDate as fmtDate,
+  formatNumber as fmtNumber,
+  formatMoney as fmtMoney,
+  formatPercent as fmtPercent,
+} from './formatters'
 
 /** Configuration for rendering a valueType in table cells */
 export interface TableRenderConfig {
@@ -103,41 +109,26 @@ function wrapFormat(fn: (value: unknown) => string): (value: unknown) => string 
   }
 }
 
-/** Format a number with locale grouping */
+const DEFAULT_LOCALE = 'en-US'
+
 function formatNumber(value: unknown): string {
-  return Number(value).toLocaleString('en-US')
+  return fmtNumber(Number(value), DEFAULT_LOCALE)
 }
 
-/** Format a number as USD currency */
 function formatMoney(value: unknown): string {
-  return `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  return fmtMoney(Number(value), DEFAULT_LOCALE)
 }
 
-/** Format a decimal as percentage (0.856 -> "85.60%") */
 function formatPercent(value: unknown): string {
-  const PERCENT_MULTIPLIER = 100
-  return `${(Number(value) * PERCENT_MULTIPLIER).toFixed(2)}%`
+  return fmtPercent(Number(value), DEFAULT_LOCALE)
 }
 
-/** Format a value as a date string */
 function formatDate(value: unknown): string {
-  const d = new Date(value as string | number)
-  if (isNaN(d.getTime())) return String(value)
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })
+  return fmtDate(value as string | number | Date, 'date', DEFAULT_LOCALE)
 }
 
-/** Format a value as a date+time string (compact, no seconds) */
 function formatDateTime(value: unknown): string {
-  const d = new Date(value as string | number)
-  if (isNaN(d.getTime())) return String(value)
-  return d.toLocaleString('en-US', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  })
+  return fmtDate(value as string | number | Date, 'dateTime', DEFAULT_LOCALE)
 }
 
 // --- Static config maps ---

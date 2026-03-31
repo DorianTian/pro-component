@@ -1,6 +1,7 @@
 import type { ComputedRef, MaybeRefOrGetter, VNode } from 'vue'
 import { computed, toValue } from 'vue'
 import type { ProColumnDef, StatusType } from '@pro/utils'
+import { formatDate as fmtDate, formatMoney as fmtMoney } from '@pro/hooks'
 
 /** Processed description item ready for rendering */
 export interface DescriptionItem {
@@ -49,26 +50,6 @@ function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
   return current
 }
 
-/** Format money values with locale-aware formatting */
-function formatMoney(value: unknown): string {
-  const formatted = Number(value).toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
-  return `$${formatted}`
-}
-
-/** Format date or dateTime values */
-function formatDateValue(value: unknown, isDateTime: boolean): string {
-  if (value instanceof Date) {
-    return isDateTime ? value.toLocaleString() : value.toLocaleDateString()
-  }
-  return typeof value === 'string' ? value : safeString(value)
-}
-
-/**
- * Format a value based on its valueType for display in descriptions.
- */
 /** Safely convert unknown value to string */
 function safeString(value: unknown): string {
   if (typeof value === 'string') return value
@@ -78,6 +59,8 @@ function safeString(value: unknown): string {
   return typeof json === 'string' ? json : ''
 }
 
+const DEFAULT_LOCALE = 'en-US'
+
 /**
  * Format a value based on its valueType for display in descriptions.
  */
@@ -86,15 +69,15 @@ function formatValue(value: unknown, valueType: string): string {
 
   switch (valueType) {
     case 'money':
-      return formatMoney(value)
+      return fmtMoney(Number(value), DEFAULT_LOCALE)
     case 'percent':
       return `${safeString(value)}%`
     case 'number':
       return typeof value === 'number' ? value.toLocaleString() : safeString(value)
     case 'date':
-      return formatDateValue(value, false)
+      return fmtDate(value as string | number | Date, 'date', DEFAULT_LOCALE)
     case 'dateTime':
-      return formatDateValue(value, true)
+      return fmtDate(value as string | number | Date, 'dateTime', DEFAULT_LOCALE)
     default:
       return safeString(value)
   }
