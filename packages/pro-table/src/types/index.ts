@@ -36,6 +36,7 @@ export interface ProColumnDef<T = Record<string, unknown>> {
   // Search form behavior
   hideInSearch?: boolean
   hideInTable?: boolean
+  hideInForm?: boolean
   searchConfig?: {
     order?: number
     span?: number
@@ -118,6 +119,20 @@ export interface ColumnSettingItem {
   order: number
 }
 
+/** Configuration for editable table rows */
+export interface EditableConfig<T = Record<string, unknown>> {
+  /** Controlled editable row keys */
+  editableKeys?: string[]
+  /** Save handler — return true to confirm */
+  onSave?: (key: string, row: T, originalRow: T) => Promise<boolean>
+  /** Cancel handler */
+  onCancel?: (key: string, row: T) => void
+  /** Delete handler — return true to confirm */
+  onDelete?: (key: string, row: T) => Promise<boolean>
+  /** Called when editableKeys changes */
+  onChange?: (editableKeys: string[]) => void
+}
+
 /** ProTable component props */
 export interface ProTableProps<T = Record<string, unknown>> {
   /** Async data fetcher. Mutually exclusive with controlled mode (data prop). */
@@ -150,6 +165,9 @@ export interface ProTableProps<T = Record<string, unknown>> {
 
   /** Row selection config */
   rowSelection?: RowSelectionConfig<T>
+
+  /** Editable table configuration */
+  editable?: EditableConfig<T>
 
   /** Pass-through props to underlying el-table */
   tableProps?: Record<string, unknown>

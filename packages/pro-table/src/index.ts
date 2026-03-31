@@ -12,6 +12,9 @@ export {
   COLUMN_SETTING_INJECTION_KEY,
 } from './constants'
 
+export { useEditable } from './composables/use-editable'
+export type { UseEditableOptions, UseEditableReturn } from './composables/use-editable'
+
 export { ProRequestError } from './types'
 export type {
   ProTableProps,
@@ -22,6 +25,7 @@ export type {
   RowSelectionConfig,
   DensitySize,
   ColumnSettingItem,
+  EditableConfig,
   UseProTableOptions,
   UseProTableReturn,
 } from './types'

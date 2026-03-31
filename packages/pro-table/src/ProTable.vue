@@ -9,6 +9,7 @@ import type {
   ToolbarConfig,
   PaginationConfig,
   RowSelectionConfig,
+  EditableConfig,
   UseProTableReturn,
 } from './types'
 import { PRO_TABLE_INJECTION_KEY } from './constants'
@@ -16,6 +17,7 @@ import { useProTableInternal } from './composables/use-pro-table-internal'
 import QueryFilter from './components/QueryFilter.vue'
 import ToolBar from './components/ToolBar.vue'
 import ColumnSetting from './components/ColumnSetting.vue'
+import EditableCell from './components/EditableCell.vue'
 
 defineOptions({ name: 'ProTable' })
 
@@ -41,6 +43,7 @@ const props = defineProps({
     default: () => ({}),
   },
   rowSelection: { type: Object as PropType<RowSelectionConfig>, default: undefined },
+  editable: { type: Object as PropType<EditableConfig>, default: undefined },
   tableProps: { type: Object as PropType<Record<string, unknown>>, default: () => ({}) },
   beforeRequest: {
     type: Function as PropType<(params: RequestParams) => RequestParams>,
@@ -73,6 +76,7 @@ const state = useProTableInternal(
     initialValues: toRef(props, 'initialValues'),
     pagination: toRef(props, 'pagination'),
     rowSelection: toRef(props, 'rowSelection'),
+    editable: props.editable,
     beforeRequest: props.beforeRequest,
     afterResponse: props.afterResponse,
     onSelectionChange: (keys, rows) => {
@@ -168,8 +172,16 @@ const state = useProTableInternal(
         :show-overflow-tooltip="col.ellipsis !== false"
       >
         <template #default="{ row, $index }">
-          <template v-if="col.render">
+          <template v-if="col.render && !state.isRowEditing?.(row)">
             <component :is="() => col.render!(row, $index)" />
+          </template>
+          <template v-else-if="editable && state.isRowEditing?.(row)">
+            <EditableCell
+              :value-type="col.valueType ?? 'text'"
+              :model-value="state.getEditingCellValue?.(row, String(col.dataIndex))"
+              :is-editing="true"
+              @update:model-value="state.setEditingCellValue?.(row, String(col.dataIndex), $event)"
+            />
           </template>
           <template v-else>
             <span>{{ state.formatCellValue(col, row) }}</span>
@@ -179,6 +191,26 @@ const state = useProTableInternal(
 
       <!-- Action column slot -->
       <slot name="action" />
+
+      <!-- Editable action column -->
+      <el-table-column v-if="editable" label="操作" width="150" fixed="right">
+        <template #default="{ row }">
+          <template v-if="state.isRowEditing?.(row)">
+            <el-button link type="primary" size="small" @click="state.handleEditSave?.(row)"
+              >保存</el-button
+            >
+            <el-button link size="small" @click="state.handleEditCancel?.(row)">取消</el-button>
+          </template>
+          <template v-else>
+            <el-button link type="primary" size="small" @click="state.handleEditStart?.(row)"
+              >编辑</el-button
+            >
+            <el-button link type="danger" size="small" @click="state.handleEditDelete?.(row)"
+              >删除</el-button
+            >
+          </template>
+        </template>
+      </el-table-column>
     </el-table>
 
     <!-- Pagination -->
