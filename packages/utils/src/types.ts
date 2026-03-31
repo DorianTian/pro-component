@@ -21,6 +21,7 @@ export type StatusType = 'success' | 'warning' | 'danger' | 'info' | 'default'
 export type ValueType =
   | 'text'
   | 'number'
+  | 'digit'
   | 'select'
   | 'date'
   | 'dateRange'
@@ -34,6 +35,13 @@ export type ValueType =
   | 'progress'
   | 'image'
   | 'code'
+  | 'index'
+  | 'indexBorder'
+  | 'option'
+  | 'rate'
+  | 'slider'
+  | 'cascader'
+  | 'treeSelect'
 
 /**
  * Column definition for ProTable and shared across ProDescriptions.

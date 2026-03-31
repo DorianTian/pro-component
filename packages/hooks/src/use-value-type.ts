@@ -7,6 +7,10 @@ import {
   ElRadioGroup,
   ElCheckboxGroup,
   ElSwitch,
+  ElRate,
+  ElSlider,
+  ElCascader,
+  ElTreeSelect,
 } from 'element-plus'
 
 import type { ValueType } from '@pro/utils'
@@ -92,6 +96,14 @@ export const CONTROL_REGISTRY: Record<ValueType, ControlRegistryEntry> = {
   progress: { component: ElInputNumber, defaultProps: { min: 0, max: PROGRESS_MAX } },
   image: { component: ElInput, defaultProps: { placeholder: 'Image URL' } },
   code: { component: ElInput, defaultProps: { type: 'textarea', rows: CODE_TEXTAREA_ROWS } },
+  digit: { component: ElInputNumber, defaultProps: {} },
+  index: { component: ElInput, defaultProps: { disabled: true } },
+  indexBorder: { component: ElInput, defaultProps: { disabled: true } },
+  option: { component: ElInput, defaultProps: {} },
+  rate: { component: ElRate, defaultProps: {} },
+  slider: { component: ElSlider, defaultProps: {} },
+  cascader: { component: ElCascader, defaultProps: {} },
+  treeSelect: { component: ElTreeSelect, defaultProps: {} },
 }
 
 // --- Format functions ---
@@ -149,6 +161,14 @@ const TABLE_RENDER_MAP: Record<string, TableRenderConfig> = {
   progress: { component: 'ElProgress', format: wrapFormat((v) => `${String(v)}%`) },
   image: { component: 'ElImage', format: wrapFormat((v) => String(v)) },
   code: { component: 'pre', format: wrapFormat((v) => String(v)) },
+  digit: { component: 'span', format: wrapFormat(formatNumber) },
+  index: { component: 'span', format: wrapFormat((v) => String(v)) },
+  indexBorder: { component: 'span', format: wrapFormat((v) => String(v)) },
+  option: { component: 'span', format: wrapFormat((v) => String(v)) },
+  rate: { component: 'ElRate', format: wrapFormat((v) => String(v)), props: { disabled: true } },
+  slider: { component: 'span', format: wrapFormat((v) => String(v)) },
+  cascader: { component: 'span', format: wrapFormat((v) => String(v)) },
+  treeSelect: { component: 'span', format: wrapFormat((v) => String(v)) },
 }
 
 const SEARCH_CONFIG_MAP: Record<string, SearchComponentConfig | null> = {
@@ -167,6 +187,14 @@ const SEARCH_CONFIG_MAP: Record<string, SearchComponentConfig | null> = {
   progress: null,
   image: null,
   code: null,
+  digit: { component: 'ElInputNumber', props: {} },
+  index: null,
+  indexBorder: null,
+  option: null,
+  rate: { component: 'ElRate', props: {} },
+  slider: { component: 'ElSlider', props: {} },
+  cascader: { component: 'ElCascader', props: {} },
+  treeSelect: { component: 'ElTreeSelect', props: {} },
 }
 
 const DEFAULT_TABLE_CONFIG: TableRenderConfig = {
