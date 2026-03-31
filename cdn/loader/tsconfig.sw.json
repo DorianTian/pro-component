@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "lib": ["ES2022", "WebWorker"]
+  },
+  "include": ["pro-sw.ts", "src/types.ts"]
+}

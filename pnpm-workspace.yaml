@@ -1,5 +1,7 @@
 packages:
   - 'packages/*'
+  - 'cdn/build'
+  - 'cdn/loader'
   - 'platform/*'
   - 'playground'
   - 'docs'
