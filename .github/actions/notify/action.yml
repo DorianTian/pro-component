@@ -1,0 +1,55 @@
+name: 'Send Notification'
+description: 'Send notifications to WeChat/Slack/email'
+
+inputs:
+  channels:
+    description: 'Comma-separated notification channels (wechat,slack,email)'
+    required: false
+    default: 'slack'
+  title:
+    description: 'Notification title'
+    required: true
+  body:
+    description: 'Notification body (supports markdown)'
+    required: true
+  level:
+    description: 'Notification level (info, warning, error)'
+    required: false
+    default: 'info'
+  metadata:
+    description: 'JSON string of key-value metadata'
+    required: false
+    default: '{}'
+  wechat-webhook-url:
+    description: 'WeChat webhook URL'
+    required: false
+  slack-webhook-url:
+    description: 'Slack webhook URL'
+    required: false
+  email-api-url:
+    description: 'Email API URL'
+    required: false
+  email-api-key:
+    description: 'Email API key'
+    required: false
+  email-recipients:
+    description: 'Comma-separated email recipients'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Send notification
+      shell: bash
+      env:
+        NOTIFY_CHANNELS: ${{ inputs.channels }}
+        NOTIFY_TITLE: ${{ inputs.title }}
+        NOTIFY_BODY: ${{ inputs.body }}
+        NOTIFY_LEVEL: ${{ inputs.level }}
+        NOTIFY_METADATA: ${{ inputs.metadata }}
+        WECHAT_WEBHOOK_URL: ${{ inputs.wechat-webhook-url }}
+        SLACK_WEBHOOK_URL: ${{ inputs.slack-webhook-url }}
+        EMAIL_API_URL: ${{ inputs.email-api-url }}
+        EMAIL_API_KEY: ${{ inputs.email-api-key }}
+        EMAIL_RECIPIENTS: ${{ inputs.email-recipients }}
+      run: npx tsx scripts/notify.ts
