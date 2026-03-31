@@ -5,6 +5,7 @@
 Vue 3 + Element Plus higher-level component library (ProTable, ProForm, ProDescriptions) with CDN distribution and version management platform.
 
 - **Design Spec**: `docs/superpowers/specs/2026-03-31-pro-components-design.md`
+- **i18n Design Spec**: `docs/superpowers/specs/2026-03-31-pro-components-i18n-design.md`
 - **Implementation Plans**: `docs/superpowers/plans/2026-03-31-plan-*.md`
 - **Orchestration Guide**: `docs/superpowers/plans/agent-orchestration.md`
 - **Knowledge Base**: `~/Knowledge/09-Projects/pro-components/`
@@ -119,17 +120,18 @@ Which agent owns which directories (for parallel execution):
 | Package Path | Owner Plan |
 |-------------|-----------|
 | `packages/utils/` | Plan 2a |
-| `packages/hooks/` | Plan 2a |
+| `packages/hooks/` | Plan 2a + Plan i18n (shared: useProLocale, resolveMessage, formatters) |
+| `packages/locale/` | Plan i18n |
 | `packages/themes/` | Plan 2a |
 | `packages/resolvers/` | Plan 2a |
-| `packages/pro-table/` | Plan 2a |
-| `packages/pro-form/` | Plan 2b |
-| `packages/pro-descriptions/` | Plan 2b |
-| `packages/pro-components/` | Plan 2b (after 2a completes) |
+| `packages/pro-table/` | Plan 2a + Plan i18n (shared: t() wiring) |
+| `packages/pro-form/` | Plan 2b + Plan i18n (shared: t() wiring) |
+| `packages/pro-descriptions/` | Plan 2b + Plan i18n (shared: t() wiring) |
+| `packages/pro-components/` | Plan 2b + Plan i18n (shared: ProConfigProvider locale) |
 | `platform/server/` | Plan 5a |
-| `platform/web/` | Plan 5b |
-| `cdn/` | Plan 4 |
-| `docs/` | Plan 3 |
+| `platform/web/` | Plan 5b + Plan i18n (shared: vue-i18n setup, locale files) |
+| `cdn/` | Plan 4 + Plan i18n (shared: import map) |
+| `docs/` | Plan 3 + Plan i18n (shared: VitePress locales) |
 | `.github/workflows/` | Plan 6 |
 | `scripts/` | Plan 1 (foundation), then shared |
 | Root config files | Plan 1 only |
@@ -145,4 +147,4 @@ chore(build): configure Rollup shared base config
 docs(guide): add CDN mode integration guide
 ```
 
-Scope values: `table`, `form`, `descriptions`, `hooks`, `utils`, `themes`, `resolvers`, `loader`, `platform-api`, `platform-web`, `docs`, `build`, `ci`
+Scope values: `table`, `form`, `descriptions`, `hooks`, `utils`, `themes`, `resolvers`, `locale`, `loader`, `platform-api`, `platform-web`, `docs`, `build`, `ci`

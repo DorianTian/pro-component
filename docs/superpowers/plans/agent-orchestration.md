@@ -390,6 +390,94 @@ Final Reviewer cross-checks (ALL phases):
 
 ---
 
+## i18n Integration (Plan i18n-support)
+
+The i18n plan (`2026-03-31-plan-i18n-support.md`) adds tasks that interleave with existing phases. A dedicated **i18n Agent** handles all i18n-specific work.
+
+### i18n Agent Dispatch Per Phase
+
+**Phase 1** — After Plan 1 Agent completes, dispatch i18n Agent:
+
+```
+You are the i18n Implementer Agent. Your scope is i18n foundation.
+
+1. Read: docs/superpowers/plans/2026-03-31-plan-i18n-support.md (Tasks 1–3)
+2. Read: docs/superpowers/specs/2026-03-31-pro-components-i18n-design.md
+3. Read: CLAUDE.md for code standards
+4. Execute Tasks 1–3 (Phase 1 section of i18n plan)
+5. You own: packages/locale/, pnpm-workspace.yaml (platform/* addition only)
+6. You may modify: packages/pro-components/package.json (peerDeps), packages/hooks/package.json (deps), scripts/rollup.base.ts (externals)
+
+After completion: pnpm install && pnpm --filter @pro/locale build && pnpm type-check
+```
+
+**Phase 2** — Dispatch i18n Agent in parallel with 2a/2b/5a/5b:
+
+```
+You are the i18n Implementer Agent. Your scope is i18n core utilities and component wiring.
+
+1. Read: docs/superpowers/plans/2026-03-31-plan-i18n-support.md (Tasks 4–10)
+2. Read: docs/superpowers/specs/2026-03-31-pro-components-i18n-design.md
+3. Read: CLAUDE.md for code standards
+4. Execute Tasks 4–10 (Phase 2 section of i18n plan)
+5. You own: packages/hooks/src/resolve-message.ts, packages/hooks/src/use-pro-locale.ts, packages/hooks/src/formatters.ts and their test files
+6. You share with Agent 2a/2b: packages/hooks/src/index.ts, packages/hooks/src/constants.ts (add exports only, don't modify existing)
+7. You share with Agent 2b: packages/pro-components/src/pro-config-provider.vue (add locale logic)
+8. Component wiring (Tasks 8–9): coordinate with Agent 2a/2b — wire t() calls AFTER their components exist
+9. Dashboard i18n (Task 10): coordinate with Agent 5b — add vue-i18n setup AFTER dashboard scaffold exists
+
+DEPENDENCY ORDER:
+- Tasks 4–6: can run immediately (pure utilities)
+- Task 7: after Plan 2b creates ProConfigProvider skeleton
+- Tasks 8–9: after Plan 2a/2b create component files
+- Task 10: after Plan 5b creates dashboard scaffold
+
+After completion: pnpm test && pnpm build && pnpm type-check
+```
+
+**Phase 3** — Dispatch i18n Agent in parallel with Agent 3/4:
+
+```
+You are the i18n Implementer Agent. Your scope is docs i18n and CDN updates.
+
+1. Read: docs/superpowers/plans/2026-03-31-plan-i18n-support.md (Tasks 11–13)
+2. Execute Tasks 11–13 (Phase 3 section)
+3. You share with Agent 3: docs/.vitepress/config.ts (add locales config)
+4. You share with Agent 4: cdn/ import map templates
+
+After completion: pnpm docs:build && pnpm --filter cdn build
+```
+
+**Standalone** — Dispatch Translation Agent anytime (background):
+
+```
+You are the Translation Agent. Translate all planning docs to Chinese.
+
+1. Read: docs/superpowers/plans/2026-03-31-plan-i18n-support.md (Task 14)
+2. For each file in docs/superpowers/specs/ and docs/superpowers/plans/, create a -zh.md Chinese translation
+3. Translation rules: keep code blocks, file paths, variable names in English. Translate prose and table descriptions. Technical terms keep English.
+4. DO NOT touch any non-documentation files
+
+After completion: git add docs/superpowers/**/*-zh.md && git commit
+```
+
+### i18n Reviewer Cross-Checks
+
+Add these to ALL reviewer agent prompts:
+
+```
+i18n-specific checks:
+- Verify: useProLocale() is used in ALL components, never direct vue-i18n import
+- Verify: ProConfigProvider wraps ElConfigProvider with locale sync
+- Verify: No hardcoded user-facing strings in component templates (grep for English text in .vue template sections)
+- Verify: @pro/locale messages are complete (en-US and zh-CN have identical key structure)
+- Verify: resolveMessage handles empty key, null messages, missing keys
+- Verify: __DEV__ guard on console.warn in useProLocale
+- Verify: vue-i18n listed as optional peerDependency, not regular dependency
+```
+
+---
+
 ## Coordinator Cheat Sheet
 
 Copy-paste these commands to run the full orchestration:

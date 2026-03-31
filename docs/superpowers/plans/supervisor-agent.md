@@ -31,8 +31,9 @@ Before doing anything, read these files to understand the full context:
 
 1. `CLAUDE.md` — project standards, package scope map, commit conventions
 2. `docs/superpowers/specs/2026-03-31-pro-components-design.md` — design spec (skim, focus on architecture)
-3. `docs/superpowers/plans/agent-orchestration.md` — phase definitions, agent prompts, gate criteria
-4. Skim each plan file in `docs/superpowers/plans/2026-03-31-plan-*.md` (read headers + task lists, not full code)
+3. `docs/superpowers/specs/2026-03-31-pro-components-i18n-design.md` — i18n design spec
+4. `docs/superpowers/plans/agent-orchestration.md` — phase definitions, agent prompts, gate criteria (includes i18n agent dispatch)
+5. Skim each plan file in `docs/superpowers/plans/2026-03-31-plan-*.md` (read headers + task lists, not full code)
 
 ## Execution Flow
 
