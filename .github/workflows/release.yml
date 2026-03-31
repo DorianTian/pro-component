@@ -1,0 +1,338 @@
+name: Release Pipeline
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false # Never cancel in-progress releases
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write # For OIDC federation
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+jobs:
+  # ──────────────────────────────────────────────
+  # Stage 1: Detect changesets
+  # ──────────────────────────────────────────────
+  changesets:
+    name: Changesets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      has-changesets: ${{ steps.changesets.outputs.hasChangesets }}
+      published: ${{ steps.changesets.outputs.published }}
+      published-packages: ${{ steps.changesets.outputs.publishedPackages }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          turbo-token: ${{ secrets.TURBO_TOKEN }}
+          turbo-team: ${{ secrets.TURBO_TEAM }}
+
+      - name: Create Release PR or Publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          title: 'chore: version packages'
+          commit: 'chore: version packages'
+          publish: pnpm run release:ci
+          version: pnpm run version-packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # ──────────────────────────────────────────────
+  # Stage 2: Full Build + Test (on version merge)
+  # ──────────────────────────────────────────────
+  build-and-test:
+    name: Full Build + Test
+    needs: [changesets]
+    if: needs.changesets.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          turbo-token: ${{ secrets.TURBO_TOKEN }}
+          turbo-team: ${{ secrets.TURBO_TEAM }}
+
+      - name: Build all packages
+        run: pnpm build
+
+      - name: Validate build
+        run: pnpm validate-build
+
+      - name: Run all tests
+        run: pnpm turbo test -- --coverage
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-dist
+          path: packages/*/dist
+          retention-days: 7
+
+  # ──────────────────────────────────────────────
+  # Stage 3: npm Publish (idempotent)
+  # ──────────────────────────────────────────────
+  npm-publish:
+    name: npm Publish
+    needs: [changesets, build-and-test]
+    if: needs.changesets.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    outputs:
+      published-packages: ${{ steps.publish.outputs.packages }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          node-version: '20'
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-dist
+          path: packages
+
+      - name: Check which versions need publishing
+        id: check
+        run: npx tsx scripts/ci/check-npm-version.ts
+
+      - name: Publish to npm (idempotent)
+        id: publish
+        if: steps.check.outputs.has-new-versions == 'true'
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+
+          PUBLISHED=""
+          for pkg_dir in packages/*/; do
+            if [ -f "$pkg_dir/package.json" ]; then
+              PKG_NAME=$(node -p "require('./$pkg_dir/package.json').name")
+              PKG_VERSION=$(node -p "require('./$pkg_dir/package.json').version")
+              PKG_PRIVATE=$(node -p "require('./$pkg_dir/package.json').private || false")
+
+              if [ "$PKG_PRIVATE" = "true" ]; then
+                echo "Skipping private package: $PKG_NAME"
+                continue
+              fi
+
+              # Idempotent: skip if version already exists
+              EXISTING=$(npm view "$PKG_NAME@$PKG_VERSION" version 2>/dev/null || echo "")
+              if [ "$EXISTING" = "$PKG_VERSION" ]; then
+                echo "Already published: $PKG_NAME@$PKG_VERSION (skipping)"
+                continue
+              fi
+
+              echo "Publishing: $PKG_NAME@$PKG_VERSION"
+              cd "$pkg_dir"
+              npm publish --access restricted
+              cd -
+              PUBLISHED="$PUBLISHED $PKG_NAME@$PKG_VERSION"
+            fi
+          done
+
+          echo "packages=$PUBLISHED" >> $GITHUB_OUTPUT
+          echo "Published:$PUBLISHED"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # ──────────────────────────────────────────────
+  # Stage 4: CDN Sync
+  # ──────────────────────────────────────────────
+  cdn-sync:
+    name: CDN Sync
+    needs: [npm-publish]
+    if: needs.npm-publish.outputs.published-packages != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-dist
+          path: packages
+
+      - name: Configure CDN credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.CDN_OIDC_ROLE_ARN }}
+          aws-region: ap-southeast-1
+        continue-on-error: true
+
+      - name: Run CDN sync state machine
+        env:
+          CDN_BASE_URL: ${{ secrets.CDN_BASE_URL }}
+          CDN_STORAGE_BUCKET: ${{ secrets.CDN_STORAGE_BUCKET }}
+          CDN_EDGE_POPS: ${{ secrets.CDN_EDGE_POPS }}
+          PLATFORM_API_URL: ${{ secrets.PLATFORM_API_URL }}
+        run: npx tsx scripts/ci/cdn-sync.ts
+
+      - name: Notify on CDN sync failure
+        if: failure()
+        uses: ./.github/actions/notify
+        with:
+          channels: 'slack,wechat'
+          title: 'CDN Sync Failed'
+          body: |
+            CDN sync failed for packages: ${{ needs.npm-publish.outputs.published-packages }}
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Manual intervention may be required.
+          level: 'error'
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          wechat-webhook-url: ${{ secrets.WECHAT_WEBHOOK_URL }}
+
+  # ──────────────────────────────────────────────
+  # Stage 4: Platform API Notification
+  # ──────────────────────────────────────────────
+  platform-notify:
+    name: Platform API Notification
+    needs: [npm-publish]
+    if: needs.npm-publish.outputs.published-packages != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Notify Platform API (fire-and-forget + retry)
+        run: |
+          PACKAGES="${{ needs.npm-publish.outputs.published-packages }}"
+          API_URL="${{ secrets.PLATFORM_API_URL }}"
+
+          if [ -z "$API_URL" ]; then
+            echo "PLATFORM_API_URL not configured, skipping"
+            exit 0
+          fi
+
+          for attempt in 1 2 3; do
+            STATUS=$(curl -sf -o /dev/null -w "%{http_code}" \
+              -X POST "${API_URL}/api/v1/versions/sync" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${{ secrets.PLATFORM_API_KEY }}" \
+              -d "{\"packages\": \"${PACKAGES}\", \"ci_run\": \"${{ github.run_id }}\"}" \
+              --max-time 10 2>/dev/null || echo "000")
+
+            if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 300 ]; then
+              echo "Platform API notified (HTTP $STATUS)"
+              exit 0
+            fi
+
+            echo "Attempt $attempt failed (HTTP $STATUS), retrying..."
+            sleep $((attempt * 2))
+          done
+
+          echo "Platform API notification failed after 3 attempts (non-blocking)"
+        continue-on-error: true
+
+  # ──────────────────────────────────────────────
+  # Stage 5: Docs Deploy (after npm publish)
+  # ──────────────────────────────────────────────
+  docs-deploy:
+    name: Docs Deploy
+    needs: [npm-publish]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: docs-production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-dist
+          path: packages
+
+      - name: Build docs
+        run: pnpm --filter docs build
+
+      - name: Deploy docs to production
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: docs/.vitepress/dist
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: 'Release deploy from ${{ github.sha }}'
+          production-deploy: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_DOCS_SITE_ID }}
+
+  # ──────────────────────────────────────────────
+  # Stage 6: Release Notification
+  # ──────────────────────────────────────────────
+  notify:
+    name: Release Notification
+    needs: [npm-publish, cdn-sync, docs-deploy]
+    if: always() && needs.npm-publish.outputs.published-packages != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Gather release info
+        id: info
+        run: |
+          PACKAGES="${{ needs.npm-publish.outputs.published-packages }}"
+          CDN_STATUS="${{ needs.cdn-sync.result }}"
+          DOCS_STATUS="${{ needs.docs-deploy.result }}"
+
+          # Extract changelog from latest changeset commit
+          CHANGELOG=$(git log -1 --pretty=%B | head -50)
+
+          echo "packages=$PACKAGES" >> $GITHUB_OUTPUT
+          echo "cdn_status=$CDN_STATUS" >> $GITHUB_OUTPUT
+          echo "docs_status=$DOCS_STATUS" >> $GITHUB_OUTPUT
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Send release notification
+        uses: ./.github/actions/notify
+        with:
+          channels: 'slack,wechat'
+          title: 'New Release Published'
+          body: |
+            **Packages:** ${{ steps.info.outputs.packages }}
+            **CDN:** ${{ steps.info.outputs.cdn_status }}
+            **Docs:** ${{ steps.info.outputs.docs_status }}
+            **Changelog:**
+            ${{ steps.info.outputs.changelog }}
+          level: ${{ needs.cdn-sync.result == 'failure' && 'warning' || 'info' }}
+          metadata: '{"run_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}'
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          wechat-webhook-url: ${{ secrets.WECHAT_WEBHOOK_URL }}
+          email-api-url: ${{ secrets.EMAIL_API_URL }}
+          email-api-key: ${{ secrets.EMAIL_API_KEY }}
+          email-recipients: ${{ secrets.EMAIL_RECIPIENTS }}
