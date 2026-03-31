@@ -6,8 +6,18 @@ import StepsForm from './components/StepsForm.vue'
 import QueryFilter from './components/QueryFilter.vue'
 import LightFilter from './components/LightFilter.vue'
 import ProFormDependency from './components/ProFormDependency.vue'
+import ProFormList from './components/ProFormList.vue'
 
-export { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter, LightFilter, ProFormDependency }
+export {
+  ProForm,
+  ModalForm,
+  DrawerForm,
+  StepsForm,
+  QueryFilter,
+  LightFilter,
+  ProFormDependency,
+  ProFormList,
+}
 
 // Composables
 export {

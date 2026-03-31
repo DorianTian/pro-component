@@ -10,6 +10,7 @@ import {
   QueryFilter,
   LightFilter,
   ProFormDependency,
+  ProFormList,
 } from '@pro/form'
 import { ProDescriptions } from '@pro/descriptions'
 import { checkDependencies } from '@pro/utils'
@@ -26,6 +27,7 @@ export {
   QueryFilter,
   LightFilter,
   ProFormDependency,
+  ProFormList,
 } from '@pro/form'
 export { ProDescriptions } from '@pro/descriptions'
 export { ProConfigProvider }
@@ -52,6 +54,7 @@ const components = [
   QueryFilter,
   LightFilter,
   ProFormDependency,
+  ProFormList,
   ProDescriptions,
   ProConfigProvider,
 ]
