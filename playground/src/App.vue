@@ -135,70 +135,72 @@ async function fetchUsers(params: RequestParams): Promise<RequestResult> {
 </script>
 
 <template>
-  <div class="app">
-    <header class="app-header">
-      <h1>Pro Components</h1>
-      <span class="app-header__sub">Playground</span>
-    </header>
+  <ProConfigProvider density="default" theme="light">
+    <div class="app">
+      <header class="app-header">
+        <h1>Pro Components</h1>
+        <span class="app-header__sub">Playground</span>
+      </header>
 
-    <main class="app-content">
-      <!-- Primary demo: in a card -->
-      <div class="card">
-        <ProTable
-          :columns="columns"
-          :request="fetchUsers"
-          row-key="id"
-          header-title="User Management"
-          :pagination="{ defaultPageSize: 3 }"
-          :row-selection="{ crossPageSelect: true }"
-        />
-      </div>
-
-      <!-- Embedded mode demos -->
-      <h2 class="section-title">Embedded Scenarios</h2>
-
-      <el-tabs type="border-card">
-        <el-tab-pane label="In el-card">
-          <el-card shadow="hover">
-            <ProTable
-              :columns="columns"
-              :data="mockData"
-              row-key="id"
-              header-title="Inside el-card"
-              :search="false"
-              :pagination="false"
-            />
-          </el-card>
-        </el-tab-pane>
-
-        <el-tab-pane label="In el-dialog">
-          <el-button type="primary" @click="showDialog = true">Open Dialog</el-button>
-          <el-dialog v-model="showDialog" title="Table in Dialog" width="900px">
-            <ProTable
-              :columns="columns"
-              :data="mockData"
-              row-key="id"
-              header-title="Inside el-dialog"
-              :search="false"
-              :pagination="false"
-            />
-          </el-dialog>
-        </el-tab-pane>
-
-        <el-tab-pane label="Compact density">
+      <main class="app-content">
+        <!-- Primary demo: in a card -->
+        <div class="card">
           <ProTable
             :columns="columns"
-            :data="mockData"
+            :request="fetchUsers"
             row-key="id"
-            header-title="Compact Mode"
-            :search="false"
-            :pagination="false"
-            :table-props="{ size: 'small' }"
+            header-title="User Management"
+            :pagination="{ defaultPageSize: 3 }"
+            :row-selection="{ crossPageSelect: true }"
           />
-        </el-tab-pane>
-      </el-tabs>
-    </main>
-  </div>
+        </div>
+
+        <!-- Embedded mode demos -->
+        <h2 class="section-title">Embedded Scenarios</h2>
+
+        <el-tabs type="border-card">
+          <el-tab-pane label="In el-card">
+            <el-card shadow="hover">
+              <ProTable
+                :columns="columns"
+                :data="mockData"
+                row-key="id"
+                header-title="Inside el-card"
+                :search="false"
+                :pagination="false"
+              />
+            </el-card>
+          </el-tab-pane>
+
+          <el-tab-pane label="In el-dialog">
+            <el-button type="primary" @click="showDialog = true">Open Dialog</el-button>
+            <el-dialog v-model="showDialog" title="Table in Dialog" width="900px">
+              <ProTable
+                :columns="columns"
+                :data="mockData"
+                row-key="id"
+                header-title="Inside el-dialog"
+                :search="false"
+                :pagination="false"
+              />
+            </el-dialog>
+          </el-tab-pane>
+
+          <el-tab-pane label="Compact density">
+            <ProTable
+              :columns="columns"
+              :data="mockData"
+              row-key="id"
+              header-title="Compact Mode"
+              :search="false"
+              :pagination="false"
+              :table-props="{ size: 'small' }"
+            />
+          </el-tab-pane>
+        </el-tabs>
+      </main>
+    </div>
+  </ProConfigProvider>
 </template>
 
 <style>

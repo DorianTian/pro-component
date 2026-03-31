@@ -29,6 +29,10 @@ export const zhCN = {
         default: '默认',
         relaxed: '宽松',
       },
+      toolbar: {
+        reload: '刷新',
+        fullscreen: '全屏',
+      },
     },
     form: {
       submit: '提交',

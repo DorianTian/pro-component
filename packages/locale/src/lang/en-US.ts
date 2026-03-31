@@ -29,6 +29,10 @@ export const enUS = {
         default: 'Default',
         relaxed: 'Relaxed',
       },
+      toolbar: {
+        reload: 'Reload',
+        fullscreen: 'Fullscreen',
+      },
     },
     form: {
       submit: 'Submit',

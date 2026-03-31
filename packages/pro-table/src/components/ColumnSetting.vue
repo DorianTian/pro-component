@@ -262,7 +262,7 @@ watch(
 .pro-column-setting__fixed .el-icon {
   cursor: pointer;
   color: var(--pro-text-tertiary);
-  font-size: 14px;
+  font-size: var(--pro-text-base);
   transition: color var(--pro-transition-fast);
 }
 

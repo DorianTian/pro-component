@@ -96,7 +96,12 @@ const state = useProTableInternal(
 </script>
 
 <template>
-  <div ref="state.tableContainerRef" class="pro-table" :class="{ 'pro-table--fullscreen': state.isFullscreen.value }" :data-density="state.densitySize.value">
+  <div
+    ref="state.tableContainerRef"
+    class="pro-table"
+    :class="{ 'pro-table--fullscreen': state.isFullscreen.value }"
+    :data-density="state.densitySize.value"
+  >
     <!-- Search Form -->
     <QueryFilter
       v-if="search !== false"
@@ -197,10 +202,7 @@ const state = useProTableInternal(
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  border-radius: var(--pro-radius-lg);
-  box-shadow: var(--pro-shadow-sm);
   background: var(--pro-bg-elevated);
-  border: 1px solid var(--pro-border-light);
 }
 
 .pro-table :deep(*) {
@@ -240,7 +242,7 @@ const state = useProTableInternal(
 
 .pro-table :deep(.el-table--scrollable-x .el-table__body-wrapper::-webkit-scrollbar-thumb) {
   background: var(--pro-scrollbar-thumb);
-  border-radius: 3px;
+  border-radius: var(--pro-radius-xs);
 }
 
 .pro-table :deep(.el-table--scrollable-x .el-table__body-wrapper::-webkit-scrollbar-track) {

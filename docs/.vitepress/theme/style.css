@@ -6,26 +6,26 @@
 /* ---- Brand tokens ---- */
 
 :root {
-  --vp-c-brand-1: #409eff;
-  --vp-c-brand-2: #337ecc;
-  --vp-c-brand-3: #266eb3;
-  --vp-c-brand-soft: rgba(64, 158, 255, 0.14);
+  --vp-c-brand-1: #7c6ce7;
+  --vp-c-brand-2: #6b5bd6;
+  --vp-c-brand-3: #5a4bc5;
+  --vp-c-brand-soft: rgba(124, 108, 231, 0.14);
   --vp-button-brand-border: transparent;
   --vp-button-brand-text: #fff;
-  --vp-button-brand-bg: #409eff;
+  --vp-button-brand-bg: #7c6ce7;
   --vp-button-brand-hover-border: transparent;
   --vp-button-brand-hover-text: #fff;
-  --vp-button-brand-hover-bg: #66b1ff;
+  --vp-button-brand-hover-bg: #9d8df0;
   --vp-button-brand-active-border: transparent;
   --vp-button-brand-active-text: #fff;
-  --vp-button-brand-active-bg: #337ecc;
+  --vp-button-brand-active-bg: #6b5bd6;
 }
 
 .dark {
-  --vp-c-brand-1: #409eff;
-  --vp-c-brand-2: #66b1ff;
-  --vp-c-brand-3: #79bbff;
-  --vp-c-brand-soft: rgba(64, 158, 255, 0.16);
+  --vp-c-brand-1: #9d8df0;
+  --vp-c-brand-2: #a99aef;
+  --vp-c-brand-3: #bdb2f3;
+  --vp-c-brand-soft: rgba(124, 108, 231, 0.16);
 }
 
 /* ---- Demo container ---- */
@@ -160,7 +160,7 @@
 /* ---- Home page tweaks ---- */
 
 .VPHero .name {
-  background: linear-gradient(135deg, #409eff 0%, #266eb3 100%);
+  background: linear-gradient(135deg, #7c6ce7 0%, #5a4bc5 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -223,6 +223,6 @@
 
 .vitepress-demo-plugin__preview .el-input__wrapper:focus-within {
   box-shadow:
-    0 0 0 1px var(--el-color-primary, #409eff),
-    0 0 0 3px rgba(64, 158, 255, 0.12) !important;
+    0 0 0 1px var(--pro-border-focus, #7c6ce7),
+    var(--pro-shadow-focus, 0 0 0 3px rgba(124, 108, 231, 0.1)) !important;
 }

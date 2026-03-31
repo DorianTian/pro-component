@@ -84,7 +84,7 @@ function handleToggleFullscreen(): void {
       <el-divider v-if="toolbarActions.length > 0" direction="vertical" />
 
       <!-- Reload -->
-      <el-tooltip content="Reload" placement="top">
+      <el-tooltip :content="t('pro.table.toolbar.reload')" placement="top">
         <span class="pro-toolbar__icon" @click="handleReload">
           <el-icon :size="18"><Refresh /></el-icon>
         </span>
@@ -109,7 +109,11 @@ function handleToggleFullscreen(): void {
       <slot v-if="isColumnSettingVisible" name="columnSetting" />
 
       <!-- Fullscreen -->
-      <el-tooltip v-if="isFullscreenVisible" content="Fullscreen" placement="top">
+      <el-tooltip
+        v-if="isFullscreenVisible"
+        :content="t('pro.table.toolbar.fullscreen')"
+        placement="top"
+      >
         <span class="pro-toolbar__icon" @click="handleToggleFullscreen">
           <el-icon :size="18"><FullScreen /></el-icon>
         </span>

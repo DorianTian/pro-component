@@ -1,4 +1,14 @@
-import { ref, computed, provide, watch, onMounted, onUnmounted, type Ref, type ComputedRef } from 'vue'
+import {
+  ref,
+  computed,
+  inject,
+  provide,
+  watch,
+  onMounted,
+  onUnmounted,
+  type Ref,
+  type ComputedRef,
+} from 'vue'
 import { useRequest, usePagination, useSelection, useValueType } from '@pro/hooks'
 
 import type { RequestParams, RequestResult } from '@pro/utils'
@@ -170,8 +180,14 @@ export function useProTableInternal(
     }
   })
 
-  // --- Density ---
-  const densitySize = ref<DensitySize>(DEFAULT_DENSITY)
+  // --- Density (sync with ProConfigProvider if present) ---
+  const configDensity = inject<ComputedRef<DensitySize> | null>('pro-density', null)
+  const densitySize = ref<DensitySize>(configDensity?.value ?? DEFAULT_DENSITY)
+  if (configDensity) {
+    watch(configDensity, (val) => {
+      densitySize.value = val
+    })
+  }
   provide(DENSITY_INJECTION_KEY, { size: densitySize })
 
   const DENSITY_TO_EL_SIZE: Record<DensitySize, string> = {

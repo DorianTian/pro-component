@@ -29,8 +29,8 @@ const props = withDefaults(
   {
     layout: 'horizontal',
     showActions: true,
-    submitText: 'Submit',
-    resetText: 'Reset',
+    submitText: undefined,
+    resetText: undefined,
     columns: 1,
   },
 )

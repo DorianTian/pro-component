@@ -115,6 +115,8 @@ export default defineConfig({
         '@pro/hooks': resolve(__dirname, '../../packages/hooks/src'),
         '@pro/utils': resolve(__dirname, '../../packages/utils/src'),
         '@pro/themes': resolve(__dirname, '../../packages/themes/src'),
+        '@pro/locale': resolve(__dirname, '../../packages/locale/src'),
+        '@pro/resolvers': resolve(__dirname, '../../packages/resolvers/src'),
         '@pro/pro-components': resolve(__dirname, '../../packages/pro-components/src'),
       },
     },
