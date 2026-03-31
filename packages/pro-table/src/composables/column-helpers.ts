@@ -9,6 +9,7 @@ import { DEFAULT_SEARCH_ORDER } from '../constants'
  * Each column gets a settings entry with visibility, fixed state, and order.
  */
 export function buildColumnSettings(cols: ProColumnDef[]): ColumnSettingItem[] {
+  if (!cols) return []
   return cols.map((col, idx) => ({
     key: col.key ?? col.dataIndex,
     title: col.title,
