@@ -137,7 +137,7 @@ const state = useProTableInternal(
       <template #columnSetting>
         <ColumnSetting>
           <span class="pro-toolbar__icon" title="Column Settings">
-            <el-icon :size="18"><Setting /></el-icon>
+            <el-icon :size="16"><Setting /></el-icon>
           </span>
         </ColumnSetting>
       </template>
@@ -303,7 +303,10 @@ const state = useProTableInternal(
 .pro-table__pagination {
   display: flex;
   justify-content: flex-end;
-  padding: var(--pro-space-4) 0 var(--pro-space-1);
+  align-items: center;
+  padding: var(--pro-space-4) var(--pro-space-7) var(--pro-space-4);
+  font-size: var(--pro-text-xs);
+  color: var(--pro-text-tertiary);
 }
 
 .pro-table--fullscreen {

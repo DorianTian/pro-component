@@ -58,8 +58,9 @@
 }
 
 .vitepress-demo-plugin__preview {
-  padding: 24px;
+  padding: 0;
   background-color: var(--vp-c-bg);
+  overflow: hidden;
 }
 
 .vitepress-demo-plugin__code {
@@ -123,9 +124,21 @@
   background-color: var(--pro-color-primary-ultra-light) !important;
 }
 
+/* Clean last row border */
+.vp-doc .vp-raw .el-table__body tr:last-child td.el-table__cell {
+  border-bottom: none !important;
+}
+
 /* Ensure pro-table fills container without overflow */
 .vitepress-demo-plugin__preview .pro-table {
   overflow: hidden;
+}
+
+/* Restore el-form-item styling inside demos */
+.vp-doc .vp-raw .el-form-item__label {
+  font-size: var(--pro-text-xs) !important;
+  font-weight: var(--pro-font-weight-medium) !important;
+  color: var(--pro-text-secondary) !important;
 }
 
 /* ---- API table ---- */

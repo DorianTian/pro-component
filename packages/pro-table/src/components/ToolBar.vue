@@ -86,7 +86,7 @@ function handleToggleFullscreen(): void {
       <!-- Reload -->
       <el-tooltip :content="t('pro.table.toolbar.reload')" placement="top">
         <span class="pro-toolbar__icon" @click="handleReload">
-          <el-icon :size="18"><Refresh /></el-icon>
+          <el-icon :size="16"><Refresh /></el-icon>
         </span>
       </el-tooltip>
 
@@ -115,7 +115,7 @@ function handleToggleFullscreen(): void {
         placement="top"
       >
         <span class="pro-toolbar__icon" @click="handleToggleFullscreen">
-          <el-icon :size="18"><FullScreen /></el-icon>
+          <el-icon :size="16"><FullScreen /></el-icon>
         </span>
       </el-tooltip>
     </div>
@@ -127,11 +127,11 @@ function handleToggleFullscreen(): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--pro-space-5) 0;
+  padding: var(--pro-space-4) var(--pro-space-7);
 }
 
 .pro-toolbar__title {
-  font-size: var(--pro-text-lg);
+  font-size: var(--pro-text-md);
   font-weight: var(--pro-font-weight-semibold);
   color: var(--pro-text-primary);
   line-height: var(--pro-line-height-base);
@@ -140,16 +140,17 @@ function handleToggleFullscreen(): void {
 .pro-toolbar__actions {
   display: flex;
   align-items: center;
-  gap: var(--pro-space-1);
+  gap: var(--pro-space-2);
 }
 
+/* Toolbar icon buttons: 28×28 to match density control height */
 .pro-toolbar__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--pro-radius-sm);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--pro-radius-xs);
   cursor: pointer;
   color: var(--pro-text-tertiary);
   transition: all var(--pro-transition-fast);
@@ -160,21 +161,31 @@ function handleToggleFullscreen(): void {
   background: var(--pro-bg-sunken);
 }
 
+/* Vertical dividers between toolbar sections */
+.pro-toolbar :deep(.el-divider--vertical) {
+  height: 16px;
+  margin: 0 var(--pro-space-2);
+  border-color: var(--pro-border-light);
+}
+
+/* Density segmented control */
 .pro-toolbar__density {
   display: inline-flex;
   align-items: center;
   background: var(--pro-bg-sunken);
-  border-radius: var(--pro-radius-sm);
+  border-radius: var(--pro-radius-xs);
   padding: 2px;
   gap: 2px;
+  height: 28px;
 }
 
 .pro-toolbar__density-item {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--pro-space-1) var(--pro-space-3);
-  border-radius: var(--pro-radius-xs);
+  padding: 0 var(--pro-space-3);
+  height: 22px;
+  border-radius: 3px;
   font-size: var(--pro-text-xs);
   font-weight: var(--pro-font-weight-medium);
   color: var(--pro-text-tertiary);
@@ -191,6 +202,6 @@ function handleToggleFullscreen(): void {
 .pro-toolbar__density-item.is-active {
   background: var(--pro-bg-elevated);
   color: var(--pro-color-primary);
-  box-shadow: var(--pro-shadow-sm);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 </style>

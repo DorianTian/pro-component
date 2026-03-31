@@ -154,32 +154,41 @@ function toggleCollapse(): void {
           </el-form-item>
         </el-col>
 
-        <!-- Action buttons — always right-aligned -->
+        <!-- Action buttons — aligned to input bottom, right-aligned -->
         <el-col :span="span" :offset="actionOffset" class="pro-query-filter__actions">
-          <el-form-item label=" ">
-            <el-button
-              type="primary"
-              size="small"
-              :icon="Search"
-              :loading="loading"
-              @click="handleSearch"
-            >
-              {{ t('pro.table.queryFilter.search') }}
-            </el-button>
-            <el-button size="small" :icon="RefreshLeft" @click="handleReset">
-              {{ t('pro.table.queryFilter.reset') }}
-            </el-button>
-            <el-button v-if="hasCollapsibleOverflow" link type="primary" @click="toggleCollapse">
-              {{
-                isCollapsed
-                  ? t('pro.table.queryFilter.expand')
-                  : t('pro.table.queryFilter.collapse')
-              }}
-              <el-icon class="pro-query-filter__collapse-icon">
-                <ArrowDown v-if="isCollapsed" />
-                <ArrowUp v-else />
-              </el-icon>
-            </el-button>
+          <el-form-item>
+            <template #label><span>&nbsp;</span></template>
+            <div class="pro-query-filter__btns">
+              <el-button
+                type="primary"
+                size="default"
+                :icon="Search"
+                :loading="loading"
+                @click="handleSearch"
+              >
+                {{ t('pro.table.queryFilter.search') }}
+              </el-button>
+              <el-button size="default" :icon="RefreshLeft" @click="handleReset">
+                {{ t('pro.table.queryFilter.reset') }}
+              </el-button>
+              <el-button
+                v-if="hasCollapsibleOverflow"
+                link
+                type="primary"
+                size="default"
+                @click="toggleCollapse"
+              >
+                {{
+                  isCollapsed
+                    ? t('pro.table.queryFilter.expand')
+                    : t('pro.table.queryFilter.collapse')
+                }}
+                <el-icon class="pro-query-filter__collapse-icon">
+                  <ArrowDown v-if="isCollapsed" />
+                  <ArrowUp v-else />
+                </el-icon>
+              </el-button>
+            </div>
           </el-form-item>
         </el-col>
       </el-row>
@@ -189,14 +198,15 @@ function toggleCollapse(): void {
 
 <style scoped>
 .pro-query-filter {
-  padding: var(--pro-space-7) var(--pro-space-7) 0;
+  padding: var(--pro-space-6) var(--pro-space-7) var(--pro-space-1);
   border-bottom: 1px solid var(--pro-border-light);
 }
 
 .pro-query-filter :deep(.el-form-item) {
-  margin-bottom: var(--pro-space-7);
+  margin-bottom: var(--pro-space-5);
 }
 
+/* Ensure all inputs fill their column */
 .pro-query-filter :deep(.el-form-item__content) {
   & > .el-input,
   & > .el-select,
@@ -206,15 +216,17 @@ function toggleCollapse(): void {
   }
 }
 
+/* Label: small, muted, above input */
 .pro-query-filter :deep(.el-form-item__label) {
   font-size: var(--pro-text-xs);
   font-weight: var(--pro-font-weight-medium);
   color: var(--pro-text-secondary);
   letter-spacing: 0.02em;
-  padding-bottom: var(--pro-space-2);
+  padding-bottom: var(--pro-space-1);
+  line-height: 1;
 }
 
-/* Focus ring — aligned with reference design */
+/* Input focus ring */
 .pro-query-filter :deep(.el-input__wrapper) {
   transition: all var(--pro-transition-fast);
 }
@@ -231,16 +243,29 @@ function toggleCollapse(): void {
     var(--pro-shadow-focus) !important;
 }
 
+/* Action column: push buttons to bottom-right, aligned with inputs */
 .pro-query-filter__actions {
-  text-align: right;
+  display: flex;
+  align-items: flex-end;
+}
+
+.pro-query-filter__actions :deep(.el-form-item) {
+  margin-bottom: var(--pro-space-5);
+  width: 100%;
 }
 
 .pro-query-filter__actions :deep(.el-form-item__content) {
   justify-content: flex-end;
+}
+
+.pro-query-filter__btns {
+  display: flex;
+  align-items: center;
   gap: var(--pro-space-3);
+  white-space: nowrap;
 }
 
 .pro-query-filter__collapse-icon {
-  margin-left: var(--pro-space-1);
+  margin-left: 2px;
 }
 </style>

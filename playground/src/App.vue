@@ -239,9 +239,9 @@ body {
 .card {
   background: var(--pro-bg-elevated);
   border-radius: var(--pro-radius-lg);
-  padding: 0 var(--pro-space-6) var(--pro-space-5);
   border: 1px solid var(--pro-border-light);
   box-shadow: var(--pro-shadow-sm);
+  overflow: hidden;
 }
 
 .section-title {
