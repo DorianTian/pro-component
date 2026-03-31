@@ -1,29 +1,59 @@
 :root {
   /* Pro Components Design Tokens */
 
-  /* Spacing */
+  /* ---- Spacing ---- */
   --pro-spacing-xs: 4px;
   --pro-spacing-sm: 8px;
   --pro-spacing-md: 16px;
   --pro-spacing-lg: 24px;
   --pro-spacing-xl: 32px;
 
-  /* Border Radius */
+  /* ---- Border Radius ---- */
   --pro-radius-sm: 4px;
   --pro-radius-md: 6px;
   --pro-radius-lg: 8px;
 
-  /* Toolbar */
+  /* ---- Typography ---- */
+  --pro-font-size-sm: 12px;
+  --pro-font-size-base: 14px;
+  --pro-font-size-lg: 16px;
+  --pro-font-weight-normal: 400;
+  --pro-font-weight-medium: 500;
+  --pro-font-weight-semibold: 600;
+  --pro-line-height-base: 1.5715;
+
+  /* ---- Colors (extend Element Plus) ---- */
+  --pro-table-header-bg: var(--el-fill-color-lighter, #fafafa);
+  --pro-table-header-font-weight: 600;
+  --pro-table-border-color: var(--el-border-color-lighter, #ebeef5);
+  --pro-table-row-hover-bg: var(--el-color-primary-light-9, #ecf5ff);
+  --pro-table-row-stripe-bg: var(--el-fill-color-lighter, #fafafa);
+  --pro-table-selection-bg: var(--el-color-primary-light-9, #ecf5ff);
+
+  /* ---- Toolbar ---- */
   --pro-toolbar-height: 48px;
   --pro-toolbar-padding: 0 var(--pro-spacing-md);
+  --pro-toolbar-icon-size: 32px;
+  --pro-toolbar-icon-hover-bg: var(--el-fill-color-light, #f5f7fa);
+  --pro-toolbar-divider-color: var(--el-border-color, #dcdfe6);
 
-  /* Search Form */
+  /* ---- Search Form ---- */
   --pro-search-form-gap: var(--pro-spacing-md);
   --pro-search-form-label-width: 80px;
+  --pro-search-form-input-focus-shadow: 0 0 0 1px var(--el-color-primary-light-7, #c6e2ff);
 
-  /* Table */
-  --pro-table-header-bg: var(--el-fill-color-light);
+  /* ---- Shadows (from reference design) ---- */
+  --pro-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --pro-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --pro-popover-shadow: var(--el-box-shadow-light, 0 2px 12px 0 rgba(0, 0, 0, 0.1));
 
-  /* Transition */
+  /* ---- Scrollbar ---- */
+  --pro-scrollbar-thumb: var(--el-border-color, #dcdfe6);
+  --pro-scrollbar-thumb-hover: var(--el-border-color-darker, #cdd0d6);
+  --pro-scrollbar-track: transparent;
+  --pro-scrollbar-size: 6px;
+
+  /* ---- Transition ---- */
   --pro-transition-duration: 0.2s;
+  --pro-transition-easing: cubic-bezier(0.645, 0.045, 0.355, 1);
 }
