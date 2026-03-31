@@ -4,8 +4,9 @@ import ModalForm from './components/ModalForm.vue'
 import DrawerForm from './components/DrawerForm.vue'
 import StepsForm from './components/StepsForm.vue'
 import QueryFilter from './components/QueryFilter.vue'
+import LightFilter from './components/LightFilter.vue'
 
-export { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter }
+export { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter, LightFilter }
 
 // Composables
 export {
