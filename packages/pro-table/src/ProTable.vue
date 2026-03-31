@@ -188,9 +188,20 @@ const state = useProTableInternal(
   width: 100%;
 }
 
+.pro-table :deep(.el-table) {
+  --el-table-border-color: var(--el-border-color-lighter, #ebeef5);
+}
+
+.pro-table :deep(.el-table th.el-table__cell) {
+  background: var(--el-fill-color-lighter, #fafafa);
+  font-weight: 600;
+  color: var(--el-text-color-primary, #303133);
+  font-size: 14px;
+}
+
 .pro-table__pagination {
   display: flex;
   justify-content: flex-end;
-  padding: var(--pro-spacing-md, 16px) 0;
+  padding: 16px 0 4px;
 }
 </style>

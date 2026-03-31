@@ -90,12 +90,16 @@ function handleToggleFullscreen(): void {
 
       <!-- Reload -->
       <el-tooltip content="Reload" placement="top">
-        <el-button :icon="Refresh" text @click="handleReload" />
+        <span class="pro-toolbar__icon" @click="handleReload">
+          <el-icon :size="18"><Refresh /></el-icon>
+        </span>
       </el-tooltip>
 
       <!-- Density -->
       <el-dropdown v-if="isDensityVisible" trigger="click" @command="handleDensityChange">
-        <el-button :icon="DCaret" text />
+        <span class="pro-toolbar__icon">
+          <el-icon :size="18"><DCaret /></el-icon>
+        </span>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item
@@ -112,12 +116,16 @@ function handleToggleFullscreen(): void {
 
       <!-- Column Setting -->
       <el-tooltip v-if="isColumnSettingVisible" content="Column Settings" placement="top">
-        <el-button :icon="Setting" text @click="handleToggleColumnSetting" />
+        <span class="pro-toolbar__icon" @click="handleToggleColumnSetting">
+          <el-icon :size="18"><Setting /></el-icon>
+        </span>
       </el-tooltip>
 
       <!-- Fullscreen -->
       <el-tooltip v-if="isFullscreenVisible" content="Fullscreen" placement="top">
-        <el-button :icon="FullScreen" text @click="handleToggleFullscreen" />
+        <span class="pro-toolbar__icon" @click="handleToggleFullscreen">
+          <el-icon :size="18"><FullScreen /></el-icon>
+        </span>
       </el-tooltip>
     </div>
   </div>
@@ -128,20 +136,35 @@ function handleToggleFullscreen(): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: var(--pro-toolbar-height, 48px);
-  padding: var(--pro-toolbar-padding, 0 16px);
-  margin-bottom: var(--pro-spacing-md, 16px);
+  padding: 16px 0;
 }
 
 .pro-toolbar__title {
   font-size: 16px;
-  font-weight: 500;
-  color: var(--el-text-color-primary);
+  font-weight: 600;
+  color: var(--el-text-color-primary, #303133);
 }
 
 .pro-toolbar__actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+}
+
+.pro-toolbar__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--el-text-color-secondary, #909399);
+  transition: all 0.2s;
+}
+
+.pro-toolbar__icon:hover {
+  color: var(--el-color-primary, #409eff);
+  background: var(--el-fill-color-light, #f5f7fa);
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, type PropType } from 'vue'
-import { ArrowDown, ArrowUp } from '@element-plus/icons-vue'
+import { ArrowDown, ArrowUp, Search, RefreshLeft } from '@element-plus/icons-vue'
 import { useValueType, useProLocale } from '@pro/hooks'
 
 import type { ProColumnDef, SearchConfig } from '../types'
@@ -109,25 +109,26 @@ function toggleCollapse(): void {
 </script>
 
 <template>
-  <el-form class="pro-query-filter" :label-width="labelWidth" @submit.prevent="handleSearch">
-    <el-row :gutter="24">
-      <el-col
-        v-for="col in visibleColumns"
-        :key="col.key ?? String(col.dataIndex)"
-        :span="col.searchConfig?.span ?? span"
-      >
-        <el-form-item :label="col.title">
-          <!-- Custom search render -->
-          <template v-if="col.searchConfig?.render">
-            <component :is="col.searchConfig.render()" />
-          </template>
+  <div class="pro-query-filter">
+    <el-form :label-width="labelWidth" @submit.prevent="handleSearch">
+      <el-row :gutter="16">
+        <!-- Search fields -->
+        <el-col
+          v-for="col in visibleColumns"
+          :key="col.key ?? String(col.dataIndex)"
+          :span="col.searchConfig?.span ?? span"
+        >
+          <el-form-item :label="col.title">
+            <!-- Custom search render -->
+            <template v-if="col.searchConfig?.render">
+              <component :is="col.searchConfig.render()" />
+            </template>
 
-          <!-- valueEnum-driven select -->
-          <template v-else-if="col.valueEnum">
+            <!-- valueEnum-driven select -->
             <el-select
+              v-else-if="col.valueEnum"
               :model-value="modelValue[String(col.dataIndex)]"
               clearable
-              style="width: 100%"
               :placeholder="`Select ${col.title}`"
               @update:model-value="updateField(String(col.dataIndex), $event)"
             >
@@ -138,65 +139,80 @@ function toggleCollapse(): void {
                 :value="enumKey"
               />
             </el-select>
-          </template>
 
-          <!-- valueType-driven component -->
-          <template v-else>
+            <!-- valueType-driven component -->
             <component
               :is="getColumnSearchConfig(col)?.component ?? 'ElInput'"
+              v-else
               v-bind="getColumnSearchConfig(col)?.props ?? {}"
               :model-value="modelValue[String(col.dataIndex)]"
               clearable
-              style="width: 100%"
               :placeholder="`Enter ${col.title}`"
               @update:model-value="updateField(String(col.dataIndex), $event)"
             />
-          </template>
-        </el-form-item>
-      </el-col>
+          </el-form-item>
+        </el-col>
 
-      <!-- Action buttons -->
-      <el-col :span="span" class="pro-query-filter__actions">
-        <el-form-item label=" ">
-          <el-space wrap>
-            <el-button type="primary" :loading="loading" @click="handleSearch">
+        <!-- Action buttons — always right-aligned -->
+        <el-col :span="span" class="pro-query-filter__actions">
+          <el-form-item label=" ">
+            <el-button type="primary" :icon="Search" :loading="loading" @click="handleSearch">
               {{ t('pro.table.queryFilter.search') }}
             </el-button>
-            <el-button @click="handleReset">
+            <el-button :icon="RefreshLeft" @click="handleReset">
               {{ t('pro.table.queryFilter.reset') }}
             </el-button>
-            <el-button v-if="hasCollapsibleOverflow" link type="primary" @click="toggleCollapse">
+            <el-button
+              v-if="hasCollapsibleOverflow"
+              link
+              type="primary"
+              @click="toggleCollapse"
+            >
               {{
                 isCollapsed
                   ? t('pro.table.queryFilter.expand')
                   : t('pro.table.queryFilter.collapse')
               }}
-              <el-icon>
+              <el-icon style="margin-left: 4px">
                 <ArrowDown v-if="isCollapsed" />
                 <ArrowUp v-else />
               </el-icon>
             </el-button>
-          </el-space>
-        </el-form-item>
-      </el-col>
-    </el-row>
-  </el-form>
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
+  </div>
 </template>
 
 <style scoped>
 .pro-query-filter {
-  margin-bottom: var(--pro-spacing-md, 16px);
-  padding: 16px 24px 0;
-  background: var(--el-fill-color-blank, #fff);
-  border: 1px solid var(--el-border-color-lighter, #e4e7ed);
-  border-radius: var(--pro-radius-md, 6px);
+  padding: 24px 24px 0;
+  margin-bottom: 16px;
+  background: var(--el-bg-color, #fff);
+  border: 1px solid var(--el-border-color-lighter, #ebeef5);
+  border-radius: 4px;
 }
 
 .pro-query-filter :deep(.el-form-item) {
-  margin-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.pro-query-filter :deep(.el-form-item__content) {
+  /* Force inputs to fill available width */
+  & > .el-input,
+  & > .el-select,
+  & > .el-date-editor,
+  & > .el-input-number {
+    width: 100%;
+  }
 }
 
 .pro-query-filter__actions {
   text-align: right;
+}
+
+.pro-query-filter__actions :deep(.el-form-item__content) {
+  justify-content: flex-end;
 }
 </style>

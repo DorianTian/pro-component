@@ -126,7 +126,7 @@ function formatDate(value: unknown): string {
   return d.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })
 }
 
-/** Format a value as a date+time string */
+/** Format a value as a date+time string (compact, no seconds) */
 function formatDateTime(value: unknown): string {
   const d = new Date(value as string | number)
   if (isNaN(d.getTime())) return String(value)
@@ -136,7 +136,7 @@ function formatDateTime(value: unknown): string {
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
-    second: '2-digit',
+    hour12: false,
   })
 }
 
