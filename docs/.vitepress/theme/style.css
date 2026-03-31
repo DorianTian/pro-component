@@ -93,9 +93,13 @@
   background-color: transparent !important;
 }
 
+/* Reset VitePress padding on th/td — el-table handles cell padding
+ * via its internal .cell div, not on the th/td elements themselves.
+ * VitePress's 8px 16px on th/td creates double-padding that misaligns header/body. */
 .vp-doc .vp-raw th,
 .vp-doc .vp-raw td {
   border: none !important;
+  padding: 0 !important;
 }
 
 /* Ensure pro-table fills container without overflow */
