@@ -101,6 +101,7 @@ pro-components/
 ### Task 1: Project Scaffold + Koa App Setup
 
 **Files:**
+
 - Create: `platform/server/package.json`
 - Create: `platform/server/tsconfig.json`
 - Create: `platform/server/knexfile.ts`
@@ -510,6 +511,7 @@ git commit -m "feat(platform): scaffold Koa server with config, logger, db, app 
 ### Task 2: Type Definitions
 
 **Files:**
+
 - Create: `platform/server/src/types/database.ts`
 - Create: `platform/server/src/types/api.ts`
 - Create: `platform/server/src/types/grayscale.ts`
@@ -536,12 +538,12 @@ export interface VersionRow {
   id: number
   package_id: number
   version: string
-  dependencies: string | null       // JSON string: Record<string, string>
-  peer_dependencies: string | null  // JSON string: Record<string, string>
+  dependencies: string | null // JSON string: Record<string, string>
+  peer_dependencies: string | null // JSON string: Record<string, string>
   cdn_path: string | null
   changelog: string | null
-  breaking_changes: string | null   // JSON string: string[]
-  sri_hashes: string | null         // JSON string: Record<string, string>
+  breaking_changes: string | null // JSON string: string[]
+  sri_hashes: string | null // JSON string: Record<string, string>
   status: 'published' | 'deprecated' | 'yanked'
   published_at: Date
 }
@@ -570,7 +572,7 @@ export interface GrayscaleRuleRow {
   package_id: number
   target_version: string
   strategy: 'user_list' | 'department' | 'percentage' | 'composite'
-  rule_config: string | null  // JSON string: GrayscaleRuleConfig
+  rule_config: string | null // JSON string: GrayscaleRuleConfig
   status: 'active' | 'paused' | 'completed'
   created_at: Date
 }
@@ -602,7 +604,7 @@ export interface VersionEventRow {
   to_version: string | null
   operator: string
   reason: string | null
-  metadata: string | null  // JSON string
+  metadata: string | null // JSON string
   created_at: Date
 }
 
@@ -625,18 +627,18 @@ export interface PlatformUserRow {
 
 export interface UserListCondition {
   type: 'user_list'
-  values: string[]  // user IDs
+  values: string[] // user IDs
 }
 
 export interface DepartmentCondition {
   type: 'department'
-  values: string[]  // department IDs or names
+  values: string[] // department IDs or names
 }
 
 export interface PercentageCondition {
   type: 'percentage'
-  value: number     // 0-100
-  hash_key: string  // field to hash for deterministic assignment (e.g., 'user_id')
+  value: number // 0-100
+  hash_key: string // field to hash for deterministic assignment (e.g., 'user_id')
 }
 
 export type LeafCondition = UserListCondition | DepartmentCondition | PercentageCondition
@@ -655,7 +657,7 @@ export type GrayscaleRuleConfig = GrayscaleCondition
 export interface GrayscaleContext {
   userId: string
   department?: string
-  [key: string]: string | undefined  // extensible for custom hash keys
+  [key: string]: string | undefined // extensible for custom hash keys
 }
 ```
 
@@ -736,7 +738,7 @@ export interface CreateGrayscaleRequest {
 // --- Rollback ---
 
 export interface RollbackRequest {
-  reason: string  // mandatory
+  reason: string // mandatory
   targetVersion: string
 }
 
@@ -767,7 +769,7 @@ export interface ResolutionGraphResponse {
 
 export interface DiamondConflict {
   dependency: string
-  required: Record<string, string>  // packageName@version -> range required
+  required: Record<string, string> // packageName@version -> range required
   suggestion: string
 }
 
@@ -790,9 +792,42 @@ export interface PaginatedResponse<T> {
 - [ ] **Step 4: Create platform/server/src/types/index.ts**
 
 ```typescript
-export type { PackageRow, VersionRow, AppRow, AppVersionMapRow, GrayscaleRuleRow, CompatResultRow, VersionEventRow, PlatformUserRow } from './database.js'
-export type { GrayscaleRuleConfig, GrayscaleCondition, GrayscaleContext, LeafCondition, CompositeCondition, UserListCondition, DepartmentCondition, PercentageCondition } from './grayscale.js'
-export type { ImportMapRequest, ImportMapResponse, CreateAppRequest, UpdateAppVersionsRequest, AppVersionsResponse, VersionSyncRequest, CreateGrayscaleRequest, RollbackRequest, CompatReportRequest, DependencyNode, ResolutionGraphResponse, DiamondConflict, ApiError, PaginatedResponse } from './api.js'
+export type {
+  PackageRow,
+  VersionRow,
+  AppRow,
+  AppVersionMapRow,
+  GrayscaleRuleRow,
+  CompatResultRow,
+  VersionEventRow,
+  PlatformUserRow,
+} from './database.js'
+export type {
+  GrayscaleRuleConfig,
+  GrayscaleCondition,
+  GrayscaleContext,
+  LeafCondition,
+  CompositeCondition,
+  UserListCondition,
+  DepartmentCondition,
+  PercentageCondition,
+} from './grayscale.js'
+export type {
+  ImportMapRequest,
+  ImportMapResponse,
+  CreateAppRequest,
+  UpdateAppVersionsRequest,
+  AppVersionsResponse,
+  VersionSyncRequest,
+  CreateGrayscaleRequest,
+  RollbackRequest,
+  CompatReportRequest,
+  DependencyNode,
+  ResolutionGraphResponse,
+  DiamondConflict,
+  ApiError,
+  PaginatedResponse,
+} from './api.js'
 ```
 
 - [ ] **Step 5: Commit**
@@ -807,6 +842,7 @@ git commit -m "feat(platform): add type definitions for DB rows, API DTOs, grays
 ### Task 3: Database Migrations
 
 **Files:**
+
 - Create: `platform/server/migrations/20260331000001_create_packages.ts`
 - Create: `platform/server/migrations/20260331000002_create_versions.ts`
 - Create: `platform/server/migrations/20260331000003_create_apps.ts`
@@ -858,11 +894,7 @@ export async function up(knex: Knex): Promise<void> {
     table.timestamp('published_at').defaultTo(knex.fn.now())
 
     table.unique(['package_id', 'version'])
-    table
-      .foreign('package_id')
-      .references('id')
-      .inTable('packages')
-      .onDelete('CASCADE')
+    table.foreign('package_id').references('id').inTable('packages').onDelete('CASCADE')
   })
 }
 
@@ -909,11 +941,7 @@ export async function up(knex: Knex): Promise<void> {
     table.timestamp('updated_at').nullable()
 
     table.unique(['app_id', 'package_id'])
-    table
-      .foreign('package_id')
-      .references('id')
-      .inTable('packages')
-      .onDelete('CASCADE')
+    table.foreign('package_id').references('id').inTable('packages').onDelete('CASCADE')
   })
 }
 
@@ -940,11 +968,7 @@ export async function up(knex: Knex): Promise<void> {
     table.timestamp('created_at').defaultTo(knex.fn.now())
 
     table.index(['app_id', 'package_id', 'status'], 'idx_grayscale_app_pkg_status')
-    table
-      .foreign('package_id')
-      .references('id')
-      .inTable('packages')
-      .onDelete('CASCADE')
+    table.foreign('package_id').references('id').inTable('packages').onDelete('CASCADE')
   })
 }
 
@@ -971,11 +995,7 @@ export async function up(knex: Knex): Promise<void> {
     table.timestamp('tested_at').nullable()
 
     table.index(['package_id', 'version'], 'idx_compat_pkg_version')
-    table
-      .foreign('package_id')
-      .references('id')
-      .inTable('packages')
-      .onDelete('CASCADE')
+    table.foreign('package_id').references('id').inTable('packages').onDelete('CASCADE')
   })
 }
 
@@ -1063,6 +1083,7 @@ git commit -m "feat(platform): add Knex migrations for all 8 tables"
 ### Task 4: Seed Data
 
 **Files:**
+
 - Create: `platform/server/seeds/01_dev_seed.ts`
 
 - [ ] **Step 1: Create platform/server/seeds/01_dev_seed.ts**
@@ -1284,6 +1305,7 @@ git commit -m "feat(platform): add dev seed data for all tables"
 ### Task 5: Middleware — Error Handler, Request ID, Request Logger
 
 **Files:**
+
 - Create: `platform/server/src/middleware/error-handler.ts`
 - Create: `platform/server/src/middleware/request-id.ts`
 - Create: `platform/server/src/middleware/request-logger.ts`
@@ -1395,6 +1417,7 @@ git commit -m "feat(platform): add error handler, request ID, and request logger
 ### Task 6: RBAC Middleware — JWT Auth + Role Permission Guard
 
 **Files:**
+
 - Create: `platform/server/src/middleware/auth.ts`
 - Create: `platform/server/src/middleware/rbac.ts`
 - Create: `platform/server/__tests__/integration/rbac.test.ts`
@@ -1518,7 +1541,7 @@ const PERMISSION_MAP: Record<string, Role> = {
   'versions:rollback': 'admin',
   'versions:deprecate': 'admin',
   'users:manage': 'admin',
-  'grayscale:override_pin': 'admin',  // Grayscale overriding a pinned version requires admin
+  'grayscale:override_pin': 'admin', // Grayscale overriding a pinned version requires admin
 }
 
 /**
@@ -1677,6 +1700,7 @@ git commit -m "feat(platform): add JWT auth + role-based permission guard middle
 ### Task 7: Semver Dependency Resolver Engine
 
 **Files:**
+
 - Create: `platform/server/src/utils/semver-helpers.ts`
 - Create: `platform/server/src/engines/semver-resolver.ts`
 - Create: `platform/server/__tests__/unit/semver-resolver.test.ts`
@@ -1705,9 +1729,7 @@ export function rangeIntersection(
     return []
   }
 
-  return availableVersions.filter(
-    (v) => semver.satisfies(v, rangeA) && semver.satisfies(v, rangeB),
-  )
+  return availableVersions.filter((v) => semver.satisfies(v, rangeA) && semver.satisfies(v, rangeB))
 }
 
 /**
@@ -1747,7 +1769,7 @@ import type { DependencyNode, DiamondConflict } from '../types/api.js'
 export interface VersionEntry {
   name: string
   version: string
-  dependencies: Record<string, string>   // name -> semver range
+  dependencies: Record<string, string> // name -> semver range
   peerDependencies: Record<string, string>
 }
 
@@ -1797,11 +1819,7 @@ export function resolve(
   /**
    * Recursively expand a package's dependencies.
    */
-  function expandDependencies(
-    name: string,
-    version: string,
-    depth: number,
-  ): DependencyNode {
+  function expandDependencies(name: string, version: string, depth: number): DependencyNode {
     const dedupKey = `${name}@${version}`
     const node: DependencyNode = { name, version, dependencies: [] }
 
@@ -1866,9 +1884,7 @@ export function resolve(
       resolvedVersion = highestSatisfying(req.versionRange, availableVersionStrings)
     } else {
       // No constraint: use latest
-      const sorted = availableVersionStrings
-        .filter((v) => !isPrerelease(v))
-        .sort(semver.rcompare)
+      const sorted = availableVersionStrings.filter((v) => !isPrerelease(v)).sort(semver.rcompare)
       resolvedVersion = sorted[0] || null
     }
 
@@ -1921,17 +1937,12 @@ export function resolve(
 /**
  * Generate a human-readable suggestion for resolving a diamond conflict.
  */
-function generateConflictSuggestion(
-  dependency: string,
-  required: Record<string, string>,
-): string {
+function generateConflictSuggestion(dependency: string, required: Record<string, string>): string {
   const entries = Object.entries(required)
 
   // Find which requester has the most restrictive range
   // Suggestion: upgrade the package with the older range
-  const parts = entries
-    .map(([pkg, range]) => `${pkg} requires ${dependency}@${range}`)
-    .join(', ')
+  const parts = entries.map(([pkg, range]) => `${pkg} requires ${dependency}@${range}`).join(', ')
 
   return `Conflict: ${parts}. Consider upgrading the package with the narrower range to a version compatible with the wider range.`
 }
@@ -1942,8 +1953,16 @@ function generateConflictSuggestion(
 ```typescript
 // __tests__/unit/semver-resolver.test.ts
 import { describe, it, expect } from 'vitest'
-import { resolve, type VersionEntry, type VersionRegistry } from '../../src/engines/semver-resolver.js'
-import { rangeIntersection, highestSatisfying, isPrerelease } from '../../src/utils/semver-helpers.js'
+import {
+  resolve,
+  type VersionEntry,
+  type VersionRegistry,
+} from '../../src/engines/semver-resolver.js'
+import {
+  rangeIntersection,
+  highestSatisfying,
+  isPrerelease,
+} from '../../src/utils/semver-helpers.js'
 
 // --- Helper: create an in-memory registry ---
 function createRegistry(entries: VersionEntry[]): VersionRegistry {
@@ -2094,65 +2113,44 @@ describe('semver-resolver', () => {
 
   describe('basic resolution', () => {
     it('resolves a pinned version exactly', () => {
-      const result = resolve(
-        [{ name: '@pro/table', pinnedVersion: '1.2.3' }],
-        registry,
-      )
+      const result = resolve([{ name: '@pro/table', pinnedVersion: '1.2.3' }], registry)
       expect(result.resolved.get('@pro/table')).toBe('1.2.3')
       expect(result.conflicts).toHaveLength(0)
     })
 
     it('resolves a version range to the highest satisfying version', () => {
-      const result = resolve(
-        [{ name: '@pro/table', versionRange: '^1.2.0' }],
-        registry,
-      )
+      const result = resolve([{ name: '@pro/table', versionRange: '^1.2.0' }], registry)
       expect(result.resolved.get('@pro/table')).toBe('1.2.3')
     })
 
     it('resolves to latest stable when no constraint provided', () => {
-      const result = resolve(
-        [{ name: '@pro/table' }],
-        registry,
-      )
+      const result = resolve([{ name: '@pro/table' }], registry)
       // Should pick 1.2.3 (latest stable), NOT 2.0.0-beta.1
       expect(result.resolved.get('@pro/table')).toBe('1.2.3')
     })
 
     it('returns empty resolution for nonexistent package', () => {
-      const result = resolve(
-        [{ name: '@pro/nonexistent', versionRange: '^1.0.0' }],
-        registry,
-      )
+      const result = resolve([{ name: '@pro/nonexistent', versionRange: '^1.0.0' }], registry)
       expect(result.resolved.size).toBe(0)
       expect(result.tree).toHaveLength(0)
     })
 
     it('returns empty for pinned version that does not exist', () => {
-      const result = resolve(
-        [{ name: '@pro/table', pinnedVersion: '9.9.9' }],
-        registry,
-      )
+      const result = resolve([{ name: '@pro/table', pinnedVersion: '9.9.9' }], registry)
       expect(result.resolved.has('@pro/table')).toBe(false)
     })
   })
 
   describe('dependency tree expansion', () => {
     it('recursively resolves dependencies', () => {
-      const result = resolve(
-        [{ name: '@pro/table', pinnedVersion: '1.2.3' }],
-        registry,
-      )
+      const result = resolve([{ name: '@pro/table', pinnedVersion: '1.2.3' }], registry)
       // @pro/table@1.2.3 -> @pro/hooks@^1.2.0 -> @pro/utils@^1.0.0
       expect(result.resolved.get('@pro/hooks')).toBe('1.2.0')
       expect(result.resolved.get('@pro/utils')).toBe('1.0.3')
     })
 
     it('builds correct tree structure', () => {
-      const result = resolve(
-        [{ name: '@pro/table', pinnedVersion: '1.2.3' }],
-        registry,
-      )
+      const result = resolve([{ name: '@pro/table', pinnedVersion: '1.2.3' }], registry)
       expect(result.tree).toHaveLength(1)
       const root = result.tree[0]
       expect(root.name).toBe('@pro/table')
@@ -2243,10 +2241,7 @@ describe('semver-resolver', () => {
     })
 
     it('resolves prerelease when explicitly pinned', () => {
-      const result = resolve(
-        [{ name: '@pro/table', pinnedVersion: '2.0.0-beta.1' }],
-        registry,
-      )
+      const result = resolve([{ name: '@pro/table', pinnedVersion: '2.0.0-beta.1' }], registry)
       expect(result.resolved.get('@pro/table')).toBe('2.0.0-beta.1')
     })
   })
@@ -2260,10 +2255,7 @@ describe('semver-resolver', () => {
     })
 
     it('handles package with no dependencies', () => {
-      const result = resolve(
-        [{ name: '@pro/utils', pinnedVersion: '1.0.3' }],
-        registry,
-      )
+      const result = resolve([{ name: '@pro/utils', pinnedVersion: '1.0.3' }], registry)
       expect(result.resolved.get('@pro/utils')).toBe('1.0.3')
       expect(result.tree[0].dependencies).toHaveLength(0)
     })
@@ -2294,7 +2286,9 @@ describe('semver-resolver', () => {
     })
 
     it('handles complex OR ranges', () => {
-      expect(highestSatisfying('>=1.2.0 <2.0.0 || >=3.0.0', ['1.3.0', '2.5.0', '3.1.0'])).toBe('3.1.0')
+      expect(highestSatisfying('>=1.2.0 <2.0.0 || >=3.0.0', ['1.3.0', '2.5.0', '3.1.0'])).toBe(
+        '3.1.0',
+      )
     })
 
     it('handles hyphen ranges', () => {
@@ -2369,6 +2363,7 @@ git commit -m "feat(platform): add semver dependency resolver with diamond confl
 ### Task 8: Grayscale Engine
 
 **Files:**
+
 - Create: `platform/server/src/utils/hash.ts`
 - Create: `platform/server/src/engines/grayscale-evaluator.ts`
 - Create: `platform/server/__tests__/unit/grayscale-evaluator.test.ts`
@@ -2415,10 +2410,7 @@ import type {
  * Pure function — no I/O. All data passed in via parameters.
  * Supports recursive composite AND/OR rules with arbitrary nesting.
  */
-export function evaluateRule(
-  condition: GrayscaleCondition,
-  context: GrayscaleContext,
-): boolean {
+export function evaluateRule(condition: GrayscaleCondition, context: GrayscaleContext): boolean {
   if (isComposite(condition)) {
     return evaluateComposite(condition, context)
   }
@@ -2429,10 +2421,7 @@ function isComposite(condition: GrayscaleCondition): condition is CompositeCondi
   return 'operator' in condition && 'conditions' in condition
 }
 
-function evaluateComposite(
-  condition: CompositeCondition,
-  context: GrayscaleContext,
-): boolean {
+function evaluateComposite(condition: CompositeCondition, context: GrayscaleContext): boolean {
   if (!condition.conditions || condition.conditions.length === 0) {
     return false // Empty conditions block — deny by default
   }
@@ -2449,10 +2438,7 @@ function evaluateComposite(
   return false
 }
 
-function evaluateLeaf(
-  condition: LeafCondition,
-  context: GrayscaleContext,
-): boolean {
+function evaluateLeaf(condition: LeafCondition, context: GrayscaleContext): boolean {
   switch (condition.type) {
     case 'user_list':
       return evaluateUserList(condition.values, context)
@@ -2800,9 +2786,7 @@ describe('grayscale-evaluator', () => {
               { type: 'user_list', values: ['uid-admin'] },
               {
                 operator: 'AND',
-                conditions: [
-                  { type: 'percentage', value: 100, hash_key: 'userId' },
-                ],
+                conditions: [{ type: 'percentage', value: 100, hash_key: 'userId' }],
               },
             ],
           },
@@ -2858,10 +2842,11 @@ git commit -m "feat(platform): add grayscale evaluator with composite AND/OR rul
 ### Task 9: Test Setup + Helpers
 
 **Files:**
+
 - Create: `platform/server/__tests__/setup.ts`
 - Create: `platform/server/__tests__/helpers.ts`
 
-- [ ] **Step 1: Create platform/server/__tests__/setup.ts**
+- [ ] **Step 1: Create platform/server/**tests**/setup.ts**
 
 ```typescript
 import { beforeAll, afterAll } from 'vitest'
@@ -2916,7 +2901,7 @@ afterAll(async () => {
 })
 ```
 
-- [ ] **Step 2: Create platform/server/__tests__/helpers.ts**
+- [ ] **Step 2: Create platform/server/**tests**/helpers.ts**
 
 ```typescript
 import { generateToken, type AuthPayload } from '../src/middleware/auth.js'
@@ -2946,14 +2931,16 @@ export const fixtures = {
     }
   },
 
-  versionSyncPayload(overrides: Partial<{
-    packageName: string
-    version: string
-    dependencies: Record<string, string>
-    peerDependencies: Record<string, string>
-    cdnPath: string
-    sriHashes: Record<string, string>
-  }> = {}) {
+  versionSyncPayload(
+    overrides: Partial<{
+      packageName: string
+      version: string
+      dependencies: Record<string, string>
+      peerDependencies: Record<string, string>
+      cdnPath: string
+      sriHashes: Record<string, string>
+    }> = {},
+  ) {
     return {
       packageName: overrides.packageName || '@pro/table',
       version: overrides.version || '1.0.0',
@@ -2964,11 +2951,13 @@ export const fixtures = {
     }
   },
 
-  grayscalePayload(overrides: Partial<{
-    appId: string
-    packageName: string
-    targetVersion: string
-  }> = {}) {
+  grayscalePayload(
+    overrides: Partial<{
+      appId: string
+      packageName: string
+      targetVersion: string
+    }> = {},
+  ) {
     return {
       appId: overrides.appId || 'test-app',
       packageName: overrides.packageName || '@pro/table',
@@ -2995,6 +2984,7 @@ git commit -m "feat(platform): add test setup with DB migration runner and auth 
 ### Task 10: App Management Module (CRUD)
 
 **Files:**
+
 - Create: `platform/server/src/modules/app/repository.ts`
 - Create: `platform/server/src/modules/app/service.ts`
 - Create: `platform/server/src/modules/app/router.ts`
@@ -3027,16 +3017,11 @@ export class AppRepository {
     return id
   }
 
-  async getVersionMaps(appId: string): Promise<
-    Array<AppVersionMapRow & { package_name: string }>
-  > {
+  async getVersionMaps(appId: string): Promise<Array<AppVersionMapRow & { package_name: string }>> {
     return this.db('app_version_maps')
       .join('packages', 'app_version_maps.package_id', 'packages.id')
       .where('app_version_maps.app_id', appId)
-      .select(
-        'app_version_maps.*',
-        'packages.name as package_name',
-      )
+      .select('app_version_maps.*', 'packages.name as package_name')
   }
 
   async upsertVersionMap(
@@ -3074,7 +3059,11 @@ export class AppRepository {
 import { AppRepository } from './repository.js'
 import { AppError } from '../../middleware/error-handler.js'
 import type { Knex } from 'knex'
-import type { CreateAppRequest, UpdateAppVersionsRequest, AppVersionsResponse } from '../../types/api.js'
+import type {
+  CreateAppRequest,
+  UpdateAppVersionsRequest,
+  AppVersionsResponse,
+} from '../../types/api.js'
 
 export class AppService {
   private readonly repo: AppRepository
@@ -3098,7 +3087,13 @@ export class AppService {
     return { id }
   }
 
-  async listApps(page = 1, pageSize = 20): Promise<{ data: Array<{ appId: string; name: string | null; owner: string | null }>; total: number }> {
+  async listApps(
+    page = 1,
+    pageSize = 20,
+  ): Promise<{
+    data: Array<{ appId: string; name: string | null; owner: string | null }>
+    total: number
+  }> {
     const result = await this.repo.findAll(page, pageSize)
     return {
       data: result.data.map((row) => ({
@@ -3128,11 +3123,7 @@ export class AppService {
     }
   }
 
-  async updateAppVersions(
-    appId: string,
-    input: UpdateAppVersionsRequest,
-    db: Knex,
-  ): Promise<void> {
+  async updateAppVersions(appId: string, input: UpdateAppVersionsRequest, db: Knex): Promise<void> {
     const app = await this.repo.findByAppId(appId)
     if (!app) {
       throw new AppError(404, 'APP_NOT_FOUND', `App '${appId}' not found`)
@@ -3215,7 +3206,9 @@ appRouter.get('/:appId/versions', auth, requirePermission('apps:read'), async (c
 
 // PUT /api/v1/apps/:appId/versions — Update app version mappings
 appRouter.put('/:appId/versions', auth, requirePermission('apps:update'), async (ctx: Context) => {
-  const body = ctx.request.body as { versions?: Array<{ packageName: string; pinnedVersion?: string; versionRange?: string }> }
+  const body = ctx.request.body as {
+    versions?: Array<{ packageName: string; pinnedVersion?: string; versionRange?: string }>
+  }
 
   if (!body.versions || !Array.isArray(body.versions)) {
     ctx.status = 400
@@ -3351,6 +3344,7 @@ git commit -m "feat(platform): add app management CRUD module with routes, servi
 ### Task 11: Version Sync Module (npm publish hook)
 
 **Files:**
+
 - Create: `platform/server/src/modules/version/repository.ts`
 - Create: `platform/server/src/modules/sync/service.ts`
 - Create: `platform/server/src/modules/sync/router.ts`
@@ -3392,9 +3386,7 @@ export class VersionRepository {
   }
 
   async findVersionsByPackageId(packageId: number): Promise<VersionRow[]> {
-    return this.db('versions')
-      .where({ package_id: packageId })
-      .orderBy('published_at', 'desc')
+    return this.db('versions').where({ package_id: packageId }).orderBy('published_at', 'desc')
   }
 
   async findPublishedVersions(packageId: number): Promise<VersionRow[]> {
@@ -3456,7 +3448,10 @@ export class SyncService {
    * Handle npm publish webhook.
    * Idempotent: if the version already exists, skip creation.
    */
-  async syncVersion(input: VersionSyncRequest, operator: string): Promise<{ created: boolean; versionId: number }> {
+  async syncVersion(
+    input: VersionSyncRequest,
+    operator: string,
+  ): Promise<{ created: boolean; versionId: number }> {
     // Find or create package
     let pkg = await this.repo.findPackageByName(input.packageName)
     if (!pkg) {
@@ -3674,13 +3669,15 @@ export class VersionService {
     this.repo = new VersionRepository(db)
   }
 
-  async listVersions(packageName: string): Promise<Array<{
-    id: number
-    version: string
-    status: string
-    publishedAt: Date
-    hasBreakingChanges: boolean
-  }>> {
+  async listVersions(packageName: string): Promise<
+    Array<{
+      id: number
+      version: string
+      status: string
+      publishedAt: Date
+      hasBreakingChanges: boolean
+    }>
+  > {
     const pkg = await this.repo.findPackageByName(packageName)
     if (!pkg) {
       throw new AppError(404, 'PACKAGE_NOT_FOUND', `Package '${packageName}' not found`)
@@ -3696,7 +3693,10 @@ export class VersionService {
     }))
   }
 
-  async getDependencyTree(packageName: string, version?: string): Promise<{
+  async getDependencyTree(
+    packageName: string,
+    version?: string,
+  ): Promise<{
     name: string
     version: string
     dependencies: Record<string, string>
@@ -3736,11 +3736,7 @@ export class VersionService {
    * 1. Update app_version_maps
    * 2. Record audit event with reason
    */
-  async rollback(
-    versionId: number,
-    input: RollbackRequest,
-    operator: string,
-  ): Promise<void> {
+  async rollback(versionId: number, input: RollbackRequest, operator: string): Promise<void> {
     if (!input.reason || input.reason.trim().length === 0) {
       throw new AppError(400, 'REASON_REQUIRED', 'Rollback reason is mandatory')
     }
@@ -3855,46 +3851,57 @@ versionRouter.get('/:package', auth, requirePermission('versions:read'), async (
 })
 
 // GET /api/v1/versions/:package/deps — Full dependency tree
-versionRouter.get('/:package/deps', auth, requirePermission('versions:read'), async (ctx: Context) => {
-  const service = new VersionService(getDb())
-  const version = ctx.query.version as string | undefined
-  const tree = await service.getDependencyTree(ctx.params.package, version)
-  ctx.body = tree
-})
+versionRouter.get(
+  '/:package/deps',
+  auth,
+  requirePermission('versions:read'),
+  async (ctx: Context) => {
+    const service = new VersionService(getDb())
+    const version = ctx.query.version as string | undefined
+    const tree = await service.getDependencyTree(ctx.params.package, version)
+    ctx.body = tree
+  },
+)
 
 // POST /api/v1/versions/:id/rollback — Rollback to a previous version
-versionRouter.post('/:id/rollback', auth, requirePermission('versions:rollback'), async (ctx: Context) => {
-  const body = ctx.request.body as { reason?: string; targetVersion?: string }
+versionRouter.post(
+  '/:id/rollback',
+  auth,
+  requirePermission('versions:rollback'),
+  async (ctx: Context) => {
+    const body = ctx.request.body as { reason?: string; targetVersion?: string }
 
-  if (!body.reason || !body.targetVersion) {
-    ctx.status = 400
-    ctx.body = { code: 'VALIDATION_ERROR', message: 'reason and targetVersion are required' }
-    return
-  }
+    if (!body.reason || !body.targetVersion) {
+      ctx.status = 400
+      ctx.body = { code: 'VALIDATION_ERROR', message: 'reason and targetVersion are required' }
+      return
+    }
 
-  const service = new VersionService(getDb())
-  await service.rollback(
-    parseInt(ctx.params.id, 10),
-    { reason: body.reason, targetVersion: body.targetVersion },
-    ctx.state.user!.username,
-  )
+    const service = new VersionService(getDb())
+    await service.rollback(
+      parseInt(ctx.params.id, 10),
+      { reason: body.reason, targetVersion: body.targetVersion },
+      ctx.state.user!.username,
+    )
 
-  ctx.body = { success: true, cache_bust: true }
-})
+    ctx.body = { success: true, cache_bust: true }
+  },
+)
 
 // POST /api/v1/versions/:id/deprecate — Deprecate a version
-versionRouter.post('/:id/deprecate', auth, requirePermission('versions:deprecate'), async (ctx: Context) => {
-  const body = ctx.request.body as { reason?: string }
+versionRouter.post(
+  '/:id/deprecate',
+  auth,
+  requirePermission('versions:deprecate'),
+  async (ctx: Context) => {
+    const body = ctx.request.body as { reason?: string }
 
-  const service = new VersionService(getDb())
-  await service.deprecate(
-    parseInt(ctx.params.id, 10),
-    ctx.state.user!.username,
-    body.reason,
-  )
+    const service = new VersionService(getDb())
+    await service.deprecate(parseInt(ctx.params.id, 10), ctx.state.user!.username, body.reason)
 
-  ctx.status = 204
-})
+    ctx.status = 204
+  },
+)
 ```
 
 - [ ] **Step 6: Write integration tests**
@@ -3999,6 +4006,7 @@ git commit -m "feat(platform): add version sync, rollback, deprecate endpoints w
 ### Task 12: Import Map Generation Module
 
 **Files:**
+
 - Create: `platform/server/src/modules/import-map/cache.ts`
 - Create: `platform/server/src/modules/import-map/service.ts`
 - Create: `platform/server/src/modules/import-map/router.ts`
@@ -4064,9 +4072,7 @@ export async function getCacheEpoch(): Promise<number> {
 export async function invalidateImportMapCache(): Promise<void> {
   try {
     const db = getDb()
-    await db('cache_metadata')
-      .where('key', 'cache_epoch')
-      .increment('value', 1)
+    await db('cache_metadata').where('key', 'cache_epoch').increment('value', 1)
   } catch {
     // cache_metadata table may not exist yet — graceful degradation
     logger.warn('Failed to increment cache epoch — cache_metadata table may not exist')
@@ -4123,14 +4129,13 @@ export { CDN_EDGE_MAX_AGE_S, CDN_EDGE_SWR_S }
 import type { Knex } from 'knex'
 import { VersionRepository } from '../version/repository.js'
 import { AppRepository } from '../app/repository.js'
-import { resolve as semverResolve, type VersionEntry, type VersionRegistry } from '../../engines/semver-resolver.js'
-import { evaluateRule } from '../../engines/grayscale-evaluator.js'
 import {
-  buildCacheKey,
-  buildVersionFingerprint,
-  getCached,
-  setCached,
-} from './cache.js'
+  resolve as semverResolve,
+  type VersionEntry,
+  type VersionRegistry,
+} from '../../engines/semver-resolver.js'
+import { evaluateRule } from '../../engines/grayscale-evaluator.js'
+import { buildCacheKey, buildVersionFingerprint, getCached, setCached } from './cache.js'
 import { loadConfig } from '../../config.js'
 import { AppError } from '../../middleware/error-handler.js'
 import type { ImportMapResponse, GrayscaleContext } from '../../types/index.js'
@@ -4187,8 +4192,10 @@ export class ImportMapService {
     // --- Step 2: Check grayscale rules ---
     const grayscaleOverrides = new Map<number, string>() // packageId -> targetVersion
     if (userId) {
-      const activeRules = await this.db('grayscale_rules')
-        .where({ app_id: appId, status: 'active' })
+      const activeRules = await this.db('grayscale_rules').where({
+        app_id: appId,
+        status: 'active',
+      })
 
       const grayscaleContext: GrayscaleContext = { userId }
 
@@ -4348,7 +4355,10 @@ importMapRouter.get('/api/v1/import-map', async (ctx: Context) => {
   const result = await service.generate(appId, userId)
 
   // CDN edge cache headers — use named constants
-  ctx.set('Cache-Control', `public, max-age=${CDN_EDGE_MAX_AGE_S}, stale-while-revalidate=${CDN_EDGE_SWR_S}`)
+  ctx.set(
+    'Cache-Control',
+    `public, max-age=${CDN_EDGE_MAX_AGE_S}, stale-while-revalidate=${CDN_EDGE_SWR_S}`,
+  )
   ctx.set('Vary', 'Accept-Encoding')
 
   ctx.body = result
@@ -4412,9 +4422,7 @@ describe('Import Map Generation API', () => {
 
     it('applies grayscale override when userId matches active rule', async () => {
       // uid-alpha is in the seed grayscale user_list
-      const res = await request(server).get(
-        '/api/v1/import-map?appId=user-center&userId=uid-alpha',
-      )
+      const res = await request(server).get('/api/v1/import-map?appId=user-center&userId=uid-alpha')
 
       if (res.status === 200) {
         // The grayscale rule targets 2.0.0-beta.1 for @pro/table
@@ -4446,6 +4454,7 @@ git commit -m "feat(platform): add import map generation with grayscale evaluati
 ### Task 13: Grayscale Management Module
 
 **Files:**
+
 - Create: `platform/server/src/modules/grayscale/repository.ts`
 - Create: `platform/server/src/modules/grayscale/service.ts`
 - Create: `platform/server/src/modules/grayscale/router.ts`
@@ -4474,9 +4483,7 @@ export class GrayscaleRepository {
   }
 
   async findByAppId(appId: string): Promise<GrayscaleRuleRow[]> {
-    return this.db('grayscale_rules')
-      .where({ app_id: appId })
-      .orderBy('created_at', 'desc')
+    return this.db('grayscale_rules').where({ app_id: appId }).orderBy('created_at', 'desc')
   }
 
   async create(data: {
@@ -4621,15 +4628,17 @@ export class GrayscaleService {
     logger.info({ ruleId: id, operator }, 'Grayscale rule completed — promoted to full release')
   }
 
-  async listRules(appId: string): Promise<Array<{
-    id: number
-    appId: string
-    packageId: number
-    targetVersion: string
-    strategy: string
-    status: string
-    createdAt: Date
-  }>> {
+  async listRules(appId: string): Promise<
+    Array<{
+      id: number
+      appId: string
+      packageId: number
+      targetVersion: string
+      strategy: string
+      status: string
+      createdAt: Date
+    }>
+  > {
     const rules = await this.repo.findByAppId(appId)
     return rules.map((r) => ({
       id: r.id,
@@ -4667,7 +4676,13 @@ grayscaleRouter.post('/', auth, requirePermission('grayscale:create'), async (ct
     ruleConfig?: unknown
   }
 
-  if (!body.appId || !body.packageName || !body.targetVersion || !body.strategy || !body.ruleConfig) {
+  if (
+    !body.appId ||
+    !body.packageName ||
+    !body.targetVersion ||
+    !body.strategy ||
+    !body.ruleConfig
+  ) {
     ctx.status = 400
     ctx.body = {
       code: 'VALIDATION_ERROR',
@@ -4706,18 +4721,28 @@ grayscaleRouter.get('/', auth, requirePermission('grayscale:read'), async (ctx: 
 })
 
 // PUT /api/v1/grayscale/:id/pause — Pause a grayscale rule
-grayscaleRouter.put('/:id/pause', auth, requirePermission('grayscale:pause'), async (ctx: Context) => {
-  const service = new GrayscaleService(getDb())
-  await service.pauseRule(parseInt(ctx.params.id, 10), ctx.state.user!.username)
-  ctx.status = 204
-})
+grayscaleRouter.put(
+  '/:id/pause',
+  auth,
+  requirePermission('grayscale:pause'),
+  async (ctx: Context) => {
+    const service = new GrayscaleService(getDb())
+    await service.pauseRule(parseInt(ctx.params.id, 10), ctx.state.user!.username)
+    ctx.status = 204
+  },
+)
 
 // PUT /api/v1/grayscale/:id/complete — Complete (promote) a grayscale rule
-grayscaleRouter.put('/:id/complete', auth, requirePermission('grayscale:complete'), async (ctx: Context) => {
-  const service = new GrayscaleService(getDb())
-  await service.completeRule(parseInt(ctx.params.id, 10), ctx.state.user!.username)
-  ctx.status = 204
-})
+grayscaleRouter.put(
+  '/:id/complete',
+  auth,
+  requirePermission('grayscale:complete'),
+  async (ctx: Context) => {
+    const service = new GrayscaleService(getDb())
+    await service.completeRule(parseInt(ctx.params.id, 10), ctx.state.user!.username)
+    ctx.status = 204
+  },
+)
 ```
 
 - [ ] **Step 4: Write integration tests**
@@ -4818,6 +4843,7 @@ git commit -m "feat(platform): add grayscale management with create/pause/comple
 ### Task 14: Compatibility Module
 
 **Files:**
+
 - Create: `platform/server/src/modules/compat/service.ts`
 - Create: `platform/server/src/modules/compat/router.ts`
 
@@ -4940,7 +4966,13 @@ compatRouter.post('/report', auth, requirePermission('compat:report'), async (ct
     ciRunUrl?: string
   }
 
-  if (!body.packageName || !body.version || !body.vueVersion || !body.elementPlusVersion || !body.status) {
+  if (
+    !body.packageName ||
+    !body.version ||
+    !body.vueVersion ||
+    !body.elementPlusVersion ||
+    !body.status
+  ) {
     ctx.status = 400
     ctx.body = {
       code: 'VALIDATION_ERROR',
@@ -4982,6 +5014,7 @@ git commit -m "feat(platform): add compatibility matrix module with CI auto-repo
 ### Task 15: Health Check Module
 
 **Files:**
+
 - Create: `platform/server/src/modules/health/router.ts`
 - Create: `platform/server/__tests__/integration/health.test.ts`
 
@@ -5020,7 +5053,10 @@ interface CheckResult {
  * No auth, no version prefix. Used by Kubernetes liveness probes.
  */
 healthRouter.get('/health', async (ctx: Context) => {
-  const dbStatus = await getDb().raw('SELECT 1').then(() => 'connected').catch(() => 'disconnected')
+  const dbStatus = await getDb()
+    .raw('SELECT 1')
+    .then(() => 'connected')
+    .catch(() => 'disconnected')
   ctx.body = {
     status: dbStatus === 'connected' ? 'ok' : 'degraded',
     db: dbStatus,
@@ -5139,7 +5175,10 @@ describe('Health Check API', () => {
 
     it('each check has status and latencyMs', async () => {
       const res = await request(server).get('/health/resolution')
-      for (const check of Object.values(res.body.checks) as Array<{ status: string; latencyMs: number }>) {
+      for (const check of Object.values(res.body.checks) as Array<{
+        status: string
+        latencyMs: number
+      }>) {
         expect(['pass', 'fail']).toContain(check.status)
         expect(typeof check.latencyMs).toBe('number')
       }
@@ -5167,6 +5206,7 @@ git commit -m "feat(platform): add deep health check endpoint with DB + CDN conn
 ### Task 16: Contract Tests — Resolver x Grayscale Engine
 
 **Files:**
+
 - Create: `platform/server/__tests__/contract/resolver-grayscale.test.ts`
 
 - [ ] **Step 1: Write contract tests**
@@ -5174,7 +5214,11 @@ git commit -m "feat(platform): add deep health check endpoint with DB + CDN conn
 ```typescript
 // __tests__/contract/resolver-grayscale.test.ts
 import { describe, it, expect } from 'vitest'
-import { resolve, type VersionEntry, type VersionRegistry } from '../../src/engines/semver-resolver.js'
+import {
+  resolve,
+  type VersionEntry,
+  type VersionRegistry,
+} from '../../src/engines/semver-resolver.js'
 import { evaluateRule } from '../../src/engines/grayscale-evaluator.js'
 import type { GrayscaleCondition, GrayscaleContext } from '../../src/types/grayscale.js'
 import { isPrerelease } from '../../src/utils/semver-helpers.js'
@@ -5192,7 +5236,9 @@ import { isPrerelease } from '../../src/utils/semver-helpers.js'
 
 function createRegistry(entries: VersionEntry[]): VersionRegistry {
   return {
-    getVersions(name: string) { return entries.filter((e) => e.name === name) },
+    getVersions(name: string) {
+      return entries.filter((e) => e.name === name)
+    },
     getVersion(name: string, version: string) {
       return entries.find((e) => e.name === name && e.version === version)
     },
@@ -5203,29 +5249,41 @@ describe('Contract: Resolver x Grayscale Engine', () => {
   const ENTRIES: VersionEntry[] = [
     // Stable versions
     {
-      name: '@pro/table', version: '1.2.3',
-      dependencies: { '@pro/hooks': '^1.2.0' }, peerDependencies: {},
+      name: '@pro/table',
+      version: '1.2.3',
+      dependencies: { '@pro/hooks': '^1.2.0' },
+      peerDependencies: {},
     },
     {
-      name: '@pro/form', version: '1.1.2',
-      dependencies: { '@pro/hooks': '^1.1.0' }, peerDependencies: {},
+      name: '@pro/form',
+      version: '1.1.2',
+      dependencies: { '@pro/hooks': '^1.1.0' },
+      peerDependencies: {},
     },
     {
-      name: '@pro/hooks', version: '1.2.0',
-      dependencies: {}, peerDependencies: {},
+      name: '@pro/hooks',
+      version: '1.2.0',
+      dependencies: {},
+      peerDependencies: {},
     },
     {
-      name: '@pro/hooks', version: '1.1.0',
-      dependencies: {}, peerDependencies: {},
+      name: '@pro/hooks',
+      version: '1.1.0',
+      dependencies: {},
+      peerDependencies: {},
     },
     // Canary versions (prerelease)
     {
-      name: '@pro/table', version: '2.0.0-beta.1',
-      dependencies: { '@pro/hooks': '^2.0.0' }, peerDependencies: {},
+      name: '@pro/table',
+      version: '2.0.0-beta.1',
+      dependencies: { '@pro/hooks': '^2.0.0' },
+      peerDependencies: {},
     },
     {
-      name: '@pro/hooks', version: '2.0.0',
-      dependencies: {}, peerDependencies: {},
+      name: '@pro/hooks',
+      version: '2.0.0',
+      dependencies: {},
+      peerDependencies: {},
     },
   ]
 
@@ -5236,20 +5294,14 @@ describe('Contract: Resolver x Grayscale Engine', () => {
     expect(isPrerelease(grayscaleTarget)).toBe(true)
 
     // When grayscale matches, the target is pinned — resolver must accept prerelease
-    const result = resolve(
-      [{ name: '@pro/table', pinnedVersion: grayscaleTarget }],
-      registry,
-    )
+    const result = resolve([{ name: '@pro/table', pinnedVersion: grayscaleTarget }], registry)
     expect(result.resolved.get('@pro/table')).toBe('2.0.0-beta.1')
   })
 
   it('grayscale-triggered canary version pulls correct dependency tree', () => {
     // Scenario: user hits grayscale -> @pro/table@2.0.0-beta.1
     // This version requires @pro/hooks@^2.0.0 (different from stable)
-    const result = resolve(
-      [{ name: '@pro/table', pinnedVersion: '2.0.0-beta.1' }],
-      registry,
-    )
+    const result = resolve([{ name: '@pro/table', pinnedVersion: '2.0.0-beta.1' }], registry)
 
     expect(result.resolved.get('@pro/table')).toBe('2.0.0-beta.1')
     expect(result.resolved.get('@pro/hooks')).toBe('2.0.0')
@@ -5278,8 +5330,10 @@ describe('Contract: Resolver x Grayscale Engine', () => {
     const extendedEntries: VersionEntry[] = [
       ...ENTRIES,
       {
-        name: '@pro/form', version: '2.0.0-beta.1',
-        dependencies: { '@pro/hooks': '^2.0.0' }, peerDependencies: {},
+        name: '@pro/form',
+        version: '2.0.0-beta.1',
+        dependencies: { '@pro/hooks': '^2.0.0' },
+        peerDependencies: {},
       },
     ]
     const extendedRegistry = createRegistry(extendedEntries)
@@ -5339,9 +5393,7 @@ describe('Contract: Resolver x Grayscale Engine', () => {
     const requests = [
       {
         name: '@pro/table',
-        ...(isCanary
-          ? { pinnedVersion: '2.0.0-beta.1' }
-          : { versionRange: '^1.0.0' }),
+        ...(isCanary ? { pinnedVersion: '2.0.0-beta.1' } : { versionRange: '^1.0.0' }),
       },
     ]
 
@@ -5363,9 +5415,7 @@ describe('Contract: Resolver x Grayscale Engine', () => {
     const requests = [
       {
         name: '@pro/table',
-        ...(isCanary
-          ? { pinnedVersion: '2.0.0-beta.1' }
-          : { versionRange: '^1.0.0' }),
+        ...(isCanary ? { pinnedVersion: '2.0.0-beta.1' } : { versionRange: '^1.0.0' }),
       },
     ]
 

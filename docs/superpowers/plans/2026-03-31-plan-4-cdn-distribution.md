@@ -65,6 +65,7 @@ pro-components/
 ### Task 1: CDN Build Scripts — Types + SRI Hash Calculation
 
 **Files:**
+
 - Create: `cdn/build/package.json`
 - Create: `cdn/build/tsconfig.json`
 - Create: `cdn/build/src/types.ts`
@@ -233,7 +234,7 @@ export function sriEntriesToMap(entries: SriEntry[]): Record<string, string> {
 }
 ```
 
-- [ ] **Step 5: Create cdn/build/__tests__/sri.test.ts (TDD)**
+- [ ] **Step 5: Create cdn/build/**tests**/sri.test.ts (TDD)**
 
 ```typescript
 import { describe, it, expect } from 'vitest'
@@ -305,10 +306,7 @@ describe('calculateDirectorySriHashes', () => {
     const entries = await calculateDirectorySriHashes(dir, dir)
 
     expect(entries).toHaveLength(2)
-    expect(entries.map((e) => e.path).sort()).toEqual([
-      'esm/index.mjs',
-      'style/index.css',
-    ])
+    expect(entries.map((e) => e.path).sort()).toEqual(['esm/index.mjs', 'style/index.css'])
 
     for (const entry of entries) {
       expect(entry.hash).toMatch(/^sha384-/)
@@ -363,6 +361,7 @@ git commit -m "feat(cdn): add SRI hash calculation with tests"
 ### Task 2: CDN Build Scripts — Bundle Generation + Manifest
 
 **Files:**
+
 - Create: `cdn/build/src/bundle.ts`
 - Create: `cdn/build/src/manifest.ts`
 - Create: `cdn/build/src/index.ts`
@@ -405,10 +404,7 @@ interface DirEntry {
 /**
  * Discover all publishable packages in the workspace.
  */
-export function discoverPackages(
-  packagesDir: string,
-  filter?: string[],
-): PackageInfo[] {
+export function discoverPackages(packagesDir: string, filter?: string[]): PackageInfo[] {
   const dirs = (readdirSync(packagesDir, { withFileTypes: true }) as DirEntry[])
     .filter((d) => d.isDirectory())
     .map((d) => d.name)
@@ -457,12 +453,7 @@ export async function buildPackageForCdn(
   // ESM build — external Vue, Element Plus, all @pro/* deps
   const esmBundle = await rollup({
     input: pkg.inputPath,
-    external: [
-      'vue',
-      'element-plus',
-      /^@pro\//,
-      /^@vue\//,
-    ],
+    external: ['vue', 'element-plus', /^@pro\//, /^@vue\//],
     plugins: [
       vue(),
       nodeResolve({ extensions: ['.ts', '.tsx', '.vue', '.js'] }),
@@ -564,9 +555,7 @@ export async function generateManifest(
   }
 
   // ESM size = sum of all .mjs files
-  const esmSize = entries
-    .filter((e) => e.path.endsWith('.mjs'))
-    .reduce((sum, e) => sum + e.size, 0)
+  const esmSize = entries.filter((e) => e.path.endsWith('.mjs')).reduce((sum, e) => sum + e.size, 0)
 
   // Preloads: all .mjs chunk files (not the entry)
   const preloads = entries
@@ -590,9 +579,7 @@ export async function generateManifest(
  * Merge multiple package manifests into a combined import map response
  * matching the Platform API format (Section 6 of design spec).
  */
-export function mergeManifestsToImportMap(
-  manifests: CdnManifest[],
-): {
+export function mergeManifestsToImportMap(manifests: CdnManifest[]): {
   imports: Record<string, string>
   preloads: string[]
   styles: string[]
@@ -712,7 +699,7 @@ main().catch((err: unknown) => {
 })
 ```
 
-- [ ] **Step 4: Create cdn/build/__tests__/manifest.test.ts (TDD)**
+- [ ] **Step 4: Create cdn/build/**tests**/manifest.test.ts (TDD)**
 
 ```typescript
 import { describe, it, expect } from 'vitest'
@@ -826,9 +813,7 @@ describe('mergeManifestsToImportMap', () => {
       'https://cdn.internal/@pro/form/1.1.0/style/index.css',
     ])
 
-    expect(result.preloads).toEqual([
-      'https://cdn.internal/@pro/hooks/1.0.0/esm/index.mjs',
-    ])
+    expect(result.preloads).toEqual(['https://cdn.internal/@pro/hooks/1.0.0/esm/index.mjs'])
 
     expect(result.sriHashes).toEqual({
       'https://cdn.internal/@pro/table/1.2.3/esm/index.mjs': 'sha384-aaa',
@@ -869,6 +854,7 @@ git commit -m "feat(cdn): add bundle generation and manifest with tests"
 ### Task 3: Loader Types + Constants
 
 **Files:**
+
 - Create: `cdn/loader/package.json`
 - Create: `cdn/loader/tsconfig.json`
 - Create: `cdn/loader/src/types.ts`
@@ -951,12 +937,7 @@ export interface LoaderConfig {
 }
 
 /** Fallback source identifier for diagnostics */
-export type FallbackSource =
-  | 'api'
-  | 'sw-cache'
-  | 'localstorage'
-  | 'hardcoded'
-  | 'error-page'
+export type FallbackSource = 'api' | 'sw-cache' | 'localstorage' | 'hardcoded' | 'error-page'
 
 /**
  * Augment the global Window interface for loader globals.
@@ -1061,19 +1042,15 @@ export const logger = {
 export const HARDCODED_FALLBACK_IMPORT_MAP: ImportMapResponse = {
   imports: {
     vue: 'https://cdn.internal/vendor/vue/3.5.0/dist/vue.esm-browser.prod.js',
-    'element-plus':
-      'https://cdn.internal/vendor/element-plus/2.9.0/dist/index.full.mjs',
+    'element-plus': 'https://cdn.internal/vendor/element-plus/2.9.0/dist/index.full.mjs',
     '@pro/table': 'https://cdn.internal/@pro/table/0.0.1/esm/index.mjs',
     '@pro/form': 'https://cdn.internal/@pro/form/0.0.1/esm/index.mjs',
-    '@pro/descriptions':
-      'https://cdn.internal/@pro/descriptions/0.0.1/esm/index.mjs',
+    '@pro/descriptions': 'https://cdn.internal/@pro/descriptions/0.0.1/esm/index.mjs',
     '@pro/hooks': 'https://cdn.internal/@pro/hooks/0.0.1/esm/index.mjs',
     '@pro/utils': 'https://cdn.internal/@pro/utils/0.0.1/esm/index.mjs',
   },
   preloads: [],
-  styles: [
-    'https://cdn.internal/vendor/element-plus/2.9.0/dist/index.css',
-  ],
+  styles: ['https://cdn.internal/vendor/element-plus/2.9.0/dist/index.css'],
   sriHashes: {},
   cache_bust: false,
 }
@@ -1091,6 +1068,7 @@ git commit -m "feat(cdn): add loader types and constants"
 ### Task 4: Import Map Fetch + Fallback Chain
 
 **Files:**
+
 - Create: `cdn/loader/src/import-map.ts`
 - Create: `cdn/loader/__tests__/import-map.test.ts`
 
@@ -1181,10 +1159,9 @@ async function fetchFromSwCache(): Promise<ImportMapResponse | null> {
       }
     }
 
-    navigator.serviceWorker.controller.postMessage(
-      { type: 'GET_CACHED_IMPORT_MAP' },
-      [channel.port2],
-    )
+    navigator.serviceWorker.controller.postMessage({ type: 'GET_CACHED_IMPORT_MAP' }, [
+      channel.port2,
+    ])
   })
 }
 
@@ -1292,7 +1269,7 @@ export const _internal = {
 }
 ```
 
-- [ ] **Step 2: Create cdn/loader/__tests__/import-map.test.ts (TDD)**
+- [ ] **Step 2: Create cdn/loader/**tests**/import-map.test.ts (TDD)**
 
 ```typescript
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
@@ -1335,8 +1312,12 @@ describe('resolveImportMap', () => {
     // Mock localStorage
     vi.stubGlobal('localStorage', {
       getItem: (key: string) => mockLocalStorage[key] ?? null,
-      setItem: (key: string, value: string) => { mockLocalStorage[key] = value },
-      removeItem: (key: string) => { delete mockLocalStorage[key] },
+      setItem: (key: string, value: string) => {
+        mockLocalStorage[key] = value
+      },
+      removeItem: (key: string) => {
+        delete mockLocalStorage[key]
+      },
     })
 
     // Mock navigator.serviceWorker (not available)
@@ -1351,10 +1332,13 @@ describe('resolveImportMap', () => {
   })
 
   it('returns API response on success and caches to localStorage', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(MOCK_IMPORT_MAP),
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(MOCK_IMPORT_MAP),
+      }),
+    )
 
     const result = await resolveImportMap(MOCK_CONFIG)
 
@@ -1421,11 +1405,14 @@ describe('resolveImportMap', () => {
   })
 
   it('handles API non-OK response', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: false,
-      status: 500,
-      statusText: 'Internal Server Error',
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+      }),
+    )
 
     const result = await resolveImportMap(MOCK_CONFIG)
     // Should fall through to hardcoded (no SW, no localStorage)
@@ -1440,8 +1427,12 @@ describe('localStorage functions', () => {
     mockLocalStorage = {}
     vi.stubGlobal('localStorage', {
       getItem: (key: string) => mockLocalStorage[key] ?? null,
-      setItem: (key: string, value: string) => { mockLocalStorage[key] = value },
-      removeItem: (key: string) => { delete mockLocalStorage[key] },
+      setItem: (key: string, value: string) => {
+        mockLocalStorage[key] = value
+      },
+      removeItem: (key: string) => {
+        delete mockLocalStorage[key]
+      },
     })
   })
 
@@ -1483,6 +1474,7 @@ git commit -m "feat(cdn): implement import map fetch with fallback chain and tes
 ### Task 5: DOM Injection — Import Map, Preloads, CSS
 
 **Files:**
+
 - Create: `cdn/loader/src/inject.ts`
 - Create: `cdn/loader/__tests__/inject.test.ts`
 
@@ -1514,10 +1506,7 @@ export function injectImportMap(importMap: ImportMapResponse): void {
  *
  * SRI integrity attributes are added when available.
  */
-export function injectModulePreloads(
-  preloads: string[],
-  sriHashes: Record<string, string>,
-): void {
+export function injectModulePreloads(preloads: string[], sriHashes: Record<string, string>): void {
   for (const url of preloads) {
     const link = document.createElement('link')
     link.rel = 'modulepreload-shim'
@@ -1538,10 +1527,7 @@ export function injectModulePreloads(
  * Each link has crossorigin="anonymous" for CORS CDN resources.
  * SRI integrity attributes are added when available.
  */
-export function injectStylesheets(
-  styles: string[],
-  sriHashes: Record<string, string>,
-): void {
+export function injectStylesheets(styles: string[], sriHashes: Record<string, string>): void {
   for (const url of styles) {
     const link = document.createElement('link')
     link.rel = 'stylesheet'
@@ -1604,7 +1590,7 @@ export function injectAll(importMap: ImportMapResponse): void {
 }
 ```
 
-- [ ] **Step 2: Create cdn/loader/__tests__/inject.test.ts (TDD)**
+- [ ] **Step 2: Create cdn/loader/**tests**/inject.test.ts (TDD)**
 
 ```typescript
 /**
@@ -1653,9 +1639,7 @@ describe('injectImportMap', () => {
     expect(script).not.toBeNull()
 
     const parsed = JSON.parse(script!.textContent!)
-    expect(parsed.imports['@pro/table']).toBe(
-      'https://cdn.internal/@pro/table/1.2.3/esm/index.mjs',
-    )
+    expect(parsed.imports['@pro/table']).toBe('https://cdn.internal/@pro/table/1.2.3/esm/index.mjs')
     expect(parsed.imports.vue).toBe(
       'https://cdn.internal/vendor/vue/3.5.0/dist/vue.esm-browser.prod.js',
     )
@@ -1751,7 +1735,9 @@ describe('loadEsModuleShims', () => {
   it('resolves immediately if importShim already exists', async () => {
     window.importShim = vi.fn() as (specifier: string) => Promise<unknown>
 
-    await expect(loadEsModuleShims('https://cdn.internal/es-module-shims.js')).resolves.toBeUndefined()
+    await expect(
+      loadEsModuleShims('https://cdn.internal/es-module-shims.js'),
+    ).resolves.toBeUndefined()
 
     // Should NOT add a new script tag
     expect(document.querySelector('script[src]')).toBeNull()
@@ -1797,6 +1783,7 @@ git commit -m "feat(cdn): implement DOM injection for import map, preloads, and 
 ### Task 6: Error Page + Service Worker Registration
 
 **Files:**
+
 - Create: `cdn/loader/src/error-page.ts`
 - Create: `cdn/loader/src/sw-register.ts`
 - Create: `cdn/loader/__tests__/error-page.test.ts`
@@ -1869,14 +1856,20 @@ function buildErrorPageContent(): string {
 
 /** Build the diagnostic details section */
 function buildErrorPageDiagnostics(error: Error, diagnostics: ErrorDiagnostics): string {
-  const data = escapeHtml(JSON.stringify({
-    error: error.message,
-    appId: diagnostics.appId,
-    userId: diagnostics.userId,
-    failedSources: diagnostics.failedSources,
-    timestamp: diagnostics.timestamp,
-    userAgent: diagnostics.userAgent,
-  }, null, 2))
+  const data = escapeHtml(
+    JSON.stringify(
+      {
+        error: error.message,
+        appId: diagnostics.appId,
+        userId: diagnostics.userId,
+        failedSources: diagnostics.failedSources,
+        timestamp: diagnostics.timestamp,
+        userAgent: diagnostics.userAgent,
+      },
+      null,
+      2,
+    ),
+  )
 
   return `
     <details style="margin-top: 24px; text-align: left; font-size: 12px; color: #999;">
@@ -1997,17 +1990,13 @@ async function notifyPrecache(
   const worker = registration.active ?? registration.installing ?? registration.waiting
   if (!worker) return
 
-  const urls = [
-    ...Object.values(importMap.imports),
-    ...importMap.preloads,
-    ...importMap.styles,
-  ]
+  const urls = [...Object.values(importMap.imports), ...importMap.preloads, ...importMap.styles]
 
   worker.postMessage({ type: 'PRECACHE', urls })
 }
 ```
 
-- [ ] **Step 3: Create cdn/loader/__tests__/error-page.test.ts (TDD)**
+- [ ] **Step 3: Create cdn/loader/**tests**/error-page.test.ts (TDD)**
 
 ```typescript
 /**
@@ -2105,6 +2094,7 @@ git commit -m "feat(cdn): add error page renderer and SW registration"
 ### Task 7: Service Worker (pro-sw.js)
 
 **Files:**
+
 - Create: `cdn/loader/pro-sw.ts`
 
 - [ ] **Step 1: Create cdn/loader/pro-sw.ts**
@@ -2254,10 +2244,7 @@ async function handleCacheBust(): Promise<void> {
  * Cache import map and all referenced resources as an atomic group.
  * If any resource fails to cache, the entire group is discarded.
  */
-async function cacheImportMapGroup(
-  cache: Cache,
-  importMap: ImportMapResponse,
-): Promise<boolean> {
+async function cacheImportMapGroup(cache: Cache, importMap: ImportMapResponse): Promise<boolean> {
   const groupKey = `import-map-${(importMap as Record<string, unknown>).version ?? 'unknown'}`
   const allUrls = [
     ...Object.values(importMap.imports),
@@ -2267,10 +2254,12 @@ async function cacheImportMapGroup(
 
   try {
     const responses = await Promise.all(
-      allUrls.map(url => fetch(url).then(r => {
-        if (!r.ok) throw new Error(`Failed to fetch ${url}: ${r.status}`)
-        return { url, response: r }
-      }))
+      allUrls.map((url) =>
+        fetch(url).then((r) => {
+          if (!r.ok) throw new Error(`Failed to fetch ${url}: ${r.status}`)
+          return { url, response: r }
+        }),
+      ),
     )
 
     // All fetches succeeded — write to cache atomically
@@ -2282,7 +2271,9 @@ async function cacheImportMapGroup(
   } catch (error: unknown) {
     // Partial failure — clean up any written entries
     for (const url of allUrls) {
-      await cache.delete(url).catch(() => { /* best effort cleanup */ })
+      await cache.delete(url).catch(() => {
+        /* best effort cleanup */
+      })
     }
     if (error instanceof Error) {
       // eslint-disable-next-line no-console -- SW diagnostic logging
@@ -2363,6 +2354,7 @@ git commit -m "feat(cdn): implement Service Worker with cache-first strategy and
 ### Task 8: pro-loader.ts — Main Loader Entry
 
 **Files:**
+
 - Create: `cdn/loader/src/pro-loader.ts`
 
 - [ ] **Step 1: Create cdn/loader/src/pro-loader.ts**
@@ -2514,6 +2506,7 @@ git commit -m "feat(cdn): implement pro-loader.ts main boot sequence"
 ### Task 9: @pro/vite-plugin — Dev/Prod Module Boundary Alignment
 
 **Files:**
+
 - Create: `packages/vite-plugin/package.json`
 - Create: `packages/vite-plugin/tsconfig.json`
 - Create: `packages/vite-plugin/rollup.config.ts`
@@ -2617,7 +2610,7 @@ export interface ProVitePluginOptions {
 
 - [ ] **Step 5: Create packages/vite-plugin/src/index.ts**
 
-```typescript
+````typescript
 import type { Plugin, UserConfig } from 'vite'
 import type { ProVitePluginOptions } from './types'
 
@@ -2678,10 +2671,7 @@ export function proVitePlugin(options: ProVitePluginOptions = {}): Plugin {
 
       if (isDev) {
         // eslint-disable-next-line no-console -- Vite plugin dev diagnostic
-        console.info(
-          '[pro-vite-plugin] Excluding from optimizeDeps:',
-          excludeList.join(', '),
-        )
+        console.info('[pro-vite-plugin] Excluding from optimizeDeps:', excludeList.join(', '))
       }
 
       return {
@@ -2753,9 +2743,9 @@ export function proVitePlugin(options: ProVitePluginOptions = {}): Plugin {
     },
   }
 }
-```
+````
 
-- [ ] **Step 6: Create packages/vite-plugin/__tests__/vite-plugin.test.ts (TDD)**
+- [ ] **Step 6: Create packages/vite-plugin/**tests**/vite-plugin.test.ts (TDD)**
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
@@ -2782,7 +2772,9 @@ describe('proVitePlugin', () => {
   describe('config hook', () => {
     it('excludes Vue, Element Plus, and @pro/* from optimizeDeps', () => {
       const plugin = proVitePlugin()
-      const configHook = getHook<(config: UserConfig, env: { command: string }) => Record<string, unknown>>(plugin, 'config')
+      const configHook = getHook<
+        (config: UserConfig, env: { command: string }) => Record<string, unknown>
+      >(plugin, 'config')
 
       const result = configHook({}, { command: 'serve' })
 
@@ -2799,7 +2791,9 @@ describe('proVitePlugin', () => {
 
     it('includes extraExclude packages', () => {
       const plugin = proVitePlugin({ extraExclude: ['lodash-es', 'dayjs'] })
-      const configHook = getHook<(config: UserConfig, env: { command: string }) => Record<string, unknown>>(plugin, 'config')
+      const configHook = getHook<
+        (config: UserConfig, env: { command: string }) => Record<string, unknown>
+      >(plugin, 'config')
 
       const result = configHook({}, { command: 'serve' })
 
@@ -2809,7 +2803,9 @@ describe('proVitePlugin', () => {
 
     it('dedupes Vue and Element Plus in resolve config', () => {
       const plugin = proVitePlugin()
-      const configHook = getHook<(config: UserConfig, env: { command: string }) => Record<string, unknown>>(plugin, 'config')
+      const configHook = getHook<
+        (config: UserConfig, env: { command: string }) => Record<string, unknown>
+      >(plugin, 'config')
 
       const result = configHook({}, { command: 'serve' })
 
@@ -2819,7 +2815,9 @@ describe('proVitePlugin', () => {
 
     it('defines Vue feature flags in dev mode', () => {
       const plugin = proVitePlugin()
-      const configHook = getHook<(config: UserConfig, env: { command: string }) => Record<string, unknown>>(plugin, 'config')
+      const configHook = getHook<
+        (config: UserConfig, env: { command: string }) => Record<string, unknown>
+      >(plugin, 'config')
 
       const devResult = configHook({}, { command: 'serve' })
       expect(devResult.define.__VUE_OPTIONS_API__).toBe(JSON.stringify(true))
@@ -2870,7 +2868,10 @@ describe('proVitePlugin', () => {
   describe('transformIndexHtml hook', () => {
     it('injects dev diagnostic script in serve mode', () => {
       const plugin = proVitePlugin()
-      const hook = getHook<(html: string, ctx: Record<string, unknown>) => unknown>(plugin, 'transformIndexHtml')
+      const hook = getHook<(html: string, ctx: Record<string, unknown>) => unknown>(
+        plugin,
+        'transformIndexHtml',
+      )
 
       const result = hook('<html></html>', { server: true })
 
@@ -2881,7 +2882,10 @@ describe('proVitePlugin', () => {
 
     it('returns raw html in build mode (no server)', () => {
       const plugin = proVitePlugin()
-      const hook = getHook<(html: string, ctx: Record<string, unknown>) => unknown>(plugin, 'transformIndexHtml')
+      const hook = getHook<(html: string, ctx: Record<string, unknown>) => unknown>(
+        plugin,
+        'transformIndexHtml',
+      )
 
       const result = hook('<html></html>', {})
       expect(result).toBe('<html></html>')
@@ -2902,11 +2906,13 @@ git commit -m "feat: add @pro/vite-plugin for dev/prod module boundary alignment
 ### Task 10: Loader Build Config (Rollup)
 
 **Files:**
+
 - Create: `cdn/loader/rollup.config.ts`
 
 - [ ] **Step 1: Create cdn/loader/rollup.config.ts**
 
 This produces two output files:
+
 - `pro-loader@1.js` — versioned loader (long cache)
 - `pro-sw.js` — Service Worker script
 
@@ -2987,6 +2993,7 @@ git commit -m "feat(cdn): add Rollup build config for pro-loader and pro-sw"
 ### Task 11: CDN Caching Strategy — Nginx Configuration Reference
 
 **Files:**
+
 - Create: `cdn/server/nginx-cdn.conf`
 
 This task provides the Nginx reference config for CDN caching headers. Not a deployable config — a reference for the ops team.
@@ -3130,13 +3137,14 @@ git commit -m "docs(cdn): add Nginx CDN caching and CORS reference config"
 ### Task 12: Integration Tests — Full CDN Chain
 
 **Files:**
+
 - Create: `cdn/__tests__/integration/cdn-chain.test.ts`
 - Create: `cdn/__tests__/integration/cdn-failure.test.ts`
 - Create: `cdn/__tests__/integration/sri-rejection.test.ts`
 
 These tests use Vitest with jsdom environment to simulate the full import map -> import -> render chain. In a real CI environment, these would run in Vitest browser mode with Playwright for full fidelity.
 
-- [ ] **Step 1: Create cdn/__tests__/integration/cdn-chain.test.ts**
+- [ ] **Step 1: Create cdn/**tests**/integration/cdn-chain.test.ts**
 
 ```typescript
 /**
@@ -3153,7 +3161,12 @@ These tests use Vitest with jsdom environment to simulate the full import map ->
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { ImportMapResponse } from '../../loader/src/types'
 import { resolveImportMap } from '../../loader/src/import-map'
-import { injectAll, injectImportMap, injectModulePreloads, injectStylesheets } from '../../loader/src/inject'
+import {
+  injectAll,
+  injectImportMap,
+  injectModulePreloads,
+  injectStylesheets,
+} from '../../loader/src/inject'
 
 const FULL_IMPORT_MAP: ImportMapResponse = {
   imports: {
@@ -3192,8 +3205,12 @@ describe('CDN Chain Integration', () => {
 
     vi.stubGlobal('localStorage', {
       getItem: (key: string) => mockLocalStorage[key] ?? null,
-      setItem: (key: string, value: string) => { mockLocalStorage[key] = value },
-      removeItem: (key: string) => { delete mockLocalStorage[key] },
+      setItem: (key: string, value: string) => {
+        mockLocalStorage[key] = value
+      },
+      removeItem: (key: string) => {
+        delete mockLocalStorage[key]
+      },
     })
 
     vi.stubGlobal('navigator', { serviceWorker: undefined })
@@ -3205,10 +3222,13 @@ describe('CDN Chain Integration', () => {
   })
 
   it('API success -> injects complete import map + preloads + CSS', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(FULL_IMPORT_MAP),
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(FULL_IMPORT_MAP),
+      }),
+    )
 
     // Step 1: Resolve import map
     const result = await resolveImportMap({
@@ -3274,10 +3294,13 @@ describe('CDN Chain Integration', () => {
   })
 
   it('caches API response to localStorage after successful fetch', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(FULL_IMPORT_MAP),
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(FULL_IMPORT_MAP),
+      }),
+    )
 
     await resolveImportMap({
       appEntry: '/src/main.ts',
@@ -3294,7 +3317,7 @@ describe('CDN Chain Integration', () => {
 })
 ```
 
-- [ ] **Step 2: Create cdn/__tests__/integration/cdn-failure.test.ts**
+- [ ] **Step 2: Create cdn/**tests**/integration/cdn-failure.test.ts**
 
 ```typescript
 /**
@@ -3342,8 +3365,12 @@ describe('CDN Failure Simulation', () => {
 
     vi.stubGlobal('localStorage', {
       getItem: (key: string) => mockLocalStorage[key] ?? null,
-      setItem: (key: string, value: string) => { mockLocalStorage[key] = value },
-      removeItem: (key: string) => { delete mockLocalStorage[key] },
+      setItem: (key: string, value: string) => {
+        mockLocalStorage[key] = value
+      },
+      removeItem: (key: string) => {
+        delete mockLocalStorage[key]
+      },
     })
 
     vi.stubGlobal('navigator', { serviceWorker: undefined })
@@ -3369,11 +3396,14 @@ describe('CDN Failure Simulation', () => {
   })
 
   it('API 500 -> falls through to localStorage', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: false,
-      status: 500,
-      statusText: 'Internal Server Error',
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+      }),
+    )
 
     mockLocalStorage[LS_IMPORT_MAP_KEY] = JSON.stringify(CACHED_IMPORT_MAP)
     mockLocalStorage[LS_IMPORT_MAP_TS_KEY] = String(Date.now())
@@ -3409,10 +3439,13 @@ describe('CDN Failure Simulation', () => {
   })
 
   it('API returns malformed JSON -> falls through to fallback', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.reject(new SyntaxError('Unexpected token')),
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.reject(new SyntaxError('Unexpected token')),
+      }),
+    )
 
     const result = await resolveImportMap(BASE_CONFIG)
 
@@ -3432,7 +3465,7 @@ describe('CDN Failure Simulation', () => {
 })
 ```
 
-- [ ] **Step 3: Create cdn/__tests__/integration/sri-rejection.test.ts**
+- [ ] **Step 3: Create cdn/**tests**/integration/sri-rejection.test.ts**
 
 ```typescript
 /**
@@ -3486,9 +3519,7 @@ describe('SRI Integrity Attributes', () => {
   })
 
   it('sets correct integrity attribute on CSS links', () => {
-    const styles = [
-      'https://cdn.internal/@pro/table/1.2.3/style/index.css',
-    ]
+    const styles = ['https://cdn.internal/@pro/table/1.2.3/style/index.css']
 
     const sriHashes: Record<string, string> = {
       'https://cdn.internal/@pro/table/1.2.3/style/index.css':
@@ -3508,9 +3539,7 @@ describe('SRI Integrity Attributes', () => {
   })
 
   it('omits integrity attribute when hash is not in sriHashes map', () => {
-    const preloads = [
-      'https://cdn.internal/@pro/unknown/1.0.0/esm/index.mjs',
-    ]
+    const preloads = ['https://cdn.internal/@pro/unknown/1.0.0/esm/index.mjs']
 
     injectModulePreloads(preloads, {})
 
@@ -3530,7 +3559,9 @@ describe('SRI Integrity Attributes', () => {
 
     injectStylesheets(styles, { 'https://cdn.internal/test.css': validHash })
 
-    const link = document.querySelector('link[href="https://cdn.internal/test.css"]') as HTMLLinkElement
+    const link = document.querySelector(
+      'link[href="https://cdn.internal/test.css"]',
+    ) as HTMLLinkElement
     expect(link.integrity).toBe(validHash)
     expect(link.integrity).toMatch(/^sha384-[A-Za-z0-9+/=]+$/)
   })
@@ -3550,9 +3581,15 @@ describe('SRI Integrity Attributes', () => {
 
     injectStylesheets(styles, sriHashes)
 
-    const linkA = document.querySelector('link[href="https://cdn.internal/a.css"]') as HTMLLinkElement
-    const linkB = document.querySelector('link[href="https://cdn.internal/b.css"]') as HTMLLinkElement
-    const linkC = document.querySelector('link[href="https://cdn.internal/c.css"]') as HTMLLinkElement
+    const linkA = document.querySelector(
+      'link[href="https://cdn.internal/a.css"]',
+    ) as HTMLLinkElement
+    const linkB = document.querySelector(
+      'link[href="https://cdn.internal/b.css"]',
+    ) as HTMLLinkElement
+    const linkC = document.querySelector(
+      'link[href="https://cdn.internal/c.css"]',
+    ) as HTMLLinkElement
 
     expect(linkA.integrity).toBe('sha384-hashA')
     expect(linkB.getAttribute('integrity')).toBeNull()
@@ -3573,6 +3610,7 @@ git commit -m "test(cdn): add integration tests for CDN chain, failure simulatio
 ### Task 13: Wire Up Root Config — pnpm-workspace + Turborepo
 
 **Files:**
+
 - Update: `pnpm-workspace.yaml`
 - Update: `turbo.json`
 - Update: `tsconfig.json`
@@ -3583,11 +3621,11 @@ Add CDN packages to workspace:
 
 ```yaml
 packages:
-  - "packages/*"
-  - "cdn/build"
-  - "cdn/loader"
-  - "playground"
-  - "docs"
+  - 'packages/*'
+  - 'cdn/build'
+  - 'cdn/loader'
+  - 'playground'
+  - 'docs'
 ```
 
 - [ ] **Step 2: Update turbo.json to include CDN build tasks**
@@ -3763,7 +3801,7 @@ git commit -m "chore: verify CDN distribution build and tests"
 - [x] **Fallback chain:** API -> SW cache -> localStorage -> hardcoded fallback -> error page — all 5 levels implemented and tested
 - [x] **SRI:** SHA-384 calculation in build scripts, integrity attributes on modulepreload and CSS links, tested independently
 - [x] **Service Worker:** Cache-first for immutable CDN resources, CACHE_BUST handling for rollback, PRECACHE for background loading, import map caching for offline
-- [x] **Vite plugin:** Excludes Vue/Element Plus/@pro/* from optimizeDeps, dedupes to prevent multi-instance, dev warnings for boundary mismatch detection
+- [x] **Vite plugin:** Excludes Vue/Element Plus/@pro/\* from optimizeDeps, dedupes to prevent multi-instance, dev warnings for boundary mismatch detection
 - [x] **CDN caching:** Nginx reference config with immutable 1-year cache for versioned resources, short cache for API/loader, no-cache for SW
 - [x] **CORS:** Wildcard for CDN static assets, whitelisted origins with credentials for API
 - [x] **File paths:** All paths are exact and consistent with Plan 1 structure

@@ -59,6 +59,7 @@ packages/
 ### Task 1: Testing Infrastructure Setup
 
 **Files:**
+
 - Update: `packages/hooks/package.json`
 - Create: `packages/hooks/vitest.config.ts`
 - Create: `packages/hooks/src/test-utils.ts`
@@ -302,10 +303,11 @@ git commit -m "chore: add Vitest testing infrastructure for hooks and pro-table"
 ### Task 2: useRequest Composable
 
 **Files:**
+
 - Create: `packages/hooks/__tests__/use-request.test.ts`
 - Create: `packages/hooks/src/use-request.ts`
 
-- [ ] **Step 1: Write failing test — packages/hooks/__tests__/use-request.test.ts**
+- [ ] **Step 1: Write failing test — packages/hooks/**tests**/use-request.test.ts**
 
 ```typescript
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
@@ -336,7 +338,10 @@ describe('useRequest', () => {
   it('should set loading to true during request', async () => {
     let resolveFn!: (value: unknown) => void
     const fetcher = vi.fn().mockImplementation(
-      () => new Promise((resolve) => { resolveFn = resolve }),
+      () =>
+        new Promise((resolve) => {
+          resolveFn = resolve
+        }),
     )
 
     const { result, unmount } = mountComposable(() => useRequest(fetcher))
@@ -372,9 +377,7 @@ describe('useRequest', () => {
 
   it('should debounce rapid calls', async () => {
     const fetcher = vi.fn().mockResolvedValue({ data: [], total: 0, success: true })
-    const { result, unmount } = mountComposable(() =>
-      useRequest(fetcher, { debounceMs: 300 }),
-    )
+    const { result, unmount } = mountComposable(() => useRequest(fetcher, { debounceMs: 300 }))
 
     result.run({ current: 1, pageSize: 10 })
     result.run({ current: 2, pageSize: 10 })
@@ -394,7 +397,10 @@ describe('useRequest', () => {
   it('should cancel in-flight request when cancel() is called', async () => {
     let resolveFn!: (value: unknown) => void
     const fetcher = vi.fn().mockImplementation(
-      () => new Promise((resolve) => { resolveFn = resolve }),
+      () =>
+        new Promise((resolve) => {
+          resolveFn = resolve
+        }),
     )
 
     const { result, unmount } = mountComposable(() => useRequest(fetcher))
@@ -417,7 +423,10 @@ describe('useRequest', () => {
   it('should cancel previous request when new request is made (race condition prevention)', async () => {
     let resolvers: Array<(value: unknown) => void> = []
     const fetcher = vi.fn().mockImplementation(
-      () => new Promise((resolve) => { resolvers.push(resolve) }),
+      () =>
+        new Promise((resolve) => {
+          resolvers.push(resolve)
+        }),
     )
 
     const { result, unmount } = mountComposable(() => useRequest(fetcher))
@@ -459,9 +468,7 @@ describe('useRequest', () => {
     const responseData = { data: [{ id: 1 }], total: 1, success: true }
     const fetcher = vi.fn().mockResolvedValue(responseData)
 
-    const { result, unmount } = mountComposable(() =>
-      useRequest(fetcher, { onSuccess }),
-    )
+    const { result, unmount } = mountComposable(() => useRequest(fetcher, { onSuccess }))
 
     await result.run({ current: 1, pageSize: 10 })
     await waitForReactiveSettle()
@@ -476,9 +483,7 @@ describe('useRequest', () => {
     const error = new Error('fail')
     const fetcher = vi.fn().mockRejectedValue(error)
 
-    const { result, unmount } = mountComposable(() =>
-      useRequest(fetcher, { onError }),
-    )
+    const { result, unmount } = mountComposable(() => useRequest(fetcher, { onError }))
 
     await result.run({ current: 1, pageSize: 10 })
     await waitForReactiveSettle()
@@ -637,10 +642,11 @@ git commit -m "feat(hooks): implement useRequest composable with debounce and st
 ### Task 3: usePagination Composable
 
 **Files:**
+
 - Create: `packages/hooks/__tests__/use-pagination.test.ts`
 - Create: `packages/hooks/src/use-pagination.ts`
 
-- [ ] **Step 1: Write failing test — packages/hooks/__tests__/use-pagination.test.ts**
+- [ ] **Step 1: Write failing test — packages/hooks/**tests**/use-pagination.test.ts**
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
@@ -672,9 +678,7 @@ describe('usePagination', () => {
   })
 
   it('should compute totalPages correctly', () => {
-    const { result, unmount } = mountComposable(() =>
-      usePagination({ defaultPageSize: 10 }),
-    )
+    const { result, unmount } = mountComposable(() => usePagination({ defaultPageSize: 10 }))
 
     result.setTotal(95)
     expect(result.totalPages.value).toBe(10)
@@ -729,9 +733,7 @@ describe('usePagination', () => {
 
   it('should call onChange callback when current or pageSize changes', () => {
     const onChange = vi.fn()
-    const { result, unmount } = mountComposable(() =>
-      usePagination({ onChange }),
-    )
+    const { result, unmount } = mountComposable(() => usePagination({ onChange }))
 
     result.setCurrent(3)
     expect(onChange).toHaveBeenCalledWith({ current: 3, pageSize: 20 })
@@ -743,9 +745,7 @@ describe('usePagination', () => {
   })
 
   it('should clamp current page when total shrinks', () => {
-    const { result, unmount } = mountComposable(() =>
-      usePagination({ defaultPageSize: 10 }),
-    )
+    const { result, unmount } = mountComposable(() => usePagination({ defaultPageSize: 10 }))
 
     result.setTotal(50)
     result.setCurrent(5) // last page
@@ -757,9 +757,7 @@ describe('usePagination', () => {
   })
 
   it('should not go below page 1 when clamping', () => {
-    const { result, unmount } = mountComposable(() =>
-      usePagination({ defaultPageSize: 10 }),
-    )
+    const { result, unmount } = mountComposable(() => usePagination({ defaultPageSize: 10 }))
 
     result.setTotal(5)
     result.setCurrent(1)
@@ -814,11 +812,7 @@ export interface UsePaginationReturn {
  * Clamps current page when total shrinks below current position.
  */
 export function usePagination(options: UsePaginationOptions = {}): UsePaginationReturn {
-  const {
-    defaultCurrent = 1,
-    defaultPageSize = 20,
-    onChange,
-  } = options
+  const { defaultCurrent = 1, defaultPageSize = 20, onChange } = options
 
   const current = ref(defaultCurrent)
   const pageSize = ref(defaultPageSize)
@@ -893,10 +887,11 @@ git commit -m "feat(hooks): implement usePagination composable with auto-clamp a
 ### Task 4: useSelection Composable
 
 **Files:**
+
 - Create: `packages/hooks/__tests__/use-selection.test.ts`
 - Create: `packages/hooks/src/use-selection.ts`
 
-- [ ] **Step 1: Write failing test — packages/hooks/__tests__/use-selection.test.ts**
+- [ ] **Step 1: Write failing test — packages/hooks/**tests**/use-selection.test.ts**
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
@@ -910,9 +905,7 @@ interface TestRow {
 
 describe('useSelection', () => {
   it('should initialize with empty selection', () => {
-    const { result, unmount } = mountComposable(() =>
-      useSelection<TestRow>({ rowKey: 'id' }),
-    )
+    const { result, unmount } = mountComposable(() => useSelection<TestRow>({ rowKey: 'id' }))
 
     expect(result.selectedRows.value).toEqual([])
     expect(result.selectedRowKeys.value).toEqual([])
@@ -921,9 +914,7 @@ describe('useSelection', () => {
   })
 
   it('should select rows', () => {
-    const { result, unmount } = mountComposable(() =>
-      useSelection<TestRow>({ rowKey: 'id' }),
-    )
+    const { result, unmount } = mountComposable(() => useSelection<TestRow>({ rowKey: 'id' }))
 
     const rows: TestRow[] = [
       { id: '1', name: 'Alice' },
@@ -939,13 +930,9 @@ describe('useSelection', () => {
   })
 
   it('should clear selection', () => {
-    const { result, unmount } = mountComposable(() =>
-      useSelection<TestRow>({ rowKey: 'id' }),
-    )
+    const { result, unmount } = mountComposable(() => useSelection<TestRow>({ rowKey: 'id' }))
 
-    result.onSelectionChange([
-      { id: '1', name: 'Alice' },
-    ])
+    result.onSelectionChange([{ id: '1', name: 'Alice' }])
 
     result.clearSelection()
 
@@ -970,7 +957,10 @@ describe('useSelection', () => {
     // but should merge with cross-page accumulated state
     result.onSelectionChange(
       [{ id: '3', name: 'Charlie' }],
-      [{ id: '3', name: 'Charlie' }, { id: '4', name: 'Dave' }], // current page data
+      [
+        { id: '3', name: 'Charlie' },
+        { id: '4', name: 'Dave' },
+      ], // current page data
     )
 
     expect(result.selectedRowKeys.value).toContain('1')
@@ -983,18 +973,12 @@ describe('useSelection', () => {
   })
 
   it('should NOT persist across pages when crossPageSelect is false (default)', () => {
-    const { result, unmount } = mountComposable(() =>
-      useSelection<TestRow>({ rowKey: 'id' }),
-    )
+    const { result, unmount } = mountComposable(() => useSelection<TestRow>({ rowKey: 'id' }))
 
-    result.onSelectionChange([
-      { id: '1', name: 'Alice' },
-    ])
+    result.onSelectionChange([{ id: '1', name: 'Alice' }])
 
     // New page, new selection — previous selection lost
-    result.onSelectionChange([
-      { id: '3', name: 'Charlie' },
-    ])
+    result.onSelectionChange([{ id: '3', name: 'Charlie' }])
 
     expect(result.selectedRows.value).toEqual([{ id: '3', name: 'Charlie' }])
     expect(result.selectedRowKeys.value).toEqual(['3'])
@@ -1040,10 +1024,7 @@ describe('useSelection', () => {
     result.onSelectionChange(page1Data, page1Data)
 
     // Deselect id=2 on page 1
-    result.onSelectionChange(
-      [{ id: '1', name: 'Alice' }],
-      page1Data,
-    )
+    result.onSelectionChange([{ id: '1', name: 'Alice' }], page1Data)
 
     expect(result.selectedRowKeys.value).toEqual(['1'])
     expect(result.selectedRows.value).toHaveLength(1)
@@ -1095,9 +1076,7 @@ export interface UseSelectionReturn<T = unknown> {
  * In cross-page mode, selections from previous pages are preserved.
  * Deselection only affects rows on the current page — rows from other pages remain selected.
  */
-export function useSelection<T = unknown>(
-  options: UseSelectionOptions<T>,
-): UseSelectionReturn<T> {
+export function useSelection<T = unknown>(options: UseSelectionOptions<T>): UseSelectionReturn<T> {
   const { rowKey, crossPageSelect = false, onChange } = options
 
   const selectedRows: Ref<T[]> = ref([]) as Ref<T[]>
@@ -1132,18 +1111,14 @@ export function useSelection<T = unknown>(
       const currentPageKeys = new Set(currentPageData.map(getRowKey))
 
       // Start with existing selections that are NOT on the current page (preserve them)
-      const preserved = selectedRows.value.filter(
-        (row) => !currentPageKeys.has(getRowKey(row)),
-      )
+      const preserved = selectedRows.value.filter((row) => !currentPageKeys.has(getRowKey(row)))
 
       // Add currently selected rows from this page
       selectedRows.value = [...preserved, ...selectedOnPage]
     } else {
       // No currentPageData provided — just merge new selections by key
       const existingKeySet = new Set(selectedRowKeys.value)
-      const newRows = selectedOnPage.filter(
-        (row) => !existingKeySet.has(getRowKey(row)),
-      )
+      const newRows = selectedOnPage.filter((row) => !existingKeySet.has(getRowKey(row)))
       selectedRows.value = [...selectedRows.value, ...newRows]
     }
 
@@ -1181,10 +1156,11 @@ git commit -m "feat(hooks): implement useSelection composable with cross-page pe
 ### Task 5: useRowOperation Composable
 
 **Files:**
+
 - Create: `packages/hooks/__tests__/use-row-operation.test.ts`
 - Create: `packages/hooks/src/use-row-operation.ts`
 
-- [ ] **Step 1: Write failing test — packages/hooks/__tests__/use-row-operation.test.ts**
+- [ ] **Step 1: Write failing test — packages/hooks/**tests**/use-row-operation.test.ts**
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
@@ -1477,10 +1453,11 @@ git commit -m "feat(hooks): implement useRowOperation composable with pagination
 ### Task 6: useValueType Composable
 
 **Files:**
+
 - Create: `packages/hooks/__tests__/use-value-type.test.ts`
 - Create: `packages/hooks/src/use-value-type.ts`
 
-- [ ] **Step 1: Write failing test — packages/hooks/__tests__/use-value-type.test.ts**
+- [ ] **Step 1: Write failing test — packages/hooks/**tests**/use-value-type.test.ts**
 
 ```typescript
 import { describe, it, expect } from 'vitest'
@@ -1893,6 +1870,7 @@ git commit -m "feat(hooks): implement useValueType composable with CONTROL_REGIS
 ### Task 7: Update @pro/hooks index.ts
 
 **Files:**
+
 - Update: `packages/hooks/src/index.ts`
 
 - [ ] **Step 1: Replace packages/hooks/src/index.ts**
@@ -1940,6 +1918,7 @@ git commit -m "feat(hooks): export all composables from index"
 ### Task 8: ProTable Type Definitions
 
 **Files:**
+
 - Create: `packages/pro-table/src/types/index.ts`
 - Create: `packages/pro-table/src/constants/index.ts`
 
@@ -2192,10 +2171,11 @@ git commit -m "feat(pro-table): add type definitions and injection key constants
 ### Task 9: useProTable Composable
 
 **Files:**
+
 - Create: `packages/pro-table/__tests__/use-pro-table.test.ts`
 - Create: `packages/pro-table/src/composables/use-pro-table.ts`
 
-- [ ] **Step 1: Write failing test — packages/pro-table/__tests__/use-pro-table.test.ts**
+- [ ] **Step 1: Write failing test — packages/pro-table/**tests**/use-pro-table.test.ts**
 
 ```typescript
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
@@ -2227,9 +2207,7 @@ function createMockRequest(data: TestRow[] = [], total = 0) {
 
 describe('useProTable', () => {
   it('should initialize with empty state', () => {
-    const { result, unmount } = mountComposable(() =>
-      useProTable<TestRow>({ columns }),
-    )
+    const { result, unmount } = mountComposable(() => useProTable<TestRow>({ columns }))
 
     expect(result.dataSource.value).toEqual([])
     expect(result.loading.value).toBe(false)
@@ -2248,9 +2226,7 @@ describe('useProTable', () => {
     ]
     const request = createMockRequest(mockData, 50)
 
-    const { result, unmount } = mountComposable(() =>
-      useProTable<TestRow>({ columns, request }),
-    )
+    const { result, unmount } = mountComposable(() => useProTable<TestRow>({ columns, request }))
 
     await result.reload()
     await waitForReactiveSettle()
@@ -2268,9 +2244,7 @@ describe('useProTable', () => {
   it('should include formValues in request params', async () => {
     const request = createMockRequest([], 0)
 
-    const { result, unmount } = mountComposable(() =>
-      useProTable<TestRow>({ columns, request }),
-    )
+    const { result, unmount } = mountComposable(() => useProTable<TestRow>({ columns, request }))
 
     result.setFormValues({ name: 'Alice' })
     await result.reload()
@@ -2288,9 +2262,7 @@ describe('useProTable', () => {
   it('should reset page to 1 when reload(true) is called', async () => {
     const request = createMockRequest([], 50)
 
-    const { result, unmount } = mountComposable(() =>
-      useProTable<TestRow>({ columns, request }),
-    )
+    const { result, unmount } = mountComposable(() => useProTable<TestRow>({ columns, request }))
 
     result.pagination.current.value = 3
     await result.reload(true)
@@ -2308,9 +2280,7 @@ describe('useProTable', () => {
   it('should reset all state when reset() is called', async () => {
     const request = createMockRequest([], 50)
 
-    const { result, unmount } = mountComposable(() =>
-      useProTable<TestRow>({ columns, request }),
-    )
+    const { result, unmount } = mountComposable(() => useProTable<TestRow>({ columns, request }))
 
     result.setFormValues({ name: 'search' })
     result.pagination.current.value = 3
@@ -2380,9 +2350,7 @@ describe('useProTable', () => {
   })
 
   it('should expose insertRow/updateRow/deleteRow', () => {
-    const { result, unmount } = mountComposable(() =>
-      useProTable<TestRow>({ columns }),
-    )
+    const { result, unmount } = mountComposable(() => useProTable<TestRow>({ columns }))
 
     result.insertRow({ id: '1', name: 'Alice', age: 30 })
     expect(result.dataSource.value).toHaveLength(1)
@@ -2397,9 +2365,7 @@ describe('useProTable', () => {
   })
 
   it('should compute proTableProps for binding', () => {
-    const { result, unmount } = mountComposable(() =>
-      useProTable<TestRow>({ columns }),
-    )
+    const { result, unmount } = mountComposable(() => useProTable<TestRow>({ columns }))
 
     const props = result.proTableProps.value
     expect(props).toHaveProperty('columns')
@@ -2450,18 +2416,9 @@ Expected: Tests fail (module not found).
 
 ```typescript
 import { ref, computed, provide, type Ref, type ComputedRef } from 'vue'
-import {
-  useRequest,
-  usePagination,
-  useSelection,
-  useRowOperation,
-} from '@pro/hooks'
+import { useRequest, usePagination, useSelection, useRowOperation } from '@pro/hooks'
 import type { RequestParams, RequestResult } from '@pro/utils'
-import type {
-  UseProTableOptions,
-  UseProTableReturn,
-  ProColumnDef,
-} from '../types'
+import type { UseProTableOptions, UseProTableReturn, ProColumnDef } from '../types'
 import { PRO_TABLE_INJECTION_KEY } from '../constants'
 
 /**
@@ -2638,6 +2595,7 @@ git commit -m "feat(pro-table): implement useProTable orchestrator composable"
 ### Task 10: QueryFilter (Search Form) Component
 
 **Files:**
+
 - Create: `packages/pro-table/src/components/QueryFilter.vue`
 
 - [ ] **Step 1: Create packages/pro-table/src/components/QueryFilter.vue**
@@ -2679,9 +2637,7 @@ const emit = defineEmits<{
 const { getSearchConfig } = useValueType()
 
 const collapsed = ref(
-  typeof props.searchConfig === 'object'
-    ? props.searchConfig.defaultCollapsed ?? false
-    : false,
+  typeof props.searchConfig === 'object' ? (props.searchConfig.defaultCollapsed ?? false) : false,
 )
 
 const labelWidth = computed(() => {
@@ -2752,12 +2708,7 @@ function toggleCollapse(): void {
 </script>
 
 <template>
-  <el-form
-    class="pro-query-filter"
-    :label-width="labelWidth"
-    inline
-    @submit.prevent="handleSearch"
-  >
+  <el-form class="pro-query-filter" :label-width="labelWidth" inline @submit.prevent="handleSearch">
     <el-row :gutter="16">
       <el-col
         v-for="col in visibleColumns"
@@ -2771,7 +2722,9 @@ function toggleCollapse(): void {
           </template>
 
           <!-- valueEnum-driven select -->
-          <template v-else-if="col.valueEnum && (col.valueType === 'select' || col.valueType === 'radio')">
+          <template
+            v-else-if="col.valueEnum && (col.valueType === 'select' || col.valueType === 'radio')"
+          >
             <el-select
               :model-value="modelValue[String(col.dataIndex)]"
               clearable
@@ -2804,18 +2757,9 @@ function toggleCollapse(): void {
       <!-- Action buttons -->
       <el-col :span="span" class="pro-query-filter__actions">
         <el-form-item>
-          <el-button type="primary" :loading="loading" @click="handleSearch">
-            Search
-          </el-button>
-          <el-button @click="handleReset">
-            Reset
-          </el-button>
-          <el-button
-            v-if="showCollapseToggle"
-            link
-            type="primary"
-            @click="toggleCollapse"
-          >
+          <el-button type="primary" :loading="loading" @click="handleSearch"> Search </el-button>
+          <el-button @click="handleReset"> Reset </el-button>
+          <el-button v-if="showCollapseToggle" link type="primary" @click="toggleCollapse">
             {{ collapsed ? 'Expand' : 'Collapse' }}
             <el-icon>
               <component :is="collapsed ? 'ArrowDown' : 'ArrowUp'" />
@@ -2855,6 +2799,7 @@ git commit -m "feat(pro-table): implement QueryFilter search form component"
 ### Task 11: ToolBar Component
 
 **Files:**
+
 - Create: `packages/pro-table/src/components/ToolBar.vue`
 
 - [ ] **Step 1: Create packages/pro-table/src/components/ToolBar.vue**
@@ -2936,7 +2881,10 @@ function handleToggleFullscreen(): void {
 
     <div class="pro-toolbar__actions">
       <!-- Custom action buttons -->
-      <template v-for="(action, actionIndex) in toolbarActions" :key="`toolbar-action-${actionIndex}`">
+      <template
+        v-for="(action, actionIndex) in toolbarActions"
+        :key="`toolbar-action-${actionIndex}`"
+      >
         <component :is="() => action" />
       </template>
 
@@ -3023,6 +2971,7 @@ git commit -m "feat(pro-table): implement ToolBar with density, reload, fullscre
 ### Task 12: ColumnSetting Component
 
 **Files:**
+
 - Create: `packages/pro-table/src/components/ColumnSetting.vue`
 
 - [ ] **Step 1: Create packages/pro-table/src/components/ColumnSetting.vue**
@@ -3141,9 +3090,7 @@ function handleClose(): void {
         >
           Column Display
         </el-checkbox>
-        <el-button link type="primary" @click="handleReset">
-          Reset
-        </el-button>
+        <el-button link type="primary" @click="handleReset"> Reset </el-button>
       </div>
 
       <div class="pro-column-setting__list">
@@ -3260,6 +3207,7 @@ git commit -m "feat(pro-table): implement ColumnSetting with visibility toggle a
 > Total ProTable.vue file MUST be under 400 lines including template.
 
 **Files:**
+
 - Replace: `packages/pro-table/src/ProTable.vue`
 - Create: `packages/pro-table/src/composables/use-pro-table-internal.ts`
 
@@ -3267,23 +3215,8 @@ git commit -m "feat(pro-table): implement ColumnSetting with visibility toggle a
 
 ```vue
 <script setup lang="ts">
-import {
-  ref,
-  computed,
-  inject,
-  provide,
-  watch,
-  onMounted,
-  type PropType,
-  type VNode,
-} from 'vue'
-import {
-  useRequest,
-  usePagination,
-  useSelection,
-  useRowOperation,
-  useValueType,
-} from '@pro/hooks'
+import { ref, computed, inject, provide, watch, onMounted, type PropType, type VNode } from 'vue'
+import { useRequest, usePagination, useSelection, useRowOperation, useValueType } from '@pro/hooks'
 import type { RequestParams, RequestResult } from '@pro/utils'
 import type {
   ProTableProps,
@@ -3394,7 +3327,8 @@ const sortState = ref<{ prop: string; order: 'ascending' | 'descending' | null }
 // Internal pagination
 const internalPagination = usePagination({
   defaultCurrent: typeof props.pagination === 'object' ? props.pagination.defaultCurrent : 1,
-  defaultPageSize: typeof props.pagination === 'object' ? props.pagination.defaultPageSize : DEFAULT_PAGE_SIZE,
+  defaultPageSize:
+    typeof props.pagination === 'object' ? props.pagination.defaultPageSize : DEFAULT_PAGE_SIZE,
   onChange(pag) {
     if (!isExternalMode.value) {
       fetchData()
@@ -3677,8 +3611,8 @@ function handleToggleColumnSetting(): void {
 }
 
 // --- Lifecycle ---
-const isRequestMode = computed(() =>
-  !isExternalMode.value && props.request !== undefined && props.data === undefined,
+const isRequestMode = computed(
+  () => !isExternalMode.value && props.request !== undefined && props.data === undefined,
 )
 
 // Watch controlled data changes and reset pagination
@@ -3708,9 +3642,7 @@ onMounted(() => {
       :model-value="isExternalMode ? externalInstance!.formValues.value : formValues"
       :loading="activeLoading"
       @update:model-value="
-        isExternalMode
-          ? externalInstance!.setFormValues($event)
-          : (formValues = $event)
+        isExternalMode ? externalInstance!.setFormValues($event) : (formValues = $event)
       "
       @search="handleSearch"
       @reset="handleReset"
@@ -3725,9 +3657,7 @@ onMounted(() => {
       @toggle-column-setting="handleToggleColumnSetting"
     >
       <template #columnSetting>
-        <ColumnSetting
-          v-model:visible="showColumnSettingPanel"
-        />
+        <ColumnSetting v-model:visible="showColumnSettingPanel" />
       </template>
     </ToolBar>
 
@@ -3742,12 +3672,7 @@ onMounted(() => {
       @sort-change="handleSortChange"
     >
       <!-- Selection column -->
-      <el-table-column
-        v-if="rowSelection"
-        type="selection"
-        width="55"
-        fixed="left"
-      />
+      <el-table-column v-if="rowSelection" type="selection" width="55" fixed="left" />
 
       <!-- Data columns -->
       <el-table-column
@@ -3816,6 +3741,7 @@ git commit -m "feat(pro-table): implement full ProTable component with auto-dete
 ### Task 14: Update ProTable index.ts
 
 **Files:**
+
 - Replace: `packages/pro-table/src/index.ts`
 
 - [ ] **Step 1: Replace packages/pro-table/src/index.ts**
@@ -3866,9 +3792,10 @@ git commit -m "feat(pro-table): export all components, composables, types, and c
 ### Task 15: ProTable Integration Tests
 
 **Files:**
+
 - Create: `packages/pro-table/__tests__/pro-table.test.ts`
 
-- [ ] **Step 1: Create packages/pro-table/__tests__/pro-table.test.ts**
+- [ ] **Step 1: Create packages/pro-table/**tests**/pro-table.test.ts**
 
 ```typescript
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
@@ -3888,9 +3815,7 @@ const ElTable = defineComponent({
   emits: ['selection-change', 'sort-change'],
   setup(props, { slots, emit }) {
     return () =>
-      h('div', { class: 'el-table-stub', 'data-loading': props.loading }, [
-        slots.default?.(),
-      ])
+      h('div', { class: 'el-table-stub', 'data-loading': props.loading }, [slots.default?.()])
   },
 })
 
@@ -3898,9 +3823,10 @@ const ElTableColumn = defineComponent({
   name: 'ElTableColumn',
   props: ['prop', 'label', 'width', 'fixed', 'sortable', 'type', 'showOverflowTooltip'],
   setup(props, { slots }) {
-    return () => h('div', { class: 'el-table-column-stub', 'data-prop': props.prop }, [
-      slots.default?.({ row: {}, $index: 0 }),
-    ])
+    return () =>
+      h('div', { class: 'el-table-column-stub', 'data-prop': props.prop }, [
+        slots.default?.({ row: {}, $index: 0 }),
+      ])
   },
 })
 
@@ -3909,11 +3835,12 @@ const ElPagination = defineComponent({
   props: ['currentPage', 'pageSize', 'total', 'pageSizes', 'layout'],
   emits: ['current-change', 'size-change'],
   setup(props) {
-    return () => h('div', {
-      class: 'el-pagination-stub',
-      'data-current': props.currentPage,
-      'data-total': props.total,
-    })
+    return () =>
+      h('div', {
+        class: 'el-pagination-stub',
+        'data-current': props.currentPage,
+        'data-total': props.total,
+      })
   },
 })
 
@@ -3954,10 +3881,15 @@ const ElButton = defineComponent({
   props: ['type', 'loading', 'link', 'circle'],
   emits: ['click'],
   setup(props, { slots, emit }) {
-    return () => h('button', {
-      class: 'el-button-stub',
-      onClick: () => emit('click'),
-    }, slots.default?.())
+    return () =>
+      h(
+        'button',
+        {
+          class: 'el-button-stub',
+          onClick: () => emit('click'),
+        },
+        slots.default?.(),
+      )
   },
 })
 
@@ -4015,10 +3947,7 @@ const ElDropdown = defineComponent({
   props: ['trigger'],
   emits: ['command'],
   setup(_, { slots }) {
-    return () => h('div', { class: 'el-dropdown-stub' }, [
-      slots.default?.(),
-      slots.dropdown?.(),
-    ])
+    return () => h('div', { class: 'el-dropdown-stub' }, [slots.default?.(), slots.dropdown?.()])
   },
 })
 
@@ -4042,10 +3971,7 @@ const ElPopover = defineComponent({
   props: ['visible', 'placement', 'width', 'trigger'],
   emits: ['update:visible'],
   setup(_, { slots }) {
-    return () => h('div', { class: 'el-popover-stub' }, [
-      slots.reference?.(),
-      slots.default?.(),
-    ])
+    return () => h('div', { class: 'el-popover-stub' }, [slots.reference?.(), slots.default?.()])
   },
 })
 
@@ -4120,7 +4046,10 @@ function createMockRequest(data: TestRow[] = [], total = 0) {
   } satisfies RequestResult<TestRow>)
 }
 
-function mountProTable(propsOverride: Record<string, unknown> = {}, options: Record<string, unknown> = {}) {
+function mountProTable(
+  propsOverride: Record<string, unknown> = {},
+  options: Record<string, unknown> = {},
+) {
   return mount(ProTable, {
     props: {
       columns: testColumns,
@@ -4214,7 +4143,8 @@ describe('ProTable Integration', () => {
       })
       await waitForReactiveSettle()
 
-      const selectionCol = wrapper.findAll('.el-table-column-stub')
+      const selectionCol = wrapper
+        .findAll('.el-table-column-stub')
         .find((el) => el.attributes('data-prop') === undefined)
       // Selection column has type="selection", no prop
       expect(selectionCol).toBeTruthy()
@@ -4225,9 +4155,7 @@ describe('ProTable Integration', () => {
 
   describe('Controlled Mode', () => {
     it('should render external data without making requests', async () => {
-      const controlledData: TestRow[] = [
-        { id: '1', name: 'External', age: 99 },
-      ]
+      const controlledData: TestRow[] = [{ id: '1', name: 'External', age: 99 }]
 
       const wrapper = mountProTable({
         data: controlledData,
@@ -4259,13 +4187,8 @@ describe('ProTable Integration', () => {
 
   describe('Dual-Mode Boundary', () => {
     it('should prioritize data prop over request when both are passed', async () => {
-      const request = createMockRequest(
-        [{ id: '1', name: 'FromRequest', age: 1 }],
-        1,
-      )
-      const controlledData: TestRow[] = [
-        { id: '2', name: 'FromData', age: 2 },
-      ]
+      const request = createMockRequest([{ id: '1', name: 'FromRequest', age: 1 }], 1)
+      const controlledData: TestRow[] = [{ id: '2', name: 'FromData', age: 2 }]
 
       const wrapper = mountProTable({
         data: controlledData,
@@ -4454,4 +4377,3 @@ git commit -m "chore: format code and verify build"
 - [x] **File paths:** All paths exact and consistent with Plan 1 package structure
 - [x] **Testing infrastructure:** waitForReactiveSettle helper, mountComposable helper, Element Plus component stubs for integration tests
 - [x] **Edge cases tested:** Null/undefined formatting, function-based rowKey, debounce, cancel, sort/filter state management
-

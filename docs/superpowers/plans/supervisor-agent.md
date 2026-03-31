@@ -13,7 +13,7 @@
 
 ## Supervisor Prompt
 
-```
+````
 You are the **Supervisor Agent** for the pro-components project. Your job is to orchestrate the full implementation from empty repo to working software using multi-agent parallel execution.
 
 ## Your Identity & Rules
@@ -76,9 +76,10 @@ Execute phases sequentially. Within each phase, dispatch agents in parallel wher
 2. **Verify gate** after agent completes:
    ```bash
    pnpm build && pnpm type-check && pnpm lint && pnpm validate-build
-   ```
-   - If ANY command fails: read the error, dispatch a fix agent targeting the specific failure
-   - If all pass: proceed to Phase 2
+````
+
+- If ANY command fails: read the error, dispatch a fix agent targeting the specific failure
+- If all pass: proceed to Phase 2
 
 3. **Dispatch reviewer** (background):
    - Use the reviewer prompt from `agent-orchestration.md`
@@ -104,6 +105,7 @@ Execute phases sequentially. Within each phase, dispatch agents in parallel wher
    - Once 2a completes: dispatch a small agent to finish aggregation + cross-component tests
 
 4. **Verify gate** after ALL 4 agents complete:
+
    ```bash
    pnpm build && pnpm type-check && pnpm test && pnpm lint && pnpm validate-build
    ```
@@ -117,6 +119,7 @@ Execute phases sequentially. Within each phase, dispatch agents in parallel wher
    - Agent 4: CDN distribution (plan-4 prompt)
 
 2. **Verify gate**:
+
    ```bash
    pnpm build && pnpm docs:build && pnpm test
    ```
@@ -129,6 +132,7 @@ Execute phases sequentially. Within each phase, dispatch agents in parallel wher
    - Agent 6: CI/CD pipelines (plan-6 prompt)
 
 2. **Verify gate**:
+
    ```bash
    pnpm type-check && yamllint .github/workflows/*.yml 2>/dev/null || echo "yamllint not installed, skip"
    ```
@@ -161,7 +165,7 @@ Agent tool call:
 
 Reviewer is dispatched automatically by supervisor after every phase gate passes. No manual trigger needed.
 
-```
+````
 Agent tool call:
   description: "Auto Review Phase N"
   subagent_type: "superpowers:code-reviewer"
@@ -259,7 +263,7 @@ Agent tool call:
     PASS means: clean, no issues.
 
     If BLOCK: clearly explain what needs Dorian's decision and why.
-```
+````
 
 ### i18n Reviewer Add-On
 
@@ -280,6 +284,7 @@ Additional i18n checks:
 ## Timeout Strategy
 
 Agent timeout thresholds:
+
 - Plan 1 (14 tasks): 20 minutes
 - Plan 2a (16 tasks): 25 minutes
 - Plan 2b (21 tasks): 25 minutes
@@ -290,6 +295,7 @@ Agent timeout thresholds:
 - Plan 6 (10 tasks): 15 minutes
 
 If an agent times out:
+
 1. Check git log to see how far it got
 2. Dispatch a new agent with: "Continue from Task N. Tasks 1-(N-1) are committed. Read the plan and resume."
 3. If the same task times out twice, split it: one agent writes tests, another writes implementation
@@ -297,6 +303,7 @@ If an agent times out:
 ## Error Recovery
 
 If a gate verification fails:
+
 1. Read the error output carefully
 2. Identify which package/file caused the failure
 3. Dispatch a targeted fix agent:
@@ -311,6 +318,7 @@ If a gate verification fails:
 ## Progress Reporting
 
 After each phase, report to user:
+
 ```
 Phase N complete.
 - Agents dispatched: X
@@ -322,6 +330,7 @@ Phase N complete.
 ```
 
 After final integration:
+
 ```
 Project build complete.
 - Total phases: 4
@@ -335,6 +344,7 @@ Project build complete.
 ## START
 
 Begin by reading the 4 files listed in "Files You Must Read First". Then start Phase 1.
+
 ```
 
 ---
@@ -344,7 +354,10 @@ Begin by reading the 4 files listed in "Files You Must Read First". Then start P
 Open Claude Code in the project directory and type:
 
 ```
+
 Read docs/superpowers/plans/supervisor-agent.md and execute the supervisor prompt.
+
 ```
 
 That's it. The supervisor takes over from there.
+```

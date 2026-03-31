@@ -69,6 +69,7 @@ pro-components/
 ### Task 1: Docs Package Setup
 
 **Files:**
+
 - Create: `docs/package.json`
 - Create: `docs/.vitepress/config.ts`
 - Create: `docs/.vitepress/theme/style.css`
@@ -177,9 +178,7 @@ export default defineConfig({
       ],
     },
 
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/your-org/pro-components' },
-    ],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/your-org/pro-components' }],
 
     search: {
       provider: 'local',
@@ -330,8 +329,8 @@ function isVueComponent(value: unknown): value is Component {
     typeof value === 'object' &&
     value !== null &&
     (typeof (value as Record<string, unknown>).setup === 'function' ||
-     typeof (value as Record<string, unknown>).render === 'function' ||
-     typeof (value as Record<string, unknown>).template === 'string')
+      typeof (value as Record<string, unknown>).render === 'function' ||
+      typeof (value as Record<string, unknown>).template === 'string')
   )
 }
 
@@ -350,10 +349,7 @@ const theme: Theme = {
     // so no build step required during docs dev
     try {
       // Dynamic import allows graceful degradation if packages not yet built
-      const proComponents = import.meta.glob(
-        '../../packages/pro-*/src/index.ts',
-        { eager: true },
-      )
+      const proComponents = import.meta.glob('../../packages/pro-*/src/index.ts', { eager: true })
       for (const [, mod] of Object.entries(proComponents)) {
         const module = mod as Record<string, unknown>
         // Each package exports named components — register them all
@@ -392,6 +388,7 @@ git commit -m "feat(docs): scaffold VitePress docs package with custom theme"
 ### Task 2: API Doc Helper Components
 
 **Files:**
+
 - Create: `docs/.vitepress/theme/components/ApiTable.vue`
 - Create: `docs/.vitepress/theme/components/TypeBlock.vue`
 
@@ -520,7 +517,10 @@ if (key) {
   </div>
 
   <div v-else class="api-doc-empty">
-    <p>API data not found for <code>{{ src }}</code>. Run <code>pnpm gen:api</code> to generate.</p>
+    <p>
+      API data not found for <code>{{ src }}</code
+      >. Run <code>pnpm gen:api</code> to generate.
+    </p>
   </div>
 </template>
 
@@ -609,6 +609,7 @@ git commit -m "feat(docs): add ApiTable and TypeBlock helper components"
 ### Task 3: API Doc Auto-Generation Script
 
 **Files:**
+
 - Create: `scripts/gen-api-doc.ts`
 
 - [ ] **Step 1: Create scripts/gen-api-doc.ts**
@@ -693,9 +694,7 @@ function cleanTypeString(raw: string): string {
 
 function extractDescription(tags: TagDef[] | undefined): string {
   if (!tags || tags.length === 0) return ''
-  const descTag = tags.find(
-    (t: TagDef) => t.name === 'description' || t.name === 'desc',
-  )
+  const descTag = tags.find((t: TagDef) => t.name === 'description' || t.name === 'desc')
   return descTag?.text ?? ''
 }
 
@@ -757,7 +756,9 @@ function main() {
       const api = extractApi(checker, fullPath)
       const outputFile = join(OUTPUT_DIR, `${name}.json`)
       writeFileSync(outputFile, JSON.stringify(api, null, 2), 'utf-8')
-      log.ok(`${name} → ${outputFile} (${api.props.length} props, ${api.events.length} events, ${api.slots.length} slots)`)
+      log.ok(
+        `${name} → ${outputFile} (${api.props.length} props, ${api.events.length} events, ${api.slots.length} slots)`,
+      )
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err)
       log.fail(`${name}: ${message}`)
@@ -799,6 +800,7 @@ git commit -m "feat(docs): add vue-component-meta API doc generation script"
 ### Task 4: Changelog Auto-Generation Script
 
 **Files:**
+
 - Create: `scripts/gen-changelog.ts`
 
 - [ ] **Step 1: Create scripts/gen-changelog.ts**
@@ -901,9 +903,7 @@ function readPackageChangelogs(): string[] {
 function readPendingChangesets(): ChangesetEntry[] {
   if (!existsSync(CHANGESET_DIR)) return []
 
-  const files = readdirSync(CHANGESET_DIR).filter(
-    (f) => f.endsWith('.md') && f !== 'README.md',
-  )
+  const files = readdirSync(CHANGESET_DIR).filter((f) => f.endsWith('.md') && f !== 'README.md')
 
   const entries: ChangesetEntry[] = []
 
@@ -973,6 +973,7 @@ git commit -m "feat(docs): add changelog auto-generation script from changesets"
 ### Task 5: Landing Page
 
 **Files:**
+
 - Create: `docs/index.md`
 
 - [ ] **Step 1: Create docs/index.md**
@@ -1029,6 +1030,7 @@ git commit -m "feat(docs): add landing page"
 ### Task 6: Guide Pages
 
 **Files:**
+
 - Create: `docs/guide/introduction.md`
 - Create: `docs/guide/getting-started.md`
 - Create: `docs/guide/cdn-mode.md`
@@ -1036,7 +1038,7 @@ git commit -m "feat(docs): add landing page"
 
 - [ ] **Step 1: Create docs/guide/introduction.md**
 
-```markdown
+````markdown
 # 介绍
 
 Pro Components 是基于 [Vue 3](https://vuejs.org/) + [Element Plus](https://element-plus.org/) 构建的高级组件库，提供开箱即用的中后台场景组件。
@@ -1071,6 +1073,7 @@ const columns: ProColumnDef[] = [
   },
 ]
 ```
+````
 
 ### Headless-First 架构
 
@@ -1081,46 +1084,47 @@ const columns: ProColumnDef[] = [
 
 支持两种使用模式：
 
-| 模式 | 适用场景 | 示例 |
-|------|---------|------|
-| **简单模式** | 大多数 CRUD 场景 | `<ProTable :columns="cols" :request="fn" />` |
+| 模式                | 适用场景         | 示例                                                  |
+| ------------------- | ---------------- | ----------------------------------------------------- |
+| **简单模式**        | 大多数 CRUD 场景 | `<ProTable :columns="cols" :request="fn" />`          |
 | **Composable 模式** | 需要外部控制状态 | `const { proTableProps, reload } = useProTable(opts)` |
 
 ### ValueType 体系
 
 内置 15+ ValueType，自动决定表格渲染方式和搜索控件类型：
 
-| ValueType | 表格渲染 | 搜索控件 |
-|-----------|---------|---------|
-| `text` | 纯文本 | `el-input` |
-| `number` | 格式化数字 | `el-input-number` |
-| `select` | Tag 展示 | `el-select` |
-| `date` | 格式化日期 | `el-date-picker` |
-| `dateRange` | — | `el-date-picker` range |
-| `money` | 货币格式 | `el-input-number` |
-| `percent` | 百分比 | `el-input-number` |
-| `progress` | `el-progress` | — |
-| `image` | `el-image` | — |
+| ValueType   | 表格渲染      | 搜索控件               |
+| ----------- | ------------- | ---------------------- |
+| `text`      | 纯文本        | `el-input`             |
+| `number`    | 格式化数字    | `el-input-number`      |
+| `select`    | Tag 展示      | `el-select`            |
+| `date`      | 格式化日期    | `el-date-picker`       |
+| `dateRange` | —             | `el-date-picker` range |
+| `money`     | 货币格式      | `el-input-number`      |
+| `percent`   | 百分比        | `el-input-number`      |
+| `progress`  | `el-progress` | —                      |
+| `image`     | `el-image`    | —                      |
 
 ## 包结构
 
-| 包名 | 说明 |
-|------|------|
-| `@pro/table` | ProTable 高级表格 |
-| `@pro/form` | ProForm 高级表单 |
-| `@pro/descriptions` | ProDescriptions 定义列表 |
-| `@pro/hooks` | 共享 composables（useRequest、usePagination 等） |
-| `@pro/utils` | 工具函数和类型定义 |
-| `@pro/themes` | 主题 token 和 CSS 变量 |
-| `@pro/resolvers` | unplugin 自动导入解析器 |
-| `@pro/pro-components` | 聚合包，一次导入所有组件 |
+| 包名                  | 说明                                             |
+| --------------------- | ------------------------------------------------ |
+| `@pro/table`          | ProTable 高级表格                                |
+| `@pro/form`           | ProForm 高级表单                                 |
+| `@pro/descriptions`   | ProDescriptions 定义列表                         |
+| `@pro/hooks`          | 共享 composables（useRequest、usePagination 等） |
+| `@pro/utils`          | 工具函数和类型定义                               |
+| `@pro/themes`         | 主题 token 和 CSS 变量                           |
+| `@pro/resolvers`      | unplugin 自动导入解析器                          |
+| `@pro/pro-components` | 聚合包，一次导入所有组件                         |
 
 ## 兼容性
 
 - Vue >= 3.4.0
 - Element Plus >= 2.9.0
 - 现代浏览器（Chrome、Firefox、Safari、Edge 最新两个版本）
-```
+
+````
 
 - [ ] **Step 2: Create docs/guide/getting-started.md**
 
@@ -1133,7 +1137,7 @@ const columns: ProColumnDef[] = [
 
 ```bash [pnpm]
 pnpm add @pro/pro-components element-plus
-```
+````
 
 ```bash [npm]
 npm install @pro/pro-components element-plus
@@ -1223,7 +1227,10 @@ import type { ProColumnDef } from '@pro/utils'
 const columns: ProColumnDef[] = [
   { dataIndex: 'id', title: 'ID', valueType: 'text' },
   { dataIndex: 'name', title: '姓名', valueType: 'text' },
-  { dataIndex: 'status', title: '状态', valueType: 'select',
+  {
+    dataIndex: 'status',
+    title: '状态',
+    valueType: 'select',
     valueEnum: {
       active: { text: '启用', status: 'success' },
       disabled: { text: '禁用', status: 'danger' },
@@ -1239,12 +1246,7 @@ const request = async (params: { current: number; pageSize: number }) => {
 </script>
 
 <template>
-  <ProTable
-    :columns="columns"
-    :request="request"
-    header-title="用户管理"
-    row-key="id"
-  />
+  <ProTable :columns="columns" :request="request" header-title="用户管理" row-key="id" />
 </template>
 ```
 
@@ -1253,13 +1255,7 @@ const request = async (params: { current: number; pageSize: number }) => {
 Pro Components 使用 TypeScript 编写，提供完整的类型定义。所有类型从 `@pro/utils` 导出：
 
 ```typescript
-import type {
-  ProColumnDef,
-  RequestParams,
-  RequestResult,
-  ValueType,
-  StatusType,
-} from '@pro/utils'
+import type { ProColumnDef, RequestParams, RequestResult, ValueType, StatusType } from '@pro/utils'
 ```
 
 ## 下一步
@@ -1267,7 +1263,8 @@ import type {
 - [ProTable 组件文档](/components/pro-table) — 完整 API 和交互示例
 - [CDN 模式](/guide/cdn-mode) — 无需构建直接在浏览器使用
 - [Composable 模式](/composables/use-pro-table) — 完全控制组件状态
-```
+
+````
 
 - [ ] **Step 3: Create docs/guide/cdn-mode.md**
 
@@ -1278,12 +1275,14 @@ Pro Components 支持通过 CDN + Import Maps 在浏览器中直接使用，无�
 
 ## 工作原理
 
-```
+````
+
 浏览器 → pro-loader.js → 请求 /api/import-map
-  → 注入 import map（通过 es-module-shims）
-  → modulepreload + CSS 注入
-  → import(appEntry) 启动应用
-```
+→ 注入 import map（通过 es-module-shims）
+→ modulepreload + CSS 注入
+→ import(appEntry) 启动应用
+
+````
 
 ## 快速集成
 
@@ -1309,7 +1308,7 @@ Pro Components 支持通过 CDN + Import Maps 在浏览器中直接使用，无�
   ></script>
 </body>
 </html>
-```
+````
 
 ## Loader 加载流程
 
@@ -1333,9 +1332,7 @@ API 返回的 import map 示例：
     "vue": "https://cdn.internal/vue/3.5.0/dist/vue.esm-browser.prod.js",
     "element-plus": "https://cdn.internal/element-plus/2.9.0/dist/index.full.mjs"
   },
-  "preloads": [
-    "https://cdn.internal/@pro/hooks/1.2.0/esm/index.mjs"
-  ],
+  "preloads": ["https://cdn.internal/@pro/hooks/1.2.0/esm/index.mjs"],
   "styles": [
     "https://cdn.internal/element-plus/2.9.0/dist/index.css",
     "https://cdn.internal/@pro/table/1.2.3/style/index.css"
@@ -1358,14 +1355,12 @@ import vue from '@vitejs/plugin-vue'
 import { proPlugin } from '@pro/vite-plugin'
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    proPlugin(),
-  ],
+  plugins: [vue(), proPlugin()],
 })
 ```
 
 插件作用：
+
 - 将 Vue、Element Plus、`@pro/*` 排除在 Vite 的 `optimizeDeps` 预打包之外
 - 确保开发模式的模块边界与 CDN 生产模式一致
 
@@ -1375,19 +1370,20 @@ CDN 模式支持按用户、部门、百分比进行灰度发布。详见 [灰�
 
 ## 缓存策略
 
-| 资源类型 | Cache-Control | 说明 |
-|---------|--------------|------|
-| 版本化静态资源 | `immutable, max-age=31536000` | URL 包含版本号 + 内容 hash |
-| API 响应 | `max-age=60, stale-while-revalidate=300` | CDN 边缘缓存 |
-| Loader 脚本（版本化） | 长缓存 | `/pro-loader@1.js` |
-| Loader 脚本（latest） | 短缓存 | `/pro-loader@latest.js` |
+| 资源类型              | Cache-Control                            | 说明                       |
+| --------------------- | ---------------------------------------- | -------------------------- |
+| 版本化静态资源        | `immutable, max-age=31536000`            | URL 包含版本号 + 内容 hash |
+| API 响应              | `max-age=60, stale-while-revalidate=300` | CDN 边缘缓存               |
+| Loader 脚本（版本化） | 长缓存                                   | `/pro-loader@1.js`         |
+| Loader 脚本（latest） | 短缓存                                   | `/pro-loader@latest.js`    |
 
 ## 安全性
 
 - 所有 CDN 资源附带 SRI（Subresource Integrity）hash 校验
 - CDN 静态资源：`Access-Control-Allow-Origin: *`
 - API 接口：白名单域名 + `credentials: include`
-```
+
+````
 
 - [ ] **Step 4: Create docs/guide/migration.md**
 
@@ -1480,7 +1476,7 @@ fetchData()
     @current-change="handlePageChange"
   />
 </template>
-```
+````
 
 ### After: ProTable 一体化
 
@@ -1501,7 +1497,12 @@ const columns: ProColumnDef[] = [
   },
 ]
 
-const request = async (params: { current: number; pageSize: number; name?: string; status?: string }) => {
+const request = async (params: {
+  current: number
+  pageSize: number
+  name?: string
+  status?: string
+}) => {
   const query = new URLSearchParams({
     page: String(params.current),
     size: String(params.pageSize),
@@ -1526,6 +1527,7 @@ const request = async (params: { current: number; pageSize: number; name?: strin
 ```
 
 **减少了什么：**
+
 - 无需手动管理 `loading`、`pagination`、`searchForm` 状态
 - 搜索表单从 `columns` 定义自动生成
 - 分页组件内置，页码变化自动重新请求
@@ -1539,20 +1541,22 @@ const request = async (params: { current: number; pageSize: number; name?: strin
 - [ ] 需要外部状态控制时，切换到 `useProTable` composable 模式
 - [ ] 替换 `<el-form>` 手动表单为 `<ProForm :fields />` 或 ProTable 内置搜索
 - [ ] 详情展示从 `<el-descriptions>` 迁移为 `<ProDescriptions :columns :data />`，复用表格的 columns 定义
-```
+
+````
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add docs/guide/
 git commit -m "feat(docs): add guide pages (introduction, getting-started, cdn-mode, migration)"
-```
+````
 
 ---
 
 ### Task 7: ProTable Demo Files
 
 **Files:**
+
 - Create: `packages/pro-table/demos/basic.vue`
 - Create: `packages/pro-table/demos/request.vue`
 - Create: `packages/pro-table/demos/composable.vue`
@@ -1600,13 +1604,7 @@ const data: UserRecord[] = [
 </script>
 
 <template>
-  <ProTable
-    :columns="columns"
-    :data="data"
-    header-title="基础用法"
-    row-key="id"
-    :search="false"
-  />
+  <ProTable :columns="columns" :data="data" header-title="基础用法" row-key="id" :search="false" />
 </template>
 ```
 
@@ -1741,19 +1739,13 @@ async function request(params: RequestParams): Promise<RequestResult<OrderRecord
   }
 }
 
-const {
-  proTableProps,
-  selectedRows,
-  selectedRowKeys,
-  clearSelection,
-  reload,
-  deleteRow,
-} = useProTable({
-  columns,
-  request,
-  rowKey: 'id',
-  defaultPageSize: 5,
-})
+const { proTableProps, selectedRows, selectedRowKeys, clearSelection, reload, deleteRow } =
+  useProTable({
+    columns,
+    request,
+    rowKey: 'id',
+    defaultPageSize: 5,
+  })
 
 function handleBatchDelete() {
   if (selectedRowKeys.value.length === 0) {
@@ -2070,6 +2062,7 @@ git commit -m "feat(docs): add ProTable demo files (basic, request, composable, 
 ### Task 8: ProForm Demo Files
 
 **Files:**
+
 - Create: `packages/pro-form/demos/basic.vue`
 - Create: `packages/pro-form/demos/layout.vue`
 - Create: `packages/pro-form/demos/modal-form.vue`
@@ -2141,11 +2134,7 @@ async function handleSubmit(values: BasicFormValues) {
 </script>
 
 <template>
-  <ProForm
-    :fields="fields"
-    :on-submit="handleSubmit"
-    :initial-values="{ role: 'editor' }"
-  />
+  <ProForm :fields="fields" :on-submit="handleSubmit" :initial-values="{ role: 'editor' }" />
 </template>
 ```
 
@@ -2198,11 +2187,7 @@ async function handleSubmit(_values: LayoutFormValues) {
     </ElRadioGroup>
   </div>
 
-  <ProForm
-    :layout="layout"
-    :fields="fields"
-    :on-submit="handleSubmit"
-  />
+  <ProForm :layout="layout" :fields="fields" :on-submit="handleSubmit" />
 </template>
 ```
 
@@ -2356,10 +2341,7 @@ async function handleSubmit(values: StepsFormValues) {
 </script>
 
 <template>
-  <StepsForm
-    :steps="steps"
-    :on-submit="handleSubmit"
-  />
+  <StepsForm :steps="steps" :on-submit="handleSubmit" />
 </template>
 ```
 
@@ -2375,6 +2357,7 @@ git commit -m "feat(docs): add ProForm demo files (basic, layout, modal-form, st
 ### Task 9: ProDescriptions Demo Files
 
 **Files:**
+
 - Create: `packages/pro-descriptions/demos/basic.vue`
 - Create: `packages/pro-descriptions/demos/columns-reuse.vue`
 
@@ -2415,11 +2398,7 @@ const data = {
 </script>
 
 <template>
-  <ProDescriptions
-    title="员工详情"
-    :columns="columns"
-    :data="data"
-  />
+  <ProDescriptions title="员工详情" :columns="columns" :data="data" />
 </template>
 ```
 
@@ -2476,9 +2455,30 @@ const drawerVisible = ref(false)
 const selectedUser = ref<UserRecord | null>(null)
 
 const tableData: UserRecord[] = [
-  { id: 1, name: '张三', role: '前端工程师', department: 'engineering', status: 'active', joinDate: '2023-06-15' },
-  { id: 2, name: '李四', role: '产品经理', department: 'product', status: 'active', joinDate: '2022-03-01' },
-  { id: 3, name: '王五', role: 'UI 设计师', department: 'design', status: 'resigned', joinDate: '2021-09-20' },
+  {
+    id: 1,
+    name: '张三',
+    role: '前端工程师',
+    department: 'engineering',
+    status: 'active',
+    joinDate: '2023-06-15',
+  },
+  {
+    id: 2,
+    name: '李四',
+    role: '产品经理',
+    department: 'product',
+    status: 'active',
+    joinDate: '2022-03-01',
+  },
+  {
+    id: 3,
+    name: '王五',
+    role: 'UI 设计师',
+    department: 'design',
+    status: 'resigned',
+    joinDate: '2021-09-20',
+  },
 ]
 
 function handleRowClick(row: UserRecord) {
@@ -2499,11 +2499,7 @@ function handleRowClick(row: UserRecord) {
   />
 
   <ElDrawer v-model="drawerVisible" title="用户详情" size="40%">
-    <ProDescriptions
-      v-if="selectedUser"
-      :columns="columns"
-      :data="selectedUser"
-    />
+    <ProDescriptions v-if="selectedUser" :columns="columns" :data="selectedUser" />
   </ElDrawer>
 </template>
 ```
@@ -2520,6 +2516,7 @@ git commit -m "feat(docs): add ProDescriptions demo files (basic, columns-reuse)
 ### Task 10: Component Doc Pages
 
 **Files:**
+
 - Create: `docs/components/pro-table.md`
 - Create: `docs/components/pro-form.md`
 - Create: `docs/components/pro-descriptions.md`
@@ -2573,15 +2570,15 @@ Schema 驱动的数据表格，内置搜索表单、分页、列设置、工具�
 
 ## Slots
 
-| 插槽名 | 说明 | 作用域参数 |
-|--------|------|-----------|
-| `toolbarActions` | 工具栏右侧操作区 | — |
-| `toolbarTitle` | 自定义标题区域 | — |
-| `headerCell` | 自定义表头单元格 | `{ column, index }` |
-| `bodyCell` | 自定义表体单元格 | `{ column, row, index, text }` |
-| `expandedRow` | 展开行内容 | `{ row, index }` |
-| `summary` | 表格底部合计行 | `{ data }` |
-| `empty` | 空状态 | — |
+| 插槽名           | 说明             | 作用域参数                     |
+| ---------------- | ---------------- | ------------------------------ |
+| `toolbarActions` | 工具栏右侧操作区 | —                              |
+| `toolbarTitle`   | 自定义标题区域   | —                              |
+| `headerCell`     | 自定义表头单元格 | `{ column, index }`            |
+| `bodyCell`       | 自定义表体单元格 | `{ column, row, index, text }` |
+| `expandedRow`    | 展开行内容       | `{ row, index }`               |
+| `summary`        | 表格底部合计行   | `{ data }`                     |
+| `empty`          | 空状态           | —                              |
 
 ## API
 
@@ -2674,9 +2671,9 @@ outline: deep
 
 ## Slots
 
-| 插槽名 | 说明 | 作用域参数 |
-|--------|------|-----------|
-| `submitter` | 自定义提交按钮区域 | `{ submit, reset, loading }` |
+| 插槽名              | 说明                 | 作用域参数                   |
+| ------------------- | -------------------- | ---------------------------- |
+| `submitter`         | 自定义提交按钮区域   | `{ submit, reset, loading }` |
 | `[field.dataIndex]` | 自定义单个字段的渲染 | `{ value, onChange, field }` |
 
 ## API
@@ -2764,10 +2761,10 @@ outline: deep
 
 ## Slots
 
-| 插槽名 | 说明 | 作用域参数 |
-|--------|------|-----------|
-| `title` | 自定义标题 | — |
-| `extra` | 右上角操作区 | — |
+| 插槽名               | 说明                 | 作用域参数                |
+| -------------------- | -------------------- | ------------------------- |
+| `title`              | 自定义标题           | —                         |
+| `extra`              | 右上角操作区         | —                         |
 | `[column.dataIndex]` | 自定义单个字段的渲染 | `{ value, data, column }` |
 
 ## API
@@ -2781,7 +2778,7 @@ interface ProDescriptionsProps<T = Record<string, unknown>> {
   title?: string
   columns: ProColumnDef<T>[]
   data: T
-  column?: number                    // 一行展示几列，默认 3
+  column?: number // 一行展示几列，默认 3
   border?: boolean
   size?: 'large' | 'default' | 'small'
   descriptionsProps?: Partial<ElDescriptionsProps>
@@ -2793,8 +2790,8 @@ interface ProDescriptionsProps<T = Record<string, unknown>> {
 ```typescript
 // ProColumnDef 中控制各场景可见性的字段：
 {
-  hideInTable: boolean        // true 时不在 ProTable 中展示
-  hideInSearch: boolean       // true 时不生成搜索控件
+  hideInTable: boolean // true 时不在 ProTable 中展示
+  hideInSearch: boolean // true 时不生成搜索控件
   hideInDescriptions: boolean // true 时不在 ProDescriptions 中展示
 }
 ```
@@ -2812,6 +2809,7 @@ git commit -m "feat(docs): add component doc pages (ProTable, ProForm, ProDescri
 ### Task 11: Composable Doc Pages
 
 **Files:**
+
 - Create: `docs/composables/use-pro-table.md`
 - Create: `docs/composables/use-pro-form.md`
 - Create: `docs/composables/use-pro-descriptions.md`
@@ -2833,23 +2831,23 @@ outline: deep
 import { useProTable } from '@pro/hooks'
 
 const {
-  proTableProps,        // 绑定到 <ProTable /> 的 props
-  dataSource,           // Ref<T[]> — 当前页数据
-  loading,              // Ref<boolean> — 加载状态
-  pagination,           // Reactive — 分页状态
-  formValues,           // Ref<Record<string, unknown>> — 搜索表单值
-  selectedRows,         // Ref<T[]> — 选中行数据
-  selectedRowKeys,      // Ref<string[]> — 选中行 key
-  clearSelection,       // () => void — 清空选中
-  sortState,            // Ref<SortState | null> — 排序状态
-  filterState,          // Ref<Record<string, unknown>> — 筛选状态
-  reload,               // (resetPage?: boolean) => Promise<void> — 重新请求
-  reset,                // () => void — 重置所有状态
-  setFormValues,        // (values) => void — 设置搜索表单值
-  setDataSource,        // (data: T[]) => void — 直接设置数据
-  insertRow,            // (row: T, index?: number) => void — 插入行
-  updateRow,            // (key: string, row: Partial<T>) => void — 更新行
-  deleteRow,            // (key: string) => void — 删除行
+  proTableProps, // 绑定到 <ProTable /> 的 props
+  dataSource, // Ref<T[]> — 当前页数据
+  loading, // Ref<boolean> — 加载状态
+  pagination, // Reactive — 分页状态
+  formValues, // Ref<Record<string, unknown>> — 搜索表单值
+  selectedRows, // Ref<T[]> — 选中行数据
+  selectedRowKeys, // Ref<string[]> — 选中行 key
+  clearSelection, // () => void — 清空选中
+  sortState, // Ref<SortState | null> — 排序状态
+  filterState, // Ref<Record<string, unknown>> — 筛选状态
+  reload, // (resetPage?: boolean) => Promise<void> — 重新请求
+  reset, // () => void — 重置所有状态
+  setFormValues, // (values) => void — 设置搜索表单值
+  setDataSource, // (data: T[]) => void — 直接设置数据
+  insertRow, // (row: T, index?: number) => void — 插入行
+  updateRow, // (key: string, row: Partial<T>) => void — 更新行
+  deleteRow, // (key: string) => void — 删除行
 } = useProTable({
   columns,
   request,
@@ -2905,25 +2903,25 @@ interface UseProTableOptions<T = Record<string, unknown>> {
 
 ## 返回值
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
-| `proTableProps` | `ComputedRef<ProTableProps>` | 绑定到 ProTable 组件的 props 对象 |
-| `dataSource` | `Ref<T[]>` | 当前页数据 |
-| `loading` | `Ref<boolean>` | 加载状态 |
-| `pagination` | `Reactive<PaginationState>` | 分页状态（current、pageSize、total） |
-| `formValues` | `Ref<Record<string, unknown>>` | 搜索表单当前值 |
-| `selectedRows` | `Ref<T[]>` | 当前选中的行数据 |
-| `selectedRowKeys` | `Ref<string[]>` | 当前选中行的 key 数组 |
-| `sortState` | `Ref<SortState \| null>` | 当前排序状态 |
-| `filterState` | `Ref<Record<string, unknown>>` | 当前筛选状态 |
-| `clearSelection` | `() => void` | 清空行选中 |
-| `reload` | `(resetPage?: boolean) => Promise<void>` | 重新请求，resetPage=true 时回到第一页 |
-| `reset` | `() => void` | 重置所有状态（表单、分页、排序、筛选） |
-| `setFormValues` | `(values: Partial<FormValues>) => void` | 设置搜索表单值并触发请求 |
-| `setDataSource` | `(data: T[]) => void` | 直接设置表格数据（受控模式） |
-| `insertRow` | `(row: T, index?: number) => void` | 在指定位置插入行 |
-| `updateRow` | `(key: string, row: Partial<T>) => void` | 按 key 更新行数据 |
-| `deleteRow` | `(key: string) => void` | 按 key 删除行 |
+| 返回值            | 类型                                     | 说明                                   |
+| ----------------- | ---------------------------------------- | -------------------------------------- |
+| `proTableProps`   | `ComputedRef<ProTableProps>`             | 绑定到 ProTable 组件的 props 对象      |
+| `dataSource`      | `Ref<T[]>`                               | 当前页数据                             |
+| `loading`         | `Ref<boolean>`                           | 加载状态                               |
+| `pagination`      | `Reactive<PaginationState>`              | 分页状态（current、pageSize、total）   |
+| `formValues`      | `Ref<Record<string, unknown>>`           | 搜索表单当前值                         |
+| `selectedRows`    | `Ref<T[]>`                               | 当前选中的行数据                       |
+| `selectedRowKeys` | `Ref<string[]>`                          | 当前选中行的 key 数组                  |
+| `sortState`       | `Ref<SortState \| null>`                 | 当前排序状态                           |
+| `filterState`     | `Ref<Record<string, unknown>>`           | 当前筛选状态                           |
+| `clearSelection`  | `() => void`                             | 清空行选中                             |
+| `reload`          | `(resetPage?: boolean) => Promise<void>` | 重新请求，resetPage=true 时回到第一页  |
+| `reset`           | `() => void`                             | 重置所有状态（表单、分页、排序、筛选） |
+| `setFormValues`   | `(values: Partial<FormValues>) => void`  | 设置搜索表单值并触发请求               |
+| `setDataSource`   | `(data: T[]) => void`                    | 直接设置表格数据（受控模式）           |
+| `insertRow`       | `(row: T, index?: number) => void`       | 在指定位置插入行                       |
+| `updateRow`       | `(key: string, row: Partial<T>) => void` | 按 key 更新行数据                      |
+| `deleteRow`       | `(key: string) => void`                  | 按 key 删除行                          |
 
 ## 内部 Composable 协作
 
@@ -2963,17 +2961,17 @@ outline: deep
 import { useProForm } from '@pro/hooks'
 
 const {
-  proFormProps,         // 绑定到 <ProForm /> 的 props
-  formValues,           // Ref<Record<string, unknown>> — 表单值
-  loading,              // Ref<boolean> — 提交中状态
-  setFieldValue,        // (field: string, value: unknown) => void
-  setFieldsValue,       // (values: Record<string, unknown>) => void
-  getFieldValue,        // (field: string) => unknown
-  getFieldsValue,       // () => Record<string, unknown>
-  validateFields,       // (fields?: string[]) => Promise<boolean>
-  resetFields,          // () => void — 重置为初始值
-  submit,               // () => Promise<boolean> — 触发验证 + 提交
-  clearValidation,      // (fields?: string[]) => void — 清除验证状态
+  proFormProps, // 绑定到 <ProForm /> 的 props
+  formValues, // Ref<Record<string, unknown>> — 表单值
+  loading, // Ref<boolean> — 提交中状态
+  setFieldValue, // (field: string, value: unknown) => void
+  setFieldsValue, // (values: Record<string, unknown>) => void
+  getFieldValue, // (field: string) => unknown
+  getFieldsValue, // () => Record<string, unknown>
+  validateFields, // (fields?: string[]) => Promise<boolean>
+  resetFields, // () => void — 重置为初始值
+  submit, // () => Promise<boolean> — 触发验证 + 提交
+  clearValidation, // (fields?: string[]) => void — 清除验证状态
 } = useProForm({
   fields,
   initialValues: { role: 'editor' },
@@ -3004,19 +3002,19 @@ interface UseProFormOptions {
 
 ## 返回值
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
-| `proFormProps` | `ComputedRef<ProFormProps>` | 绑定到 ProForm 组件的 props 对象 |
-| `formValues` | `Ref<Record<string, unknown>>` | 当前表单值 |
-| `loading` | `Ref<boolean>` | 提交中状态 |
-| `setFieldValue` | `(field: string, value: unknown) => void` | 设置单个字段值 |
-| `setFieldsValue` | `(values: Record<string, unknown>) => void` | 批量设置字段值 |
-| `getFieldValue` | `(field: string) => unknown` | 获取单个字段值 |
-| `getFieldsValue` | `() => Record<string, unknown>` | 获取所有字段值 |
-| `validateFields` | `(fields?: string[]) => Promise<boolean>` | 验证指定字段（不传则全部验证） |
-| `resetFields` | `() => void` | 重置为初始值 |
-| `submit` | `() => Promise<boolean>` | 触发验证并调用 onSubmit |
-| `clearValidation` | `(fields?: string[]) => void` | 清除验证错误提示 |
+| 返回值            | 类型                                        | 说明                             |
+| ----------------- | ------------------------------------------- | -------------------------------- |
+| `proFormProps`    | `ComputedRef<ProFormProps>`                 | 绑定到 ProForm 组件的 props 对象 |
+| `formValues`      | `Ref<Record<string, unknown>>`              | 当前表单值                       |
+| `loading`         | `Ref<boolean>`                              | 提交中状态                       |
+| `setFieldValue`   | `(field: string, value: unknown) => void`   | 设置单个字段值                   |
+| `setFieldsValue`  | `(values: Record<string, unknown>) => void` | 批量设置字段值                   |
+| `getFieldValue`   | `(field: string) => unknown`                | 获取单个字段值                   |
+| `getFieldsValue`  | `() => Record<string, unknown>`             | 获取所有字段值                   |
+| `validateFields`  | `(fields?: string[]) => Promise<boolean>`   | 验证指定字段（不传则全部验证）   |
+| `resetFields`     | `() => void`                                | 重置为初始值                     |
+| `submit`          | `() => Promise<boolean>`                    | 触发验证并调用 onSubmit          |
+| `clearValidation` | `(fields?: string[]) => void`               | 清除验证错误提示                 |
 
 ## 与 ModalForm / DrawerForm 配合
 
@@ -3050,11 +3048,11 @@ outline: deep
 import { useProDescriptions } from '@pro/hooks'
 
 const {
-  proDescriptionsProps,   // 绑定到 <ProDescriptions /> 的 props
-  data,                   // Ref<T> — 详情数据
-  loading,                // Ref<boolean> — 加载状态
-  reload,                 // () => Promise<void> — 重新加载数据
-  setData,                // (data: T) => void — 直接设置数据
+  proDescriptionsProps, // 绑定到 <ProDescriptions /> 的 props
+  data, // Ref<T> — 详情数据
+  loading, // Ref<boolean> — 加载状态
+  reload, // () => Promise<void> — 重新加载数据
+  setData, // (data: T) => void — 直接设置数据
 } = useProDescriptions({
   columns,
   request: async () => {
@@ -3084,13 +3082,13 @@ interface UseProDescriptionsOptions<T = Record<string, unknown>> {
 
 ## 返回值
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
+| 返回值                 | 类型                                | 说明                                     |
+| ---------------------- | ----------------------------------- | ---------------------------------------- |
 | `proDescriptionsProps` | `ComputedRef<ProDescriptionsProps>` | 绑定到 ProDescriptions 组件的 props 对象 |
-| `data` | `Ref<T>` | 当前详情数据 |
-| `loading` | `Ref<boolean>` | 加载状态 |
-| `reload` | `() => Promise<void>` | 重新请求数据 |
-| `setData` | `(data: T) => void` | 直接设置详情数据 |
+| `data`                 | `Ref<T>`                            | 当前详情数据                             |
+| `loading`              | `Ref<boolean>`                      | 加载状态                                 |
+| `reload`               | `() => Promise<void>`               | 重新请求数据                             |
+| `setData`              | `(data: T) => void`                 | 直接设置详情数据                         |
 
 ## 典型场景
 
@@ -3103,7 +3101,9 @@ interface UseProDescriptionsOptions<T = Record<string, unknown>> {
 import { ref } from 'vue'
 import { useProDescriptions } from '@pro/hooks'
 
-const columns = [/* 共用的 columns 定义 */]
+const columns = [
+  /* 共用的 columns 定义 */
+]
 
 const { proDescriptionsProps, setData } = useProDescriptions({
   columns,
@@ -3131,6 +3131,7 @@ git commit -m "feat(docs): add composable doc pages (useProTable, useProForm, us
 ### Task 12: Platform Doc Pages
 
 **Files:**
+
 - Create: `docs/platform/overview.md`
 - Create: `docs/platform/grayscale.md`
 - Create: `docs/platform/api-reference.md`
@@ -3147,24 +3148,25 @@ outline: deep
 版本管理平台是 Pro Components CDN 分发体系的控制中心，提供版本管理、灰度发布、兼容性矩阵和审计追踪功能。
 
 ## 架构
+```
 
-```
 platform/
-├── web/            # Dashboard（Vue 3 + Element Plus）
-│   └── views/
-│       ├── app-manage/       # 业务应用管理
-│       ├── version-map/      # 版本映射配置
-│       ├── publish/          # 发布管理 & 灰度
-│       ├── compat-matrix/    # 兼容性矩阵
-│       └── changelog/        # 变更日志查看
-└── server/         # API（Koa + MySQL）
-    └── modules/
-        ├── app/              # 应用 CRUD
-        ├── version/          # 版本管理 & 依赖解析
-        ├── import-map/       # Import Map 生成 & 缓存
-        ├── grayscale/        # 灰度策略引擎
-        └── sync/             # npm publish → CDN 同步
-```
+├── web/ # Dashboard（Vue 3 + Element Plus）
+│ └── views/
+│ ├── app-manage/ # 业务应用管理
+│ ├── version-map/ # 版本映射配置
+│ ├── publish/ # 发布管理 & 灰度
+│ ├── compat-matrix/ # 兼容性矩阵
+│ └── changelog/ # 变更日志查看
+└── server/ # API（Koa + MySQL）
+└── modules/
+├── app/ # 应用 CRUD
+├── version/ # 版本管理 & 依赖解析
+├── import-map/ # Import Map 生成 & 缓存
+├── grayscale/ # 灰度策略引擎
+└── sync/ # npm publish → CDN 同步
+
+````
 
 ## 核心功能
 
@@ -3224,7 +3226,7 @@ CI 自动测试 Pro Components 与不同版本 Vue / Element Plus 的兼容性�
   },
   "suggestion": "Upgrade @pro/form to 2.0"
 }
-```
+````
 
 ## CDN 发布状态机
 
@@ -3245,7 +3247,8 @@ npm publish hook →
 - 蓝绿部署 + 深度健康检查（DB + Redis + CDN 存储连通性）
 - 数据库迁移使用 expand-contract 模式
 - API 版本化：`/api/v1/`, `/api/v2/`
-```
+
+````
 
 - [ ] **Step 2: Create docs/platform/grayscale.md**
 
@@ -3285,7 +3288,7 @@ outline: deep
     }
   ]
 }
-```
+````
 
 上面的规则含义：**uid1 或 uid2 命中灰度**，或者 **engineering 部门中 50% 的用户命中灰度**。
 
@@ -3343,7 +3346,8 @@ GET  /api/v1/apps/:appId/versions        # 查看应用版本映射
 ```
 
 详细 API 参数见 [API 参考](/platform/api-reference)。
-```
+
+`````
 
 - [ ] **Step 3: Create docs/platform/api-reference.md**
 
@@ -3391,7 +3395,7 @@ outline: deep
   },
   "cache_bust": false
 }
-```
+`````
 
 ## 版本管理
 
@@ -3540,6 +3544,7 @@ CI 自动上报测试结果。
   "timestamp": "2026-03-30T14:30:00Z"
 }
 ```
+
 ````
 
 - [ ] **Step 4: Commit**
@@ -3737,3 +3742,4 @@ Verify the production build serves correctly.
 - [x] **Theme registers dependencies:** Custom theme registers Element Plus globally and auto-discovers Pro Components via `import.meta.glob`, with graceful fallback
 - [x] **Monorepo integration:** docs workspace package added to `pnpm-workspace.yaml` (via Plan 1), turbo.json tasks added, root scripts added, tsconfig references updated
 - [x] **TypeScript checked demos:** Demo files import from `@pro/*` packages with proper type annotations, serving as both documentation and development playground
+````

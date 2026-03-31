@@ -16,12 +16,12 @@
 
 This plan is **additive** to existing Plans 1–6. Tasks are grouped by phase and indicate which existing plan they augment.
 
-| Phase | Tasks | Augments | Can Parallel With |
-|-------|-------|----------|-------------------|
-| 1 | 1–3 | Plan 1 (Foundation) | — |
-| 2 | 4–10 | Plan 2a, 2b, 5b | Existing Plan 2a/2b/5b agents |
-| 3 | 11–13 | Plan 3, 4 | Existing Plan 3/4 agents |
-| Any | 14 | Standalone | Any phase |
+| Phase | Tasks | Augments            | Can Parallel With             |
+| ----- | ----- | ------------------- | ----------------------------- |
+| 1     | 1–3   | Plan 1 (Foundation) | —                             |
+| 2     | 4–10  | Plan 2a, 2b, 5b     | Existing Plan 2a/2b/5b agents |
+| 3     | 11–13 | Plan 3, 4           | Existing Plan 3/4 agents      |
+| Any   | 14    | Standalone          | Any phase                     |
 
 ---
 
@@ -29,37 +29,37 @@ This plan is **additive** to existing Plans 1–6. Tasks are grouped by phase an
 
 ### New Files
 
-| File | Responsibility |
-|------|---------------|
-| `packages/locale/package.json` | @pro/locale package manifest |
-| `packages/locale/tsconfig.json` | TypeScript config extending base |
-| `packages/locale/rollup.config.ts` | Build config for locale package |
-| `packages/locale/src/index.ts` | Public exports: enUS, zhCN, ProLocaleKey type |
-| `packages/locale/src/lang/en-US.ts` | English messages (~60 keys) |
-| `packages/locale/src/lang/zh-CN.ts` | Chinese messages (~60 keys) |
-| `packages/hooks/src/use-pro-locale.ts` | useProLocale composable |
-| `packages/hooks/src/resolve-message.ts` | Fallback translation function |
-| `packages/hooks/src/resolve-message.test.ts` | resolveMessage unit tests |
-| `packages/hooks/src/use-pro-locale.test.ts` | useProLocale unit tests |
-| `platform/web/src/locale/en-US.ts` | Dashboard English messages |
-| `platform/web/src/locale/zh-CN.ts` | Dashboard Chinese messages |
-| `platform/web/src/locale/index.ts` | Dashboard locale exports |
+| File                                         | Responsibility                                |
+| -------------------------------------------- | --------------------------------------------- |
+| `packages/locale/package.json`               | @pro/locale package manifest                  |
+| `packages/locale/tsconfig.json`              | TypeScript config extending base              |
+| `packages/locale/rollup.config.ts`           | Build config for locale package               |
+| `packages/locale/src/index.ts`               | Public exports: enUS, zhCN, ProLocaleKey type |
+| `packages/locale/src/lang/en-US.ts`          | English messages (~60 keys)                   |
+| `packages/locale/src/lang/zh-CN.ts`          | Chinese messages (~60 keys)                   |
+| `packages/hooks/src/use-pro-locale.ts`       | useProLocale composable                       |
+| `packages/hooks/src/resolve-message.ts`      | Fallback translation function                 |
+| `packages/hooks/src/resolve-message.test.ts` | resolveMessage unit tests                     |
+| `packages/hooks/src/use-pro-locale.test.ts`  | useProLocale unit tests                       |
+| `platform/web/src/locale/en-US.ts`           | Dashboard English messages                    |
+| `platform/web/src/locale/zh-CN.ts`           | Dashboard Chinese messages                    |
+| `platform/web/src/locale/index.ts`           | Dashboard locale exports                      |
 
 ### Modified Files
 
-| File | Change |
-|------|--------|
-| `pnpm-workspace.yaml` | Add `platform/*` glob |
-| `packages/pro-components/package.json` | Add vue-i18n optional peerDep |
-| `packages/hooks/package.json` | Add @pro/locale dependency |
-| `packages/hooks/src/index.ts` | Export useProLocale, resolveMessage |
-| `packages/hooks/src/constants.ts` | Add PRO_LOCALE_KEY symbol |
-| `packages/hooks/src/use-value-type.ts` | Locale-aware formatters |
-| `packages/pro-components/src/pro-config-provider.vue` | Locale detection + sync |
-| `scripts/rollup.base.ts` | Add vue-i18n + dayjs to externals |
-| `cdn/loader/src/pro-loader.ts` | Add vue-i18n to import map |
-| `docs/.vitepress/config.ts` | Add locales config |
-| `platform/web/src/main.ts` | Add vue-i18n instance setup |
+| File                                                  | Change                              |
+| ----------------------------------------------------- | ----------------------------------- |
+| `pnpm-workspace.yaml`                                 | Add `platform/*` glob               |
+| `packages/pro-components/package.json`                | Add vue-i18n optional peerDep       |
+| `packages/hooks/package.json`                         | Add @pro/locale dependency          |
+| `packages/hooks/src/index.ts`                         | Export useProLocale, resolveMessage |
+| `packages/hooks/src/constants.ts`                     | Add PRO_LOCALE_KEY symbol           |
+| `packages/hooks/src/use-value-type.ts`                | Locale-aware formatters             |
+| `packages/pro-components/src/pro-config-provider.vue` | Locale detection + sync             |
+| `scripts/rollup.base.ts`                              | Add vue-i18n + dayjs to externals   |
+| `cdn/loader/src/pro-loader.ts`                        | Add vue-i18n to import map          |
+| `docs/.vitepress/config.ts`                           | Add locales config                  |
+| `platform/web/src/main.ts`                            | Add vue-i18n instance setup         |
 
 ---
 
@@ -68,6 +68,7 @@ This plan is **additive** to existing Plans 1–6. Tasks are grouped by phase an
 ### Task 1: Create @pro/locale Package
 
 **Files:**
+
 - Create: `packages/locale/package.json`
 - Create: `packages/locale/tsconfig.json`
 - Create: `packages/locale/rollup.config.ts`
@@ -306,8 +307,8 @@ export { zhCN } from './lang/zh-CN'
 
 type NestedKeyOf<T, P extends string = ''> =
   T extends Record<string, unknown>
-    ? { [K in keyof T & string]:
-        T[K] extends Record<string, unknown>
+    ? {
+        [K in keyof T & string]: T[K] extends Record<string, unknown>
           ? NestedKeyOf<T[K], `${P}${K}.`>
           : `${P}${K}`
       }[keyof T & string]
@@ -335,6 +336,7 @@ git commit -m "feat(locale): add @pro/locale package with zh-CN and en-US messag
 ### Task 2: Update Workspace Config
 
 **Files:**
+
 - Modify: `pnpm-workspace.yaml`
 
 - [ ] **Step 1: Add platform glob to workspace**
@@ -343,10 +345,10 @@ In `pnpm-workspace.yaml`, add `"platform/*"` to the packages list:
 
 ```yaml
 packages:
-  - "packages/*"
-  - "platform/*"
-  - "playground"
-  - "docs"
+  - 'packages/*'
+  - 'platform/*'
+  - 'playground'
+  - 'docs'
 ```
 
 - [ ] **Step 2: Verify workspace recognizes new packages**
@@ -366,6 +368,7 @@ git commit -m "chore(build): add platform/* to workspace config"
 ### Task 3: Add vue-i18n Optional Peer Dependency
 
 **Files:**
+
 - Modify: `packages/pro-components/package.json`
 - Modify: `packages/hooks/package.json`
 - Modify: `scripts/rollup.base.ts`
@@ -419,10 +422,10 @@ const EXTERNAL_DEPS = [
 
 // In UMD output config, add globals:
 const UMD_GLOBALS: Record<string, string> = {
-  'vue': 'Vue',
+  vue: 'Vue',
   'vue-i18n': 'VueI18n',
   'element-plus': 'ElementPlus',
-  'dayjs': 'dayjs',
+  dayjs: 'dayjs',
 }
 ```
 
@@ -445,6 +448,7 @@ git commit -m "chore(build): add vue-i18n optional peer dep and locale package d
 ### Task 4: Implement resolveMessage Utility
 
 **Files:**
+
 - Create: `packages/hooks/src/resolve-message.ts`
 - Create: `packages/hooks/src/resolve-message.test.ts`
 
@@ -492,9 +496,9 @@ describe('resolveMessage', () => {
   })
 
   it('preserves unmatched param placeholders', () => {
-    expect(
-      resolveMessage(messages, 'pro.table.pagination.showing', { start: 1 }),
-    ).toBe('Showing 1\u2013{end} of {total}')
+    expect(resolveMessage(messages, 'pro.table.pagination.showing', { start: 1 })).toBe(
+      'Showing 1\u2013{end} of {total}',
+    )
   })
 
   it('returns empty string for empty key', () => {
@@ -503,7 +507,9 @@ describe('resolveMessage', () => {
 
   it('returns key when messages is null-ish', () => {
     expect(resolveMessage(null as unknown as Record<string, unknown>, 'any.key')).toBe('any.key')
-    expect(resolveMessage(undefined as unknown as Record<string, unknown>, 'any.key')).toBe('any.key')
+    expect(resolveMessage(undefined as unknown as Record<string, unknown>, 'any.key')).toBe(
+      'any.key',
+    )
   })
 
   it('returns key when value is not a string', () => {
@@ -530,10 +536,9 @@ export function resolveMessage(
   if (!key) return ''
   if (!messages) return key
 
-  const value = key.split('.').reduce<unknown>(
-    (obj, k) => (obj as Record<string, unknown>)?.[k],
-    messages,
-  )
+  const value = key
+    .split('.')
+    .reduce<unknown>((obj, k) => (obj as Record<string, unknown>)?.[k], messages)
 
   if (typeof value !== 'string') return key
   if (!params) return value
@@ -559,6 +564,7 @@ git commit -m "feat(hooks): add resolveMessage i18n fallback utility"
 ### Task 5: Implement useProLocale Composable
 
 **Files:**
+
 - Modify: `packages/hooks/src/constants.ts`
 - Create: `packages/hooks/src/use-pro-locale.ts`
 - Create: `packages/hooks/src/use-pro-locale.test.ts`
@@ -644,9 +650,7 @@ describe('useProLocale', () => {
 
     mount(Comp)
 
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[ProComponents]'),
-    )
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[ProComponents]'))
 
     warnSpy.mockRestore()
   })
@@ -680,15 +684,17 @@ export function useProLocale(): ProLocaleContext {
 
   if (!ctx && __DEV__) {
     console.warn(
-      '[ProComponents] useProLocale() called without <ProConfigProvider>. '
-      + 'Falling back to en-US defaults. Wrap your app with <ProConfigProvider> for full i18n support.',
+      '[ProComponents] useProLocale() called without <ProConfigProvider>. ' +
+        'Falling back to en-US defaults. Wrap your app with <ProConfigProvider> for full i18n support.',
     )
   }
 
-  return ctx ?? {
-    t: (key, params) => resolveMessage(enUS as unknown as Record<string, unknown>, key, params),
-    locale: computed(() => 'en-US'),
-  }
+  return (
+    ctx ?? {
+      t: (key, params) => resolveMessage(enUS as unknown as Record<string, unknown>, key, params),
+      locale: computed(() => 'en-US'),
+    }
+  )
 }
 ```
 
@@ -725,6 +731,7 @@ git commit -m "feat(hooks): add useProLocale composable with fallback support"
 ### Task 6: Add Locale-Aware Formatting to useValueType
 
 **Files:**
+
 - Modify: `packages/hooks/src/use-value-type.ts`
 - Create: `packages/hooks/src/formatters.ts`
 - Create: `packages/hooks/src/formatters.test.ts`
@@ -737,7 +744,13 @@ import { describe, expect, it, beforeEach, afterEach } from 'vitest'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/zh-cn'
-import { formatDate, formatRelativeTime, formatNumber, formatMoney, formatPercent } from './formatters'
+import {
+  formatDate,
+  formatRelativeTime,
+  formatNumber,
+  formatMoney,
+  formatPercent,
+} from './formatters'
 
 dayjs.extend(relativeTime)
 
@@ -762,8 +775,12 @@ describe('formatDate', () => {
 })
 
 describe('formatRelativeTime', () => {
-  beforeEach(() => { dayjs.locale('en') })
-  afterEach(() => { dayjs.locale('en') })
+  beforeEach(() => {
+    dayjs.locale('en')
+  })
+  afterEach(() => {
+    dayjs.locale('en')
+  })
 
   it('returns relative time in English', () => {
     const twoHoursAgo = dayjs().subtract(2, 'hour').toISOString()
@@ -849,11 +866,7 @@ export function formatNumber(value: number, locale: string): string {
   return new Intl.NumberFormat(locale).format(value)
 }
 
-export function formatMoney(
-  value: number,
-  locale: string,
-  currency?: string,
-): string {
+export function formatMoney(value: number, locale: string, currency?: string): string {
   const cur = currency ?? (locale === 'zh-CN' ? 'CNY' : 'USD')
   return new Intl.NumberFormat(locale, { style: 'currency', currency: cur }).format(value)
 }
@@ -878,7 +891,13 @@ In `packages/hooks/src/use-value-type.ts`, import and use the locale-aware forma
 ```ts
 // At top of file
 import { useProLocale } from './use-pro-locale'
-import { formatDate, formatRelativeTime, formatNumber, formatMoney, formatPercent } from './formatters'
+import {
+  formatDate,
+  formatRelativeTime,
+  formatNumber,
+  formatMoney,
+  formatPercent,
+} from './formatters'
 
 // Inside useValueType composable
 const { locale } = useProLocale()
@@ -920,6 +939,7 @@ git commit -m "feat(hooks): add locale-aware date/number/currency formatters"
 ### Task 7: Implement ProConfigProvider Locale Logic
 
 **Files:**
+
 - Modify: `packages/pro-components/src/pro-config-provider.vue`
 - Modify: `packages/hooks/src/types.ts`
 
@@ -967,13 +987,17 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const currentLocale = computed(() => props.locale)
-const messages = computed<Record<string, unknown>>(
-  () => currentLocale.value === 'zh-CN' ? zhCN as unknown as Record<string, unknown> : enUS as unknown as Record<string, unknown>,
+const messages = computed<Record<string, unknown>>(() =>
+  currentLocale.value === 'zh-CN'
+    ? (zhCN as unknown as Record<string, unknown>)
+    : (enUS as unknown as Record<string, unknown>),
 )
 
 // --- Element Plus locale map ---
 const EL_LOCALE_MAP = { 'zh-CN': zhCn, 'en-US': en } as const
-const elLocale = computed(() => EL_LOCALE_MAP[currentLocale.value as keyof typeof EL_LOCALE_MAP] ?? en)
+const elLocale = computed(
+  () => EL_LOCALE_MAP[currentLocale.value as keyof typeof EL_LOCALE_MAP] ?? en,
+)
 
 // --- vue-i18n detection (optional peer dependency) ---
 let i18n: I18nLike | null = null
@@ -993,12 +1017,16 @@ if (i18n) {
 }
 
 // --- Watch locale changes: sync vue-i18n, dayjs ---
-watch(currentLocale, (loc) => {
-  if (i18n) {
-    i18n.global.locale.value = loc
-  }
-  dayjs.locale(loc === 'zh-CN' ? 'zh-cn' : 'en')
-}, { immediate: true })
+watch(
+  currentLocale,
+  (loc) => {
+    if (i18n) {
+      i18n.global.locale.value = loc
+    }
+    dayjs.locale(loc === 'zh-CN' ? 'zh-cn' : 'en')
+  },
+  { immediate: true },
+)
 
 // --- Provide locale context ---
 const t: ProLocaleContext['t'] = i18n
@@ -1035,6 +1063,7 @@ git commit -m "feat(pro-components): add locale detection and sync to ProConfigP
 ### Task 8: Wire ProTable Internal Text to t() Calls
 
 **Files:**
+
 - Modify: `packages/pro-table/src/components/QueryFilter.vue`
 - Modify: `packages/pro-table/src/components/Toolbar.vue`
 - Modify: `packages/pro-table/src/components/ColumnSetting.vue`
@@ -1141,6 +1170,7 @@ git commit -m "feat(table): wire all internal text to i18n t() calls"
 ### Task 9: Wire ProForm and ProDescriptions to t() Calls
 
 **Files:**
+
 - Modify: `packages/pro-form/src/ProForm.vue`
 - Modify: `packages/pro-form/src/components/StepsForm.vue`
 - Modify: `packages/pro-descriptions/src/ProDescriptions.vue`
@@ -1226,6 +1256,7 @@ git commit -m "feat(form,descriptions): wire all internal text to i18n t() calls
 ### Task 10: Platform Dashboard vue-i18n Setup (augments Plan 5b)
 
 **Files:**
+
 - Create: `platform/web/src/locale/en-US.ts`
 - Create: `platform/web/src/locale/zh-CN.ts`
 - Create: `platform/web/src/locale/index.ts`
@@ -1443,6 +1474,7 @@ git commit -m "feat(platform-web): add vue-i18n setup with zh-CN and en-US messa
 ### Task 11: VitePress i18n Configuration (augments Plan 3)
 
 **Files:**
+
 - Modify: `docs/.vitepress/config.ts`
 - Create: `docs/en/guide/i18n.md`
 - Create: `docs/zh/guide/i18n.md`
@@ -1476,9 +1508,7 @@ export default defineConfig({
             { text: 'ProForm', link: '/en/components/pro-form' },
             { text: 'ProDescriptions', link: '/en/components/pro-descriptions' },
           ],
-          '/en/api/': [
-            { text: 'Locale', link: '/en/api/locale' },
-          ],
+          '/en/api/': [{ text: 'Locale', link: '/en/api/locale' }],
         },
       },
     },
@@ -1502,9 +1532,7 @@ export default defineConfig({
             { text: 'ProForm', link: '/zh/components/pro-form' },
             { text: 'ProDescriptions', link: '/zh/components/pro-descriptions' },
           ],
-          '/zh/api/': [
-            { text: 'Locale', link: '/zh/api/locale' },
-          ],
+          '/zh/api/': [{ text: 'Locale', link: '/zh/api/locale' }],
         },
       },
     },
@@ -1516,6 +1544,7 @@ export default defineConfig({
 
 ```md
 <!-- docs/en/guide/i18n.md -->
+
 # Internationalization
 
 Pro Components supports **zh-CN** and **en-US** out of the box.
@@ -1526,13 +1555,14 @@ Wrap your app with `ProConfigProvider` and set the `locale` prop:
 
 \`\`\`vue
 <template>
-  <ProConfigProvider locale="zh-CN">
-    <App />
-  </ProConfigProvider>
+<ProConfigProvider locale="zh-CN">
+<App />
+</ProConfigProvider>
 </template>
 \`\`\`
 
 This single prop synchronizes three systems:
+
 - Pro Components internal text
 - Element Plus component text (DatePicker, Pagination, etc.)
 - dayjs date formatting locale
@@ -1546,18 +1576,19 @@ import { createI18n } from 'vue-i18n'
 import { enUS, zhCN } from '@pro/locale'
 
 const i18n = createI18n({
-  legacy: false,
-  locale: 'zh-CN',
-  messages: {
-    'en-US': { ...enUS, ...yourAppMessages },
-    'zh-CN': { ...zhCN, ...yourAppMessages },
-  },
+legacy: false,
+locale: 'zh-CN',
+messages: {
+'en-US': { ...enUS, ...yourAppMessages },
+'zh-CN': { ...zhCN, ...yourAppMessages },
+},
 })
 
 app.use(i18n)
 \`\`\`
 
 ### Benefits with vue-i18n
+
 - Consumer message overrides via `mergeLocaleMessage()`
 - Pluralization support
 - `<i18n-t>` component for complex interpolation
@@ -1572,11 +1603,11 @@ With vue-i18n, you can override any Pro Components message:
 
 \`\`\`ts
 i18n.global.mergeLocaleMessage('en-US', {
-  pro: {
-    table: {
-      empty: 'Nothing here yet!',
-    },
-  },
+pro: {
+table: {
+empty: 'Nothing here yet!',
+},
+},
 })
 \`\`\`
 
@@ -1589,6 +1620,7 @@ All Pro Components messages are under the `pro.` namespace. See the [Locale API]
 
 ```md
 <!-- docs/zh/guide/i18n.md -->
+
 # 国际化
 
 Pro Components 开箱支持 **简体中文** 和 **English** 两种语言。
@@ -1599,13 +1631,14 @@ Pro Components 开箱支持 **简体中文** 和 **English** 两种语言。
 
 \`\`\`vue
 <template>
-  <ProConfigProvider locale="zh-CN">
-    <App />
-  </ProConfigProvider>
+<ProConfigProvider locale="zh-CN">
+<App />
+</ProConfigProvider>
 </template>
 \`\`\`
 
 一个 prop 同步三套系统：
+
 - Pro Components 内部文案
 - Element Plus 组件文案（DatePicker、Pagination 等）
 - dayjs 日期格式化 locale
@@ -1619,18 +1652,19 @@ import { createI18n } from 'vue-i18n'
 import { enUS, zhCN } from '@pro/locale'
 
 const i18n = createI18n({
-  legacy: false,
-  locale: 'zh-CN',
-  messages: {
-    'en-US': { ...enUS, ...yourAppMessages },
-    'zh-CN': { ...zhCN, ...yourAppMessages },
-  },
+legacy: false,
+locale: 'zh-CN',
+messages: {
+'en-US': { ...enUS, ...yourAppMessages },
+'zh-CN': { ...zhCN, ...yourAppMessages },
+},
 })
 
 app.use(i18n)
 \`\`\`
 
 ### vue-i18n 模式额外能力
+
 - 通过 `mergeLocaleMessage()` 覆盖组件库默认文案
 - 复数（pluralization）支持
 - `<i18n-t>` 组件实现复杂插值
@@ -1645,11 +1679,11 @@ app.use(i18n)
 
 \`\`\`ts
 i18n.global.mergeLocaleMessage('zh-CN', {
-  pro: {
-    table: {
-      empty: '这里什么都没有~',
-    },
-  },
+pro: {
+table: {
+empty: '这里什么都没有~',
+},
+},
 })
 \`\`\`
 
@@ -1679,6 +1713,7 @@ git commit -m "docs(guide): add i18n guide and locale API reference (en + zh)"
 ### Task 12: Update CDN Import Map for vue-i18n (augments Plan 4)
 
 **Files:**
+
 - Modify: `cdn/loader/src/pro-loader.ts`
 - Modify: `cdn/build/import-map-template.json` (or equivalent)
 
@@ -1726,6 +1761,7 @@ git commit -m "feat(loader): add vue-i18n to CDN import map"
 ### Task 13: Update Rollup Externals Globally
 
 **Files:**
+
 - Modify: `scripts/rollup.base.ts`
 
 - [ ] **Step 1: Verify Rollup base config has all externals**
@@ -1745,10 +1781,10 @@ const EXTERNAL_DEPS = [
 ]
 
 const UMD_GLOBALS: Record<string, string> = {
-  'vue': 'Vue',
+  vue: 'Vue',
   'vue-i18n': 'VueI18n',
   'element-plus': 'ElementPlus',
-  'dayjs': 'dayjs',
+  dayjs: 'dayjs',
 }
 ```
 
@@ -1771,6 +1807,7 @@ git commit -m "chore(build): ensure vue-i18n and dayjs in Rollup externals"
 ### Task 14: Translate Planning Docs to Chinese
 
 **Files:**
+
 - Create: 13 new `-zh.md` files (see list below)
 
 This task can run in parallel with any phase. It is purely documentation work with no code dependencies.
@@ -1778,11 +1815,13 @@ This task can run in parallel with any phase. It is purely documentation work wi
 - [ ] **Step 1: Translate design specs**
 
 Create Chinese versions of:
+
 - `docs/superpowers/specs/2026-03-31-pro-components-design-zh.md`
 - `docs/superpowers/specs/2026-03-31-pro-components-ui-design-zh.md`
 - `docs/superpowers/specs/2026-03-31-pro-components-i18n-design-zh.md`
 
 Translation rules:
+
 - Code blocks: keep English
 - File paths: keep English
 - Variable names: keep English
@@ -1793,6 +1832,7 @@ Translation rules:
 - [ ] **Step 2: Translate implementation plans**
 
 Create Chinese versions of:
+
 - `docs/superpowers/plans/2026-03-31-plan-1-monorepo-foundation-zh.md`
 - `docs/superpowers/plans/2026-03-31-plan-2a-hooks-and-protable-zh.md`
 - `docs/superpowers/plans/2026-03-31-plan-2b-proform-and-prodescriptions-zh.md`
@@ -1805,6 +1845,7 @@ Create Chinese versions of:
 - [ ] **Step 3: Translate orchestration docs**
 
 Create Chinese versions of:
+
 - `docs/superpowers/plans/agent-orchestration-zh.md`
 - `docs/superpowers/plans/supervisor-agent-zh.md`
 

@@ -13,16 +13,16 @@
 
 ### Tech Stack
 
-| Category | Choice |
-|----------|--------|
-| Framework | Vue 3 + Element Plus |
-| Monorepo | Turborepo + pnpm workspace |
-| Build | Rollup → ESM / CJS / UMD |
-| Docs | VitePress + vitepress-plugin-demo |
-| Testing | Vitest + Vue Test Utils + Cypress Component Testing |
-| Publish | Changesets |
-| CDN | ESM CDN + Import Maps + es-module-shims polyfill |
-| Platform | Koa.js + MySQL (API) + Vue 3 + Element Plus (Dashboard) |
+| Category  | Choice                                                  |
+| --------- | ------------------------------------------------------- |
+| Framework | Vue 3 + Element Plus                                    |
+| Monorepo  | Turborepo + pnpm workspace                              |
+| Build     | Rollup → ESM / CJS / UMD                                |
+| Docs      | VitePress + vitepress-plugin-demo                       |
+| Testing   | Vitest + Vue Test Utils + Cypress Component Testing     |
+| Publish   | Changesets                                              |
+| CDN       | ESM CDN + Import Maps + es-module-shims polyfill        |
+| Platform  | Koa.js + MySQL (API) + Vue 3 + Element Plus (Dashboard) |
 
 ### Target Users
 
@@ -104,15 +104,15 @@ packages/pro-table/
     ".": {
       "import": "./dist/esm/index.mjs",
       "require": "./dist/cjs/index.js",
-      "types": "./dist/types/index.d.ts"
+      "types": "./dist/types/index.d.ts",
     },
-    "./style": "./dist/style/index.css"
+    "./style": "./dist/style/index.css",
   },
   "sideEffects": ["dist/style/**"],
   "peerDependencies": {
     "vue": ">=3.4.0",
-    "element-plus": ">=2.9.0"
-  }
+    "element-plus": ">=2.9.0",
+  },
 }
 ```
 
@@ -138,10 +138,12 @@ packages/pro-table/
 ### Core Principle: Headless-First
 
 Every component is split into:
+
 - **Composable** (`useProTable`) — manages all state and logic
 - **Component** (`ProTable`) — renders UI based on composable state
 
 Two usage modes:
+
 - **Simple mode**: `<ProTable :columns="cols" :request="fn" />` — component auto-creates composable internally
 - **Composable mode**: consumer creates `useProTable()`, passes `proTableProps` to component for full state control
 
@@ -193,23 +195,23 @@ interface ProTableProps<T = Record<string, any>> {
 
 ```typescript
 const {
-  proTableProps,        // bind to <ProTable />
-  dataSource,           // Ref<T[]>
-  loading,              // Ref<boolean>
-  pagination,           // Reactive pagination state
-  formValues,           // Ref<Record<string, any>>
-  selectedRows,         // Ref<T[]>
-  selectedRowKeys,      // Ref<string[]>
-  clearSelection,       // () => void
-  sortState,            // Ref<SortState | null>
-  filterState,          // Ref<Record<string, any>>
-  reload,               // (resetPage?: boolean) => Promise<void>
-  reset,                // () => void
-  setFormValues,        // (values: Partial<FormValues>) => void
-  setDataSource,        // (data: T[]) => void
-  insertRow,            // (row: T, index?: number) => void
-  updateRow,            // (key: string, row: Partial<T>) => void
-  deleteRow,            // (key: string) => void
+  proTableProps, // bind to <ProTable />
+  dataSource, // Ref<T[]>
+  loading, // Ref<boolean>
+  pagination, // Reactive pagination state
+  formValues, // Ref<Record<string, any>>
+  selectedRows, // Ref<T[]>
+  selectedRowKeys, // Ref<string[]>
+  clearSelection, // () => void
+  sortState, // Ref<SortState | null>
+  filterState, // Ref<Record<string, any>>
+  reload, // (resetPage?: boolean) => Promise<void>
+  reset, // () => void
+  setFormValues, // (values: Partial<FormValues>) => void
+  setDataSource, // (data: T[]) => void
+  insertRow, // (row: T, index?: number) => void
+  updateRow, // (key: string, row: Partial<T>) => void
+  deleteRow, // (key: string) => void
 } = useProTable({ columns, request, rowKey: 'id', defaultPageSize: 20 })
 ```
 
@@ -217,7 +219,7 @@ const {
 
 ```typescript
 interface ProColumnDef<T = any> {
-  dataIndex: keyof T | string     // supports nested 'user.name'
+  dataIndex: keyof T | string // supports nested 'user.name'
   title: string
   key?: string
 
@@ -252,23 +254,23 @@ interface ProColumnDef<T = any> {
 
 ### ValueType System
 
-| ValueType | Table Rendering | Search Control |
-|-----------|----------------|----------------|
-| text | Plain text | el-input |
-| number | Formatted number | el-input-number |
-| select | Tag display | el-select |
-| date | Formatted date | el-date-picker |
-| dateRange | — | el-date-picker range |
-| dateTime | Date with time | el-date-picker datetime |
-| switch | Switch status | el-switch |
-| radio | Tag | el-radio-group |
-| checkbox | Tags | el-checkbox-group |
-| textarea | Text | el-input textarea |
-| money | Currency format | el-input-number |
-| percent | Percentage | el-input-number |
-| progress | el-progress | — |
-| image | el-image | — |
-| code | Code block | — |
+| ValueType | Table Rendering  | Search Control          |
+| --------- | ---------------- | ----------------------- |
+| text      | Plain text       | el-input                |
+| number    | Formatted number | el-input-number         |
+| select    | Tag display      | el-select               |
+| date      | Formatted date   | el-date-picker          |
+| dateRange | —                | el-date-picker range    |
+| dateTime  | Date with time   | el-date-picker datetime |
+| switch    | Switch status    | el-switch               |
+| radio     | Tag              | el-radio-group          |
+| checkbox  | Tags             | el-checkbox-group       |
+| textarea  | Text             | el-input textarea       |
+| money     | Currency format  | el-input-number         |
+| percent   | Percentage       | el-input-number         |
+| progress  | el-progress      | —                       |
+| image     | el-image         | —                       |
+| code      | Code block       | —                       |
 
 ### ProForm
 
@@ -391,11 +393,17 @@ Consumer → pro-loader.js → fetch /api/import-map (CDN edge cached)
 Consumer integration — single script tag:
 
 ```html
-<script>window.__PRO_USER_ID__ = 'dorian'</script>
-<script src="https://cdn.internal/pro-loader@1.js?appId=user-center" data-pro-entry="/src/main.ts"></script>
+<script>
+  window.__PRO_USER_ID__ = 'dorian'
+</script>
+<script
+  src="https://cdn.internal/pro-loader@1.js?appId=user-center"
+  data-pro-entry="/src/main.ts"
+></script>
 ```
 
 Loader handles:
+
 1. Import `es-module-shims` (polyfill for dynamic import map injection)
 2. Fetch import map from API (with CDN edge cache: `max-age=60, stale-while-revalidate=300`)
 3. Fallback chain on failure: API → SW cache → localStorage → hardcoded fallback → inline error page with retry
@@ -447,6 +455,7 @@ Request: appId=user-center, userId=dorian
 ### Dev/Prod Alignment
 
 Official Vite plugin `@pro/vite-plugin`:
+
 - Excludes Vue, Element Plus, `@pro/*` from Vite's `optimizeDeps` pre-bundling
 - Ensures dev mode module boundaries match CDN prod mode
 - Prevents `inject() can only be used inside setup()` bugs caused by module boundary mismatch
@@ -580,12 +589,12 @@ CREATE TABLE platform_users (
 
 ### RBAC Permissions
 
-| Role | Permissions |
-|------|-------------|
-| viewer | View versions, compat matrix, import maps |
-| publisher | CI bot, publish new versions |
-| operator | Grayscale management, version mapping changes |
-| admin | Rollback, deprecate versions, user management |
+| Role      | Permissions                                   |
+| --------- | --------------------------------------------- |
+| viewer    | View versions, compat matrix, import maps     |
+| publisher | CI bot, publish new versions                  |
+| operator  | Grayscale management, version mapping changes |
+| admin     | Rollback, deprecate versions, user management |
 
 ### Core APIs
 
@@ -640,10 +649,13 @@ GET  /health/resolution                 # deep health check (no version prefix)
   "operator": "OR",
   "conditions": [
     { "type": "user_list", "values": ["uid1", "uid2"] },
-    { "operator": "AND", "conditions": [
-      { "type": "department", "values": ["dept_a"] },
-      { "type": "percentage", "value": 50, "hash_key": "user_id" }
-    ]}
+    {
+      "operator": "AND",
+      "conditions": [
+        { "type": "department", "values": ["dept_a"] },
+        { "type": "percentage", "value": 50, "hash_key": "user_id" }
+      ]
+    }
   ]
 }
 ```
@@ -721,12 +733,12 @@ Layer 1: Unit (Vitest)
 
 ### Coverage Targets
 
-| Layer | Target | Scope |
-|-------|--------|-------|
-| Unit (hooks/utils) | >= 90% | Pure logic, easy to test |
-| Unit (version resolver/grayscale engine) | 100% | Core path, zero tolerance |
-| Integration (components) | >= 80% | All props/events/slots combinations |
-| E2E | Critical paths 100% | Not coverage %, but path completeness |
+| Layer                                    | Target              | Scope                                 |
+| ---------------------------------------- | ------------------- | ------------------------------------- |
+| Unit (hooks/utils)                       | >= 90%              | Pure logic, easy to test              |
+| Unit (version resolver/grayscale engine) | 100%                | Core path, zero tolerance             |
+| Integration (components)                 | >= 80%              | All props/events/slots combinations   |
+| E2E                                      | Critical paths 100% | Not coverage %, but path completeness |
 
 ### Testing Infrastructure
 
@@ -751,6 +763,7 @@ Layer 1: Unit (Vitest)
 ### CDN Distribution Chain Integration Test
 
 Using Vitest browser mode or Playwright:
+
 - Inject import map → `import('@pro/table')` → verify component renders
 - Simulate CDN failure → verify fallback chain (SW cache → localStorage → error page)
 - Tampered CDN file → verify SRI rejection
@@ -783,20 +796,22 @@ Using Vitest browser mode or Playwright:
 ## 9. Accessibility
 
 ### Baseline
+
 All Pro Components inherit Element Plus's built-in a11y support (ARIA roles, keyboard navigation on standard controls). The following additional requirements apply to custom interactive patterns introduced by Pro Components.
 
 ### Component-Specific Requirements
 
-| Component | Requirement |
-|-----------|-------------|
-| ProTable ColumnSetting | Drag-to-reorder: `aria-grabbed`, `aria-dropeffect`, keyboard reorder via Arrow keys + Space |
-| ProTable ToolBar | Density selector: `role="radiogroup"` with `aria-label`; Column settings trigger: `aria-haspopup="dialog"` |
-| QueryFilter collapse/expand | Toggle button: `aria-expanded`, `aria-controls` pointing to collapsible region |
-| ModalForm / DrawerForm | Focus trap inside modal/drawer; return focus to trigger on close; `aria-modal="true"` |
-| StepsForm | `aria-current="step"` on active step; step validation errors announced via `aria-live="polite"` |
-| ProDescriptions | Semantic `<dl>/<dt>/<dd>` structure when not using el-descriptions |
+| Component                   | Requirement                                                                                                |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| ProTable ColumnSetting      | Drag-to-reorder: `aria-grabbed`, `aria-dropeffect`, keyboard reorder via Arrow keys + Space                |
+| ProTable ToolBar            | Density selector: `role="radiogroup"` with `aria-label`; Column settings trigger: `aria-haspopup="dialog"` |
+| QueryFilter collapse/expand | Toggle button: `aria-expanded`, `aria-controls` pointing to collapsible region                             |
+| ModalForm / DrawerForm      | Focus trap inside modal/drawer; return focus to trigger on close; `aria-modal="true"`                      |
+| StepsForm                   | `aria-current="step"` on active step; step validation errors announced via `aria-live="polite"`            |
+| ProDescriptions             | Semantic `<dl>/<dt>/<dd>` structure when not using el-descriptions                                         |
 
 ### Testing
+
 - Keyboard navigation: every interactive element reachable via Tab, activatable via Enter/Space
 - Screen reader: test with VoiceOver (macOS) for critical flows (table CRUD, form submit, modal open/close)
 - Color contrast: all custom tokens in @pro/themes must meet WCAG 2.1 AA (4.5:1 for text, 3:1 for UI)
@@ -835,6 +850,7 @@ docs/
 ### Component Doc Standard
 
 Each component page must include:
+
 - One-line description
 - Interactive demos via `vitepress-plugin-demo` (basic, request mode, composable mode, controlled mode, search, valueTypes, toolbar)
 - Slots table
@@ -910,23 +926,23 @@ changesets detect → "Version Packages" PR → merge triggers:
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"],
-      "cache": true
+      "cache": true,
     },
     "build:dts": {
       "dependsOn": ["build"],
-      "outputs": ["dist/types/**"]
+      "outputs": ["dist/types/**"],
     },
     "test": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
-      "cache": true
+      "cache": true,
     },
     "test:e2e": {
       "dependsOn": ["build"],
       "outputs": [],
-      "cache": false
-    }
-  }
+      "cache": false,
+    },
+  },
 }
 ```
 
@@ -956,11 +972,11 @@ Dashboard "Rollback" →
 
 While comprehensive metrics and alerting are deferred to P2, the following baseline observability is required at launch:
 
-| Endpoint | Health Check |
-|----------|-------------|
-| Platform API | `GET /health` returns `{ status: "ok", db: "connected", uptime: N }` |
+| Endpoint       | Health Check                                                                              |
+| -------------- | ----------------------------------------------------------------------------------------- |
+| Platform API   | `GET /health` returns `{ status: "ok", db: "connected", uptime: N }`                      |
 | Import Map API | `GET /api/v1/import-map/health` returns `{ status: "ok", cache_size: N, cache_epoch: N }` |
-| CDN | Nightly CI job validates: all active version assets return 200, SRI hashes match |
+| CDN            | Nightly CI job validates: all active version assets return 200, SRI hashes match          |
 
 **Structured logging** (pino): All API requests logged with `requestId`, `duration`, `statusCode`, `userId`. Error responses include `error.code` and `error.message`.
 

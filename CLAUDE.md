@@ -28,6 +28,7 @@ Vue 3 + Element Plus higher-level component library (ProTable, ProForm, ProDescr
 Implementation MUST comply with `/code-standards` skill. Key hard rules:
 
 ### Type Safety
+
 - **Never `any`** — use `unknown` + type guards. `Record<string, any>` → `Record<string, unknown>` or specific interface
 - `interface` for object shapes, `type` for unions/intersections
 - `import type` for type-only imports, separate group at end
@@ -35,12 +36,14 @@ Implementation MUST comply with `/code-standards` skill. Key hard rules:
 - No `const enum`, no `namespace`
 
 ### Functions & Files
+
 - Max **50 lines** per function. Split into smaller functions if exceeded
 - Max **4 positional parameters** — use options object beyond that
 - Cyclomatic complexity **<= 10**, nesting depth **<= 4**
 - Files **<= 400 lines** (TS/JS). Split when exceeded
 
 ### Exports & Naming
+
 - **No default exports** in `.ts` files. Vue SFC `.vue` files are exempt (framework constraint)
 - Named exports only: `export { ProTable }` not `export default ProTable`
 - Booleans: `is/has/can/should` prefix
@@ -48,28 +51,33 @@ Implementation MUST comply with `/code-standards` skill. Key hard rules:
 - No magic numbers/strings — extract to named constants
 
 ### Error Handling
+
 - `catch (error: unknown)` + `instanceof` narrowing
 - No empty catch blocks. At minimum, add comment explaining why ignored
 - `throw new Error(...)` not `throw 'string'`
 
 ### Logging
+
 - No `console.log/warn/error` in production code — use pino logger
 - CLI scripts: create a logger wrapper, don't scatter raw console calls
 - Browser loader code: use prefixed wrapper, strip in production via terser
 
 ### Imports
+
 - Order: external libs → internal absolute (`@pro/*`) → relative → side-effect → `import type` (separate group)
 - No circular imports
 
 ### Testing
+
 - Files: `*.test.ts` (not `.spec.ts`)
 - AAA pattern (Arrange-Act-Assert)
 - One assertion concept per test
 - 100% coverage for: semver resolver, grayscale engine
-- >= 90% coverage for: hooks, utils
-- >= 80% coverage for: component integration tests
+- > = 90% coverage for: hooks, utils
+- > = 80% coverage for: component integration tests
 
 ### Node.js Backend (Platform API)
+
 - ESM: `"type": "module"`
 - Koa middleware order: requestId → error handler → security → cors → bodyParser → logging → auth → routes → 404
 - Parameterized queries ALWAYS — never string concat for SQL
@@ -98,11 +106,11 @@ Read agent-orchestration.md, execute Phase 4
 
 ### Agent Roles
 
-| Role | Description |
-|------|-------------|
+| Role            | Description                                                                                    |
+| --------------- | ---------------------------------------------------------------------------------------------- |
 | **Coordinator** | Main thread. Dispatches agents, monitors progress, resolves conflicts, gates phase transitions |
-| **Implementer** | Background agent. Executes one plan (or plan chunk). Writes code, runs tests, commits |
-| **Reviewer** | Background agent. Reviews completed phase output against code standards + design spec |
+| **Implementer** | Background agent. Executes one plan (or plan chunk). Writes code, runs tests, commits          |
+| **Reviewer**    | Background agent. Reviews completed phase output against code standards + design spec          |
 
 ### Rules for All Agents
 
@@ -117,24 +125,24 @@ Read agent-orchestration.md, execute Phase 4
 
 Which agent owns which directories (for parallel execution):
 
-| Package Path | Owner Plan |
-|-------------|-----------|
-| `packages/utils/` | Plan 2a |
-| `packages/hooks/` | Plan 2a + Plan i18n (shared: useProLocale, resolveMessage, formatters) |
-| `packages/locale/` | Plan i18n |
-| `packages/themes/` | Plan 2a |
-| `packages/resolvers/` | Plan 2a |
-| `packages/pro-table/` | Plan 2a + Plan i18n (shared: t() wiring) |
-| `packages/pro-form/` | Plan 2b + Plan i18n (shared: t() wiring) |
-| `packages/pro-descriptions/` | Plan 2b + Plan i18n (shared: t() wiring) |
-| `packages/pro-components/` | Plan 2b + Plan i18n (shared: ProConfigProvider locale) |
-| `platform/server/` | Plan 5a |
-| `platform/web/` | Plan 5b + Plan i18n (shared: vue-i18n setup, locale files) |
-| `cdn/` | Plan 4 + Plan i18n (shared: import map) |
-| `docs/` | Plan 3 + Plan i18n (shared: VitePress locales) |
-| `.github/workflows/` | Plan 6 |
-| `scripts/` | Plan 1 (foundation), then shared |
-| Root config files | Plan 1 only |
+| Package Path                 | Owner Plan                                                             |
+| ---------------------------- | ---------------------------------------------------------------------- |
+| `packages/utils/`            | Plan 2a                                                                |
+| `packages/hooks/`            | Plan 2a + Plan i18n (shared: useProLocale, resolveMessage, formatters) |
+| `packages/locale/`           | Plan i18n                                                              |
+| `packages/themes/`           | Plan 2a                                                                |
+| `packages/resolvers/`        | Plan 2a                                                                |
+| `packages/pro-table/`        | Plan 2a + Plan i18n (shared: t() wiring)                               |
+| `packages/pro-form/`         | Plan 2b + Plan i18n (shared: t() wiring)                               |
+| `packages/pro-descriptions/` | Plan 2b + Plan i18n (shared: t() wiring)                               |
+| `packages/pro-components/`   | Plan 2b + Plan i18n (shared: ProConfigProvider locale)                 |
+| `platform/server/`           | Plan 5a                                                                |
+| `platform/web/`              | Plan 5b + Plan i18n (shared: vue-i18n setup, locale files)             |
+| `cdn/`                       | Plan 4 + Plan i18n (shared: import map)                                |
+| `docs/`                      | Plan 3 + Plan i18n (shared: VitePress locales)                         |
+| `.github/workflows/`         | Plan 6                                                                 |
+| `scripts/`                   | Plan 1 (foundation), then shared                                       |
+| Root config files            | Plan 1 only                                                            |
 
 ## Commit Convention
 

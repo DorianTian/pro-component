@@ -9,6 +9,7 @@
 **Tech Stack:** Vue 3.4+, Element Plus 2.9+, TypeScript 5.5+, Vitest + Vue Test Utils
 
 **Prerequisites:** Plan 1 (monorepo foundation) and Plan 2a (@pro/hooks composables + ProTable) must be complete. Plan 2a provides:
+
 - `useValueType` — maps valueType to Element Plus form controls and display renderers
 - `useRequest` — async data fetching with loading/error state
 - `waitForReactiveSettle` — test helper for reactive chain completion
@@ -69,6 +70,7 @@ packages/
 ## Task 1: Add ProFieldDef and ProForm Types to @pro/utils
 
 **Files:**
+
 - Edit: `packages/utils/src/types.ts`
 - Edit: `packages/utils/src/index.ts`
 
@@ -224,6 +226,7 @@ git commit -m "feat(utils): add ProFieldDef, StepFormDef, and ProFormConfig type
 ## Task 2: Vitest Configuration for @pro/form
 
 **Files:**
+
 - Edit: `packages/pro-form/package.json`
 - Create: `packages/pro-form/vitest.config.ts`
 
@@ -322,6 +325,7 @@ git commit -m "chore(form): add vitest config and test scripts"
 ## Task 3: useProForm Composable — Tests First
 
 **Files:**
+
 - Create: `packages/pro-form/__tests__/use-pro-form.test.ts`
 
 - [ ] **Step 1: Write failing tests for useProForm**
@@ -336,10 +340,20 @@ import type { ProFieldDef } from '@pro/utils'
 
 function createTestFields(): ProFieldDef[] {
   return [
-    { dataIndex: 'name', title: 'Name', valueType: 'text', rules: [{ required: true, message: 'Name is required' }] },
+    {
+      dataIndex: 'name',
+      title: 'Name',
+      valueType: 'text',
+      rules: [{ required: true, message: 'Name is required' }],
+    },
     { dataIndex: 'age', title: 'Age', valueType: 'number' },
     { dataIndex: 'email', title: 'Email', valueType: 'text' },
-    { dataIndex: 'status', title: 'Status', valueType: 'select', valueEnum: { active: { text: 'Active' }, inactive: { text: 'Inactive' } } },
+    {
+      dataIndex: 'status',
+      title: 'Status',
+      valueType: 'select',
+      valueEnum: { active: { text: 'Active' }, inactive: { text: 'Inactive' } },
+    },
   ]
 }
 
@@ -642,6 +656,7 @@ git commit -m "test(form): add failing unit tests for useProForm composable"
 ## Task 4: useProForm Composable — Implementation
 
 **Files:**
+
 - Create: `packages/pro-form/src/types/index.ts`
 - Create: `packages/pro-form/src/composables/use-pro-form.ts`
 
@@ -800,7 +815,8 @@ export interface ProFormFieldContext {
   disabled: boolean
 }
 
-export const PRO_FORM_FIELD_INJECTION_KEY: InjectionKey<ProFormFieldContext> = Symbol('proFormField')
+export const PRO_FORM_FIELD_INJECTION_KEY: InjectionKey<ProFormFieldContext> =
+  Symbol('proFormField')
 ```
 
 - [ ] **Step 3: Implement useProForm composable**
@@ -834,12 +850,7 @@ export const QUERY_FILTER_DEFAULT_COLLAPSE_THRESHOLD = 3
  * @returns Reactive form state and control methods
  */
 export function useProForm(config: ProFormConfig): UseProFormReturn {
-  const {
-    fields,
-    initialValues = {},
-    onSubmit,
-    onError,
-  } = config
+  const { fields, initialValues = {}, onSubmit, onError } = config
 
   const formValues = ref<Record<string, unknown>>({ ...initialValues })
   const isSubmitting = ref(false)
@@ -892,7 +903,7 @@ export function useProForm(config: ProFormConfig): UseProFormReturn {
   }
 
   async function submit(): Promise<boolean> {
-    if (isSubmitting.value) return false  // Prevent concurrent submissions
+    if (isSubmitting.value) return false // Prevent concurrent submissions
 
     if (!formRef.value) {
       throw new Error('Form ref not initialized — ensure ProForm is mounted')
@@ -956,6 +967,7 @@ git commit -m "feat(form): implement useProForm composable with el-form validati
 ## Task 5: ProFormField Component
 
 **Files:**
+
 - Create: `packages/pro-form/src/components/ProFormField.vue`
 
 - [ ] **Step 1: Create ProFormField.vue**
@@ -1043,17 +1055,11 @@ function resolveControl(
   return { component: entry.component, props: resolvedProps }
 }
 
-const controlResult = computed(() =>
-  resolveControl(props.field, props.modelValue, handleUpdate),
-)
+const controlResult = computed(() => resolveControl(props.field, props.modelValue, handleUpdate))
 </script>
 
 <template>
-  <ElFormItem
-    :label="field.title"
-    :prop="field.dataIndex"
-    v-bind="field.formItemProps"
-  >
+  <ElFormItem :label="field.title" :prop="field.dataIndex" v-bind="field.formItemProps">
     <template v-if="field.tooltip" #label>
       {{ field.title }}
       <el-tooltip :content="field.tooltip" placement="top">
@@ -1077,6 +1083,7 @@ git commit -m "feat(form): add ProFormField component for valueType-based field 
 ## Task 6: ProForm Component — Tests First
 
 **Files:**
+
 - Create: `packages/pro-form/__tests__/pro-form.test.ts`
 
 - [ ] **Step 1: Write integration tests for ProForm**
@@ -1105,7 +1112,12 @@ function basicFields(): ProFieldDef[] {
   return [
     { dataIndex: 'name', title: 'Name', valueType: 'text' },
     { dataIndex: 'age', title: 'Age', valueType: 'number' },
-    { dataIndex: 'status', title: 'Status', valueType: 'select', valueEnum: { active: { text: 'Active' }, inactive: { text: 'Inactive' } } },
+    {
+      dataIndex: 'status',
+      title: 'Status',
+      valueType: 'select',
+      valueEnum: { active: { text: 'Active' }, inactive: { text: 'Inactive' } },
+    },
   ]
 }
 
@@ -1133,17 +1145,13 @@ describe('ProForm', () => {
     })
 
     it('should render text field as el-input', () => {
-      const fields: ProFieldDef[] = [
-        { dataIndex: 'name', title: 'Name', valueType: 'text' },
-      ]
+      const fields: ProFieldDef[] = [{ dataIndex: 'name', title: 'Name', valueType: 'text' }]
       const wrapper = createWrapper({ fields })
       expect(wrapper.find('.el-input').exists()).toBe(true)
     })
 
     it('should render number field as el-input-number', () => {
-      const fields: ProFieldDef[] = [
-        { dataIndex: 'count', title: 'Count', valueType: 'number' },
-      ]
+      const fields: ProFieldDef[] = [{ dataIndex: 'count', title: 'Count', valueType: 'number' }]
       const wrapper = createWrapper({ fields })
       expect(wrapper.find('.el-input-number').exists()).toBe(true)
     })
@@ -1176,7 +1184,11 @@ describe('ProForm', () => {
           title: 'Custom',
           valueType: 'text',
           renderFormItem: (modelValue: unknown, onChange: (val: unknown) => void) =>
-            h('div', { class: 'custom-control', onClick: () => onChange('clicked') }, `Value: ${modelValue}`),
+            h(
+              'div',
+              { class: 'custom-control', onClick: () => onChange('clicked') },
+              `Value: ${modelValue}`,
+            ),
         },
       ]
       const wrapper = createWrapper({ fields, initialValues: { custom: 'hello' } })
@@ -1187,9 +1199,7 @@ describe('ProForm', () => {
 
   describe('initial values', () => {
     it('should populate form controls with initialValues', async () => {
-      const fields: ProFieldDef[] = [
-        { dataIndex: 'name', title: 'Name', valueType: 'text' },
-      ]
+      const fields: ProFieldDef[] = [{ dataIndex: 'name', title: 'Name', valueType: 'text' }]
       const wrapper = createWrapper({
         fields,
         initialValues: { name: 'John' },
@@ -1304,6 +1314,7 @@ git commit -m "test(form): add failing integration tests for ProForm component"
 ## Task 7: ProForm Component — Implementation
 
 **Files:**
+
 - Replace: `packages/pro-form/src/ProForm.vue`
 
 - [ ] **Step 1: Implement ProForm.vue**
@@ -1455,12 +1466,7 @@ defineExpose({
 
     <div v-if="showActions" class="pro-form__actions">
       <slot name="actions" :loading="loading" :submit="handleSubmit" :reset="handleReset">
-        <ElButton
-          type="primary"
-          :loading="loading"
-          class="pro-form__submit"
-          @click="handleSubmit"
-        >
+        <ElButton type="primary" :loading="loading" class="pro-form__submit" @click="handleSubmit">
           {{ submitText }}
         </ElButton>
         <ElButton class="pro-form__reset" @click="handleReset">
@@ -1502,6 +1508,7 @@ git commit -m "feat(form): implement ProForm with schema-driven field rendering"
 ## Task 8: ModalForm — Tests + Implementation
 
 **Files:**
+
 - Create: `packages/pro-form/src/composables/use-modal-form.ts`
 - Create: `packages/pro-form/src/components/ModalForm.vue`
 - Create: `packages/pro-form/__tests__/modal-form.test.ts`
@@ -1823,6 +1830,7 @@ git commit -m "feat(form): add ModalForm with dialog wrapper, auto-close on subm
 ## Task 9: DrawerForm — Tests + Implementation
 
 **Files:**
+
 - Create: `packages/pro-form/src/composables/use-drawer-form.ts`
 - Create: `packages/pro-form/src/components/DrawerForm.vue`
 - Create: `packages/pro-form/__tests__/drawer-form.test.ts`
@@ -2090,6 +2098,7 @@ git commit -m "feat(form): add DrawerForm with drawer wrapper, auto-close on sub
 ## Task 10: StepsForm — Tests + Implementation
 
 **Files:**
+
 - Create: `packages/pro-form/src/composables/use-steps-form.ts`
 - Create: `packages/pro-form/src/components/StepsForm.vue`
 - Create: `packages/pro-form/__tests__/steps-form.test.ts`
@@ -2112,7 +2121,12 @@ function createSteps(): StepFormDef[] {
     {
       title: 'Basic Info',
       fields: [
-        { dataIndex: 'name', title: 'Name', valueType: 'text', rules: [{ required: true, message: 'Name is required' }] },
+        {
+          dataIndex: 'name',
+          title: 'Name',
+          valueType: 'text',
+          rules: [{ required: true, message: 'Name is required' }],
+        },
         { dataIndex: 'email', title: 'Email', valueType: 'text' },
       ],
     },
@@ -2125,9 +2139,7 @@ function createSteps(): StepFormDef[] {
     },
     {
       title: 'Confirm',
-      fields: [
-        { dataIndex: 'agree', title: 'I agree', valueType: 'switch' },
-      ],
+      fields: [{ dataIndex: 'agree', title: 'I agree', valueType: 'switch' }],
     },
   ]
 }
@@ -2328,14 +2340,17 @@ describe('StepsForm component', () => {
         {
           title: 'Step 1',
           fields: [
-            { dataIndex: 'name', title: 'Name', valueType: 'text', rules: [{ required: true, message: 'Required' }] },
+            {
+              dataIndex: 'name',
+              title: 'Name',
+              valueType: 'text',
+              rules: [{ required: true, message: 'Required' }],
+            },
           ],
         },
         {
           title: 'Step 2',
-          fields: [
-            { dataIndex: 'age', title: 'Age', valueType: 'number' },
-          ],
+          fields: [{ dataIndex: 'age', title: 'Age', valueType: 'number' }],
         },
       ]
       const wrapper = createWrapper({ steps: stepsWithRequired })
@@ -2434,7 +2449,7 @@ export function useStepsForm(options: UseStepsFormOptions): UseStepsFormReturn {
    */
   async function validateCurrentStep(): Promise<boolean> {
     if (!formRef.value) return false
-    const currentFieldKeys = steps[currentStep.value].fields.map(f => f.dataIndex)
+    const currentFieldKeys = steps[currentStep.value].fields.map((f) => f.dataIndex)
     try {
       await formRef.value.validateField(currentFieldKeys)
       return true
@@ -2466,7 +2481,7 @@ export function useStepsForm(options: UseStepsFormOptions): UseStepsFormReturn {
   }
 
   async function submit(): Promise<boolean> {
-    if (isSubmitting.value) return false  // Prevent concurrent submissions
+    if (isSubmitting.value) return false // Prevent concurrent submissions
     if (!onSubmit) return false
 
     try {
@@ -2642,11 +2657,7 @@ defineExpose({
       </ElRow>
 
       <div class="pro-steps-form__actions">
-        <ElButton
-          v-if="!isFirstStep"
-          class="pro-steps-form__prev"
-          @click="handlePrev"
-        >
+        <ElButton v-if="!isFirstStep" class="pro-steps-form__prev" @click="handlePrev">
           Previous
         </ElButton>
         <ElButton
@@ -2706,6 +2717,7 @@ git commit -m "feat(form): add StepsForm with multi-step navigation, per-step va
 ## Task 11: QueryFilter — Tests + Implementation
 
 **Files:**
+
 - Create: `packages/pro-form/src/components/QueryFilter.vue`
 - Create: `packages/pro-form/__tests__/query-filter.test.ts`
 
@@ -2733,7 +2745,12 @@ function createWrapper(props: Record<string, unknown> = {}) {
 function searchFields(): ProFieldDef[] {
   return [
     { dataIndex: 'keyword', title: 'Keyword', valueType: 'text' },
-    { dataIndex: 'status', title: 'Status', valueType: 'select', valueEnum: { active: { text: 'Active' }, inactive: { text: 'Inactive' } } },
+    {
+      dataIndex: 'status',
+      title: 'Status',
+      valueType: 'select',
+      valueEnum: { active: { text: 'Active' }, inactive: { text: 'Inactive' } },
+    },
     { dataIndex: 'dateRange', title: 'Date', valueType: 'dateRange' },
   ]
 }
@@ -2889,13 +2906,7 @@ const emit = defineEmits<{
 
 const collapsed = ref(props.defaultCollapsed)
 
-const {
-  formValues,
-  visibleFields,
-  setFieldValue,
-  resetFields,
-  formRef,
-} = useProForm({
+const { formValues, visibleFields, setFieldValue, resetFields, formRef } = useProForm({
   fields: props.fields,
   initialValues: props.initialValues,
 })
@@ -2956,9 +2967,7 @@ defineExpose({
       <ElButton type="primary" class="pro-query-filter__search" @click="handleSearch">
         Search
       </ElButton>
-      <ElButton class="pro-query-filter__reset" @click="handleReset">
-        Reset
-      </ElButton>
+      <ElButton class="pro-query-filter__reset" @click="handleReset"> Reset </ElButton>
       <ElButton
         v-if="showCollapseToggle"
         type="primary"
@@ -3007,6 +3016,7 @@ git commit -m "feat(form): add QueryFilter with inline layout, collapse/expand s
 ## Task 12: ProForm Package Exports
 
 **Files:**
+
 - Replace: `packages/pro-form/src/index.ts`
 
 - [ ] **Step 1: Update index.ts with all exports**
@@ -3024,7 +3034,13 @@ import QueryFilter from './components/QueryFilter.vue'
 export { ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter }
 
 // Composables
-export { useProForm, GRID_TOTAL_COLUMNS, GRID_GUTTER, DEFAULT_LABEL_WIDTH, QUERY_FILTER_DEFAULT_COLLAPSE_THRESHOLD } from './composables/use-pro-form'
+export {
+  useProForm,
+  GRID_TOTAL_COLUMNS,
+  GRID_GUTTER,
+  DEFAULT_LABEL_WIDTH,
+  QUERY_FILTER_DEFAULT_COLLAPSE_THRESHOLD,
+} from './composables/use-pro-form'
 export { useModalForm } from './composables/use-modal-form'
 export { useDrawerForm } from './composables/use-drawer-form'
 export { useStepsForm } from './composables/use-steps-form'
@@ -3065,6 +3081,7 @@ git commit -m "feat(form): export all form components, composables, and types"
 ## Task 13: Vitest Configuration for @pro/descriptions
 
 **Files:**
+
 - Edit: `packages/pro-descriptions/package.json`
 - Create: `packages/pro-descriptions/vitest.config.ts`
 
@@ -3163,6 +3180,7 @@ git commit -m "chore(descriptions): add vitest config and test scripts"
 ## Task 14: useProDescriptions Composable — Tests First
 
 **Files:**
+
 - Create: `packages/pro-descriptions/__tests__/use-pro-descriptions.test.ts`
 
 - [ ] **Step 1: Write failing tests for useProDescriptions**
@@ -3183,7 +3201,10 @@ function createColumns(): ProColumnDef[] {
       dataIndex: 'status',
       title: 'Status',
       valueType: 'select',
-      valueEnum: { active: { text: 'Active', status: 'success' }, inactive: { text: 'Inactive', status: 'danger' } },
+      valueEnum: {
+        active: { text: 'Active', status: 'success' },
+        inactive: { text: 'Inactive', status: 'danger' },
+      },
     },
     { dataIndex: 'created', title: 'Created', valueType: 'date' },
     { dataIndex: 'hidden', title: 'Hidden', valueType: 'text', hideInDescriptions: true },
@@ -3358,6 +3379,7 @@ git commit -m "test(descriptions): add failing unit tests for useProDescriptions
 ## Task 15: useProDescriptions Composable — Implementation
 
 **Files:**
+
 - Create: `packages/pro-descriptions/src/composables/use-pro-descriptions.ts`
 
 - [ ] **Step 1: Implement useProDescriptions**
@@ -3514,6 +3536,7 @@ git commit -m "feat(descriptions): implement useProDescriptions composable with 
 ## Task 16: ProDescriptions Component — Tests First
 
 **Files:**
+
 - Create: `packages/pro-descriptions/__tests__/pro-descriptions.test.ts`
 
 - [ ] **Step 1: Write integration tests for ProDescriptions**
@@ -3659,7 +3682,8 @@ describe('ProDescriptions', () => {
           dataIndex: 'name',
           title: 'Name',
           valueType: 'text',
-          descriptionsRender: (value: unknown) => h('span', { class: 'custom-render' }, `Custom: ${value}`),
+          descriptionsRender: (value: unknown) =>
+            h('span', { class: 'custom-render' }, `Custom: ${value}`),
         },
       ]
       const wrapper = createWrapper({
@@ -3710,7 +3734,10 @@ describe('ProDescriptions', () => {
         data: basicData(),
         border: true,
       })
-      expect(wrapper.find('.el-descriptions--bordered').exists() || wrapper.find('.is-bordered').exists()).toBe(true)
+      expect(
+        wrapper.find('.el-descriptions--bordered').exists() ||
+          wrapper.find('.is-bordered').exists(),
+      ).toBe(true)
     })
   })
 
@@ -3721,7 +3748,10 @@ describe('ProDescriptions', () => {
         data: basicData(),
         loading: true,
       })
-      expect(wrapper.find('.el-skeleton').exists() || wrapper.find('.pro-descriptions--loading').exists()).toBe(true)
+      expect(
+        wrapper.find('.el-skeleton').exists() ||
+          wrapper.find('.pro-descriptions--loading').exists(),
+      ).toBe(true)
     })
   })
 })
@@ -3748,6 +3778,7 @@ git commit -m "test(descriptions): add failing integration tests for ProDescript
 ## Task 17: ProDescriptions Component — Implementation
 
 **Files:**
+
 - Replace: `packages/pro-descriptions/src/ProDescriptions.vue`
 
 - [ ] **Step 1: Implement ProDescriptions.vue**
@@ -3806,7 +3837,11 @@ function renderItemContent(item: DescriptionItem) {
   // valueEnum → render as tag
   if (item.displayText) {
     const tagType = item.statusType ? statusTagTypeMap[item.statusType] : ''
-    return h(ElTag, { type: tagType as '' | 'success' | 'warning' | 'danger' | 'info', size: 'small' }, { default: () => item.displayText })
+    return h(
+      ElTag,
+      { type: tagType as '' | 'success' | 'warning' | 'danger' | 'info', size: 'small' },
+      { default: () => item.displayText },
+    )
   }
 
   // Default: formatted text
@@ -3869,6 +3904,7 @@ git commit -m "feat(descriptions): implement ProDescriptions with valueType form
 ## Task 18: ProDescriptions Package Exports
 
 **Files:**
+
 - Replace: `packages/pro-descriptions/src/index.ts`
 
 - [ ] **Step 1: Update index.ts with all exports**
@@ -3904,6 +3940,7 @@ git commit -m "feat(descriptions): export component, composable, and types"
 ## Task 19: Update Aggregation Package
 
 **Files:**
+
 - Edit: `packages/pro-components/src/index.ts`
 
 - [ ] **Step 1: Update aggregation exports**
@@ -3929,7 +3966,15 @@ export { useProDescriptions } from '@pro/descriptions'
 export { checkDependencies } from '@pro/utils'
 
 // Install function for app.use()
-const components = [ProTable, ProForm, ModalForm, DrawerForm, StepsForm, QueryFilter, ProDescriptions]
+const components = [
+  ProTable,
+  ProForm,
+  ModalForm,
+  DrawerForm,
+  StepsForm,
+  QueryFilter,
+  ProDescriptions,
+]
 
 export const proComponentsPlugin = {
   install(app: import('vue').App) {
@@ -3967,6 +4012,7 @@ git commit -m "feat(pro-components): re-export ProForm variants and ProDescripti
 ## Task 20: Cross-Component Integration Tests
 
 **Files:**
+
 - Create: `packages/pro-form/__tests__/cross-component.test.ts`
 
 - [ ] **Step 1: Write cross-component integration tests**
@@ -4134,29 +4180,35 @@ describe('Cross-component column compatibility', () => {
       },
     ]
 
-    valueTypeCases.forEach(({ valueType, rawValue, expectedSearchControl, expectedDescriptionContains }) => {
-      it(`${valueType}: should render correct search control and description format`, () => {
-        const columns: ProColumnDef[] = [
-          { dataIndex: 'field', title: 'Field', valueType: valueType as import('@pro/utils').ValueType },
-        ]
+    valueTypeCases.forEach(
+      ({ valueType, rawValue, expectedSearchControl, expectedDescriptionContains }) => {
+        it(`${valueType}: should render correct search control and description format`, () => {
+          const columns: ProColumnDef[] = [
+            {
+              dataIndex: 'field',
+              title: 'Field',
+              valueType: valueType as import('@pro/utils').ValueType,
+            },
+          ]
 
-        // Test QueryFilter renders correct control
-        const wrapper = mount(QueryFilter, {
-          props: {
-            fields: [{ dataIndex: 'field', title: 'Field', valueType }],
-          },
-          global: { plugins: [ElementPlus] },
-        })
-        expect(wrapper.find(expectedSearchControl).exists()).toBe(true)
+          // Test QueryFilter renders correct control
+          const wrapper = mount(QueryFilter, {
+            props: {
+              fields: [{ dataIndex: 'field', title: 'Field', valueType }],
+            },
+            global: { plugins: [ElementPlus] },
+          })
+          expect(wrapper.find(expectedSearchControl).exists()).toBe(true)
 
-        // Test ProDescriptions formats correctly
-        const { descriptionItems } = useProDescriptions({
-          columns,
-          data: { field: rawValue },
+          // Test ProDescriptions formats correctly
+          const { descriptionItems } = useProDescriptions({
+            columns,
+            data: { field: rawValue },
+          })
+          expect(descriptionItems.value[0].formattedValue).toContain(expectedDescriptionContains)
         })
-        expect(descriptionItems.value[0].formattedValue).toContain(expectedDescriptionContains)
-      })
-    })
+      },
+    )
   })
 })
 ```

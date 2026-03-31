@@ -98,6 +98,7 @@ pro-components/
 ### Task 1: Git Init + Root Config Files
 
 **Files:**
+
 - Create: `package.json`
 - Create: `pnpm-workspace.yaml`
 - Create: `.npmrc`
@@ -165,9 +166,9 @@ git init
 
 ```yaml
 packages:
-  - "packages/*"
-  - "playground"
-  - "docs"
+  - 'packages/*'
+  - 'playground'
+  - 'docs'
 ```
 
 - [ ] **Step 4: Create .npmrc**
@@ -249,6 +250,7 @@ git commit -m "chore: init monorepo root config"
 ### Task 2: ESLint + Prettier Config
 
 **Files:**
+
 - Create: `eslint.config.js`
 - Create: `.prettierrc`
 - Create: `.prettierignore`
@@ -302,11 +304,11 @@ export default tseslint.config(
       '@typescript-eslint/no-floating-promises': 'error',
       'prefer-const': 'error',
       'no-var': 'error',
-      'eqeqeq': ['error', 'always'],
+      eqeqeq: ['error', 'always'],
       'max-lines': ['error', { max: 400, skipBlankLines: true, skipComments: true }],
       'max-lines-per-function': ['error', { max: 50, skipBlankLines: true, skipComments: true }],
       'max-params': ['error', 4],
-      'complexity': ['error', 10],
+      complexity: ['error', 10],
       'max-depth': ['error', 4],
       'no-console': 'error',
     },
@@ -344,6 +346,7 @@ git commit -m "chore: add ESLint flat config + Prettier config"
 ### Task 3: Turborepo Configuration
 
 **Files:**
+
 - Create: `turbo.json`
 
 - [ ] **Step 1: Create turbo.json**
@@ -401,6 +404,7 @@ git commit -m "chore: add Turborepo pipeline config"
 ### Task 4: Shared Rollup Config Factory
 
 **Files:**
+
 - Create: `scripts/rollup.base.ts`
 
 - [ ] **Step 1: Create scripts/rollup.base.ts**
@@ -567,10 +571,7 @@ function createUmdConfigs(ctx: ResolvedBuildContext, umdName: string): RollupOpt
 /** Create all Rollup build configurations (ESM + CJS + optional UMD) */
 export function createRollupConfig(config: PackageConfig): RollupOptions[] {
   const ctx = resolveBuildContext(config)
-  const configs: RollupOptions[] = [
-    createEsmConfig(ctx),
-    createCjsConfig(ctx),
-  ]
+  const configs: RollupOptions[] = [createEsmConfig(ctx), createCjsConfig(ctx)]
 
   if (config.umdName) {
     configs.push(...createUmdConfigs(ctx, config.umdName))
@@ -592,6 +593,7 @@ git commit -m "feat: add shared Rollup config factory"
 ### Task 5: Build Validation Script
 
 **Files:**
+
 - Create: `scripts/validate-build.ts`
 
 - [ ] **Step 1: Create scripts/validate-build.ts**
@@ -750,7 +752,10 @@ async function main() {
 
   for (const dir of pkgDirs) {
     const pkgDir = resolve(PACKAGES_DIR, dir)
-    const pkgJson = JSON.parse(readFileSync(resolve(pkgDir, 'package.json'), 'utf-8')) as Record<string, unknown>
+    const pkgJson = JSON.parse(readFileSync(resolve(pkgDir, 'package.json'), 'utf-8')) as Record<
+      string,
+      unknown
+    >
     const errors: string[] = []
     const warnings: string[] = []
 
@@ -801,6 +806,7 @@ git commit -m "feat: add build output validation script"
 ### Task 6: @pro/utils Package
 
 **Files:**
+
 - Create: `packages/utils/package.json`
 - Create: `packages/utils/tsconfig.json`
 - Create: `packages/utils/rollup.config.ts`
@@ -924,13 +930,13 @@ export function createLogger(scope: string): Logger {
   const tag = `${PREFIX}[${scope}]`
   return {
     warn: (message, ...args) => {
-      if (__DEV__) console.warn(tag, message, ...args)  // eslint-disable-line no-console
+      if (__DEV__) console.warn(tag, message, ...args) // eslint-disable-line no-console
     },
     error: (message, ...args) => {
-      console.error(tag, message, ...args)  // eslint-disable-line no-console
+      console.error(tag, message, ...args) // eslint-disable-line no-console
     },
     info: (message, ...args) => {
-      if (__DEV__) console.info(tag, message, ...args)  // eslint-disable-line no-console
+      if (__DEV__) console.info(tag, message, ...args) // eslint-disable-line no-console
     },
   }
 }
@@ -981,12 +987,7 @@ export function checkDependencies(): void {
 export { createLogger } from './logger'
 export type { Logger } from './logger'
 export { checkDependencies } from './version-check'
-export type {
-  RequestParams,
-  RequestResult,
-  StatusType,
-  ValueType,
-} from './types'
+export type { RequestParams, RequestResult, StatusType, ValueType } from './types'
 ```
 
 - [ ] **Step 8: Commit**
@@ -1001,6 +1002,7 @@ git commit -m "feat: scaffold @pro/utils package with logger"
 ### Task 7: @pro/hooks Package
 
 **Files:**
+
 - Create: `packages/hooks/package.json`
 - Create: `packages/hooks/tsconfig.json`
 - Create: `packages/hooks/rollup.config.ts`
@@ -1054,9 +1056,7 @@ git commit -m "feat: scaffold @pro/utils package with logger"
     "composite": true
   },
   "include": ["src/**/*.ts"],
-  "references": [
-    { "path": "../utils" }
-  ]
+  "references": [{ "path": "../utils" }]
 }
 ```
 
@@ -1090,6 +1090,7 @@ git commit -m "feat: scaffold @pro/hooks package"
 ### Task 8: @pro/themes Package
 
 **Files:**
+
 - Create: `packages/themes/package.json`
 - Create: `packages/themes/tsconfig.json`
 - Create: `packages/themes/rollup.config.ts`
@@ -1206,6 +1207,7 @@ git commit -m "feat: scaffold @pro/themes package with design tokens"
 ### Task 9: @pro/resolvers Package
 
 **Files:**
+
 - Create: `packages/resolvers/package.json`
 - Create: `packages/resolvers/tsconfig.json`
 - Create: `packages/resolvers/rollup.config.ts`
@@ -1267,7 +1269,7 @@ export default createRollupConfig({
 
 - [ ] **Step 4: Create packages/resolvers/src/index.ts**
 
-```typescript
+````typescript
 /** Resolved component information for unplugin-vue-components */
 interface ComponentInfo {
   name: string
@@ -1318,7 +1320,7 @@ export function ProComponentsResolver(): ComponentResolverFunction {
     }
   }
 }
-```
+````
 
 - [ ] **Step 5: Commit**
 
@@ -1332,6 +1334,7 @@ git commit -m "feat: scaffold @pro/resolvers with auto-import resolver"
 ### Task 10: Component Package Scaffolding (ProTable, ProForm, ProDescriptions)
 
 **Files:**
+
 - Create: `packages/pro-table/package.json`, `tsconfig.json`, `rollup.config.ts`, `src/index.ts`, `src/ProTable.vue`
 - Create: `packages/pro-form/package.json`, `tsconfig.json`, `rollup.config.ts`, `src/index.ts`, `src/ProForm.vue`
 - Create: `packages/pro-descriptions/package.json`, `tsconfig.json`, `rollup.config.ts`, `src/index.ts`, `src/ProDescriptions.vue`
@@ -1387,11 +1390,7 @@ git commit -m "feat: scaffold @pro/resolvers with auto-import resolver"
     "composite": true
   },
   "include": ["src/**/*.ts", "src/**/*.vue"],
-  "references": [
-    { "path": "../utils" },
-    { "path": "../hooks" },
-    { "path": "../themes" }
-  ]
+  "references": [{ "path": "../utils" }, { "path": "../hooks" }, { "path": "../themes" }]
 }
 ```
 
@@ -1439,6 +1438,7 @@ export { ProTable }
 - [ ] **Step 6: Create packages/pro-form/ (same pattern)**
 
 `packages/pro-form/package.json`:
+
 ```json
 {
   "name": "@pro/form",
@@ -1477,6 +1477,7 @@ export { ProTable }
 ```
 
 `packages/pro-form/tsconfig.json`:
+
 ```json
 {
   "extends": "../../tsconfig.base.json",
@@ -1487,15 +1488,12 @@ export { ProTable }
     "composite": true
   },
   "include": ["src/**/*.ts", "src/**/*.vue"],
-  "references": [
-    { "path": "../utils" },
-    { "path": "../hooks" },
-    { "path": "../themes" }
-  ]
+  "references": [{ "path": "../utils" }, { "path": "../hooks" }, { "path": "../themes" }]
 }
 ```
 
 `packages/pro-form/rollup.config.ts`:
+
 ```typescript
 import { createRollupConfig } from '../../scripts/rollup.base'
 
@@ -1506,6 +1504,7 @@ export default createRollupConfig({
 ```
 
 `packages/pro-form/src/ProForm.vue`:
+
 ```vue
 <script setup lang="ts">
 defineOptions({ name: 'ProForm' })
@@ -1527,6 +1526,7 @@ defineOptions({ name: 'ProForm' })
 ```
 
 `packages/pro-form/src/index.ts`:
+
 ```typescript
 import ProForm from './ProForm.vue'
 
@@ -1536,6 +1536,7 @@ export { ProForm }
 - [ ] **Step 7: Create packages/pro-descriptions/ (same pattern)**
 
 `packages/pro-descriptions/package.json`:
+
 ```json
 {
   "name": "@pro/descriptions",
@@ -1574,6 +1575,7 @@ export { ProForm }
 ```
 
 `packages/pro-descriptions/tsconfig.json`:
+
 ```json
 {
   "extends": "../../tsconfig.base.json",
@@ -1584,15 +1586,12 @@ export { ProForm }
     "composite": true
   },
   "include": ["src/**/*.ts", "src/**/*.vue"],
-  "references": [
-    { "path": "../utils" },
-    { "path": "../hooks" },
-    { "path": "../themes" }
-  ]
+  "references": [{ "path": "../utils" }, { "path": "../hooks" }, { "path": "../themes" }]
 }
 ```
 
 `packages/pro-descriptions/rollup.config.ts`:
+
 ```typescript
 import { createRollupConfig } from '../../scripts/rollup.base'
 
@@ -1603,6 +1602,7 @@ export default createRollupConfig({
 ```
 
 `packages/pro-descriptions/src/ProDescriptions.vue`:
+
 ```vue
 <script setup lang="ts">
 defineOptions({ name: 'ProDescriptions' })
@@ -1624,6 +1624,7 @@ defineOptions({ name: 'ProDescriptions' })
 ```
 
 `packages/pro-descriptions/src/index.ts`:
+
 ```typescript
 import ProDescriptions from './ProDescriptions.vue'
 
@@ -1642,6 +1643,7 @@ git commit -m "feat: scaffold ProTable, ProForm, ProDescriptions packages"
 ### Task 11: Aggregation Package (@pro/pro-components)
 
 **Files:**
+
 - Create: `packages/pro-components/package.json`
 - Create: `packages/pro-components/tsconfig.json`
 - Create: `packages/pro-components/rollup.config.ts`
@@ -1773,6 +1775,7 @@ git commit -m "feat: scaffold @pro/pro-components aggregation package"
 ### Task 12: Playground App
 
 **Files:**
+
 - Create: `playground/package.json`
 - Create: `playground/vite.config.ts`
 - Create: `playground/tsconfig.json`
@@ -1966,6 +1969,7 @@ git commit -m "chore: install dependencies, verify full build pipeline"
 ### Task 14: Changesets Setup
 
 **Files:**
+
 - Create: `.changeset/config.json`
 
 - [ ] **Step 1: Initialize changesets**
@@ -1982,11 +1986,12 @@ Replace `.changeset/config.json` with:
 ```json
 {
   "$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
-  "changelog": ["@changesets/changelog-github", { "repo": "TODO: replace with actual GitHub org/repo" }],
-  "commit": false,
-  "fixed": [
-    ["@pro/table", "@pro/form", "@pro/descriptions", "@pro/pro-components"]
+  "changelog": [
+    "@changesets/changelog-github",
+    { "repo": "TODO: replace with actual GitHub org/repo" }
   ],
+  "commit": false,
+  "fixed": [["@pro/table", "@pro/form", "@pro/descriptions", "@pro/pro-components"]],
   "linked": [],
   "access": "restricted",
   "baseBranch": "main",

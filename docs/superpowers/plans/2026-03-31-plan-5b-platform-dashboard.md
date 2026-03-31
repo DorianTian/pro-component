@@ -9,6 +9,7 @@
 **Tech Stack:** Vue 3.4+, Element Plus 2.9+, Vite 6+, Vue Router 4, Pinia 2, axios, @vueuse/core, TypeScript 5.5+, @dagrejs/dagre (dependency graph layout)
 
 **Relationship to other plans:**
+
 - Plan 1 (Monorepo Foundation): provides workspace context — this app lives at `platform/web/`
 - Plan 5a (Platform API): provides the backend endpoints this dashboard consumes
 - `pnpm-workspace.yaml` already includes `platform/**` via the workspace glob `packages/*` does NOT cover this — workspace config must include `platform/web` explicitly
@@ -81,6 +82,7 @@ platform/web/
 ### Task 1: Project Scaffold + Vite Config
 
 **Files:**
+
 - Create: `platform/web/package.json`
 - Create: `platform/web/tsconfig.json`
 - Create: `platform/web/tsconfig.node.json`
@@ -97,10 +99,10 @@ Add `platform/*` to the workspace packages list:
 
 ```yaml
 packages:
-  - "packages/*"
-  - "platform/*"
-  - "playground"
-  - "docs"
+  - 'packages/*'
+  - 'platform/*'
+  - 'playground'
+  - 'docs'
 ```
 
 - [ ] **Step 2: Create platform/web/package.json**
@@ -249,11 +251,7 @@ export default defineConfig({
 
 declare module '*.vue' {
   import type { DefineComponent } from 'vue'
-  const component: DefineComponent<
-    Record<string, unknown>,
-    Record<string, unknown>,
-    unknown
-  >
+  const component: DefineComponent<Record<string, unknown>, Record<string, unknown>, unknown>
   export default component
 }
 
@@ -292,6 +290,7 @@ git commit -m "feat(platform): scaffold dashboard app with Vite + Vue 3 + Elemen
 ### Task 2: API Types + HTTP Client
 
 **Files:**
+
 - Create: `platform/web/src/api/types.ts`
 - Create: `platform/web/src/api/client.ts`
 
@@ -672,6 +671,7 @@ git commit -m "feat(platform): add typed API client and full type definitions"
 ### Task 3: API Service Modules
 
 **Files:**
+
 - Create: `platform/web/src/api/apps.ts`
 - Create: `platform/web/src/api/versions.ts`
 - Create: `platform/web/src/api/grayscale.ts`
@@ -822,11 +822,7 @@ export function getResolutionGraph(appId: string): Promise<ResolutionGraph> {
 
 ```typescript
 import { apiGet, apiPost, apiPut } from './client'
-import type {
-  GrayscaleRule,
-  CreateGrayscalePayload,
-  PaginatedResponse,
-} from './types'
+import type { GrayscaleRule, CreateGrayscalePayload, PaginatedResponse } from './types'
 
 /**
  * List all grayscale rules, optionally filtered by app.
@@ -911,12 +907,7 @@ export function reportCompatResult(payload: {
 
 ```typescript
 import { apiGet, apiPost } from './client'
-import type {
-  RollbackPreCheck,
-  RollbackPayload,
-  Version,
-  HealthStatus,
-} from './types'
+import type { RollbackPreCheck, RollbackPayload, Version, HealthStatus } from './types'
 
 /**
  * Run pre-rollback checks.
@@ -933,10 +924,7 @@ export function rollbackPreCheck(
 /**
  * Execute rollback.
  */
-export function executeRollback(
-  versionId: number,
-  payload: RollbackPayload,
-): Promise<Version> {
+export function executeRollback(versionId: number, payload: RollbackPayload): Promise<Version> {
   return apiPost<Version>(`/versions/${versionId}/rollback`, payload)
 }
 
@@ -969,6 +957,7 @@ git commit -m "feat(platform): add all API service modules"
 ### Task 4: Router + Pinia Stores + App Entry
 
 **Files:**
+
 - Create: `platform/web/src/router/index.ts`
 - Create: `platform/web/src/stores/auth.ts`
 - Create: `platform/web/src/stores/app.ts`
@@ -1104,18 +1093,12 @@ export const useAuthStore = defineStore('auth', () => {
 export function usePermission() {
   const authStore = useAuthStore()
 
-  const canPublish = computed(() =>
-    authStore.hasPermission('publisher'),
-  )
-  const canManageGrayscale = computed(() =>
-    authStore.hasPermission('operator'),
-  )
+  const canPublish = computed(() => authStore.hasPermission('publisher'))
+  const canManageGrayscale = computed(() => authStore.hasPermission('operator'))
   const canRollback = computed(() => authStore.role === 'admin')
   const canManageUsers = computed(() => authStore.role === 'admin')
   const canDeprecate = computed(() => authStore.role === 'admin')
-  const canEditApp = computed(() =>
-    authStore.hasPermission('operator'),
-  )
+  const canEditApp = computed(() => authStore.hasPermission('operator'))
 
   return { canPublish, canManageGrayscale, canRollback, canManageUsers, canDeprecate, canEditApp }
 }
@@ -1123,6 +1106,7 @@ export function usePermission() {
 
 > **Implementation note — Required Pinia Stores:**
 > The dashboard needs the following stores for complex state management:
+>
 > - `stores/auth.ts` — Authentication state, JWT token, user role (defined below)
 > - `stores/app.ts` — App list + package list + sidebar state (defined below)
 > - `stores/grayscale.ts` — Grayscale rule management state (list, filters, CRUD loading states)
@@ -1235,8 +1219,9 @@ body,
   margin: 0;
   padding: 0;
   height: 100%;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    'Microsoft YaHei', Arial, sans-serif;
+  font-family:
+    'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial,
+    sans-serif;
 }
 </style>
 ```
@@ -1254,6 +1239,7 @@ git commit -m "feat(platform): add router, Pinia stores, and app entry"
 ### Task 5: Dashboard Layout
 
 **Files:**
+
 - Create: `platform/web/src/layouts/DashboardLayout.vue`
 - Create: `platform/web/src/components/Breadcrumb.vue`
 
@@ -1276,11 +1262,7 @@ git commit -m "feat(platform): add router, Pinia stores, and app entry"
         text-color="#ffffffa6"
         active-text-color="#409eff"
       >
-        <el-menu-item
-          v-for="route in menuRoutes"
-          :key="route.path"
-          :index="route.path"
-        >
+        <el-menu-item v-for="route in menuRoutes" :key="route.path" :index="route.path">
           <el-icon>
             <component :is="route.meta?.icon" />
           </el-icon>
@@ -1292,11 +1274,7 @@ git commit -m "feat(platform): add router, Pinia stores, and app entry"
     <el-container>
       <el-header class="dashboard-header">
         <div class="header-left">
-          <el-icon
-            class="collapse-trigger"
-            :size="20"
-            @click="appStore.toggleSidebar()"
-          >
+          <el-icon class="collapse-trigger" :size="20" @click="appStore.toggleSidebar()">
             <Fold v-if="!appStore.sidebarCollapsed" />
             <Expand v-else />
           </el-icon>
@@ -1488,6 +1466,7 @@ git commit -m "feat(platform): add dashboard layout with sidebar and breadcrumb"
 ### Task 6: Shared Components (StatusBadge, ConfirmDialog)
 
 **Files:**
+
 - Create: `platform/web/src/components/StatusBadge.vue`
 - Create: `platform/web/src/components/ConfirmDialog.vue`
 
@@ -1539,7 +1518,9 @@ const props = withDefaults(
   },
 )
 
-const config = computed<StatusConfig>(() => STATUS_MAP[props.status] ?? { type: 'info', color: '#909399' })
+const config = computed<StatusConfig>(
+  () => STATUS_MAP[props.status] ?? { type: 'info', color: '#909399' },
+)
 const tagType = computed(() => config.value.type)
 const dotColor = computed(() => config.value.color)
 const label = computed(() => props.status.charAt(0).toUpperCase() + props.status.slice(1))
@@ -1570,7 +1551,9 @@ const label = computed(() => props.status.charAt(0).toUpperCase() + props.status
   >
     <div class="confirm-content">
       <el-icon v-if="type === 'warning'" :size="48" color="#e6a23c"><WarningFilled /></el-icon>
-      <el-icon v-else-if="type === 'danger'" :size="48" color="#f56c6c"><CircleCloseFilled /></el-icon>
+      <el-icon v-else-if="type === 'danger'" :size="48" color="#f56c6c"
+        ><CircleCloseFilled
+      /></el-icon>
       <el-icon v-else :size="48" color="#409eff"><InfoFilled /></el-icon>
       <p class="confirm-message">{{ message }}</p>
       <slot />
@@ -1656,6 +1639,7 @@ git commit -m "feat(platform): add StatusBadge and ConfirmDialog shared componen
 ### Task 7: App Management Page
 
 **Files:**
+
 - Create: `platform/web/src/views/app-manage/AppList.vue`
 - Create: `platform/web/src/views/app-manage/AppForm.vue`
 
@@ -1689,12 +1673,7 @@ git commit -m "feat(platform): add StatusBadge and ConfirmDialog shared componen
         <el-button :icon="Refresh" @click="loadApps">Refresh</el-button>
       </div>
 
-      <el-table
-        v-loading="loading"
-        :data="apps"
-        stripe
-        style="width: 100%"
-      >
+      <el-table v-loading="loading" :data="apps" stripe style="width: 100%">
         <el-table-column prop="app_id" label="App ID" width="180" />
         <el-table-column prop="name" label="Name" min-width="200" />
         <el-table-column prop="owner" label="Owner" width="150" />
@@ -1712,11 +1691,7 @@ git commit -m "feat(platform): add StatusBadge and ConfirmDialog shared componen
             >
               Edit
             </el-button>
-            <el-button
-              size="small"
-              type="primary"
-              @click="goToVersions(row.app_id)"
-            >
+            <el-button size="small" type="primary" @click="goToVersions(row.app_id)">
               Versions
             </el-button>
           </template>
@@ -1735,11 +1710,7 @@ git commit -m "feat(platform): add StatusBadge and ConfirmDialog shared componen
       </div>
     </el-card>
 
-    <AppForm
-      v-model="showCreateForm"
-      :editing-app="editingApp"
-      @saved="handleSaved"
-    />
+    <AppForm v-model="showCreateForm" :editing-app="editingApp" @saved="handleSaved" />
   </div>
 </template>
 
@@ -1867,11 +1838,7 @@ onMounted(loadApps)
       label-position="right"
     >
       <el-form-item label="App ID" prop="app_id">
-        <el-input
-          v-model="formData.app_id"
-          :disabled="isEditing"
-          placeholder="e.g. user-center"
-        />
+        <el-input v-model="formData.app_id" :disabled="isEditing" placeholder="e.g. user-center" />
       </el-form-item>
       <el-form-item label="Name" prop="name">
         <el-input v-model="formData.name" placeholder="Display name" />
@@ -1984,6 +1951,7 @@ git commit -m "feat(platform): add App Management page (list + create/edit)"
 ### Task 8: Version Mapping Page + Dependency Graph
 
 **Files:**
+
 - Create: `platform/web/src/views/version-map/VersionMapList.vue`
 - Create: `platform/web/src/views/version-map/VersionEditDialog.vue`
 - Create: `platform/web/src/components/DependencyGraph.vue`
@@ -2030,12 +1998,7 @@ git commit -m "feat(platform): add App Management page (list + create/edit)"
     </el-card>
 
     <el-card v-if="selectedAppId" shadow="never" style="margin-top: 16px">
-      <el-table
-        v-loading="loading"
-        :data="versionMaps"
-        stripe
-        style="width: 100%"
-      >
+      <el-table v-loading="loading" :data="versionMaps" stripe style="width: 100%">
         <el-table-column prop="package_name" label="Package" width="200" />
         <el-table-column label="Pinned Version" width="160">
           <template #default="{ row }">
@@ -2092,26 +2055,13 @@ git commit -m "feat(platform): add App Management page (list + create/edit)"
 
     <el-empty v-else description="Select an app to view version mappings" />
 
-    <VersionEditDialog
-      v-model="showEditDialog"
-      :version-map="editingMap"
-      @saved="handleSaved"
-    />
+    <VersionEditDialog v-model="showEditDialog" :version-map="editingMap" @saved="handleSaved" />
 
-    <el-dialog
-      v-model="showDepGraph"
-      title="Dependency Resolution Graph"
-      width="80%"
-      top="5vh"
-    >
+    <el-dialog v-model="showDepGraph" title="Dependency Resolution Graph" width="80%" top="5vh">
       <DependencyGraph v-if="showDepGraph && selectedAppId" :app-id="selectedAppId" />
     </el-dialog>
 
-    <el-dialog
-      v-model="showPackageDeps"
-      :title="`Dependencies: ${depsPackageName}`"
-      width="60%"
-    >
+    <el-dialog v-model="showPackageDeps" :title="`Dependencies: ${depsPackageName}`" width="60%">
       <div v-loading="depsLoading">
         <el-alert
           v-for="conflict in depsResult?.conflicts ?? []"
@@ -2127,9 +2077,7 @@ git commit -m "feat(platform): add App Management page (list + create/edit)"
             <div v-for="(range, pkg) in conflict.required" :key="pkg">
               {{ pkg }} requires <code>{{ range }}</code>
             </div>
-            <div style="margin-top: 8px">
-              Suggestion: {{ conflict.suggestion }}
-            </div>
+            <div style="margin-top: 8px">Suggestion: {{ conflict.suggestion }}</div>
           </div>
         </el-alert>
 
@@ -2284,12 +2232,7 @@ onMounted(() => {
         </el-descriptions-item>
       </el-descriptions>
 
-      <el-form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        label-width="130px"
-      >
+      <el-form ref="formRef" :model="formData" :rules="formRules" label-width="130px">
         <el-form-item label="Mode">
           <el-radio-group v-model="versionMode">
             <el-radio value="pinned">Pin Exact Version</el-radio>
@@ -2297,11 +2240,7 @@ onMounted(() => {
           </el-radio-group>
         </el-form-item>
 
-        <el-form-item
-          v-if="versionMode === 'pinned'"
-          label="Pinned Version"
-          prop="pinned_version"
-        >
+        <el-form-item v-if="versionMode === 'pinned'" label="Pinned Version" prop="pinned_version">
           <el-select
             v-model="formData.pinned_version"
             placeholder="Select version"
@@ -2320,23 +2259,14 @@ onMounted(() => {
           </el-select>
         </el-form-item>
 
-        <el-form-item
-          v-if="versionMode === 'range'"
-          label="Version Range"
-          prop="version_range"
-        >
-          <el-input
-            v-model="formData.version_range"
-            placeholder="e.g. ^1.2.0 or >=1.0.0 <2.0.0"
-          />
+        <el-form-item v-if="versionMode === 'range'" label="Version Range" prop="version_range">
+          <el-input v-model="formData.version_range" placeholder="e.g. ^1.2.0 or >=1.0.0 <2.0.0" />
         </el-form-item>
       </el-form>
     </div>
     <template #footer>
       <el-button @click="visible = false">Cancel</el-button>
-      <el-button type="primary" :loading="submitting" @click="handleSubmit">
-        Save
-      </el-button>
+      <el-button type="primary" :loading="submitting" @click="handleSubmit"> Save </el-button>
     </template>
   </el-dialog>
 </template>
@@ -2448,22 +2378,9 @@ Renders the resolution graph (nodes = apps + packages, edges = dependency relati
         </template>
       </el-result>
     </div>
-    <svg
-      v-else
-      ref="svgRef"
-      :width="svgWidth"
-      :height="svgHeight"
-      class="dep-graph-svg"
-    >
+    <svg v-else ref="svgRef" :width="svgWidth" :height="svgHeight" class="dep-graph-svg">
       <defs>
-        <marker
-          id="arrowhead"
-          markerWidth="10"
-          markerHeight="7"
-          refX="10"
-          refY="3.5"
-          orient="auto"
-        >
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
           <polygon points="0 0, 10 3.5, 0 7" fill="#909399" />
         </marker>
       </defs>
@@ -2679,6 +2596,7 @@ git commit -m "feat(platform): add Version Mapping page with dependency graph"
 ### Task 9: Publish Management Page
 
 **Files:**
+
 - Create: `platform/web/src/components/StateMachineViz.vue`
 - Create: `platform/web/src/views/publish/PublishList.vue`
 - Create: `platform/web/src/views/publish/PublishTimeline.vue`
@@ -2690,11 +2608,7 @@ Renders the CDN publish state machine: uploading -> propagating -> verifying -> 
 ```vue
 <template>
   <div class="state-machine">
-    <div
-      v-for="(step, index) in steps"
-      :key="step.state"
-      class="state-step"
-    >
+    <div v-for="(step, index) in steps" :key="step.state" class="state-step">
       <div
         class="state-node"
         :class="{
@@ -2705,12 +2619,23 @@ Renders the CDN publish state machine: uploading -> propagating -> verifying -> 
         }"
       >
         <el-icon v-if="isCompleted(step.state)" :size="20"><CircleCheckFilled /></el-icon>
-        <el-icon v-else-if="step.state === currentState && currentState !== 'failed'" :size="20" class="is-loading"><Loading /></el-icon>
-        <el-icon v-else-if="step.state === 'failed' && currentState === 'failed'" :size="20"><CircleCloseFilled /></el-icon>
+        <el-icon
+          v-else-if="step.state === currentState && currentState !== 'failed'"
+          :size="20"
+          class="is-loading"
+          ><Loading
+        /></el-icon>
+        <el-icon v-else-if="step.state === 'failed' && currentState === 'failed'" :size="20"
+          ><CircleCloseFilled
+        /></el-icon>
         <span v-else class="state-number">{{ index + 1 }}</span>
       </div>
       <span class="state-label">{{ step.label }}</span>
-      <div v-if="index < steps.length - 1" class="state-connector" :class="{ completed: isCompleted(step.state) }" />
+      <div
+        v-if="index < steps.length - 1"
+        class="state-connector"
+        :class="{ completed: isCompleted(step.state) }"
+      />
     </div>
   </div>
 </template>
@@ -2861,12 +2786,7 @@ function isPending(state: CdnPublishState): boolean {
         />
       </div>
 
-      <el-table
-        v-loading="loading"
-        :data="statuses"
-        stripe
-        style="width: 100%"
-      >
+      <el-table v-loading="loading" :data="statuses" stripe style="width: 100%">
         <el-table-column prop="package_name" label="Package" width="200" />
         <el-table-column prop="version" label="Version" width="120" />
         <el-table-column label="State" width="400">
@@ -3177,6 +3097,7 @@ git commit -m "feat(platform): add Publish Management with state machine and tim
 ### Task 10: Grayscale Strategy Page
 
 **Files:**
+
 - Create: `platform/web/src/views/grayscale/GrayscaleList.vue`
 - Create: `platform/web/src/views/grayscale/GrayscaleRuleBuilder.vue`
 - Create: `platform/web/src/views/grayscale/GrayscaleForm.vue`
@@ -3322,10 +3243,7 @@ git commit -m "feat(platform): add Publish Management with state machine and tim
       </div>
     </el-card>
 
-    <GrayscaleForm
-      v-model="showForm"
-      @saved="handleSaved"
-    />
+    <GrayscaleForm v-model="showForm" @saved="handleSaved" />
   </div>
 </template>
 
@@ -3439,7 +3357,8 @@ const RulePreview = {
       return JSON.stringify(rule)
     }
 
-    return () => h('code', { style: 'font-size: 12px; word-break: break-all' }, describe(props.ruleConfig))
+    return () =>
+      h('code', { style: 'font-size: 12px; word-break: break-all' }, describe(props.ruleConfig))
   },
 }
 
@@ -3503,23 +3422,13 @@ Visual AND/OR composite rule builder. Supports recursive nesting.
           <el-radio-button value="AND">AND</el-radio-button>
           <el-radio-button value="OR">OR</el-radio-button>
         </el-radio-group>
-        <el-button
-          v-if="depth > 0"
-          size="small"
-          type="danger"
-          text
-          @click="emit('remove')"
-        >
+        <el-button v-if="depth > 0" size="small" type="danger" text @click="emit('remove')">
           Remove Group
         </el-button>
       </div>
 
       <div class="conditions-list">
-        <div
-          v-for="(condition, index) in compositeConditions"
-          :key="index"
-          class="condition-item"
-        >
+        <div v-for="(condition, index) in compositeConditions" :key="index" class="condition-item">
           <GrayscaleRuleBuilder
             :model-value="condition"
             :depth="depth + 1"
@@ -3530,12 +3439,8 @@ Visual AND/OR composite rule builder. Supports recursive nesting.
       </div>
 
       <div class="add-buttons">
-        <el-button size="small" @click="addSimpleCondition">
-          + Add Condition
-        </el-button>
-        <el-button size="small" @click="addCompositeGroup">
-          + Add Group
-        </el-button>
+        <el-button size="small" @click="addSimpleCondition"> + Add Condition </el-button>
+        <el-button size="small" @click="addCompositeGroup"> + Add Group </el-button>
       </div>
     </div>
 
@@ -3644,7 +3549,7 @@ const simpleValues = computed(() =>
 
 const simplePercentage = computed(() =>
   'type' in props.modelValue && props.modelValue.type === 'percentage'
-    ? props.modelValue.value ?? 10
+    ? (props.modelValue.value ?? 10)
     : 10,
 )
 
@@ -3769,12 +3674,7 @@ function updateSimplePercentage(value: number) {
     :close-on-click-modal="false"
     @close="resetForm"
   >
-    <el-form
-      ref="formRef"
-      :model="formData"
-      :rules="formRules"
-      label-width="140px"
-    >
+    <el-form ref="formRef" :model="formData" :rules="formRules" label-width="140px">
       <el-form-item label="App" prop="app_id">
         <el-select
           v-model="formData.app_id"
@@ -3834,18 +3734,13 @@ function updateSimplePercentage(value: number) {
       </el-form-item>
 
       <el-form-item label="Rule Configuration">
-        <GrayscaleRuleBuilder
-          v-model="ruleConfig"
-          :depth="0"
-        />
+        <GrayscaleRuleBuilder v-model="ruleConfig" :depth="0" />
       </el-form-item>
     </el-form>
 
     <template #footer>
       <el-button @click="visible = false">Cancel</el-button>
-      <el-button type="primary" :loading="submitting" @click="handleSubmit">
-        Create
-      </el-button>
+      <el-button type="primary" :loading="submitting" @click="handleSubmit"> Create </el-button>
     </template>
   </el-dialog>
 </template>
@@ -3975,6 +3870,7 @@ git commit -m "feat(platform): add Grayscale Strategy page with visual rule buil
 ### Task 11: Compatibility Matrix Page
 
 **Files:**
+
 - Create: `platform/web/src/views/compat-matrix/CompatMatrix.vue`
 
 - [ ] **Step 1: Create platform/web/src/views/compat-matrix/CompatMatrix.vue**
@@ -4015,12 +3911,7 @@ Matrix grid showing Vue versions x Element Plus versions, with colored cells (pa
             :disabled="!selectedPackage"
             @change="loadMatrix"
           >
-            <el-option
-              v-for="v in packageVersions"
-              :key="v"
-              :label="v"
-              :value="v"
-            />
+            <el-option v-for="v in packageVersions" :key="v" :label="v" :value="v" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -4031,15 +3922,9 @@ Matrix grid showing Vue versions x Element Plus versions, with colored cells (pa
 
     <el-card v-if="selectedPackage && selectedVersion" shadow="never" style="margin-top: 16px">
       <div class="legend">
-        <span class="legend-item">
-          <span class="legend-dot pass" />Pass
-        </span>
-        <span class="legend-item">
-          <span class="legend-dot fail" />Fail
-        </span>
-        <span class="legend-item">
-          <span class="legend-dot untested" />Untested
-        </span>
+        <span class="legend-item"> <span class="legend-dot pass" />Pass </span>
+        <span class="legend-item"> <span class="legend-dot fail" />Fail </span>
+        <span class="legend-item"> <span class="legend-dot untested" />Untested </span>
       </div>
 
       <div v-loading="loading" class="matrix-wrapper">
@@ -4060,13 +3945,14 @@ Matrix grid showing Vue versions x Element Plus versions, with colored cells (pa
                 :class="getCellClass(vue, ep)"
                 @click="handleCellClick(vue, ep)"
               >
-                <el-tooltip
-                  :content="getCellTooltip(vue, ep)"
-                  placement="top"
-                >
+                <el-tooltip :content="getCellTooltip(vue, ep)" placement="top">
                   <span class="cell-content">
-                    <el-icon v-if="getCellStatus(vue, ep) === 'pass'" color="#67c23a"><CircleCheckFilled /></el-icon>
-                    <el-icon v-else-if="getCellStatus(vue, ep) === 'fail'" color="#f56c6c"><CircleCloseFilled /></el-icon>
+                    <el-icon v-if="getCellStatus(vue, ep) === 'pass'" color="#67c23a"
+                      ><CircleCheckFilled
+                    /></el-icon>
+                    <el-icon v-else-if="getCellStatus(vue, ep) === 'fail'" color="#f56c6c"
+                      ><CircleCloseFilled
+                    /></el-icon>
                     <el-icon v-else color="#c0c4cc"><QuestionFilled /></el-icon>
                   </span>
                 </el-tooltip>
@@ -4301,6 +4187,7 @@ git commit -m "feat(platform): add Compatibility Matrix page with colored grid"
 ### Task 12: Changelog Page
 
 **Files:**
+
 - Create: `platform/web/src/views/changelog/ChangelogView.vue`
 
 - [ ] **Step 1: Create platform/web/src/views/changelog/ChangelogView.vue**
@@ -4334,19 +4221,17 @@ git commit -m "feat(platform): add Compatibility Matrix page with colored grid"
       </div>
 
       <div v-loading="loading">
-        <el-empty v-if="!loading && filteredVersions.length === 0" description="No versions found" />
+        <el-empty
+          v-if="!loading && filteredVersions.length === 0"
+          description="No versions found"
+        />
 
         <div v-for="version in filteredVersions" :key="version.id" class="version-entry">
           <div class="version-header">
             <div class="version-left">
               <h3 class="version-number">{{ version.version }}</h3>
               <StatusBadge :status="version.status" />
-              <el-tag
-                v-if="hasBreakingChanges(version)"
-                type="danger"
-                size="small"
-                effect="dark"
-              >
+              <el-tag v-if="hasBreakingChanges(version)" type="danger" size="small" effect="dark">
                 BREAKING
               </el-tag>
             </div>
@@ -4363,11 +4248,7 @@ git commit -m "feat(platform): add Compatibility Matrix page with colored grid"
               Breaking Changes
             </h4>
             <ul>
-              <li
-                v-for="(change, i) in version.breaking_changes"
-                :key="i"
-                class="breaking-item"
-              >
+              <li v-for="(change, i) in version.breaking_changes" :key="i" class="breaking-item">
                 <div class="breaking-description">{{ change.description }}</div>
                 <div v-if="change.migration" class="migration-hint">
                   <strong>Migration:</strong> {{ change.migration }}
@@ -4582,6 +4463,7 @@ git commit -m "feat(platform): add Changelog page with breaking changes highligh
 ### Task 13: Rollback Dialog
 
 **Files:**
+
 - Create: `platform/web/src/views/rollback/RollbackDialog.vue`
 
 - [ ] **Step 1: Create platform/web/src/views/rollback/RollbackDialog.vue**
@@ -4605,12 +4487,7 @@ Reusable rollback dialog with target version selection, mandatory reason, pre-ch
 
     <!-- Step 0: Configure -->
     <div v-show="currentStep === 0">
-      <el-form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        label-width="140px"
-      >
+      <el-form ref="formRef" :model="formData" :rules="formRules" label-width="140px">
         <el-form-item label="Current Version">
           <el-tag>{{ currentVersion }}</el-tag>
         </el-form-item>
@@ -4621,12 +4498,7 @@ Reusable rollback dialog with target version selection, mandatory reason, pre-ch
             filterable
             style="width: 100%"
           >
-            <el-option
-              v-for="v in rollbackTargets"
-              :key="v"
-              :label="v"
-              :value="v"
-            />
+            <el-option v-for="v in rollbackTargets" :key="v" :label="v" :value="v" />
           </el-select>
         </el-form-item>
         <el-form-item label="Reason" prop="reason">
@@ -4653,7 +4525,10 @@ Reusable rollback dialog with target version selection, mandatory reason, pre-ch
 
           <el-descriptions :column="1" border size="small">
             <el-descriptions-item label="CDN Resources Exist">
-              <el-tag :type="preCheckResult.cdn_resources_exist ? 'success' : 'danger'" size="small">
+              <el-tag
+                :type="preCheckResult.cdn_resources_exist ? 'success' : 'danger'"
+                size="small"
+              >
                 {{ preCheckResult.cdn_resources_exist ? 'Yes' : 'No' }}
               </el-tag>
             </el-descriptions-item>
@@ -4694,10 +4569,13 @@ Reusable rollback dialog with target version selection, mandatory reason, pre-ch
       <div class="confirm-summary">
         <el-alert type="error" :closable="false" show-icon>
           <template #title>
-            <strong>You are about to roll back from {{ currentVersion }} to {{ formData.target_version }}</strong>
+            <strong
+              >You are about to roll back from {{ currentVersion }} to
+              {{ formData.target_version }}</strong
+            >
           </template>
-          This action will update version mappings for all affected apps.
-          The rollback will go through grayscale (internal traffic first).
+          This action will update version mappings for all affected apps. The rollback will go
+          through grayscale (internal traffic first).
         </el-alert>
 
         <el-descriptions :column="1" border size="small" style="margin-top: 16px">
@@ -4718,11 +4596,7 @@ Reusable rollback dialog with target version selection, mandatory reason, pre-ch
     <template #footer>
       <el-button v-if="currentStep > 0" @click="currentStep--">Back</el-button>
       <el-button @click="visible = false">Cancel</el-button>
-      <el-button
-        v-if="currentStep === 0"
-        type="primary"
-        @click="handleNextToPreCheck"
-      >
+      <el-button v-if="currentStep === 0" type="primary" @click="handleNextToPreCheck">
         Run Pre-check
       </el-button>
       <el-button
@@ -4799,10 +4673,7 @@ async function handleNextToPreCheck() {
   preCheckResult.value = null
 
   try {
-    preCheckResult.value = await rollbackPreCheck(
-      props.versionId,
-      formData.value.target_version,
-    )
+    preCheckResult.value = await rollbackPreCheck(props.versionId, formData.value.target_version)
   } catch (err: unknown) {
     ElMessage.error('Pre-check failed')
     currentStep.value = 0

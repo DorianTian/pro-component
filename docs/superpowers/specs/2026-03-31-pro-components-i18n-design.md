@@ -15,19 +15,19 @@ Add internationalization (i18n) support across the entire Pro Components project
 
 ### Design Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| i18n library | vue-i18n 9+ | Unified approach across component library and dashboard |
-| vue-i18n dependency | `peerDependencies` + `optional: true` | Consumer may already have vue-i18n; avoid duplicate instances |
-| Fallback (no vue-i18n) | Built-in `resolveMessage()` | Components work without vue-i18n, zero-dependency default |
-| Element Plus bridge | Wrap `ElConfigProvider` inside `ProConfigProvider` | Single `locale` prop syncs vue-i18n + Element Plus + dayjs |
-| Translation loading | Bundled (all languages in bundle) | ~10KB gzip total, no async loading overhead |
-| Date formatting | dayjs + locale plugins | Flexible relative time, Element Plus already uses dayjs |
-| Number/currency formatting | Native `Intl` API | Zero dependency, browser-native, sufficient coverage |
-| Message key structure | Nested `pro.{component}.{feature}.{key}` | Readable, namespaced, auto-complete friendly |
-| vue-i18n scope | Global scope (`useScope: 'global'`) | Component library messages must sync with consumer's i18n |
-| Docs i18n | VitePress native locales (`en/`, `zh/`) | Built-in support, directory-based, no plugins needed |
-| Planning docs | Independent `-zh.md` files | English for agent execution, Chinese for human review |
+| Decision                   | Choice                                             | Rationale                                                     |
+| -------------------------- | -------------------------------------------------- | ------------------------------------------------------------- |
+| i18n library               | vue-i18n 9+                                        | Unified approach across component library and dashboard       |
+| vue-i18n dependency        | `peerDependencies` + `optional: true`              | Consumer may already have vue-i18n; avoid duplicate instances |
+| Fallback (no vue-i18n)     | Built-in `resolveMessage()`                        | Components work without vue-i18n, zero-dependency default     |
+| Element Plus bridge        | Wrap `ElConfigProvider` inside `ProConfigProvider` | Single `locale` prop syncs vue-i18n + Element Plus + dayjs    |
+| Translation loading        | Bundled (all languages in bundle)                  | ~10KB gzip total, no async loading overhead                   |
+| Date formatting            | dayjs + locale plugins                             | Flexible relative time, Element Plus already uses dayjs       |
+| Number/currency formatting | Native `Intl` API                                  | Zero dependency, browser-native, sufficient coverage          |
+| Message key structure      | Nested `pro.{component}.{feature}.{key}`           | Readable, namespaced, auto-complete friendly                  |
+| vue-i18n scope             | Global scope (`useScope: 'global'`)                | Component library messages must sync with consumer's i18n     |
+| Docs i18n                  | VitePress native locales (`en/`, `zh/`)            | Built-in support, directory-based, no plugins needed          |
+| Planning docs              | Independent `-zh.md` files                         | English for agent execution, Chinese for human review         |
 
 ## 2. Architecture
 
@@ -60,14 +60,14 @@ Without vue-i18n:
 
 ### Two Operating Modes
 
-| Capability | With vue-i18n | Without vue-i18n (fallback) |
-|------------|:---:|:---:|
-| Basic translation `t()` | Y | Y |
-| Template interpolation `{name}` | Y | Y |
-| Runtime locale switching | Y (reactive) | Y (reactive) |
-| Consumer message overrides | Y (`mergeLocaleMessage`) | N |
-| Pluralization | Y | N |
-| `<i18n-t>` component | Y | N |
+| Capability                      |      With vue-i18n       | Without vue-i18n (fallback) |
+| ------------------------------- | :----------------------: | :-------------------------: |
+| Basic translation `t()`         |            Y             |              Y              |
+| Template interpolation `{name}` |            Y             |              Y              |
+| Runtime locale switching        |       Y (reactive)       |        Y (reactive)         |
+| Consumer message overrides      | Y (`mergeLocaleMessage`) |              N              |
+| Pluralization                   |            Y             |              N              |
+| `<i18n-t>` component            |            Y             |              N              |
 
 This distinction is a **public API contract** — documented explicitly so consumers understand the capability difference.
 
@@ -87,6 +87,7 @@ packages/
 ```
 
 Locale is an independent package (not inside `@pro/utils`) because:
+
 - Translation files update frequently; isolated changeset is cleaner
 - Allows future tree-shaking per language if needed
 - Clear ownership boundary in monorepo
@@ -159,15 +160,17 @@ export function useProLocale(): ProLocaleContext {
 
   if (!ctx && __DEV__) {
     console.warn(
-      '[ProComponents] useProLocale() called without <ProConfigProvider>. '
-      + 'Falling back to en-US defaults. Wrap your app with <ProConfigProvider> for full i18n support.'
+      '[ProComponents] useProLocale() called without <ProConfigProvider>. ' +
+        'Falling back to en-US defaults. Wrap your app with <ProConfigProvider> for full i18n support.',
     )
   }
 
-  return ctx ?? {
-    t: (key, params) => resolveMessage(enUS, key, params),
-    locale: computed(() => 'en-US'),
-  }
+  return (
+    ctx ?? {
+      t: (key, params) => resolveMessage(enUS, key, params),
+      locale: computed(() => 'en-US'),
+    }
+  )
 }
 ```
 
@@ -188,10 +191,9 @@ export function resolveMessage(
   if (!key) return ''
   if (!messages) return key
 
-  const value = key.split('.').reduce<unknown>(
-    (obj, k) => (obj as Record<string, unknown>)?.[k],
-    messages,
-  )
+  const value = key
+    .split('.')
+    .reduce<unknown>((obj, k) => (obj as Record<string, unknown>)?.[k], messages)
 
   if (typeof value !== 'string') return key
   if (!params) return value
@@ -225,7 +227,7 @@ const PRO_MESSAGES_MAP: Record<string, Record<string, unknown>> = {
 }
 
 interface ProConfigProviderProps {
-  locale?: string   // default: 'en-US'
+  locale?: string // default: 'en-US'
   density?: 'compact' | 'default' | 'relaxed'
   theme?: 'light' | 'dark'
 }
@@ -255,19 +257,22 @@ function setup(props: ProConfigProviderProps) {
   const elLocale = computed(() => EL_LOCALE_MAP[currentLocale.value] ?? en)
 
   // --- Watch locale changes ---
-  watch(currentLocale, (loc) => {
-    // Sync vue-i18n global locale (switch only, no re-merge)
-    if (i18n) {
-      i18n.global.locale.value = loc
-    }
-    // Sync dayjs locale
-    dayjs.locale(loc === 'zh-CN' ? 'zh-cn' : 'en')
-  }, { immediate: true })
+  watch(
+    currentLocale,
+    (loc) => {
+      // Sync vue-i18n global locale (switch only, no re-merge)
+      if (i18n) {
+        i18n.global.locale.value = loc
+      }
+      // Sync dayjs locale
+      dayjs.locale(loc === 'zh-CN' ? 'zh-cn' : 'en')
+    },
+    { immediate: true },
+  )
 
   // --- Provide locale context ---
   const t = i18n
-    ? (key: string, params?: Record<string, string | number>) =>
-        i18n!.global.t(key, params ?? {})
+    ? (key: string, params?: Record<string, string | number>) => i18n!.global.t(key, params ?? {})
     : (key: string, params?: Record<string, string | number>) =>
         resolveMessage(messages.value, key, params)
 
@@ -341,8 +346,8 @@ pro.
 
 type NestedKeyOf<T, P extends string = ''> =
   T extends Record<string, unknown>
-    ? { [K in keyof T & string]:
-        T[K] extends Record<string, unknown>
+    ? {
+        [K in keyof T & string]: T[K] extends Record<string, unknown>
           ? NestedKeyOf<T[K], `${P}${K}.`>
           : `${P}${K}`
       }[keyof T & string]
@@ -568,11 +573,7 @@ export function formatNumber(value: number, locale: string): string {
   return new Intl.NumberFormat(locale).format(value)
 }
 
-export function formatMoney(
-  value: number,
-  locale: string,
-  currency?: string,
-): string {
+export function formatMoney(value: number, locale: string, currency?: string): string {
   const cur = currency ?? (locale === 'zh-CN' ? 'CNY' : 'USD')
   return new Intl.NumberFormat(locale, { style: 'currency', currency: cur }).format(value)
 }
@@ -627,6 +628,7 @@ platform/
 ```
 
 Dashboard messages cover:
+
 - Navigation labels (Dashboard, Version Management, Grayscale Rules, etc.)
 - Stat card headers (Total Packages, Active Versions, etc.)
 - Table column headers
@@ -728,7 +730,9 @@ export default defineConfig({
           { text: 'Components', link: '/en/components/pro-table' },
           { text: 'API', link: '/en/api/locale' },
         ],
-        sidebar: { /* ... */ },
+        sidebar: {
+          /* ... */
+        },
       },
     },
     zh: {
@@ -740,7 +744,9 @@ export default defineConfig({
           { text: '组件', link: '/zh/components/pro-table' },
           { text: 'API', link: '/zh/api/locale' },
         ],
-        sidebar: { /* ... */ },
+        sidebar: {
+          /* ... */
+        },
       },
     },
   },
@@ -767,25 +773,26 @@ export default defineConfig({
 
 ### Files to Translate
 
-| English Original | Chinese Version |
-|-----------------|-----------------|
-| `specs/2026-03-31-pro-components-design.md` | `specs/2026-03-31-pro-components-design-zh.md` |
-| `specs/2026-03-31-pro-components-ui-design.md` | `specs/2026-03-31-pro-components-ui-design-zh.md` |
-| `specs/2026-03-31-pro-components-i18n-design.md` | `specs/2026-03-31-pro-components-i18n-design-zh.md` |
-| `plans/2026-03-31-plan-1-monorepo-foundation.md` | `plans/2026-03-31-plan-1-monorepo-foundation-zh.md` |
-| `plans/2026-03-31-plan-2a-hooks-and-protable.md` | `plans/2026-03-31-plan-2a-hooks-and-protable-zh.md` |
+| English Original                                          | Chinese Version                                              |
+| --------------------------------------------------------- | ------------------------------------------------------------ |
+| `specs/2026-03-31-pro-components-design.md`               | `specs/2026-03-31-pro-components-design-zh.md`               |
+| `specs/2026-03-31-pro-components-ui-design.md`            | `specs/2026-03-31-pro-components-ui-design-zh.md`            |
+| `specs/2026-03-31-pro-components-i18n-design.md`          | `specs/2026-03-31-pro-components-i18n-design-zh.md`          |
+| `plans/2026-03-31-plan-1-monorepo-foundation.md`          | `plans/2026-03-31-plan-1-monorepo-foundation-zh.md`          |
+| `plans/2026-03-31-plan-2a-hooks-and-protable.md`          | `plans/2026-03-31-plan-2a-hooks-and-protable-zh.md`          |
 | `plans/2026-03-31-plan-2b-proform-and-prodescriptions.md` | `plans/2026-03-31-plan-2b-proform-and-prodescriptions-zh.md` |
-| `plans/2026-03-31-plan-3-documentation.md` | `plans/2026-03-31-plan-3-documentation-zh.md` |
-| `plans/2026-03-31-plan-4-cdn-distribution.md` | `plans/2026-03-31-plan-4-cdn-distribution-zh.md` |
-| `plans/2026-03-31-plan-5a-platform-api.md` | `plans/2026-03-31-plan-5a-platform-api-zh.md` |
-| `plans/2026-03-31-plan-5b-platform-dashboard.md` | `plans/2026-03-31-plan-5b-platform-dashboard-zh.md` |
-| `plans/2026-03-31-plan-6-cicd-pipeline.md` | `plans/2026-03-31-plan-6-cicd-pipeline-zh.md` |
-| `plans/agent-orchestration.md` | `plans/agent-orchestration-zh.md` |
-| `plans/supervisor-agent.md` | `plans/supervisor-agent-zh.md` |
+| `plans/2026-03-31-plan-3-documentation.md`                | `plans/2026-03-31-plan-3-documentation-zh.md`                |
+| `plans/2026-03-31-plan-4-cdn-distribution.md`             | `plans/2026-03-31-plan-4-cdn-distribution-zh.md`             |
+| `plans/2026-03-31-plan-5a-platform-api.md`                | `plans/2026-03-31-plan-5a-platform-api-zh.md`                |
+| `plans/2026-03-31-plan-5b-platform-dashboard.md`          | `plans/2026-03-31-plan-5b-platform-dashboard-zh.md`          |
+| `plans/2026-03-31-plan-6-cicd-pipeline.md`                | `plans/2026-03-31-plan-6-cicd-pipeline-zh.md`                |
+| `plans/agent-orchestration.md`                            | `plans/agent-orchestration-zh.md`                            |
+| `plans/supervisor-agent.md`                               | `plans/supervisor-agent-zh.md`                               |
 
 ### Translation Rules for Planning Docs
 
 Same rules as VitePress docs translation:
+
 - Code blocks, file paths, variable names: keep English
 - Table structure preserved, translate description columns only
 - Technical terms keep English with Chinese explanation on first occurrence where helpful
@@ -889,6 +896,7 @@ vue-i18n is included in the CDN import map as an external dependency, consistent
 SSR is **not in scope** for the current release. ProConfigProvider is designed for client-side rendering.
 
 If SSR support is needed in the future (e.g., Nuxt integration):
+
 - Replace `onMounted` message merge with synchronous merge in `setup()`
 - Ensure locale is set synchronously before first render
 - Serialize initial locale state in HTML for hydration

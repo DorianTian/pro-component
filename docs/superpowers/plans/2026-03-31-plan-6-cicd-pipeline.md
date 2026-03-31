@@ -44,6 +44,7 @@ pro-components/
 ### Task 1: Reusable Setup Action
 
 **Files:**
+
 - Create: `.github/actions/setup/action.yml`
 
 This composite action is used by all three workflows to install pnpm, Node.js, restore Turborepo cache, and install dependencies.
@@ -51,25 +52,25 @@ This composite action is used by all three workflows to install pnpm, Node.js, r
 - [ ] **Step 1: Create `.github/actions/setup/action.yml`**
 
 ```yaml
-name: "Setup Project"
-description: "Install pnpm, Node.js, restore cache, install dependencies"
+name: 'Setup Project'
+description: 'Install pnpm, Node.js, restore cache, install dependencies'
 
 inputs:
   node-version:
-    description: "Node.js version"
+    description: 'Node.js version'
     required: false
-    default: "20"
+    default: '20'
   turbo-token:
-    description: "Turborepo remote cache token"
+    description: 'Turborepo remote cache token'
     required: false
-    default: ""
+    default: ''
   turbo-team:
-    description: "Turborepo remote cache team"
+    description: 'Turborepo remote cache team'
     required: false
-    default: ""
+    default: ''
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Install pnpm
       uses: pnpm/action-setup@v4
@@ -80,8 +81,8 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
-        registry-url: "https://registry.npmjs.org"
-        cache: "pnpm"
+        registry-url: 'https://registry.npmjs.org'
+        cache: 'pnpm'
 
     - name: Restore Turborepo cache
       uses: actions/cache@v4
@@ -116,6 +117,7 @@ git commit -m "ci: add reusable setup composite action"
 ### Task 2: Reusable Notification Action
 
 **Files:**
+
 - Create: `.github/actions/notify/action.yml`
 - Create: `scripts/notify.ts`
 
@@ -171,7 +173,12 @@ function sendSlack(webhookUrl: string, payload: NotifyPayload): Promise<void> {
   return httpPost(webhookUrl, body)
 }
 
-function sendEmail(apiUrl: string, apiKey: string, recipients: string, payload: NotifyPayload): Promise<void> {
+function sendEmail(
+  apiUrl: string,
+  apiKey: string,
+  recipients: string,
+  payload: NotifyPayload,
+): Promise<void> {
   const body = JSON.stringify({
     to: recipients.split(',').map((e) => e.trim()),
     subject: `[pro-components] ${payload.title}`,
@@ -198,7 +205,9 @@ function httpPost(url: string, body: string, extraHeaders?: Record<string, strin
 
     const req = request(options, (res) => {
       let data = ''
-      res.on('data', (chunk: Buffer) => { data += chunk.toString() })
+      res.on('data', (chunk: Buffer) => {
+        data += chunk.toString()
+      })
       res.on('end', () => {
         if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
           resolve()
@@ -259,14 +268,19 @@ async function main() {
       switch (channel) {
         case 'wechat':
           if (!config.wechatWebhookUrl) throw new Error('WECHAT_WEBHOOK_URL not set')
-          await withRetry(() => sendWechat(config.wechatWebhookUrl!, { ...payload, channel: 'wechat' }))
+          await withRetry(() =>
+            sendWechat(config.wechatWebhookUrl!, { ...payload, channel: 'wechat' }),
+          )
           break
         case 'slack':
           if (!config.slackWebhookUrl) throw new Error('SLACK_WEBHOOK_URL not set')
-          await withRetry(() => sendSlack(config.slackWebhookUrl!, { ...payload, channel: 'slack' }))
+          await withRetry(() =>
+            sendSlack(config.slackWebhookUrl!, { ...payload, channel: 'slack' }),
+          )
           break
         case 'email':
-          if (!config.emailApiUrl || !config.emailApiKey) throw new Error('EMAIL_API_URL or EMAIL_API_KEY not set')
+          if (!config.emailApiUrl || !config.emailApiKey)
+            throw new Error('EMAIL_API_URL or EMAIL_API_KEY not set')
           await withRetry(() =>
             sendEmail(config.emailApiUrl!, config.emailApiKey!, config.emailRecipients ?? '', {
               ...payload,
@@ -301,46 +315,46 @@ main()
 - [ ] **Step 2: Create `.github/actions/notify/action.yml`**
 
 ```yaml
-name: "Send Notification"
-description: "Send notifications to WeChat/Slack/email"
+name: 'Send Notification'
+description: 'Send notifications to WeChat/Slack/email'
 
 inputs:
   channels:
-    description: "Comma-separated notification channels (wechat,slack,email)"
+    description: 'Comma-separated notification channels (wechat,slack,email)'
     required: false
-    default: "slack"
+    default: 'slack'
   title:
-    description: "Notification title"
+    description: 'Notification title'
     required: true
   body:
-    description: "Notification body (supports markdown)"
+    description: 'Notification body (supports markdown)'
     required: true
   level:
-    description: "Notification level (info, warning, error)"
+    description: 'Notification level (info, warning, error)'
     required: false
-    default: "info"
+    default: 'info'
   metadata:
-    description: "JSON string of key-value metadata"
+    description: 'JSON string of key-value metadata'
     required: false
-    default: "{}"
+    default: '{}'
   wechat-webhook-url:
-    description: "WeChat webhook URL"
+    description: 'WeChat webhook URL'
     required: false
   slack-webhook-url:
-    description: "Slack webhook URL"
+    description: 'Slack webhook URL'
     required: false
   email-api-url:
-    description: "Email API URL"
+    description: 'Email API URL'
     required: false
   email-api-key:
-    description: "Email API key"
+    description: 'Email API key'
     required: false
   email-recipients:
-    description: "Comma-separated email recipients"
+    description: 'Comma-separated email recipients'
     required: false
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Send notification
       shell: bash
@@ -372,6 +386,7 @@ git commit -m "ci: add multi-channel notification action and script"
 > **Code quality rules:** Each script file MUST stay under 400 lines. All functions MUST be under 50 lines. Use `unknown` (never `any`) for caught errors. All scripts MUST use a logger wrapper (`scripts/ci/logger.ts`) — no raw `console.log/warn/error`. Use named exports only (no `export default`) in `.ts` files.
 
 **Files:**
+
 - Create: `scripts/ci/logger.ts` (shared logger wrapper for all CI scripts)
 - Create: `scripts/ci/check-npm-version.ts`
 - Create: `scripts/ci/license-check.ts`
@@ -411,8 +426,14 @@ function checkVersionExists(name: string, version: string): boolean {
 async function main() {
   const pkgDirs = readdirSync(PACKAGES_DIR).filter((d) => {
     try {
-      const pkg: unknown = JSON.parse(readFileSync(resolve(PACKAGES_DIR, d, 'package.json'), 'utf-8'))
-      return typeof pkg === 'object' && pkg !== null && !('private' in pkg && (pkg as Record<string, unknown>).private)
+      const pkg: unknown = JSON.parse(
+        readFileSync(resolve(PACKAGES_DIR, d, 'package.json'), 'utf-8'),
+      )
+      return (
+        typeof pkg === 'object' &&
+        pkg !== null &&
+        !('private' in pkg && (pkg as Record<string, unknown>).private)
+      )
     } catch {
       return false
     }
@@ -561,7 +582,9 @@ function main() {
       logger.error(`  ${v.name}@${v.version}: ${v.license}`)
     }
     logger.error(`\nAllowed licenses: ${ALLOWED_LICENSES.join(', ')}`)
-    logger.error('Add overrides to PACKAGE_OVERRIDES in scripts/ci/license-check.ts if license is valid but not detected correctly.')
+    logger.error(
+      'Add overrides to PACKAGE_OVERRIDES in scripts/ci/license-check.ts if license is valid but not detected correctly.',
+    )
     process.exit(1)
   }
 
@@ -585,6 +608,7 @@ git commit -m "feat(ci): add logger wrapper, npm version check, and license chec
 > **Code quality rules:** Same as Task 3a — each file ≤ 400 lines, functions ≤ 50 lines, `unknown` not `any`, logger wrapper not `console`, named exports only.
 
 **Files:**
+
 - Create: `scripts/ci/bundle-size-diff.ts`
 - Create: `scripts/ci/pr-summary-comment.ts`
 
@@ -619,9 +643,7 @@ function collectSizes(): SizeEntry[] {
       const formatDir = resolve(distDir, format)
       if (!existsSync(formatDir)) continue
 
-      const files = readdirSync(formatDir).filter((f) =>
-        f.endsWith('.mjs') || f.endsWith('.js'),
-      )
+      const files = readdirSync(formatDir).filter((f) => f.endsWith('.mjs') || f.endsWith('.js'))
 
       for (const file of files) {
         const stat = statSync(join(formatDir, file))
@@ -671,7 +693,8 @@ function formatDiff(base: number, current: number): string {
 
 async function main() {
   const baseSizesPath = process.env.BASE_SIZES_PATH
-  const outputPath = process.env.SIZE_DIFF_OUTPUT ?? resolve(import.meta.dirname, '../../size-diff.md')
+  const outputPath =
+    process.env.SIZE_DIFF_OUTPUT ?? resolve(import.meta.dirname, '../../size-diff.md')
 
   const currentSizes = collectSizes()
 
@@ -755,14 +778,35 @@ function buildComment(): string {
   const commitSha = (process.env.COMMIT_SHA ?? 'unknown').slice(0, 7)
 
   const jobs: JobResult[] = [
-    { name: 'Lint + Type Check', status: (process.env.LINT_STATUS as JobResult['status']) ?? 'skip' },
+    {
+      name: 'Lint + Type Check',
+      status: (process.env.LINT_STATUS as JobResult['status']) ?? 'skip',
+    },
     { name: 'Build', status: (process.env.BUILD_STATUS as JobResult['status']) ?? 'skip' },
-    { name: 'Build Validation', status: (process.env.VALIDATE_STATUS as JobResult['status']) ?? 'skip' },
-    { name: 'Unit + Integration Tests', status: (process.env.TEST_STATUS as JobResult['status']) ?? 'skip' },
-    { name: 'Cypress Component Tests', status: (process.env.E2E_STATUS as JobResult['status']) ?? 'skip' },
-    { name: 'Compat (Latest)', status: (process.env.COMPAT_LATEST_STATUS as JobResult['status']) ?? 'skip' },
-    { name: 'Compat (Minimum)', status: (process.env.COMPAT_MIN_STATUS as JobResult['status']) ?? 'skip' },
-    { name: 'Security Gate', status: (process.env.SECURITY_STATUS as JobResult['status']) ?? 'skip' },
+    {
+      name: 'Build Validation',
+      status: (process.env.VALIDATE_STATUS as JobResult['status']) ?? 'skip',
+    },
+    {
+      name: 'Unit + Integration Tests',
+      status: (process.env.TEST_STATUS as JobResult['status']) ?? 'skip',
+    },
+    {
+      name: 'Cypress Component Tests',
+      status: (process.env.E2E_STATUS as JobResult['status']) ?? 'skip',
+    },
+    {
+      name: 'Compat (Latest)',
+      status: (process.env.COMPAT_LATEST_STATUS as JobResult['status']) ?? 'skip',
+    },
+    {
+      name: 'Compat (Minimum)',
+      status: (process.env.COMPAT_MIN_STATUS as JobResult['status']) ?? 'skip',
+    },
+    {
+      name: 'Security Gate',
+      status: (process.env.SECURITY_STATUS as JobResult['status']) ?? 'skip',
+    },
     { name: 'Docs Build', status: (process.env.DOCS_STATUS as JobResult['status']) ?? 'skip' },
   ]
 
@@ -866,6 +910,7 @@ git commit -m "feat(ci): add bundle size diff and PR summary comment scripts"
 > **Code quality rules:** Same as Task 3a — each file ≤ 400 lines, functions ≤ 50 lines, `unknown` not `any`, logger wrapper not `console`, named exports only.
 
 **Files:**
+
 - Create: `scripts/ci/cdn-sync.ts`
 - Create: `scripts/ci/cdn-health-check.ts`
 
@@ -959,7 +1004,9 @@ async function uploadToCdn(ctx: SyncContext, pkgDir: string): Promise<void> {
     }
   }
 
-  logger.info(`  Uploaded ${files.length} files, ${Object.keys(ctx.sriHashes).length} SRI hashes calculated`)
+  logger.info(
+    `  Uploaded ${files.length} files, ${Object.keys(ctx.sriHashes).length} SRI hashes calculated`,
+  )
 }
 
 async function waitForPropagation(ctx: SyncContext): Promise<void> {
@@ -993,12 +1040,16 @@ async function waitForPropagation(ctx: SyncContext): Promise<void> {
       return
     }
 
-    logger.info(`  Waiting for propagation... (${Math.round((Date.now() - startTime) / 1000)}s elapsed)`)
+    logger.info(
+      `  Waiting for propagation... (${Math.round((Date.now() - startTime) / 1000)}s elapsed)`,
+    )
     await new Promise((r) => setTimeout(r, pollIntervalMs))
   }
 
   // Timeout — do NOT block, mark as propagating for manual intervention
-  logger.warn(`  Propagation timeout after ${timeoutMs}ms — marking as propagating for manual intervention`)
+  logger.warn(
+    `  Propagation timeout after ${timeoutMs}ms — marking as propagating for manual intervention`,
+  )
   ctx.state = 'propagating'
   throw new Error(`CDN propagation timeout for ${ctx.packageName}@${ctx.version}`)
 }
@@ -1275,6 +1326,7 @@ git commit -m "feat(ci): add CDN sync state machine and health check scripts"
 > **Code quality rules:** Same as Task 3a — each file ≤ 400 lines, functions ≤ 50 lines, `unknown` not `any`, logger wrapper not `console`, named exports only.
 
 **Files:**
+
 - Create: `scripts/ci/compat-matrix.ts`
 - Create: `scripts/ci/secrets-expiry-check.ts`
 
@@ -1337,10 +1389,10 @@ function runTestsWithVersions(combo: VersionCombo): CompatResult {
     // Override vue and element-plus versions via pnpm overrides
     logger.info(`\nTesting: Vue ${combo.vue} + Element Plus ${combo.elementPlus}`)
 
-    execSync(
-      `pnpm add -Dw vue@${combo.vue} element-plus@${combo.elementPlus} --no-lockfile`,
-      { cwd: ROOT, stdio: 'pipe' },
-    )
+    execSync(`pnpm add -Dw vue@${combo.vue} element-plus@${combo.elementPlus} --no-lockfile`, {
+      cwd: ROOT,
+      stdio: 'pipe',
+    })
 
     // Run tests
     const output = execSync('pnpm turbo test --no-cache', {
@@ -1373,9 +1425,10 @@ function reportToPlatformApi(results: CompatResult[]): void {
   const platformApiUrl = process.env.PLATFORM_API_URL
   if (!platformApiUrl) return
 
-  const ciRunUrl = process.env.GITHUB_SERVER_URL && process.env.GITHUB_REPOSITORY && process.env.GITHUB_RUN_ID
-    ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
-    : undefined
+  const ciRunUrl =
+    process.env.GITHUB_SERVER_URL && process.env.GITHUB_REPOSITORY && process.env.GITHUB_RUN_ID
+      ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
+      : undefined
 
   for (const result of results) {
     const payload = JSON.stringify({
@@ -1421,7 +1474,9 @@ async function main() {
   logger.info('|-----|-------------|--------|----------|')
   for (const r of results) {
     const statusIcon = r.status === 'pass' ? '✅' : '❌'
-    logger.info(`| ${r.vue} | ${r.elementPlus} | ${statusIcon} ${r.status} | ${Math.round(r.duration / 1000)}s |`)
+    logger.info(
+      `| ${r.vue} | ${r.elementPlus} | ${statusIcon} ${r.status} | ${Math.round(r.duration / 1000)}s |`,
+    )
   }
 
   // Report to Platform API
@@ -1563,6 +1618,7 @@ git commit -m "feat(ci): add compat matrix runner and secrets expiry check scrip
 ### Task 4: PR Pipeline Workflow
 
 **Files:**
+
 - Create: `.github/workflows/pr.yml`
 
 This is the main quality gate for all pull requests. Every step runs in parallel where possible, with dependencies explicitly declared.
@@ -2007,7 +2063,7 @@ jobs:
         with:
           publish-dir: docs-dist
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "PR #${{ github.event.pull_request.number }} docs preview"
+          deploy-message: 'PR #${{ github.event.pull_request.number }} docs preview'
           alias: pr-${{ github.event.pull_request.number }}
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -2086,7 +2142,20 @@ jobs:
   # ──────────────────────────────────────────────
   summary:
     name: PR Summary
-    needs: [lint, build, validate-build, test, e2e, compat-latest, compat-minimum, security, docs-build, preview, size-diff]
+    needs:
+      [
+        lint,
+        build,
+        validate-build,
+        test,
+        e2e,
+        compat-latest,
+        compat-minimum,
+        security,
+        docs-build,
+        preview,
+        size-diff,
+      ]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -2136,6 +2205,7 @@ git commit -m "ci: add PR pipeline workflow"
 ### Task 5: Release Pipeline Workflow
 
 **Files:**
+
 - Create: `.github/workflows/release.yml`
 
 Handles changesets-based versioning, npm publish (idempotent), CDN sync, docs deploy, and notifications.
@@ -2151,12 +2221,12 @@ on:
 
 concurrency:
   group: release-${{ github.ref }}
-  cancel-in-progress: false  # Never cancel in-progress releases
+  cancel-in-progress: false # Never cancel in-progress releases
 
 permissions:
   contents: write
   pull-requests: write
-  id-token: write  # For OIDC federation
+  id-token: write # For OIDC federation
 
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -2190,8 +2260,8 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          title: "chore: version packages"
-          commit: "chore: version packages"
+          title: 'chore: version packages'
+          commit: 'chore: version packages'
           publish: pnpm run release:ci
           version: pnpm run version-packages
         env:
@@ -2242,7 +2312,7 @@ jobs:
     if: needs.changesets.outputs.published == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: production  # Requires manual approval in GitHub settings
+    environment: production # Requires manual approval in GitHub settings
     outputs:
       published-packages: ${{ steps.publish.outputs.packages }}
     steps:
@@ -2252,7 +2322,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -2311,7 +2381,7 @@ jobs:
     if: needs.npm-publish.outputs.published-packages != ''
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment: production  # CDN sync also requires approval
+    environment: production # CDN sync also requires approval
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -2344,13 +2414,13 @@ jobs:
         if: failure()
         uses: ./.github/actions/notify
         with:
-          channels: "slack,wechat"
-          title: "CDN Sync Failed"
+          channels: 'slack,wechat'
+          title: 'CDN Sync Failed'
           body: |
             CDN sync failed for packages: ${{ needs.npm-publish.outputs.published-packages }}
             Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
             Manual intervention may be required.
-          level: "error"
+          level: 'error'
           slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           wechat-webhook-url: ${{ secrets.WECHAT_WEBHOOK_URL }}
 
@@ -2424,7 +2494,7 @@ jobs:
         with:
           publish-dir: docs/.vitepress/dist
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Release deploy from ${{ github.sha }}"
+          deploy-message: 'Release deploy from ${{ github.sha }}'
           production-deploy: true
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -2466,8 +2536,8 @@ jobs:
       - name: Send release notification
         uses: ./.github/actions/notify
         with:
-          channels: "slack,wechat"
-          title: "New Release Published"
+          channels: 'slack,wechat'
+          title: 'New Release Published'
           body: |
             **Packages:** ${{ steps.info.outputs.packages }}
             **CDN:** ${{ steps.info.outputs.cdn_status }}
@@ -2509,6 +2579,7 @@ git commit -m "ci: add release pipeline workflow"
 ### Task 6: Nightly Pipeline Workflow
 
 **Files:**
+
 - Create: `.github/workflows/nightly.yml`
 
 Runs the full compatibility matrix, CDN health check, security scan, and secrets expiration check every night.
@@ -2521,18 +2592,18 @@ name: Nightly Pipeline
 on:
   schedule:
     # Run at 02:00 UTC every day (10:00 CST)
-    - cron: "0 2 * * *"
+    - cron: '0 2 * * *'
   workflow_dispatch:
     inputs:
       skip-compat:
-        description: "Skip compatibility matrix (faster run)"
+        description: 'Skip compatibility matrix (faster run)'
         required: false
-        default: "false"
+        default: 'false'
         type: boolean
 
 permissions:
   contents: read
-  issues: write  # For creating issues on failure
+  issues: write # For creating issues on failure
 
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -2550,8 +2621,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        vue: ["3.4.0", "3.5.0", "latest"]
-        element-plus: ["2.9.0", "2.10.0", "latest"]
+        vue: ['3.4.0', '3.5.0', 'latest']
+        element-plus: ['2.9.0', '2.10.0', 'latest']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -2723,8 +2794,8 @@ jobs:
       - name: Send nightly report
         uses: ./.github/actions/notify
         with:
-          channels: "slack"
-          title: "Nightly Health Check: ${{ steps.status.outputs.status }}"
+          channels: 'slack'
+          title: 'Nightly Health Check: ${{ steps.status.outputs.status }}'
           body: |
             **Compat Matrix:** ${{ needs.compat-matrix.result }}
             **CDN Health:** ${{ needs.cdn-health.result }}
@@ -2794,6 +2865,7 @@ git commit -m "ci: add nightly pipeline workflow"
 ### Task 7: CODEOWNERS
 
 **Files:**
+
 - Create: `.github/CODEOWNERS`
 
 - [ ] **Step 1: Create `.github/CODEOWNERS`**
@@ -2831,6 +2903,7 @@ git commit -m "ci: add CODEOWNERS for review requirements"
 ### Task 8: Secrets Management Documentation
 
 **Files:**
+
 - Create: `.github/SECRETS.md`
 
 This documents the required secrets, environment protection rules, and OIDC federation setup. Not a runtime file, but critical operational reference for setting up the pipeline.
@@ -2844,38 +2917,40 @@ This documents the required secrets, environment protection rules, and OIDC fede
 
 ### Repository-level secrets
 
-| Secret | Purpose | Rotation |
-|--------|---------|----------|
-| `TURBO_TOKEN` | Turborepo remote cache authentication | 90 days |
-| `TURBO_TEAM` | Turborepo remote cache team identifier | Static |
-| `SLACK_WEBHOOK_URL` | Slack notification webhook | 90 days |
-| `WECHAT_WEBHOOK_URL` | WeChat Work bot webhook | 90 days |
-| `NETLIFY_AUTH_TOKEN` | Netlify docs deployment | 90 days |
-| `NETLIFY_DOCS_SITE_ID` | Netlify site identifier for docs | Static |
+| Secret                 | Purpose                                | Rotation |
+| ---------------------- | -------------------------------------- | -------- |
+| `TURBO_TOKEN`          | Turborepo remote cache authentication  | 90 days  |
+| `TURBO_TEAM`           | Turborepo remote cache team identifier | Static   |
+| `SLACK_WEBHOOK_URL`    | Slack notification webhook             | 90 days  |
+| `WECHAT_WEBHOOK_URL`   | WeChat Work bot webhook                | 90 days  |
+| `NETLIFY_AUTH_TOKEN`   | Netlify docs deployment                | 90 days  |
+| `NETLIFY_DOCS_SITE_ID` | Netlify site identifier for docs       | Static   |
 
 ### Environment: `npm-production`
 
-| Secret | Purpose | Rotation |
-|--------|---------|----------|
-| `NPM_TOKEN` | npm publish (granular, scoped to `@pro/*`) | 90 days |
+| Secret      | Purpose                                    | Rotation |
+| ----------- | ------------------------------------------ | -------- |
+| `NPM_TOKEN` | npm publish (granular, scoped to `@pro/*`) | 90 days  |
 
 Protection rules:
+
 - Required reviewers: 1 from `@pro-components-ci-team`
 - Wait timer: 0 minutes
 - Deployment branches: `main` only
 
 ### Environment: `cdn-production`
 
-| Secret | Purpose | Rotation |
-|--------|---------|----------|
-| `CDN_OIDC_ROLE_ARN` | OIDC federation role for CDN uploads | Static (role) |
-| `CDN_BASE_URL` | CDN base URL | Static |
-| `CDN_STORAGE_BUCKET` | CDN storage bucket name | Static |
-| `CDN_EDGE_POPS` | Comma-separated edge PoP identifiers | Static |
-| `PLATFORM_API_URL` | Version management platform API URL | Static |
-| `PLATFORM_API_KEY` | Platform API authentication key | 90 days |
+| Secret               | Purpose                              | Rotation      |
+| -------------------- | ------------------------------------ | ------------- |
+| `CDN_OIDC_ROLE_ARN`  | OIDC federation role for CDN uploads | Static (role) |
+| `CDN_BASE_URL`       | CDN base URL                         | Static        |
+| `CDN_STORAGE_BUCKET` | CDN storage bucket name              | Static        |
+| `CDN_EDGE_POPS`      | Comma-separated edge PoP identifiers | Static        |
+| `PLATFORM_API_URL`   | Version management platform API URL  | Static        |
+| `PLATFORM_API_KEY`   | Platform API authentication key      | 90 days       |
 
 Protection rules:
+
 - Required reviewers: 1 from `@pro-components-ci-team`
 - Wait timer: 5 minutes (safety buffer after npm publish)
 - Deployment branches: `main` only
@@ -2885,6 +2960,7 @@ Protection rules:
 Inherits `NETLIFY_AUTH_TOKEN` and `NETLIFY_DOCS_SITE_ID` from repository-level secrets.
 
 Protection rules:
+
 - Required reviewers: none (auto-deploy after npm publish)
 - Deployment branches: `main` only
 
@@ -2900,6 +2976,7 @@ Instead of long-lived CDN credentials, use GitHub Actions OIDC federation:
 4. Store the role ARN as `CDN_OIDC_ROLE_ARN` secret
 
 Benefits:
+
 - No long-lived credentials to rotate
 - Scoped to specific repository + environment
 - Automatic token expiration (1 hour)
@@ -2943,6 +3020,7 @@ git commit -m "docs: add secrets management reference"
 This task adds a rollback GitHub Action workflow that can be triggered manually or from the Dashboard.
 
 **Files:**
+
 - Create: `.github/workflows/rollback.yml`
 
 - [ ] **Step 1: Create `.github/workflows/rollback.yml`**
@@ -2969,7 +3047,7 @@ on:
 jobs:
   rollback:
     runs-on: ubuntu-latest
-    environment: production  # Requires manual approval
+    environment: production # Requires manual approval
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
@@ -2989,7 +3067,7 @@ jobs:
         uses: ./.github/actions/notify
         with:
           channel: releases
-          message: "Rollback: ${{ inputs.package }}@${{ inputs.target_version }} — ${{ inputs.reason }}"
+          message: 'Rollback: ${{ inputs.package }}@${{ inputs.target_version }} — ${{ inputs.reason }}'
           slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           wechat-webhook-url: ${{ secrets.WECHAT_WEBHOOK_URL }}
 ```
@@ -3010,6 +3088,7 @@ This task ensures all pipeline operations are safe to re-run and documents the r
 - [ ] **Step 1: Verify idempotency**
 
 Verify each pipeline operation is idempotent:
+
 - `npm publish`: guarded by `check-npm-version.ts` (skip if version exists)
 - CDN upload: content-addressable paths (`/{pkg}/{version}/`) — re-upload is safe
 - PR comment: bot finds existing comment by marker, updates in place
@@ -3022,6 +3101,7 @@ Verify each pipeline operation is idempotent:
 ### Task 11: Root Package.json CI Scripts
 
 **Files:**
+
 - Modify: `package.json` (root)
 
 - [ ] **Step 1: Add CI-related scripts to root `package.json`**
@@ -3093,14 +3173,14 @@ Rollback (rollback.yml)
 
 ### Idempotency Guarantees
 
-| Operation | Mechanism |
-|-----------|-----------|
-| npm publish | `npm view <pkg>@<version>` check before publish — skip if exists |
-| CDN upload | Content-addressable paths (`/{pkg}/{version}/`) — re-upload overwrites identical content |
-| CDN state machine | Each state transition is guarded — re-running from any state is safe |
-| Platform API notification | Fire-and-forget with retry — duplicate notifications are idempotent on server side |
-| PR comment | Bot finds existing comment by marker, updates in place — no comment spam |
-| Nightly issue creation | Checks for existing issue with today's date — appends comment instead of duplicate |
+| Operation                 | Mechanism                                                                                |
+| ------------------------- | ---------------------------------------------------------------------------------------- |
+| npm publish               | `npm view <pkg>@<version>` check before publish — skip if exists                         |
+| CDN upload                | Content-addressable paths (`/{pkg}/{version}/`) — re-upload overwrites identical content |
+| CDN state machine         | Each state transition is guarded — re-running from any state is safe                     |
+| Platform API notification | Fire-and-forget with retry — duplicate notifications are idempotent on server side       |
+| PR comment                | Bot finds existing comment by marker, updates in place — no comment spam                 |
+| Nightly issue creation    | Checks for existing issue with today's date — appends comment instead of duplicate       |
 
 ### Rollback Integration with Dashboard
 

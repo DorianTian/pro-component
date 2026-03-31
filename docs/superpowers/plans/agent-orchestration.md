@@ -80,6 +80,7 @@ After all tasks complete, run full verification:
 **Dependencies**: Phase 1 must be complete
 
 **IMPORTANT**: Before dispatching Phase 2 agents, the coordinator must verify Phase 1 is complete:
+
 ```bash
 pnpm build       # all packages build
 pnpm type-check  # no TS errors
@@ -221,6 +222,7 @@ After completion: cd platform/web && pnpm type-check && pnpm build
 ```
 
 **Phase 2 completion gate**: All 4 agents done + coordinator runs:
+
 ```bash
 pnpm build                    # full monorepo build
 pnpm type-check               # all packages
@@ -305,6 +307,7 @@ After completion: pnpm --filter cdn test && pnpm --filter @pro/vite-plugin build
 ```
 
 **Phase 3 completion gate**:
+
 ```bash
 pnpm build
 pnpm docs:build
@@ -480,12 +483,14 @@ i18n-specific checks:
 Copy-paste these commands to run the full orchestration:
 
 ### Start Phase 1
+
 ```
 Read docs/superpowers/plans/agent-orchestration.md Phase 1 section.
 Execute Plan 1 following the coordinator prompt.
 ```
 
 ### Start Phase 2 (after Phase 1 verified)
+
 ```
 Read docs/superpowers/plans/agent-orchestration.md Phase 2 section.
 Dispatch 4 background agents with the prompts shown.
@@ -494,6 +499,7 @@ Dispatch reviewer agent.
 ```
 
 ### Start Phase 3 (after Phase 2 verified)
+
 ```
 Read docs/superpowers/plans/agent-orchestration.md Phase 3 section.
 Dispatch 2 background agents with the prompts shown.
@@ -502,6 +508,7 @@ Dispatch reviewer agent.
 ```
 
 ### Start Phase 4 (after Phase 3 verified)
+
 ```
 Read docs/superpowers/plans/agent-orchestration.md Phase 4 section.
 Execute Plan 6 following the coordinator prompt.
@@ -523,6 +530,7 @@ If an agent times out (> 15 minutes on a task):
    ```
 
 If an agent consistently times out on a specific task, split that task:
+
 - Extract the test-writing steps into one agent
 - Extract the implementation steps into another
 
