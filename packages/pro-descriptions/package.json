@@ -21,9 +21,11 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsx ../../scripts/build-package.ts .",
+    "build": "rollup -c rollup.config.ts --configPlugin typescript",
     "build:dts": "vue-tsc --declaration --emitDeclarationOnly --outDir dist/types",
     "type-check": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -34,5 +36,11 @@
   "peerDependencies": {
     "vue": ">=3.4.0",
     "element-plus": ">=2.9.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "@vue/test-utils": "^2.4.0",
+    "vitest": "^2.0.0",
+    "jsdom": "^25.0.0"
   }
 }
