@@ -6,9 +6,7 @@ interface ComponentInfo {
 }
 
 /** Function signature for unplugin-vue-components resolver */
-type ComponentResolverFunction = (
-  componentName: string,
-) => ComponentInfo | undefined
+type ComponentResolverFunction = (componentName: string) => ComponentInfo | undefined
 
 /** Component registry entry mapping name to package + style path */
 interface ComponentEntry {
@@ -35,21 +33,18 @@ interface ComponentEntry {
  * ```
  */
 export function ProComponentsResolver(): ComponentResolverFunction {
-  const componentMap: Record<string, ComponentEntry> = {
-    ProTable: { pkg: '@pro/table', style: '@pro/table/style' },
-    ProForm: { pkg: '@pro/form', style: '@pro/form/style' },
-    ProDescriptions: {
-      pkg: '@pro/descriptions',
-      style: '@pro/descriptions/style',
-    },
-    ModalForm: { pkg: '@pro/form', style: '@pro/form/style' },
-    DrawerForm: { pkg: '@pro/form', style: '@pro/form/style' },
-    StepsForm: { pkg: '@pro/form', style: '@pro/form/style' },
-    QueryFilter: { pkg: '@pro/form', style: '@pro/form/style' },
-  }
+  const componentMap = new Map<string, ComponentEntry>([
+    ['ProTable', { pkg: '@pro/table', style: '@pro/table/style' }],
+    ['ProForm', { pkg: '@pro/form', style: '@pro/form/style' }],
+    ['ProDescriptions', { pkg: '@pro/descriptions', style: '@pro/descriptions/style' }],
+    ['ModalForm', { pkg: '@pro/form', style: '@pro/form/style' }],
+    ['DrawerForm', { pkg: '@pro/form', style: '@pro/form/style' }],
+    ['StepsForm', { pkg: '@pro/form', style: '@pro/form/style' }],
+    ['QueryFilter', { pkg: '@pro/form', style: '@pro/form/style' }],
+  ])
 
   return (componentName: string): ComponentInfo | undefined => {
-    const entry = componentMap[componentName]
+    const entry = componentMap.get(componentName)
     if (!entry) return undefined
 
     return {

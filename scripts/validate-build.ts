@@ -2,13 +2,13 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { parse } from 'acorn'
 
-/* eslint-disable no-console -- CLI script uses console for structured output */
+ 
 const log = {
   result: (msg: string) => console.log(msg),
   fail: (msg: string) => console.error(msg),
   warn: (msg: string) => console.warn(msg),
 }
-/* eslint-enable no-console */
+ 
 
 const PACKAGES_DIR = resolve(import.meta.dirname, '../packages')
 const VUE_RUNTIME_MARKERS = [
@@ -27,10 +27,7 @@ interface ValidationResult {
 }
 
 /** Validate that package.json export fields point to existing files */
-function validateExports(
-  pkgDir: string,
-  pkgJson: Record<string, unknown>,
-): string[] {
+function validateExports(pkgDir: string, pkgJson: Record<string, unknown>): string[] {
   const errors: string[] = []
 
   const main = pkgJson.main as string | undefined
@@ -51,27 +48,17 @@ function validateExports(
 }
 
 /** Validate conditional exports map entries point to existing files */
-function validateConditionalExports(
-  pkgDir: string,
-  pkgJson: Record<string, unknown>,
-): string[] {
+function validateConditionalExports(pkgDir: string, pkgJson: Record<string, unknown>): string[] {
   const errors: string[] = []
-  const exports = pkgJson.exports as
-    | Record<string, Record<string, string>>
-    | undefined
+  const exports = pkgJson.exports as Record<string, Record<string, string>> | undefined
 
   if (!exports) return errors
 
   for (const [key, value] of Object.entries(exports)) {
     if (typeof value !== 'object' || value === null) continue
     for (const [condition, filePath] of Object.entries(value)) {
-      if (
-        typeof filePath === 'string' &&
-        !existsSync(resolve(pkgDir, filePath))
-      ) {
-        errors.push(
-          `exports["${key}"]["${condition}"] points to missing: ${filePath}`,
-        )
+      if (typeof filePath === 'string' && !existsSync(resolve(pkgDir, filePath))) {
+        errors.push(`exports["${key}"]["${condition}"] points to missing: ${filePath}`)
       }
     }
   }
@@ -91,13 +78,9 @@ function validateNoVueRuntime(pkgDir: string): string[] {
   for (const file of files) {
     const content = readFileSync(join(esmDir, file), 'utf-8')
     for (const marker of VUE_RUNTIME_MARKERS) {
-      const defPattern = new RegExp(
-        `(function|const|let|var)\\s+${marker}\\b`,
-      )
+      const defPattern = new RegExp(`(function|const|let|var)\\s+${marker}\\b`)
       if (defPattern.test(content)) {
-        errors.push(
-          `ESM file ${file} contains Vue runtime: ${marker} definition`,
-        )
+        errors.push(`ESM file ${file} contains Vue runtime: ${marker} definition`)
       }
     }
   }
@@ -128,25 +111,18 @@ function validateEsmValidity(pkgDir: string): string[] {
 }
 
 /** Validate that packages with style sources produce CSS output */
-function validateCssOutput(
-  pkgDir: string,
-  pkgName: string,
-): string[] {
+function validateCssOutput(pkgDir: string, pkgName: string): string[] {
   const errors: string[] = []
   const styleDir = resolve(pkgDir, 'dist', 'style')
   const hasSrcStyle = existsSync(resolve(pkgDir, 'src', 'style'))
-  const hasVariablesCss = existsSync(
-    resolve(pkgDir, 'src', 'variables.css'),
-  )
+  const hasVariablesCss = existsSync(resolve(pkgDir, 'src', 'variables.css'))
   const isThemePackage = pkgName.startsWith('@pro/themes')
 
   if (hasSrcStyle || hasVariablesCss || isThemePackage) {
     if (!existsSync(styleDir)) {
       errors.push(`${pkgName}: missing dist/style/ directory`)
     } else {
-      const cssFiles = readdirSync(styleDir).filter((f) =>
-        f.endsWith('.css'),
-      )
+      const cssFiles = readdirSync(styleDir).filter((f) => f.endsWith('.css'))
       if (cssFiles.length === 0) {
         errors.push(`${pkgName}: dist/style/ contains no CSS files`)
       }
@@ -162,15 +138,11 @@ function validateDts(pkgDir: string): string[] {
   const typesDir = resolve(pkgDir, 'dist/types')
 
   if (!existsSync(typesDir)) {
-    errors.push(
-      'dist/types/ directory missing — no type declarations generated',
-    )
+    errors.push('dist/types/ directory missing — no type declarations generated')
     return errors
   }
 
-  const dtsFiles = readdirSync(typesDir).filter((f) =>
-    f.endsWith('.d.ts'),
-  )
+  const dtsFiles = readdirSync(typesDir).filter((f) => f.endsWith('.d.ts'))
   if (dtsFiles.length === 0) {
     errors.push('dist/types/ exists but contains no .d.ts files')
   }
@@ -179,13 +151,12 @@ function validateDts(pkgDir: string): string[] {
 }
 
 /** Validate a single package's build output */
-function validatePackage(
-  dir: string,
-): ValidationResult {
+function validatePackage(dir: string): ValidationResult {
   const pkgDir = resolve(PACKAGES_DIR, dir)
-  const pkgJson = JSON.parse(
-    readFileSync(resolve(pkgDir, 'package.json'), 'utf-8'),
-  ) as Record<string, unknown>
+  const pkgJson = JSON.parse(readFileSync(resolve(pkgDir, 'package.json'), 'utf-8')) as Record<
+    string,
+    unknown
+  >
   const errors: string[] = []
   const warnings: string[] = []
 
@@ -198,9 +169,7 @@ function validatePackage(
   errors.push(...validateConditionalExports(pkgDir, pkgJson))
   errors.push(...validateNoVueRuntime(pkgDir))
   errors.push(...validateEsmValidity(pkgDir))
-  errors.push(
-    ...validateCssOutput(pkgDir, pkgJson.name as string),
-  )
+  errors.push(...validateCssOutput(pkgDir, pkgJson.name as string))
   errors.push(...validateDts(pkgDir))
 
   return { package: dir, errors, warnings }
@@ -211,12 +180,7 @@ function printResults(results: ValidationResult[]): void {
   let hasErrors = false
 
   for (const result of results) {
-    const status =
-      result.errors.length > 0
-        ? 'FAIL'
-        : result.warnings.length > 0
-          ? 'WARN'
-          : 'PASS'
+    const status = result.errors.length > 0 ? 'FAIL' : result.warnings.length > 0 ? 'WARN' : 'PASS'
     log.result(`\n[${status}] ${result.package}`)
     for (const err of result.errors) log.fail(`  ERROR: ${err}`)
     for (const w of result.warnings) log.warn(`  WARN: ${w}`)

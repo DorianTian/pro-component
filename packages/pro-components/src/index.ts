@@ -10,21 +10,21 @@ export { ProDescriptions } from '@pro/descriptions'
 
 export { checkDependencies } from '@pro/utils'
 
-export type {
-  RequestParams,
-  RequestResult,
-  StatusType,
-  ValueType,
-} from '@pro/utils'
+export type { RequestParams, RequestResult, StatusType, ValueType } from '@pro/utils'
 
-const components = [ProTable, ProForm, ProDescriptions]
+/** Component name to component mapping for global registration */
+const COMPONENT_MAP = {
+  ProTable,
+  ProForm,
+  ProDescriptions,
+} as const
 
 /** Vue plugin to install all Pro Components globally via app.use() */
 export const proComponentsPlugin: Plugin = {
   install(app: App) {
     checkDependencies()
-    for (const component of components) {
-      app.component(component.name!, component)
+    for (const [name, component] of Object.entries(COMPONENT_MAP)) {
+      app.component(name, component)
     }
   },
 }

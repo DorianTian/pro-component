@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import type { RollupOptions, Plugin } from 'rollup'
 import vue from 'rollup-plugin-vue'
-import typescript from '@rollup/plugin-typescript'
+import esbuild from 'rollup-plugin-esbuild'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import postcss from 'rollup-plugin-postcss'
@@ -34,27 +34,26 @@ function readPkg(packageDir: string): Record<string, unknown> {
   return JSON.parse(raw) as Record<string, unknown>
 }
 
+/** Collect external dependencies from package.json deps + peerDeps */
+function collectExternals(pkg: Record<string, unknown>): string[] {
+  const deps = pkg.dependencies as Record<string, string> | undefined
+  const peerDeps = pkg.peerDependencies as Record<string, string> | undefined
+  return [...Object.keys(deps ?? {}), ...Object.keys(peerDeps ?? {})]
+}
+
 /** Resolve shared build context (input, externals, base plugins) from config */
 function resolveBuildContext(config: PackageConfig): ResolvedBuildContext {
   const { packageDir, extraExternal = [], extraPlugins = [] } = config
   const pkg = readPkg(packageDir)
-  const deps = pkg.dependencies as Record<string, string> | undefined
-  const peerDeps = pkg.peerDependencies as Record<string, string> | undefined
 
   return {
     input: resolve(packageDir, 'src/index.ts'),
-    external: [
-      'vue',
-      'element-plus',
-      /^@pro\//,
-      ...Object.keys(deps ?? {}),
-      ...Object.keys(peerDeps ?? {}),
-      ...extraExternal,
-    ],
+    external: ['vue', 'element-plus', /^@pro\//, ...collectExternals(pkg), ...extraExternal],
     basePlugins: [
       vue() as Plugin,
       nodeResolve({ extensions: ['.ts', '.tsx', '.vue', '.js'] }),
       commonjs(),
+      esbuild({ target: 'es2022', loaders: { '.vue': 'ts' } }),
       ...extraPlugins,
     ],
     packageDir,
@@ -71,19 +70,10 @@ function createEsmConfig(ctx: ResolvedBuildContext): RollupOptions {
       entryFileNames: '[name].mjs',
       chunkFileNames: '[name]-[hash].mjs',
       preserveModules: false,
+      sourcemap: true,
     },
     external: ctx.external,
-    plugins: [
-      ...ctx.basePlugins,
-      typescript({
-        tsconfig: resolve(ctx.packageDir, 'tsconfig.json'),
-        declaration: false,
-      }),
-      postcss({
-        extract: resolve(ctx.packageDir, 'dist/style/index.css'),
-        minimize: true,
-      }),
-    ],
+    plugins: [...ctx.basePlugins, postcss({ extract: 'index.css', minimize: true })],
   }
 }
 
@@ -96,35 +86,17 @@ function createCjsConfig(ctx: ResolvedBuildContext): RollupOptions {
       dir: resolve(ctx.packageDir, 'dist/cjs'),
       entryFileNames: '[name].js',
       exports: 'named',
+      sourcemap: true,
     },
     external: ctx.external,
-    plugins: [
-      ...ctx.basePlugins,
-      typescript({
-        tsconfig: resolve(ctx.packageDir, 'tsconfig.json'),
-        declaration: false,
-      }),
-      postcss({ inject: false }),
-    ],
+    plugins: [...ctx.basePlugins, postcss({ inject: false })],
   }
 }
 
 /** Create UMD build configurations (standard + minified) */
-function createUmdConfigs(
-  ctx: ResolvedBuildContext,
-  umdName: string,
-): RollupOptions[] {
+function createUmdConfigs(ctx: ResolvedBuildContext, umdName: string): RollupOptions[] {
   const umdExternal = ['vue', 'element-plus']
   const umdGlobals = { vue: 'Vue', 'element-plus': 'ElementPlus' }
-
-  const baseUmdPlugins = [
-    ...ctx.basePlugins,
-    typescript({
-      tsconfig: resolve(ctx.packageDir, 'tsconfig.json'),
-      declaration: false,
-    }),
-    postcss({ inject: true, minimize: true }),
-  ]
 
   const standard: RollupOptions = {
     input: ctx.input,
@@ -136,7 +108,7 @@ function createUmdConfigs(
       exports: 'named',
     },
     external: umdExternal,
-    plugins: [...baseUmdPlugins, terser()],
+    plugins: [...ctx.basePlugins, postcss({ inject: true, minimize: true }), terser()],
   }
 
   const minified: RollupOptions = {
@@ -150,7 +122,11 @@ function createUmdConfigs(
       sourcemap: true,
     },
     external: umdExternal,
-    plugins: [...baseUmdPlugins, terser({ format: { comments: false } })],
+    plugins: [
+      ...ctx.basePlugins,
+      postcss({ inject: true, minimize: true }),
+      terser({ format: { comments: false } }),
+    ],
   }
 
   return [standard, minified]
@@ -159,10 +135,7 @@ function createUmdConfigs(
 /** Create all Rollup build configurations (ESM + CJS + optional UMD) */
 export function createRollupConfig(config: PackageConfig): RollupOptions[] {
   const ctx = resolveBuildContext(config)
-  const configs: RollupOptions[] = [
-    createEsmConfig(ctx),
-    createCjsConfig(ctx),
-  ]
+  const configs: RollupOptions[] = [createEsmConfig(ctx), createCjsConfig(ctx)]
 
   if (config.umdName) {
     configs.push(...createUmdConfigs(ctx, config.umdName))

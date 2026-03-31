@@ -14,11 +14,15 @@
     },
     "./style": "./dist/style/index.css"
   },
-  "sideEffects": ["dist/style/**"],
-  "files": ["dist"],
+  "sideEffects": [
+    "dist/style/**"
+  ],
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "rollup -c rollup.config.ts --configPlugin typescript",
-    "build:dts": "vue-tsc --declaration --emitDeclarationOnly --outDir dist/types",
+    "build": "tsx ../../scripts/build-package.ts .",
+    "build:dts": "tsx ../../scripts/gen-aggregation-dts.ts .",
     "type-check": "vue-tsc --noEmit",
     "clean": "rm -rf dist"
   },

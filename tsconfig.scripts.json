@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": [
+    "scripts/**/*.ts",
+    "eslint.config.js",
+    "packages/utils/rollup.config.ts",
+    "packages/hooks/rollup.config.ts",
+    "packages/themes/rollup.config.ts",
+    "packages/resolvers/rollup.config.ts",
+    "packages/pro-table/rollup.config.ts",
+    "packages/pro-form/rollup.config.ts",
+    "packages/pro-descriptions/rollup.config.ts",
+    "packages/pro-components/rollup.config.ts",
+    "playground/vite.config.ts"
+  ]
+}

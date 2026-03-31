@@ -13,7 +13,6 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "jsx": "preserve",
-    "types": ["node"]
+    "jsx": "preserve"
   }
 }

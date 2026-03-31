@@ -18,6 +18,7 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
       '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-deprecated': 'off',
       'prefer-const': 'error',
       'no-var': 'error',
       eqeqeq: ['error', 'always'],
@@ -45,8 +46,10 @@ export default tseslint.config(
     },
   },
   {
-    files: ['scripts/**/*.ts'],
+    files: ['scripts/**/*.ts', '**/rollup.config.ts', '**/vite.config.ts', '*.js'],
+    ...tseslint.configs.disableTypeChecked,
     rules: {
+      ...tseslint.configs.disableTypeChecked.rules,
       'no-console': 'off',
       'max-lines-per-function': 'off',
     },

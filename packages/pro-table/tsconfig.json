@@ -4,12 +4,12 @@
     "outDir": "dist",
     "rootDir": "src",
     "baseUrl": ".",
-    "composite": true
+    "composite": true,
+    "paths": {
+      "@pro/hooks": ["../hooks/src/index.ts"],
+      "@pro/utils": ["../utils/src/index.ts"],
+      "@pro/themes": ["../themes/src/index.ts"]
+    }
   },
-  "include": ["src/**/*.ts", "src/**/*.vue"],
-  "references": [
-    { "path": "../utils" },
-    { "path": "../hooks" },
-    { "path": "../themes" }
-  ]
+  "include": ["src/**/*.ts", "src/**/*.vue"]
 }

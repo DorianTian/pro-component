@@ -1,18 +1,16 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
     "baseUrl": ".",
-    "composite": true
+    "noEmit": true,
+    "paths": {
+      "@pro/table": ["../pro-table/src/index.ts"],
+      "@pro/form": ["../pro-form/src/index.ts"],
+      "@pro/descriptions": ["../pro-descriptions/src/index.ts"],
+      "@pro/hooks": ["../hooks/src/index.ts"],
+      "@pro/utils": ["../utils/src/index.ts"],
+      "@pro/themes": ["../themes/src/index.ts"]
+    }
   },
-  "include": ["src/**/*.ts"],
-  "references": [
-    { "path": "../pro-table" },
-    { "path": "../pro-form" },
-    { "path": "../pro-descriptions" },
-    { "path": "../hooks" },
-    { "path": "../utils" },
-    { "path": "../themes" }
-  ]
+  "include": ["src/**/*.ts"]
 }
