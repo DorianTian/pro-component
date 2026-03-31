@@ -61,6 +61,7 @@ async function handleSubmit(values: Record<string, unknown>): Promise<boolean> {
     :title="title"
     :size="width"
     destroy-on-close
+    custom-class="pro-drawer-form"
     v-bind="drawerProps"
   >
     <ProForm
@@ -73,3 +74,34 @@ async function handleSubmit(values: Record<string, unknown>): Promise<boolean> {
     />
   </ElDrawer>
 </template>
+
+<style>
+.pro-drawer-form {
+  box-shadow: var(--pro-shadow-lg);
+}
+
+.pro-drawer-form .el-drawer__header {
+  padding: var(--pro-space-6) var(--pro-space-7) var(--pro-space-5);
+  margin-bottom: 0;
+}
+
+.pro-drawer-form .el-drawer__title {
+  font-size: var(--pro-text-lg);
+  font-weight: var(--pro-font-weight-semibold);
+  color: var(--pro-text-primary);
+}
+
+.pro-drawer-form .el-drawer__close-btn {
+  width: 28px;
+  height: 28px;
+}
+
+.pro-drawer-form .el-drawer__body {
+  padding: 0 var(--pro-space-7) var(--pro-space-7);
+}
+
+.pro-drawer-form .pro-form__actions {
+  padding-top: var(--pro-space-5);
+  margin-top: var(--pro-space-5);
+}
+</style>

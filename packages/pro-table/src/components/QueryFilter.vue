@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, Search, RefreshLeft } from '@element-plus/icons-vue
 import { useValueType, useProLocale } from '@pro/hooks'
 
 import type { ProColumnDef, SearchConfig } from '../types'
-import { DEFAULT_LABEL_WIDTH, DEFAULT_SEARCH_SPAN, DEFAULT_SEARCH_ORDER } from '../constants'
+import { DEFAULT_SEARCH_SPAN, DEFAULT_SEARCH_ORDER } from '../constants'
 
 defineOptions({ name: 'QueryFilter' })
 
@@ -39,15 +39,6 @@ const { t } = useProLocale()
 const isCollapsed = ref(
   typeof props.searchConfig === 'object' ? (props.searchConfig.defaultCollapsed ?? false) : false,
 )
-
-const labelWidth = computed(() => {
-  if (typeof props.searchConfig === 'object' && props.searchConfig.labelWidth) {
-    return typeof props.searchConfig.labelWidth === 'number'
-      ? `${String(props.searchConfig.labelWidth)}px`
-      : props.searchConfig.labelWidth
-  }
-  return `${String(DEFAULT_LABEL_WIDTH)}px`
-})
 
 const searchableColumns = computed(() => {
   return props.columns
@@ -110,7 +101,7 @@ function toggleCollapse(): void {
 
 <template>
   <div class="pro-query-filter">
-    <el-form :label-width="labelWidth" @submit.prevent="handleSearch">
+    <el-form label-position="top" @submit.prevent="handleSearch">
       <el-row :gutter="16">
         <!-- Search fields -->
         <el-col
@@ -199,16 +190,28 @@ function toggleCollapse(): void {
   }
 }
 
+.pro-query-filter :deep(.el-form-item__label) {
+  font-size: var(--pro-text-xs);
+  font-weight: var(--pro-font-weight-medium);
+  color: var(--pro-text-secondary);
+  letter-spacing: 0.02em;
+  padding-bottom: var(--pro-space-2);
+}
+
 /* Focus ring — aligned with reference design */
+.pro-query-filter :deep(.el-input__wrapper) {
+  transition: all var(--pro-transition-fast);
+}
+
 .pro-query-filter :deep(.el-input__wrapper:focus-within) {
   box-shadow:
-    0 0 0 1px var(--pro-color-primary),
+    0 0 0 1px var(--pro-border-focus),
     var(--pro-shadow-focus) !important;
 }
 
 .pro-query-filter :deep(.el-select .el-input__wrapper:focus-within) {
   box-shadow:
-    0 0 0 1px var(--pro-color-primary),
+    0 0 0 1px var(--pro-border-focus),
     var(--pro-shadow-focus) !important;
 }
 

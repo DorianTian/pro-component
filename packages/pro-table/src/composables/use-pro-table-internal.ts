@@ -171,7 +171,12 @@ export function useProTableInternal(
   const densitySize = ref<DensitySize>(DEFAULT_DENSITY)
   provide(DENSITY_INJECTION_KEY, { size: densitySize })
 
-  const tableSize = computed(() => densitySize.value)
+  const DENSITY_TO_EL_SIZE: Record<DensitySize, string> = {
+    compact: 'small',
+    default: 'default',
+    relaxed: 'large',
+  }
+  const tableSize = computed(() => DENSITY_TO_EL_SIZE[densitySize.value] ?? 'default')
 
   // --- Column settings ---
   const columnSettings = ref(buildSettings(options.columns.value))

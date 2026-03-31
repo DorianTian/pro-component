@@ -273,4 +273,27 @@ watch(
 .pro-column-setting__fixed .el-icon.is-active {
   color: var(--pro-color-primary);
 }
+
+.pro-column-setting__item[draggable='true']:active {
+  box-shadow: var(--pro-shadow-md);
+  background: var(--pro-color-primary-ultra-light);
+  transform: scale(1.02);
+  transition: all var(--pro-transition-bounce);
+}
+
+.pro-column-setting__list {
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--pro-scrollbar-thumb) var(--pro-scrollbar-track);
+}
+</style>
+
+<style>
+/* Popover container styles (teleported, cannot use scoped) */
+.pro-column-setting-popover {
+  border-radius: var(--pro-radius-lg) !important;
+  box-shadow: var(--pro-shadow-md) !important;
+  padding: var(--pro-space-4) !important;
+}
 </style>

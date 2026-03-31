@@ -96,7 +96,7 @@ const state = useProTableInternal(
 </script>
 
 <template>
-  <div class="pro-table">
+  <div class="pro-table" :data-density="state.densitySize.value">
     <!-- Search Form -->
     <QueryFilter
       v-if="search !== false"

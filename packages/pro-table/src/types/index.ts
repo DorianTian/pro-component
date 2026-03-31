@@ -107,7 +107,7 @@ export class ProRequestError extends Error {
 }
 
 /** Table density size */
-export type DensitySize = 'default' | 'small' | 'large'
+export type DensitySize = 'compact' | 'default' | 'relaxed'
 
 /** Column setting item for the column setting panel */
 export interface ColumnSettingItem {

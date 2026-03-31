@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { inject, computed, type PropType, type VNode } from 'vue'
-import { Refresh, DCaret, FullScreen } from '@element-plus/icons-vue'
+import { Refresh, FullScreen } from '@element-plus/icons-vue'
 import { useProLocale } from '@pro/hooks'
 
 import type { ToolbarConfig, DensitySize } from '../types'
@@ -40,9 +40,9 @@ const densityCtx = inject(DENSITY_INJECTION_KEY, null)
 const currentDensity = computed(() => densityCtx?.size.value ?? DEFAULT_DENSITY)
 
 const densityOptions = computed<{ label: string; value: DensitySize }[]>(() => [
+  { label: t('pro.table.density.compact'), value: 'compact' },
   { label: t('pro.table.density.default'), value: 'default' },
-  { label: t('pro.table.density.compact'), value: 'small' },
-  { label: t('pro.table.density.relaxed'), value: 'large' },
+  { label: t('pro.table.density.relaxed'), value: 'relaxed' },
 ])
 
 function handleDensityChange(size: DensitySize): void {
@@ -88,24 +88,20 @@ function handleToggleFullscreen(): void {
         </span>
       </el-tooltip>
 
-      <!-- Density -->
-      <el-dropdown v-if="isDensityVisible" trigger="click" @command="handleDensityChange">
-        <span class="pro-toolbar__icon">
-          <el-icon :size="18"><DCaret /></el-icon>
+      <!-- Density toggle (segmented control) -->
+      <div v-if="isDensityVisible" class="pro-toolbar__density">
+        <span
+          v-for="opt in densityOptions"
+          :key="opt.value"
+          class="pro-toolbar__density-item"
+          :class="{ 'is-active': currentDensity === opt.value }"
+          @click="handleDensityChange(opt.value)"
+        >
+          {{ opt.label }}
         </span>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item
-              v-for="opt in densityOptions"
-              :key="opt.value"
-              :command="opt.value"
-              :class="{ 'is-active': currentDensity === opt.value }"
-            >
-              {{ opt.label }}
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
+      </div>
+
+      <el-divider v-if="isDensityVisible" direction="vertical" />
 
       <!-- Column Setting (rendered via slot from ProTable, wraps the popover trigger) -->
       <slot v-if="isColumnSettingVisible" name="columnSetting" />
@@ -156,5 +152,39 @@ function handleToggleFullscreen(): void {
 .pro-toolbar__icon:hover {
   color: var(--pro-color-primary);
   background: var(--pro-bg-sunken);
+}
+
+.pro-toolbar__density {
+  display: inline-flex;
+  align-items: center;
+  background: var(--pro-bg-sunken);
+  border-radius: var(--pro-radius-sm);
+  padding: 2px;
+  gap: 2px;
+}
+
+.pro-toolbar__density-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pro-space-1) var(--pro-space-3);
+  border-radius: var(--pro-radius-xs);
+  font-size: var(--pro-text-xs);
+  font-weight: var(--pro-font-weight-medium);
+  color: var(--pro-text-tertiary);
+  cursor: pointer;
+  transition: all var(--pro-transition-fast);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.pro-toolbar__density-item:hover {
+  color: var(--pro-text-secondary);
+}
+
+.pro-toolbar__density-item.is-active {
+  background: var(--pro-bg-elevated);
+  color: var(--pro-color-primary);
+  box-shadow: var(--pro-shadow-sm);
 }
 </style>
