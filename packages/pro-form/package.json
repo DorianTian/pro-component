@@ -30,16 +30,17 @@
   },
   "dependencies": {
     "@pro/hooks": "workspace:*",
-    "@pro/utils": "workspace:*",
-    "@pro/themes": "workspace:*"
+    "@pro/themes": "workspace:*",
+    "@pro/utils": "workspace:*"
   },
   "peerDependencies": {
-    "vue": ">=3.4.0",
-    "element-plus": ">=2.9.0"
+    "element-plus": ">=2.9.0",
+    "vue": ">=3.4.0"
   },
   "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
     "@vue/test-utils": "^2.4.0",
-    "vitest": "^2.0.0",
-    "jsdom": "^25.0.0"
+    "jsdom": "^25.0.0",
+    "vitest": "^2.0.0"
   }
 }
