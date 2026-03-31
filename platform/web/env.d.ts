@@ -13,3 +13,9 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+declare module '@pro/locale' {
+  const enUS: Record<string, unknown>
+  const zhCN: Record<string, unknown>
+  export { enUS, zhCN }
+}
