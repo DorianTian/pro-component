@@ -1,0 +1,53 @@
+{
+  "name": "@pro/platform-server",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "migrate": "knex migrate:latest --knexfile knexfile.ts",
+    "migrate:rollback": "knex migrate:rollback --knexfile knexfile.ts",
+    "migrate:make": "knex migrate:make --knexfile knexfile.ts",
+    "seed": "knex seed:run --knexfile knexfile.ts",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@koa/cors": "^5.0.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "knex": "^3.1.0",
+    "koa": "^2.15.0",
+    "koa-bodyparser": "^4.4.0",
+    "koa-router": "^13.0.0",
+    "lru-cache": "^11.0.0",
+    "mysql2": "^3.11.0",
+    "pino": "^9.0.0",
+    "semver": "^7.6.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.0",
+    "@types/jsonwebtoken": "^9.0.0",
+    "@types/koa": "^2.15.0",
+    "@types/koa-bodyparser": "^4.3.0",
+    "@types/koa-router": "^7.4.0",
+    "@types/koa__cors": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "@types/semver": "^7.7.1",
+    "@types/supertest": "^6.0.0",
+    "@types/uuid": "^10.0.0",
+    "@vitest/coverage-v8": "^2.0.0",
+    "pino-pretty": "^11.0.0",
+    "prettier": "^3.0.0",
+    "supertest": "^7.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
+  }
+}
