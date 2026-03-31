@@ -1,5 +1,5 @@
-import type { ComputedRef, VNode } from 'vue'
-import { computed } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, VNode } from 'vue'
+import { computed, toValue } from 'vue'
 import type { ProColumnDef, StatusType } from '@pro/utils'
 
 /** Processed description item ready for rendering */
@@ -27,8 +27,8 @@ export interface DescriptionItem {
 }
 
 export interface UseProDescriptionsOptions {
-  columns: ProColumnDef[]
-  data: Record<string, unknown>
+  columns: MaybeRefOrGetter<ProColumnDef[]>
+  data: MaybeRefOrGetter<Record<string, unknown>>
 }
 
 export interface UseProDescriptionsReturn {
@@ -139,9 +139,9 @@ function resolveDescriptionItem(col: ProColumnDef, data: Record<string, unknown>
  * Filters by hideInDescriptions, resolves nested paths, formats values, resolves valueEnum.
  */
 export function useProDescriptions(options: UseProDescriptionsOptions): UseProDescriptionsReturn {
-  const { columns, data } = options
-
   const descriptionItems = computed<DescriptionItem[]>(() => {
+    const columns = toValue(options.columns)
+    const data = toValue(options.data)
     return columns
       .filter((col) => !col.hideInDescriptions)
       .map((col) => resolveDescriptionItem(col, data))

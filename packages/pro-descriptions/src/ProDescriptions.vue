@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h } from 'vue'
+import { h, toRef } from 'vue'
 import { ElDescriptions, ElDescriptionsItem, ElTag, ElSkeleton } from 'element-plus'
 import { useProDescriptions } from './composables/use-pro-descriptions'
 
@@ -28,8 +28,8 @@ const props = withDefaults(
 )
 
 const { descriptionItems } = useProDescriptions({
-  columns: props.columns,
-  data: props.data,
+  columns: toRef(props, 'columns'),
+  data: toRef(props, 'data'),
 })
 
 const STATUS_TAG_TYPE_MAP: Record<
