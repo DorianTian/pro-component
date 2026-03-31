@@ -92,9 +92,7 @@ export function useProDescriptions(options: UseProDescriptionsOptions): UseProDe
     return columns
       .filter((col) => !col.hideInDescriptions)
       .map((col) => {
-        const dataIndexStr = Array.isArray(col.dataIndex)
-          ? col.dataIndex.join('.')
-          : col.dataIndex
+        const dataIndexStr = Array.isArray(col.dataIndex) ? col.dataIndex.join('.') : col.dataIndex
         const rawValue = getNestedValue(data, dataIndexStr)
         const valueType = col.valueType ?? 'text'
 
