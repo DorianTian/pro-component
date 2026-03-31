@@ -28,7 +28,14 @@
     "docs:build": "pnpm --filter docs build",
     "docs:preview": "pnpm --filter docs preview",
     "gen:api": "pnpm --filter docs gen:api",
-    "gen:changelog": "pnpm --filter docs gen:changelog"
+    "gen:changelog": "pnpm --filter docs gen:changelog",
+    "release:ci": "tsx scripts/ci/check-npm-version.ts && changeset publish",
+    "compat:quick": "COMPAT_MODE=quick tsx scripts/ci/compat-matrix.ts",
+    "compat:full": "COMPAT_MODE=full tsx scripts/ci/compat-matrix.ts",
+    "cdn:sync": "tsx scripts/ci/cdn-sync.ts",
+    "cdn:health": "tsx scripts/ci/cdn-health-check.ts",
+    "license:check": "tsx scripts/ci/license-check.ts",
+    "rotation:check": "tsx scripts/ci/token-rotation-check.ts"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.6.0",

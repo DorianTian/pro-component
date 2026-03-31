@@ -19,3 +19,11 @@ docs/api-data/
 # VitePress
 docs/.vitepress/dist/
 docs/.vitepress/cache/
+
+# CI-generated artifacts
+size-diff.md
+sizes.json
+pr-sizes.json
+base-sizes.json
+compat-results.json
+pkg-pr-new-output.txt
