@@ -192,22 +192,51 @@ const state = useProTableInternal(
 <style scoped>
 .pro-table {
   width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.pro-table :deep(*) {
+  box-sizing: border-box;
 }
 
 .pro-table :deep(.el-table) {
-  --el-table-border-color: var(--el-border-color-lighter, #ebeef5);
+  --el-table-border-color: var(--pro-table-border-color, var(--el-border-color-lighter, #ebeef5));
 }
 
 .pro-table :deep(.el-table th.el-table__cell) {
-  background: var(--el-fill-color-lighter, #fafafa);
-  font-weight: 600;
+  background: var(--pro-table-header-bg, var(--el-fill-color-lighter, #fafafa));
+  font-weight: var(--pro-table-header-font-weight, 600);
   color: var(--el-text-color-primary, #303133);
-  font-size: 14px;
+  font-size: var(--pro-font-size-base, 14px);
+}
+
+.pro-table :deep(.el-table tr:hover > td.el-table__cell) {
+  background-color: var(--pro-table-row-hover-bg, var(--el-color-primary-light-9, #ecf5ff));
+}
+
+.pro-table :deep(.el-table--scrollable-x .el-table__body-wrapper) {
+  scrollbar-width: thin;
+  scrollbar-color: var(--pro-scrollbar-thumb, #dcdfe6) var(--pro-scrollbar-track, transparent);
+}
+
+.pro-table :deep(.el-table--scrollable-x .el-table__body-wrapper::-webkit-scrollbar) {
+  height: var(--pro-scrollbar-size, 6px);
+}
+
+.pro-table :deep(.el-table--scrollable-x .el-table__body-wrapper::-webkit-scrollbar-thumb) {
+  background: var(--pro-scrollbar-thumb, #dcdfe6);
+  border-radius: 3px;
+}
+
+.pro-table :deep(.el-table--scrollable-x .el-table__body-wrapper::-webkit-scrollbar-track) {
+  background: var(--pro-scrollbar-track, transparent);
 }
 
 .pro-table__pagination {
   display: flex;
   justify-content: flex-end;
-  padding: 16px 0 4px;
+  padding: var(--pro-spacing-md, 16px) 0 var(--pro-spacing-xs, 4px);
 }
 </style>
