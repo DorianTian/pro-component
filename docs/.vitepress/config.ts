@@ -14,21 +14,11 @@ export default defineConfig({
       lang: 'en-US',
       themeConfig: {
         nav: [
-          { text: 'Guide', link: '/en/guide/getting-started' },
-          { text: 'Components', link: '/en/components/pro-table' },
+          { text: 'Guide', link: '/en/guide/i18n' },
           { text: 'API', link: '/en/api/locale' },
         ],
         sidebar: {
-          '/en/guide/': [
-            { text: 'Getting Started', link: '/en/guide/getting-started' },
-            { text: 'CDN Mode', link: '/en/guide/cdn-mode' },
-            { text: 'Internationalization', link: '/en/guide/i18n' },
-          ],
-          '/en/components/': [
-            { text: 'ProTable', link: '/en/components/pro-table' },
-            { text: 'ProForm', link: '/en/components/pro-form' },
-            { text: 'ProDescriptions', link: '/en/components/pro-descriptions' },
-          ],
+          '/en/guide/': [{ text: 'Internationalization', link: '/en/guide/i18n' }],
           '/en/api/': [{ text: 'Locale', link: '/en/api/locale' }],
         },
       },
@@ -38,21 +28,11 @@ export default defineConfig({
       lang: 'zh-CN',
       themeConfig: {
         nav: [
-          { text: '\u6307\u5357', link: '/zh/guide/getting-started' },
-          { text: '\u7ec4\u4ef6', link: '/zh/components/pro-table' },
+          { text: '\u6307\u5357', link: '/zh/guide/i18n' },
           { text: 'API', link: '/zh/api/locale' },
         ],
         sidebar: {
-          '/zh/guide/': [
-            { text: '\u5feb\u901f\u5f00\u59cb', link: '/zh/guide/getting-started' },
-            { text: 'CDN \u6a21\u5f0f', link: '/zh/guide/cdn-mode' },
-            { text: '\u56fd\u9645\u5316', link: '/zh/guide/i18n' },
-          ],
-          '/zh/components/': [
-            { text: 'ProTable', link: '/zh/components/pro-table' },
-            { text: 'ProForm', link: '/zh/components/pro-form' },
-            { text: 'ProDescriptions', link: '/zh/components/pro-descriptions' },
-          ],
+          '/zh/guide/': [{ text: '\u56fd\u9645\u5316', link: '/zh/guide/i18n' }],
           '/zh/api/': [{ text: 'Locale', link: '/zh/api/locale' }],
         },
       },
