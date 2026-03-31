@@ -12,3 +12,10 @@ coverage/
 .rollup.cache/
 packages/*/src/*.d.ts
 packages/*/src/*.d.ts.map
+
+# Generated API docs
+docs/api-data/
+
+# VitePress
+docs/.vitepress/dist/
+docs/.vitepress/cache/
