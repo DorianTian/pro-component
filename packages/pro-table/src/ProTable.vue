@@ -132,6 +132,9 @@ const state = useProTableInternal(
           </span>
         </ColumnSetting>
       </template>
+      <template v-if="$slots.toolbarActions" #actions>
+        <slot name="toolbarActions" />
+      </template>
     </ToolBar>
 
     <!-- Table -->

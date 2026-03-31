@@ -71,13 +71,15 @@ function handleToggleFullscreen(): void {
     </div>
 
     <div class="pro-toolbar__actions">
-      <!-- Custom action buttons -->
-      <template
-        v-for="(action, actionIndex) in toolbarActions"
-        :key="`toolbar-action-${actionIndex}`"
-      >
-        <component :is="() => action" />
-      </template>
+      <!-- Custom action buttons — slot takes priority over prop -->
+      <slot name="actions">
+        <template
+          v-for="(action, actionIndex) in toolbarActions"
+          :key="`toolbar-action-${actionIndex}`"
+        >
+          <component :is="() => action" />
+        </template>
+      </slot>
 
       <el-divider v-if="toolbarActions.length > 0" direction="vertical" />
 

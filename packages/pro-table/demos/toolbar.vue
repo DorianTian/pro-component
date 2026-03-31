@@ -60,7 +60,7 @@ function handleExport() {
     header-title="项目管理"
     row-key="id"
     :search="true"
-    :toolbar="{ settings: ['density', 'columnSetting', 'fullScreen'] }"
+    :toolbar="{ density: true, columnSetting: true, fullscreen: true }"
   >
     <template #toolbarActions>
       <ElButton type="primary" @click="handleCreate">新建项目</ElButton>
