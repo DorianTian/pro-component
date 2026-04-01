@@ -6,15 +6,6 @@
   --el-table-border-color: var(--pro-border-light);
 }
 
-/* Header must not scroll independently — body wrapper handles horizontal scroll */
-.pro-table .el-table__header-wrapper {
-  overflow: hidden;
-}
-
-.pro-table .el-table__body-wrapper {
-  overflow-x: auto;
-}
-
 /* Header cell: single line with ellipsis */
 .pro-table .el-table th.el-table__cell .cell {
   overflow: hidden;
