@@ -70,16 +70,6 @@ const hasCollapsibleOverflow = computed(() => {
   return searchableColumns.value.length >= itemsPerRow
 })
 
-/** Push action column to the right end of the last row */
-const actionOffset = computed(() => {
-  const itemsPerRow = Math.floor(GRID_COLUMNS / span.value)
-  const fieldCount = visibleColumns.value.length
-  const fieldsInLastRow = fieldCount % itemsPerRow
-  const slotsBeforeAction = fieldsInLastRow === 0 ? 0 : fieldsInLastRow
-  const emptySlots = itemsPerRow - slotsBeforeAction - 1
-  return Math.max(0, emptySlots) * span.value
-})
-
 function getColumnSearchConfig(col: ProColumnDef) {
   const valueType = col.valueType ?? 'text'
   return getSearchConfig(valueType)
@@ -153,45 +143,38 @@ function toggleCollapse(): void {
             />
           </el-form-item>
         </el-col>
-
-        <!-- Action buttons — always right-aligned in the last row -->
-        <el-col :span="span" :offset="actionOffset" class="pro-query-filter__actions">
-          <el-form-item>
-            <template #label><span>&nbsp;</span></template>
-            <div class="pro-query-filter__btns">
-              <el-button
-                type="primary"
-                size="default"
-                :icon="Search"
-                :loading="loading"
-                @click="handleSearch"
-              >
-                {{ t('pro.table.queryFilter.search') }}
-              </el-button>
-              <el-button size="default" :icon="RefreshLeft" @click="handleReset">
-                {{ t('pro.table.queryFilter.reset') }}
-              </el-button>
-              <el-button
-                v-if="hasCollapsibleOverflow"
-                link
-                type="primary"
-                size="default"
-                @click="toggleCollapse"
-              >
-                {{
-                  isCollapsed
-                    ? t('pro.table.queryFilter.expand')
-                    : t('pro.table.queryFilter.collapse')
-                }}
-                <el-icon class="pro-query-filter__collapse-icon">
-                  <ArrowDown v-if="isCollapsed" />
-                  <ArrowUp v-else />
-                </el-icon>
-              </el-button>
-            </div>
-          </el-form-item>
-        </el-col>
       </el-row>
+
+      <!-- Action buttons — outside grid, always right-aligned -->
+      <div class="pro-query-filter__actions">
+        <el-button
+          type="primary"
+          size="default"
+          :icon="Search"
+          :loading="loading"
+          @click="handleSearch"
+        >
+          {{ t('pro.table.queryFilter.search') }}
+        </el-button>
+        <el-button size="default" :icon="RefreshLeft" @click="handleReset">
+          {{ t('pro.table.queryFilter.reset') }}
+        </el-button>
+        <el-button
+          v-if="hasCollapsibleOverflow"
+          link
+          type="primary"
+          size="default"
+          @click="toggleCollapse"
+        >
+          {{
+            isCollapsed ? t('pro.table.queryFilter.expand') : t('pro.table.queryFilter.collapse')
+          }}
+          <el-icon class="pro-query-filter__collapse-icon">
+            <ArrowDown v-if="isCollapsed" />
+            <ArrowUp v-else />
+          </el-icon>
+        </el-button>
+      </div>
     </el-form>
   </div>
 </template>
@@ -208,27 +191,10 @@ function toggleCollapse(): void {
 
 .pro-query-filter__actions {
   display: flex;
-  align-items: flex-end;
-  min-width: 0;
-  overflow: visible;
-}
-
-.pro-query-filter__actions :deep(.el-form-item) {
-  margin-bottom: var(--pro-space-5);
-  width: 100%;
-}
-
-.pro-query-filter__actions :deep(.el-form-item__content) {
   justify-content: flex-end;
-  flex-wrap: nowrap;
-}
-
-.pro-query-filter__btns {
-  display: flex;
   align-items: center;
   gap: var(--pro-space-3);
-  flex-wrap: nowrap;
-  white-space: nowrap;
+  padding-bottom: var(--pro-space-5);
 }
 
 .pro-query-filter__collapse-icon {
