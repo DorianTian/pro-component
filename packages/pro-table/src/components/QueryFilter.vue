@@ -67,7 +67,7 @@ const visibleColumns = computed(() => {
 
 const hasCollapsibleOverflow = computed(() => {
   const itemsPerRow = Math.floor(GRID_COLUMNS / span.value)
-  return searchableColumns.value.length >= itemsPerRow
+  return searchableColumns.value.length > itemsPerRow
 })
 
 function getColumnSearchConfig(col: ProColumnDef) {
