@@ -41,7 +41,7 @@ async function request(params: RequestParams): Promise<RequestResult<ArticleReco
   const allData: ArticleRecord[] = Array.from({ length: TOTAL_RECORDS }, (_, i) => ({
     id: i + 1,
     title: `文章标题 ${i + 1}`,
-    author: ['张三', '李四', '王五'][i % 3],
+    author: ['陈明远', '林思雨', '王浩然'][i % 3],
     status: ['draft', 'published', 'archived'][i % 3],
     createdAt: new Date(2026, 0, 1 + i).toISOString(),
     views: Math.floor(Math.random() * 10000),

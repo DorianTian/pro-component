@@ -29,9 +29,9 @@ const columns: ProColumnDef<ProductRecord>[] = [
 ]
 
 const data = ref<ProductRecord[]>([
-  { id: 1, name: 'Vue.js 实战', price: 59.9, stock: 100, status: 'on_sale' },
-  { id: 2, name: 'TypeScript 编程', price: 79.0, stock: 50, status: 'on_sale' },
-  { id: 3, name: 'Element Plus 指南', price: 45.5, stock: 0, status: 'off_shelf' },
+  { id: 1, name: 'MacBook Pro 14"', price: 14999, stock: 120, status: 'on_sale' },
+  { id: 2, name: 'iPhone 16 Pro', price: 8999, stock: 350, status: 'on_sale' },
+  { id: 3, name: 'AirPods Max', price: 4399, stock: 0, status: 'off_shelf' },
 ])
 
 async function handleSave(key: string, row: Record<string, unknown>) {

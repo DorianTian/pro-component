@@ -40,9 +40,10 @@ const DELAY = 400
 
 async function request(params: RequestParams): Promise<RequestResult<UserRecord>> {
   await new Promise((r) => setTimeout(r, DELAY))
+  const names = ['陈明远', '林思雨', '王浩然', '赵芷晴']
   const data = Array.from({ length: TOTAL }, (_, i) => ({
     id: i + 1,
-    name: ['张三', '李四', '王五', '赵六'][i % 4],
+    name: names[i % 4],
     department: ['engineering', 'product', 'design'][i % 3],
     status: i % 3 === 0 ? 'resigned' : 'active',
   }))
@@ -67,15 +68,23 @@ function handleBatchDelete() {
 </script>
 
 <template>
-  <div style="margin-bottom: 16px">
-    <ElButton type="danger" :disabled="selectedRows.length === 0" @click="handleBatchDelete">
-      批量删除 ({{ selectedRows.length }})
-    </ElButton>
-    <ElButton @click="clearSelection">清空选择</ElButton>
-  </div>
   <ProTable
     v-bind="proTableProps"
     header-title="行选择与批量操作"
     :row-selection="{ type: 'checkbox', crossPageSelect: true }"
-  />
+  >
+    <template #toolbarActions>
+      <ElButton
+        type="danger"
+        size="small"
+        :disabled="selectedRows.length === 0"
+        @click="handleBatchDelete"
+      >
+        批量删除 ({{ selectedRows.length }})
+      </ElButton>
+      <ElButton size="small" :disabled="selectedRows.length === 0" @click="clearSelection">
+        清空选择
+      </ElButton>
+    </template>
+  </ProTable>
 </template>

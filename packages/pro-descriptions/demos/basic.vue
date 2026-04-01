@@ -21,9 +21,9 @@ const columns: ProColumnDef[] = [
 ]
 
 const data = {
-  name: '张三',
+  name: '陈明远',
   age: 28,
-  email: 'zhangsan@example.com',
+  email: 'chen.my@example.com',
   status: 'active',
   salary: 25000,
   joinDate: '2023-06-15',

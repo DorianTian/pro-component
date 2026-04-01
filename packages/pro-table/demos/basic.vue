@@ -27,10 +27,10 @@ const columns: ProColumnDef<UserRecord>[] = [
 ]
 
 const data: UserRecord[] = [
-  { id: 1, name: '张三', age: 28, email: 'zhangsan@example.com', status: 'active' },
-  { id: 2, name: '李四', age: 32, email: 'lisi@example.com', status: 'active' },
-  { id: 3, name: '王五', age: 24, email: 'wangwu@example.com', status: 'disabled' },
-  { id: 4, name: '赵六', age: 36, email: 'zhaoliu@example.com', status: 'active' },
+  { id: 1, name: '陈明远', age: 28, email: 'chen.my@example.com', status: 'active' },
+  { id: 2, name: '林思雨', age: 32, email: 'lin.sy@example.com', status: 'active' },
+  { id: 3, name: '王浩然', age: 24, email: 'wang.hr@example.com', status: 'disabled' },
+  { id: 4, name: '赵芷晴', age: 36, email: 'zhao.zq@example.com', status: 'active' },
 ]
 </script>
 

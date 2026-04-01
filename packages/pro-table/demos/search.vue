@@ -59,7 +59,7 @@ async function request(params: RequestParams): Promise<RequestResult<EmployeeRec
   await new Promise((resolve) => setTimeout(resolve, NETWORK_DELAY_MS))
   const allData: EmployeeRecord[] = Array.from({ length: TOTAL_EMPLOYEES }, (_, i) => ({
     id: i + 1,
-    name: ['张三', '李四', '王五', '赵六', '钱七'][i % 5],
+    name: ['陈明远', '林思雨', '王浩然', '赵芷晴', '周启航'][i % 5],
     department: ['engineering', 'product', 'design', 'marketing'][i % 4],
     role: ['前端工程师', '后端工程师', '产品经理', 'UI 设计师'][i % 4],
     joinDate: new Date(2023, i % 12, 1 + (i % 28)).toISOString().split('T')[0],

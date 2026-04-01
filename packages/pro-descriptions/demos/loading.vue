@@ -19,7 +19,7 @@ const columns: ProColumnDef[] = [
 ]
 
 const loading = ref(true)
-const data = { name: '张三', email: 'zhangsan@example.com', status: 'active', salary: 25000 }
+const data = { name: '陈明远', email: 'chen.my@example.com', status: 'active', salary: 25000 }
 
 function toggleLoading() {
   loading.value = !loading.value

@@ -154,7 +154,7 @@ function toggleCollapse(): void {
           </el-form-item>
         </el-col>
 
-        <!-- Action buttons — aligned to input bottom, right-aligned -->
+        <!-- Action buttons — always right-aligned in the last row -->
         <el-col :span="span" :offset="actionOffset" class="pro-query-filter__actions">
           <el-form-item>
             <template #label><span>&nbsp;</span></template>
@@ -209,6 +209,8 @@ function toggleCollapse(): void {
 .pro-query-filter__actions {
   display: flex;
   align-items: flex-end;
+  min-width: 0;
+  overflow: visible;
 }
 
 .pro-query-filter__actions :deep(.el-form-item) {
@@ -218,12 +220,14 @@ function toggleCollapse(): void {
 
 .pro-query-filter__actions :deep(.el-form-item__content) {
   justify-content: flex-end;
+  flex-wrap: nowrap;
 }
 
 .pro-query-filter__btns {
   display: flex;
   align-items: center;
   gap: var(--pro-space-3);
+  flex-wrap: nowrap;
   white-space: nowrap;
 }
 

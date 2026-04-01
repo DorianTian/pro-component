@@ -50,7 +50,7 @@ const selectedUser = ref<UserRecord | null>(null)
 const tableData: UserRecord[] = [
   {
     id: 1,
-    name: '张三',
+    name: '陈明远',
     role: '前端工程师',
     department: 'engineering',
     status: 'active',
@@ -58,7 +58,7 @@ const tableData: UserRecord[] = [
   },
   {
     id: 2,
-    name: '李四',
+    name: '林思雨',
     role: '产品经理',
     department: 'product',
     status: 'active',
@@ -66,7 +66,7 @@ const tableData: UserRecord[] = [
   },
   {
     id: 3,
-    name: '王五',
+    name: '王浩然',
     role: 'UI 设计师',
     department: 'design',
     status: 'resigned',
