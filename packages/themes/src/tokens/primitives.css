@@ -1,24 +1,25 @@
 /* Pro Components — Primitive Design Tokens
  * Raw values: colors, spacing scale, radius, typography.
+ * Visual system: shadcn New York (Neutral gray + Blue-600 primary).
  * These are the building blocks — semantic tokens reference these. */
 
 :root {
-  /* ---- Color: Primary (Lavender) ---- */
-  --pro-color-primary: #7c6ce7;
-  --pro-color-primary-hover: #6b5bd6;
-  --pro-color-primary-active: #5a4bc5;
-  --pro-color-primary-light: #f0edfb;
-  --pro-color-primary-ultra-light: #f8f7fd;
+  /* ---- Color: Primary (Blue-600) ---- */
+  --pro-color-primary: #2563eb;
+  --pro-color-primary-hover: #1d4ed8;
+  --pro-color-primary-active: #1e40af;
+  --pro-color-primary-light: #eff6ff;
+  --pro-color-primary-ultra-light: #f8faff;
 
   /* ---- Color: Semantic ---- */
-  --pro-color-success: #45b080;
-  --pro-color-success-light: #e8f5ee;
-  --pro-color-warning: #e5a336;
-  --pro-color-warning-light: #fdf4e4;
-  --pro-color-danger: #e05555;
-  --pro-color-danger-light: #fce8e8;
-  --pro-color-info: #6e6e80;
-  --pro-color-info-light: #f0f0f5;
+  --pro-color-success: #16a34a;
+  --pro-color-success-light: #f0fdf4;
+  --pro-color-warning: #d97706;
+  --pro-color-warning-light: #fffbeb;
+  --pro-color-danger: #dc2626;
+  --pro-color-danger-light: #fef2f2;
+  --pro-color-info: #737373;
+  --pro-color-info-light: #f5f5f5;
 
   /* ---- Spacing (10-step scale) ---- */
   --pro-space-1: 4px;
@@ -32,18 +33,18 @@
   --pro-space-9: 40px;
   --pro-space-10: 48px;
 
-  /* ---- Border Radius (layered: container → control → micro) ---- */
-  --pro-radius-xl: 16px;
-  --pro-radius-lg: 12px;
-  --pro-radius-md: 8px;
-  --pro-radius-sm: 6px;
-  --pro-radius-xs: 4px;
-  --pro-radius-pill: 20px;
+  /* ---- Border Radius (shadcn New York: base 0.5rem) ---- */
+  --pro-radius-xl: 1rem;
+  --pro-radius-lg: 0.75rem;
+  --pro-radius-md: 0.5rem;
+  --pro-radius-sm: 0.375rem;
+  --pro-radius-xs: 0.25rem;
+  --pro-radius-pill: 1.25rem;
   --pro-radius-full: 50%;
 
   /* ---- Typography: Font Stack ---- */
   --pro-font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, 'Noto Sans SC', sans-serif;
+    Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
   --pro-font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Noto Sans Mono', monospace;
 
   /* ---- Typography: Size Scale ---- */

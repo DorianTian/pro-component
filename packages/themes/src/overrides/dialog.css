@@ -1,0 +1,27 @@
+/* Pro Components — Dialog / Drawer Override Styles
+ * Scoped to .pro-modal-form and .pro-drawer-form containers. */
+
+/* Modal form: specific radius override */
+.pro-modal-form .el-dialog {
+  border-radius: var(--pro-radius-xl);
+  overflow: hidden;
+}
+
+/* Drawer form: shadow */
+.pro-drawer-form .el-drawer {
+  box-shadow: var(--pro-shadow-lg);
+}
+
+/* Shared: form actions inside dialog/drawer */
+.pro-modal-form .pro-form__actions,
+.pro-drawer-form .pro-form__actions {
+  padding-top: var(--pro-space-5);
+  margin-top: var(--pro-space-5);
+}
+
+/* Column setting popover (teleported, needs global selector) */
+.pro-column-setting-popover {
+  border-radius: var(--pro-radius-lg) !important;
+  box-shadow: var(--pro-shadow-md) !important;
+  padding: var(--pro-space-4) !important;
+}

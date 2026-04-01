@@ -147,41 +147,6 @@ defineExpose({
   width: 100%;
 }
 
-.pro-form :deep(.el-form-item__label) {
-  font-size: var(--pro-text-sm);
-  font-weight: var(--pro-font-weight-medium);
-  color: var(--pro-text-primary);
-  line-height: var(--pro-line-height-base);
-}
-
-.pro-form :deep(.el-form-item__label .el-form-item__label-asterisk) {
-  color: var(--pro-color-danger);
-}
-
-.pro-form :deep(.el-input__wrapper) {
-  transition: all var(--pro-transition-fast);
-}
-
-.pro-form :deep(.el-input__wrapper:focus-within) {
-  box-shadow:
-    0 0 0 1px var(--pro-border-focus),
-    var(--pro-shadow-focus) !important;
-}
-
-.pro-form :deep(.el-form-item.is-error .el-input__wrapper) {
-  box-shadow: 0 0 0 1px var(--pro-color-danger) !important;
-}
-
-.pro-form :deep(.el-form-item.is-error .el-input__wrapper:focus-within) {
-  box-shadow:
-    0 0 0 1px var(--pro-color-danger),
-    var(--pro-shadow-focus-danger) !important;
-}
-
-.pro-form :deep(.el-form-item__error) {
-  font-size: var(--pro-text-xxs);
-}
-
 .pro-form__actions {
   display: flex;
   justify-content: flex-end;

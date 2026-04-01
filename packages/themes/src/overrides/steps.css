@@ -1,0 +1,7 @@
+/* Pro Components — Steps Override Styles
+ * Scoped to .pro-steps-form__steps for StepsForm-specific refinements. */
+
+/* Process step icon: filled primary bg */
+.pro-steps-form__steps .el-step__head.is-process .el-step__icon {
+  box-shadow: var(--pro-shadow-focus);
+}

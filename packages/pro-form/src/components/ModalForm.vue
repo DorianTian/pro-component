@@ -75,36 +75,4 @@ async function handleSubmit(values: Record<string, unknown>): Promise<boolean> {
   </ElDialog>
 </template>
 
-<style>
-.pro-modal-form {
-  border-radius: var(--pro-radius-xl);
-  overflow: hidden;
-}
-
-.pro-modal-form .el-dialog__header {
-  padding: var(--pro-space-6) var(--pro-space-7) var(--pro-space-5);
-  margin-right: 0;
-}
-
-.pro-modal-form .el-dialog__title {
-  font-size: var(--pro-text-lg);
-  font-weight: var(--pro-font-weight-semibold);
-  color: var(--pro-text-primary);
-}
-
-.pro-modal-form .el-dialog__headerbtn {
-  width: 28px;
-  height: 28px;
-  top: var(--pro-space-6);
-  right: var(--pro-space-7);
-}
-
-.pro-modal-form .el-dialog__body {
-  padding: 0 var(--pro-space-7) var(--pro-space-7);
-}
-
-.pro-modal-form .pro-form__actions {
-  padding-top: var(--pro-space-5);
-  margin-top: var(--pro-space-5);
-}
-</style>
+<!-- Styles extracted to @pro/themes/overrides/dialog.css + components.css -->

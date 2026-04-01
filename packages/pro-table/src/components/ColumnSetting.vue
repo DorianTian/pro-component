@@ -289,11 +289,4 @@ watch(
 }
 </style>
 
-<style>
-/* Popover container styles (teleported, cannot use scoped) */
-.pro-column-setting-popover {
-  border-radius: var(--pro-radius-lg) !important;
-  box-shadow: var(--pro-shadow-md) !important;
-  padding: var(--pro-space-4) !important;
-}
-</style>
+<!-- Popover styles extracted to @pro/themes/overrides/dialog.css -->

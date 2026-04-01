@@ -1,0 +1,17 @@
+/* Pro Components — Descriptions Override Styles
+ * Scoped to .pro-descriptions container. */
+
+/* Cell spacing */
+.pro-descriptions .el-descriptions__cell {
+  padding-bottom: var(--pro-space-4);
+}
+
+/* Value font weight */
+.pro-descriptions .el-descriptions__content {
+  font-weight: var(--pro-font-weight-medium);
+}
+
+/* Tags inside descriptions */
+.pro-descriptions .el-tag {
+  border-radius: var(--pro-radius-pill);
+}

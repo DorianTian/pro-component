@@ -1,36 +1,37 @@
 /* Pro Components — Semantic Design Tokens
  * Contextual tokens that reference primitives.
+ * Visual system: shadcn New York — Neutral gray scale, pure hue-free.
  * Dark mode overrides swap these values — component code stays unchanged. */
 
 :root {
   /* ---- Text Colors ---- */
-  --pro-text-primary: #1e1e2e;
-  --pro-text-secondary: #6e6e80;
-  --pro-text-tertiary: #9e9eae;
-  --pro-text-disabled: #c4c4d0;
-  --pro-text-inverse: #ffffff;
+  --pro-text-primary: #0a0a0a;
+  --pro-text-secondary: #737373;
+  --pro-text-tertiary: #a3a3a3;
+  --pro-text-disabled: #d4d4d4;
+  --pro-text-inverse: #fafafa;
 
   /* ---- Surface / Background ---- */
-  --pro-bg-base: #fafafc;
+  --pro-bg-base: #ffffff;
   --pro-bg-elevated: #ffffff;
-  --pro-bg-sunken: #f4f4f8;
-  --pro-bg-overlay: rgba(30, 30, 46, 0.4);
+  --pro-bg-sunken: #f5f5f5;
+  --pro-bg-overlay: rgba(10, 10, 10, 0.5);
 
   /* ---- Border ---- */
-  --pro-border-default: #e4e4ec;
-  --pro-border-light: #ededf3;
+  --pro-border-default: #e5e5e5;
+  --pro-border-light: #f0f0f0;
   --pro-border-focus: var(--pro-color-primary);
 
   /* ---- Shadows ---- */
-  --pro-shadow-sm: 0 1px 3px rgba(30, 30, 46, 0.04), 0 1px 2px rgba(30, 30, 46, 0.06);
-  --pro-shadow-md: 0 4px 12px rgba(30, 30, 46, 0.06), 0 2px 4px rgba(30, 30, 46, 0.04);
-  --pro-shadow-lg: 0 12px 36px rgba(30, 30, 46, 0.08), 0 4px 12px rgba(30, 30, 46, 0.04);
-  --pro-shadow-focus: 0 0 0 3px rgba(124, 108, 231, 0.1);
-  --pro-shadow-focus-danger: 0 0 0 3px rgba(224, 85, 85, 0.1);
+  --pro-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --pro-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --pro-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --pro-shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  --pro-shadow-focus-danger: 0 0 0 3px rgba(220, 38, 38, 0.15);
 
   /* ---- Scrollbar ---- */
-  --pro-scrollbar-thumb: var(--pro-border-default);
-  --pro-scrollbar-thumb-hover: #c4c4d0;
+  --pro-scrollbar-thumb: #d4d4d4;
+  --pro-scrollbar-thumb-hover: #a3a3a3;
   --pro-scrollbar-track: transparent;
   --pro-scrollbar-size: 6px;
 

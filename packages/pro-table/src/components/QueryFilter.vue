@@ -206,44 +206,6 @@ function toggleCollapse(): void {
   margin-bottom: var(--pro-space-5);
 }
 
-/* Ensure all inputs fill their column */
-.pro-query-filter :deep(.el-form-item__content) {
-  & > .el-input,
-  & > .el-select,
-  & > .el-date-editor,
-  & > .el-input-number {
-    width: 100%;
-  }
-}
-
-/* Label: small, muted, above input */
-.pro-query-filter :deep(.el-form-item__label) {
-  font-size: var(--pro-text-xs);
-  font-weight: var(--pro-font-weight-medium);
-  color: var(--pro-text-secondary);
-  letter-spacing: 0.02em;
-  padding-bottom: var(--pro-space-1);
-  line-height: 1;
-}
-
-/* Input focus ring */
-.pro-query-filter :deep(.el-input__wrapper) {
-  transition: all var(--pro-transition-fast);
-}
-
-.pro-query-filter :deep(.el-input__wrapper:focus-within) {
-  box-shadow:
-    0 0 0 1px var(--pro-border-focus),
-    var(--pro-shadow-focus) !important;
-}
-
-.pro-query-filter :deep(.el-select .el-input__wrapper:focus-within) {
-  box-shadow:
-    0 0 0 1px var(--pro-border-focus),
-    var(--pro-shadow-focus) !important;
-}
-
-/* Action column: push buttons to bottom-right, aligned with inputs */
 .pro-query-filter__actions {
   display: flex;
   align-items: flex-end;

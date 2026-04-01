@@ -92,43 +92,6 @@ defineExpose({
   width: 100%;
 }
 
-/* Label styling */
-.pro-descriptions :deep(.el-descriptions__label) {
-  font-size: var(--pro-text-xs);
-  font-weight: var(--pro-font-weight-medium);
-  color: var(--pro-text-tertiary);
-  letter-spacing: 0.02em;
-}
-
-/* Value styling */
-.pro-descriptions :deep(.el-descriptions__content) {
-  font-size: var(--pro-text-base);
-  font-weight: var(--pro-font-weight-medium);
-  color: var(--pro-text-primary);
-}
-
-/* Cell spacing */
-.pro-descriptions :deep(.el-descriptions__cell) {
-  padding-bottom: var(--pro-space-4);
-}
-
-/* Border variant: refine borders */
-.pro-descriptions :deep(.el-descriptions--border .el-descriptions__cell) {
-  border-color: var(--pro-border-light);
-}
-
-/* Tags inside descriptions */
-.pro-descriptions :deep(.el-tag) {
-  border-radius: var(--pro-radius-pill);
-}
-
-/* Title styling */
-.pro-descriptions :deep(.el-descriptions__title) {
-  font-size: var(--pro-text-md);
-  font-weight: var(--pro-font-weight-semibold);
-  color: var(--pro-text-primary);
-}
-
 /* Loading state spacing */
 .pro-descriptions--loading {
   padding: var(--pro-space-5);

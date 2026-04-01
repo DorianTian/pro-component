@@ -1,34 +1,43 @@
 /* Pro Components — Element Plus Variable Override Map
  * Maps --pro-* semantic tokens → --el-* variables.
+ * Visual system: shadcn New York — Neutral + Blue-600 primary.
  * When a user imports @pro/themes, the entire app (including raw EP components)
- * gets the Soft Lavender visual upgrade. */
+ * gets the shadcn visual upgrade. */
 
 :root {
-  /* ---- Primary Color ---- */
+  /* ---- Primary Color (Blue-600 palette) ---- */
   --el-color-primary: var(--pro-color-primary);
-  --el-color-primary-light-3: #a99aef;
-  --el-color-primary-light-5: #bdb2f3;
-  --el-color-primary-light-7: #d6d0f7;
-  --el-color-primary-light-8: #e4e0f9;
+  --el-color-primary-light-3: #60a5fa;
+  --el-color-primary-light-5: #93c5fd;
+  --el-color-primary-light-7: #bfdbfe;
+  --el-color-primary-light-8: #dbeafe;
   --el-color-primary-light-9: var(--pro-color-primary-light);
   --el-color-primary-dark-2: var(--pro-color-primary-hover);
 
   /* ---- Semantic Colors ---- */
   --el-color-success: var(--pro-color-success);
+  --el-color-success-light-9: var(--pro-color-success-light);
   --el-color-warning: var(--pro-color-warning);
+  --el-color-warning-light-9: var(--pro-color-warning-light);
   --el-color-danger: var(--pro-color-danger);
+  --el-color-danger-light-9: var(--pro-color-danger-light);
   --el-color-info: var(--pro-color-info);
+  --el-color-info-light-9: var(--pro-color-info-light);
 
   /* ---- Backgrounds ---- */
   --el-bg-color: var(--pro-bg-elevated);
   --el-bg-color-page: var(--pro-bg-base);
   --el-bg-color-overlay: var(--pro-bg-elevated);
+  --el-fill-color: var(--pro-bg-sunken);
+  --el-fill-color-light: #fafafa;
   --el-fill-color-lighter: var(--pro-bg-sunken);
+  --el-fill-color-blank: #ffffff;
 
   /* ---- Borders ---- */
   --el-border-color: var(--pro-border-default);
   --el-border-color-light: var(--pro-border-light);
   --el-border-color-lighter: var(--pro-border-light);
+  --el-border-color-extra-light: #fafafa;
 
   /* ---- Text ---- */
   --el-text-color-primary: var(--pro-text-primary);
@@ -53,4 +62,12 @@
   --el-box-shadow-light: var(--pro-shadow-md);
   --el-box-shadow-lighter: var(--pro-shadow-sm);
   --el-box-shadow-dark: var(--pro-shadow-lg);
+
+  /* ---- Disabled ---- */
+  --el-disabled-bg-color: var(--pro-bg-sunken);
+  --el-disabled-text-color: var(--pro-text-disabled);
+  --el-disabled-border-color: var(--pro-border-light);
+
+  /* ---- Mask ---- */
+  --el-overlay-color: var(--pro-bg-overlay);
 }

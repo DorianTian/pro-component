@@ -1,0 +1,444 @@
+/* Pro Components — Global Element Plus Component Overrides
+ * Unified shadcn New York visual treatment for ALL EP components.
+ * Scoped to cascade layer pro.el-overrides for clean priority. */
+
+/* ========== Button ========== */
+
+/* Default variant: border + subtle bg, shadcn style */
+.el-button {
+  font-weight: 500;
+  transition: all var(--pro-transition-fast);
+}
+
+.el-button--default {
+  --el-button-bg-color: var(--pro-bg-elevated);
+  --el-button-border-color: var(--pro-border-default);
+  --el-button-text-color: var(--pro-text-primary);
+  --el-button-hover-bg-color: var(--pro-bg-sunken);
+  --el-button-hover-border-color: var(--pro-border-default);
+  --el-button-hover-text-color: var(--pro-text-primary);
+  --el-button-active-bg-color: var(--pro-bg-sunken);
+  --el-button-active-border-color: #d4d4d4;
+  --el-button-active-text-color: var(--pro-text-primary);
+}
+
+/* Primary variant: solid blue */
+.el-button--primary {
+  --el-button-bg-color: var(--pro-color-primary);
+  --el-button-border-color: var(--pro-color-primary);
+  --el-button-hover-bg-color: var(--pro-color-primary-hover);
+  --el-button-hover-border-color: var(--pro-color-primary-hover);
+  --el-button-active-bg-color: var(--pro-color-primary-active);
+  --el-button-active-border-color: var(--pro-color-primary-active);
+}
+
+/* Danger variant */
+.el-button--danger {
+  --el-button-bg-color: var(--pro-color-danger);
+  --el-button-border-color: var(--pro-color-danger);
+  --el-button-hover-bg-color: #b91c1c;
+  --el-button-hover-border-color: #b91c1c;
+  --el-button-active-bg-color: #991b1b;
+  --el-button-active-border-color: #991b1b;
+}
+
+/* Ghost / link buttons */
+.el-button.is-link,
+.el-button.is-text {
+  --el-button-hover-bg-color: var(--pro-bg-sunken);
+}
+
+/* Button focus ring */
+.el-button:focus-visible {
+  outline: none;
+  box-shadow: var(--pro-shadow-focus);
+}
+
+.el-button--danger:focus-visible {
+  box-shadow: var(--pro-shadow-focus-danger);
+}
+
+/* ========== Input / Select / Textarea ========== */
+
+.el-input__wrapper {
+  box-shadow: 0 0 0 1px var(--pro-border-default) inset;
+  transition: all var(--pro-transition-fast);
+}
+
+.el-input__wrapper:hover {
+  box-shadow: 0 0 0 1px #d4d4d4 inset;
+}
+
+.el-input__wrapper.is-focus,
+.el-input__wrapper:focus-within {
+  box-shadow:
+    0 0 0 1px var(--pro-border-focus) inset,
+    var(--pro-shadow-focus) !important;
+}
+
+.el-textarea__inner {
+  transition: all var(--pro-transition-fast);
+}
+
+.el-textarea__inner:focus {
+  box-shadow: var(--pro-shadow-focus);
+  border-color: var(--pro-border-focus);
+}
+
+/* Select dropdown */
+.el-select-dropdown {
+  border: 1px solid var(--pro-border-default);
+  border-radius: var(--pro-radius-md);
+  box-shadow: var(--pro-shadow-md);
+}
+
+.el-select-dropdown__item.is-selected {
+  color: var(--pro-color-primary);
+  font-weight: 500;
+}
+
+.el-select-dropdown__item.is-hovering {
+  background-color: var(--pro-bg-sunken);
+}
+
+/* ========== Checkbox / Radio ========== */
+
+.el-checkbox__input.is-checked .el-checkbox__inner {
+  background-color: var(--pro-color-primary);
+  border-color: var(--pro-color-primary);
+}
+
+.el-checkbox__input.is-indeterminate .el-checkbox__inner {
+  background-color: var(--pro-color-primary);
+  border-color: var(--pro-color-primary);
+}
+
+.el-checkbox__input.is-focus .el-checkbox__inner {
+  border-color: var(--pro-color-primary);
+}
+
+.el-radio__input.is-checked .el-radio__inner {
+  background-color: var(--pro-color-primary);
+  border-color: var(--pro-color-primary);
+}
+
+/* ========== Switch ========== */
+
+.el-switch.is-checked .el-switch__core {
+  border-color: var(--pro-color-primary);
+  background-color: var(--pro-color-primary);
+}
+
+/* ========== Tag ========== */
+
+.el-tag {
+  border-radius: var(--pro-radius-pill);
+  font-weight: 500;
+}
+
+.el-tag--small {
+  border-radius: var(--pro-radius-pill);
+}
+
+/* ========== Table ========== */
+
+.el-table {
+  --el-table-border-color: var(--pro-border-light);
+  --el-table-header-bg-color: var(--pro-bg-sunken);
+  --el-table-row-hover-bg-color: var(--pro-color-primary-ultra-light);
+  --el-table-current-row-bg-color: var(--pro-color-primary-light);
+  font-size: var(--pro-text-sm);
+}
+
+.el-table th.el-table__cell {
+  font-weight: var(--pro-font-weight-semibold);
+  color: var(--pro-text-primary);
+  font-size: var(--pro-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.el-table td.el-table__cell {
+  color: var(--pro-text-primary);
+}
+
+.el-table__body tr:last-child td.el-table__cell {
+  border-bottom: none;
+}
+
+/* ========== Pagination ========== */
+
+.el-pagination {
+  font-weight: 500;
+}
+
+.el-pagination .el-pager li.is-active {
+  color: var(--pro-color-primary);
+  font-weight: var(--pro-font-weight-semibold);
+}
+
+.el-pagination button:hover,
+.el-pagination .el-pager li:hover {
+  color: var(--pro-color-primary);
+}
+
+/* ========== Dialog ========== */
+
+.el-dialog {
+  border-radius: var(--pro-radius-xl);
+  box-shadow: var(--pro-shadow-lg);
+  overflow: hidden;
+}
+
+.el-dialog__header {
+  padding: var(--pro-space-6) var(--pro-space-7) var(--pro-space-5);
+  margin-right: 0;
+  border-bottom: none;
+}
+
+.el-dialog__title {
+  font-size: var(--pro-text-lg);
+  font-weight: var(--pro-font-weight-semibold);
+  color: var(--pro-text-primary);
+  line-height: var(--pro-line-height-tight);
+}
+
+.el-dialog__headerbtn {
+  width: 28px;
+  height: 28px;
+  top: var(--pro-space-6);
+  right: var(--pro-space-7);
+}
+
+.el-dialog__body {
+  padding: 0 var(--pro-space-7) var(--pro-space-7);
+  color: var(--pro-text-primary);
+}
+
+.el-dialog__footer {
+  padding: 0 var(--pro-space-7) var(--pro-space-7);
+}
+
+/* ========== Drawer ========== */
+
+.el-drawer {
+  box-shadow: var(--pro-shadow-lg);
+}
+
+.el-drawer__header {
+  padding: var(--pro-space-6) var(--pro-space-7) var(--pro-space-5);
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.el-drawer__title {
+  font-size: var(--pro-text-lg);
+  font-weight: var(--pro-font-weight-semibold);
+  color: var(--pro-text-primary);
+}
+
+.el-drawer__close-btn {
+  width: 28px;
+  height: 28px;
+}
+
+.el-drawer__body {
+  padding: 0 var(--pro-space-7) var(--pro-space-7);
+}
+
+/* ========== Popover ========== */
+
+.el-popover.el-popper {
+  border-radius: var(--pro-radius-lg);
+  box-shadow: var(--pro-shadow-md);
+  border: 1px solid var(--pro-border-default);
+}
+
+/* ========== Tooltip ========== */
+
+.el-tooltip__trigger:focus-visible {
+  outline: none;
+}
+
+/* ========== Message ========== */
+
+.el-message {
+  border-radius: var(--pro-radius-md);
+  box-shadow: var(--pro-shadow-md);
+  border: 1px solid var(--pro-border-default);
+}
+
+/* ========== Notification ========== */
+
+.el-notification {
+  border-radius: var(--pro-radius-lg);
+  box-shadow: var(--pro-shadow-lg);
+  border: 1px solid var(--pro-border-default);
+}
+
+/* ========== Tabs ========== */
+
+.el-tabs__item {
+  font-weight: 500;
+  color: var(--pro-text-secondary);
+  transition: color var(--pro-transition-fast);
+}
+
+.el-tabs__item:hover {
+  color: var(--pro-text-primary);
+}
+
+.el-tabs__item.is-active {
+  color: var(--pro-color-primary);
+  font-weight: var(--pro-font-weight-semibold);
+}
+
+.el-tabs__active-bar {
+  background-color: var(--pro-color-primary);
+}
+
+/* ========== Steps ========== */
+
+.el-step__head.is-process {
+  color: var(--pro-color-primary);
+  border-color: var(--pro-color-primary);
+}
+
+.el-step__head.is-process .el-step__icon {
+  background-color: var(--pro-color-primary);
+  color: var(--pro-text-inverse);
+}
+
+.el-step__head.is-success {
+  color: var(--pro-color-primary);
+  border-color: var(--pro-color-primary);
+}
+
+.el-step__head.is-success .el-step__icon {
+  color: var(--pro-color-primary);
+}
+
+.el-step__title {
+  font-size: var(--pro-text-sm);
+  font-weight: var(--pro-font-weight-medium);
+}
+
+.el-step__line {
+  background-color: var(--pro-border-light);
+}
+
+.el-step.is-success .el-step__line {
+  background-color: var(--pro-color-primary);
+}
+
+/* ========== Form ========== */
+
+.el-form-item__label {
+  font-weight: var(--pro-font-weight-medium);
+  color: var(--pro-text-primary);
+}
+
+.el-form-item__error {
+  font-size: var(--pro-text-xxs);
+}
+
+.el-form-item.is-error .el-input__wrapper {
+  box-shadow: 0 0 0 1px var(--pro-color-danger) inset !important;
+}
+
+.el-form-item.is-error .el-input__wrapper.is-focus,
+.el-form-item.is-error .el-input__wrapper:focus-within {
+  box-shadow:
+    0 0 0 1px var(--pro-color-danger) inset,
+    var(--pro-shadow-focus-danger) !important;
+}
+
+/* ========== Descriptions ========== */
+
+.el-descriptions__label {
+  font-size: var(--pro-text-xs);
+  font-weight: var(--pro-font-weight-medium);
+  color: var(--pro-text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+.el-descriptions__content {
+  font-size: var(--pro-text-base);
+  color: var(--pro-text-primary);
+}
+
+.el-descriptions__title {
+  font-size: var(--pro-text-md);
+  font-weight: var(--pro-font-weight-semibold);
+  color: var(--pro-text-primary);
+}
+
+.el-descriptions--border .el-descriptions__cell {
+  border-color: var(--pro-border-light);
+}
+
+/* ========== Divider ========== */
+
+.el-divider {
+  border-color: var(--pro-border-light);
+}
+
+/* ========== Loading ========== */
+
+.el-loading-mask {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* ========== Scrollbar ========== */
+
+.el-scrollbar__thumb {
+  background-color: var(--pro-scrollbar-thumb);
+  border-radius: var(--pro-radius-xs);
+}
+
+.el-scrollbar__thumb:hover {
+  background-color: var(--pro-scrollbar-thumb-hover);
+}
+
+/* ========== DatePicker ========== */
+
+.el-date-editor .el-input__wrapper {
+  box-shadow: 0 0 0 1px var(--pro-border-default) inset;
+}
+
+.el-picker-panel {
+  border-radius: var(--pro-radius-lg);
+  box-shadow: var(--pro-shadow-md);
+  border: 1px solid var(--pro-border-default);
+}
+
+/* ========== Dropdown ========== */
+
+.el-dropdown-menu {
+  border-radius: var(--pro-radius-md);
+  box-shadow: var(--pro-shadow-md);
+  border: 1px solid var(--pro-border-default);
+  padding: var(--pro-space-1);
+}
+
+.el-dropdown-menu__item:hover {
+  background-color: var(--pro-bg-sunken);
+  color: var(--pro-text-primary);
+  border-radius: var(--pro-radius-xs);
+}
+
+/* ========== Badge ========== */
+
+.el-badge__content {
+  font-weight: var(--pro-font-weight-medium);
+}
+
+/* ========== Breadcrumb ========== */
+
+.el-breadcrumb__inner {
+  color: var(--pro-text-secondary);
+}
+
+.el-breadcrumb__inner.is-link:hover {
+  color: var(--pro-color-primary);
+}

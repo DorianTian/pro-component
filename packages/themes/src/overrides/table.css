@@ -1,0 +1,52 @@
+/* Pro Components — Table Override Styles
+ * Scoped to .pro-table container for ProTable-specific el-table refinements. */
+
+/* Table border override */
+.pro-table .el-table {
+  --el-table-border-color: var(--pro-border-light);
+}
+
+/* Prevent el-table from overflowing container width */
+.pro-table .el-table__header-wrapper,
+.pro-table .el-table__body-wrapper {
+  overflow-x: auto;
+}
+
+/* Checkbox column vertical alignment */
+.pro-table .el-table-column--selection .cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cell density */
+.pro-table .el-table td.el-table__cell {
+  padding: var(--pro-density-cell-padding-v) var(--pro-density-cell-padding-h);
+  font-size: var(--pro-density-font-size);
+}
+
+/* Custom scrollbar for horizontally scrollable tables */
+.pro-table .el-table--scrollable-x .el-table__body-wrapper {
+  scrollbar-width: thin;
+  scrollbar-color: var(--pro-scrollbar-thumb) var(--pro-scrollbar-track);
+}
+
+.pro-table .el-table--scrollable-x .el-table__body-wrapper::-webkit-scrollbar {
+  height: var(--pro-scrollbar-size);
+}
+
+.pro-table .el-table--scrollable-x .el-table__body-wrapper::-webkit-scrollbar-thumb {
+  background: var(--pro-scrollbar-thumb);
+  border-radius: var(--pro-radius-xs);
+}
+
+.pro-table .el-table--scrollable-x .el-table__body-wrapper::-webkit-scrollbar-track {
+  background: var(--pro-scrollbar-track);
+}
+
+/* Toolbar divider */
+.pro-toolbar .el-divider--vertical {
+  height: 16px;
+  margin: 0 var(--pro-space-2);
+  border-color: var(--pro-border-light);
+}

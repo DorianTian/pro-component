@@ -1,35 +1,50 @@
-/* Pro Components — Dark Mode Token Overrides (P2)
- * Structure ready now. Component code needs zero changes when dark mode ships.
+/* Pro Components — Dark Mode Token Overrides
+ * Visual system: shadcn New York dark — Neutral gray, Blue-500 primary.
  * Activated by ProConfigProvider theme="dark" → sets data-theme="dark" on root. */
 
 [data-theme='dark'] {
   /* Text */
-  --pro-text-primary: #e4e4ec;
-  --pro-text-secondary: #9e9eae;
-  --pro-text-tertiary: #6e6e80;
-  --pro-text-disabled: #4e4e5e;
-  --pro-text-inverse: #1e1e2e;
+  --pro-text-primary: #fafafa;
+  --pro-text-secondary: #a3a3a3;
+  --pro-text-tertiary: #737373;
+  --pro-text-disabled: #525252;
+  --pro-text-inverse: #0a0a0a;
 
   /* Surfaces */
-  --pro-bg-base: #16161e;
-  --pro-bg-elevated: #1e1e2e;
-  --pro-bg-sunken: #12121a;
-  --pro-bg-overlay: rgba(0, 0, 0, 0.6);
+  --pro-bg-base: #0a0a0a;
+  --pro-bg-elevated: #171717;
+  --pro-bg-sunken: #0a0a0a;
+  --pro-bg-overlay: rgba(0, 0, 0, 0.7);
 
   /* Borders */
-  --pro-border-default: #2e2e3e;
-  --pro-border-light: #252535;
+  --pro-border-default: #262626;
+  --pro-border-light: #1c1c1c;
 
-  /* Shadows (darker, more opaque for dark surfaces) */
-  --pro-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.3);
-  --pro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.2);
-  --pro-shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+  /* Shadows */
+  --pro-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --pro-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --pro-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --pro-shadow-focus: 0 0 0 3px rgba(59, 130, 246, 0.25);
+  --pro-shadow-focus-danger: 0 0 0 3px rgba(220, 38, 38, 0.25);
 
   /* Scrollbar */
-  --pro-scrollbar-thumb: #3e3e4e;
-  --pro-scrollbar-thumb-hover: #5e5e6e;
+  --pro-scrollbar-thumb: #404040;
+  --pro-scrollbar-thumb-hover: #525252;
 
-  /* Primary color adjustments for dark backgrounds */
-  --pro-color-primary-light: #2a2540;
-  --pro-color-primary-ultra-light: #1e1a30;
+  /* Primary — brighten to blue-500 for dark bg contrast */
+  --pro-color-primary: #3b82f6;
+  --pro-color-primary-hover: #2563eb;
+  --pro-color-primary-active: #1d4ed8;
+  --pro-color-primary-light: #172554;
+  --pro-color-primary-ultra-light: #0f172a;
+
+  /* Semantic color adjustments for dark */
+  --pro-color-success: #22c55e;
+  --pro-color-success-light: #052e16;
+  --pro-color-warning: #f59e0b;
+  --pro-color-warning-light: #451a03;
+  --pro-color-danger: #ef4444;
+  --pro-color-danger-light: #450a0a;
+  --pro-color-info: #a3a3a3;
+  --pro-color-info-light: #262626;
 }

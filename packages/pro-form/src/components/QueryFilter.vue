@@ -123,41 +123,6 @@ defineExpose({
   margin-bottom: var(--pro-space-5);
 }
 
-.pro-query-filter :deep(.el-form-item__label) {
-  font-size: var(--pro-text-sm);
-  font-weight: var(--pro-font-weight-medium);
-  color: var(--pro-text-primary);
-  line-height: var(--pro-line-height-base);
-}
-
-.pro-query-filter :deep(.el-form-item__label .el-form-item__label-asterisk) {
-  color: var(--pro-color-danger);
-}
-
-.pro-query-filter :deep(.el-input__wrapper) {
-  transition: all var(--pro-transition-fast);
-}
-
-.pro-query-filter :deep(.el-input__wrapper:focus-within) {
-  box-shadow:
-    0 0 0 1px var(--pro-border-focus),
-    var(--pro-shadow-focus) !important;
-}
-
-.pro-query-filter :deep(.el-form-item.is-error .el-input__wrapper) {
-  box-shadow: 0 0 0 1px var(--pro-color-danger) !important;
-}
-
-.pro-query-filter :deep(.el-form-item.is-error .el-input__wrapper:focus-within) {
-  box-shadow:
-    0 0 0 1px var(--pro-color-danger),
-    var(--pro-shadow-focus-danger) !important;
-}
-
-.pro-query-filter :deep(.el-form-item__error) {
-  font-size: var(--pro-text-xxs);
-}
-
 .pro-query-filter__actions {
   margin-left: auto;
 }

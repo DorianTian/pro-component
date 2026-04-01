@@ -154,68 +154,6 @@ defineExpose({
   margin-bottom: var(--pro-space-7);
 }
 
-.pro-steps-form__steps :deep(.el-step__head.is-process) {
-  color: var(--pro-color-primary);
-  border-color: var(--pro-color-primary);
-}
-
-.pro-steps-form__steps :deep(.el-step__head.is-process .el-step__icon) {
-  box-shadow: var(--pro-shadow-focus);
-}
-
-.pro-steps-form__steps :deep(.el-step__head.is-success) {
-  color: var(--pro-color-primary);
-  border-color: var(--pro-color-primary);
-}
-
-.pro-steps-form__steps :deep(.el-step__title) {
-  font-size: var(--pro-text-sm);
-  font-weight: var(--pro-font-weight-medium);
-}
-
-.pro-steps-form__steps :deep(.el-step__line) {
-  background-color: var(--pro-border-light);
-}
-
-.pro-steps-form__steps :deep(.el-step.is-success .el-step__line) {
-  background-color: var(--pro-color-primary);
-}
-
-.pro-steps-form__form :deep(.el-form-item__label) {
-  font-size: var(--pro-text-sm);
-  font-weight: var(--pro-font-weight-medium);
-  color: var(--pro-text-primary);
-  line-height: var(--pro-line-height-base);
-}
-
-.pro-steps-form__form :deep(.el-form-item__label .el-form-item__label-asterisk) {
-  color: var(--pro-color-danger);
-}
-
-.pro-steps-form__form :deep(.el-input__wrapper) {
-  transition: all var(--pro-transition-fast);
-}
-
-.pro-steps-form__form :deep(.el-input__wrapper:focus-within) {
-  box-shadow:
-    0 0 0 1px var(--pro-border-focus),
-    var(--pro-shadow-focus) !important;
-}
-
-.pro-steps-form__form :deep(.el-form-item.is-error .el-input__wrapper) {
-  box-shadow: 0 0 0 1px var(--pro-color-danger) !important;
-}
-
-.pro-steps-form__form :deep(.el-form-item.is-error .el-input__wrapper:focus-within) {
-  box-shadow:
-    0 0 0 1px var(--pro-color-danger),
-    var(--pro-shadow-focus-danger) !important;
-}
-
-.pro-steps-form__form :deep(.el-form-item__error) {
-  font-size: var(--pro-text-xxs);
-}
-
 .pro-steps-form__actions {
   display: flex;
   justify-content: flex-end;

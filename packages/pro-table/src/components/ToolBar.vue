@@ -143,6 +143,12 @@ function handleToggleFullscreen(): void {
   gap: var(--pro-space-2);
 }
 
+/* Ensure all direct children (including el-popover wrappers) stay vertically centered */
+.pro-toolbar__actions > * {
+  display: inline-flex;
+  align-items: center;
+}
+
 /* Toolbar icon buttons: 28×28 to match density control height */
 .pro-toolbar__icon {
   display: inline-flex;
@@ -159,13 +165,6 @@ function handleToggleFullscreen(): void {
 .pro-toolbar__icon:hover {
   color: var(--pro-color-primary);
   background: var(--pro-bg-sunken);
-}
-
-/* Vertical dividers between toolbar sections */
-.pro-toolbar :deep(.el-divider--vertical) {
-  height: 16px;
-  margin: 0 var(--pro-space-2);
-  border-color: var(--pro-border-light);
 }
 
 /* Density segmented control */
