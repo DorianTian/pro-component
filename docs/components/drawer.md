@@ -1,0 +1,35 @@
+---
+outline: deep
+---
+
+# Drawer 抽屉
+
+基于 Element Plus `ElDrawer` 的企业级封装，默认挂载到 body。
+
+## 企业级默认配置
+
+| 属性           | 默认值 | 说明                          |
+| -------------- | ------ | ----------------------------- |
+| `appendToBody` | `true` | 默认挂载到 body，避免层级问题 |
+
+## 基础用法
+
+```vue
+<script setup>
+import { ref } from 'vue'
+import { Drawer } from '@pro/drawer'
+
+const visible = ref(false)
+</script>
+
+<template>
+  <el-button @click="visible = true">打开抽屉</el-button>
+  <Drawer v-model="visible" title="详情">
+    <p>这是抽屉内容。</p>
+  </Drawer>
+</template>
+```
+
+## API
+
+完整 Props/Events/Slots 同 [Element Plus Drawer](https://element-plus.org/zh-CN/component/drawer.html)，所有原生属性均可透传。
