@@ -58,98 +58,98 @@ Schema 驱动的数据表格，内置搜索表单、分页、列设置、工具�
 
 ### ProTable Props
 
-| 属性 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
-| `columns` | 列定义 | `ProColumnDef[]` | — (必填) |
-| `data` | 静态数据源 | `T[]` | — |
-| `request` | 远程数据请求函数 | `(params: RequestParams) => Promise<RequestResult<T>>` | — |
-| `loading` | 外部控制加载状态 | `boolean` | — |
-| `rowKey` | 行唯一标识 | `string \| ((row: T) => string)` | `'id'` |
-| `search` | 搜索表单配置 | `boolean \| SearchConfig` | `true` |
-| `initialValues` | 搜索表单初始值 | `Record<string, unknown>` | `{}` |
-| `toolbar` | 工具栏配置 | `ToolbarConfig` | `{}` |
-| `headerTitle` | 表格标题 | `string \| VNode` | `''` |
-| `toolbarActions` | 工具栏操作按钮 | `VNode[]` | `[]` |
-| `pagination` | 分页配置，false 禁用 | `false \| PaginationConfig` | `{}` |
-| `rowSelection` | 行选择配置 | `RowSelectionConfig` | — |
-| `editable` | 可编辑行配置 | `EditableConfig` | — |
-| `tableProps` | 透传 el-table 属性 | `Record<string, unknown>` | `{}` |
-| `beforeRequest` | 请求前参数转换 | `(params) => RequestParams` | — |
-| `afterResponse` | 响应后数据转换 | `(raw) => RequestResult` | — |
+| 属性             | 说明                 | 类型                                                   | 默认值   |
+| ---------------- | -------------------- | ------------------------------------------------------ | -------- |
+| `columns`        | 列定义               | `ProColumnDef[]`                                       | — (必填) |
+| `data`           | 静态数据源           | `T[]`                                                  | —        |
+| `request`        | 远程数据请求函数     | `(params: RequestParams) => Promise<RequestResult<T>>` | —        |
+| `loading`        | 外部控制加载状态     | `boolean`                                              | —        |
+| `rowKey`         | 行唯一标识           | `string \| ((row: T) => string)`                       | `'id'`   |
+| `search`         | 搜索表单配置         | `boolean \| SearchConfig`                              | `true`   |
+| `initialValues`  | 搜索表单初始值       | `Record<string, unknown>`                              | `{}`     |
+| `toolbar`        | 工具栏配置           | `ToolbarConfig`                                        | `{}`     |
+| `headerTitle`    | 表格标题             | `string \| VNode`                                      | `''`     |
+| `toolbarActions` | 工具栏操作按钮       | `VNode[]`                                              | `[]`     |
+| `pagination`     | 分页配置，false 禁用 | `false \| PaginationConfig`                            | `{}`     |
+| `rowSelection`   | 行选择配置           | `RowSelectionConfig`                                   | —        |
+| `editable`       | 可编辑行配置         | `EditableConfig`                                       | —        |
+| `tableProps`     | 透传 el-table 属性   | `Record<string, unknown>`                              | `{}`     |
+| `beforeRequest`  | 请求前参数转换       | `(params) => RequestParams`                            | —        |
+| `afterResponse`  | 响应后数据转换       | `(raw) => RequestResult`                               | —        |
 
 ### ProTable Events
 
-| 事件 | 说明 | 参数 |
-|------|------|------|
-| `selection-change` | 选择变更 | `(keys: string[], rows: unknown[])` |
-| `sort-change` | 排序变更 | `(sortState: { prop, order } \| null)` |
-| `page-change` | 分页变更 | `(pagination: { current, pageSize })` |
-| `reload` | 刷新触发 | — |
-| `reset` | 重置触发 | — |
+| 事件               | 说明     | 参数                                   |
+| ------------------ | -------- | -------------------------------------- |
+| `selection-change` | 选择变更 | `(keys: string[], rows: unknown[])`    |
+| `sort-change`      | 排序变更 | `(sortState: { prop, order } \| null)` |
+| `page-change`      | 分页变更 | `(pagination: { current, pageSize })`  |
+| `reload`           | 刷新触发 | —                                      |
+| `reset`            | 重置触发 | —                                      |
 
 ### ProTable Slots
 
-| 插槽名 | 说明 |
-|--------|------|
+| 插槽名           | 说明                   |
+| ---------------- | ---------------------- |
 | `toolbarActions` | 工具栏右侧操作按钮区域 |
-| `action` | 表格操作列 |
+| `action`         | 表格操作列             |
 
 ### ProColumnDef
 
-| 属性 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
-| `dataIndex` | 字段名，支持嵌套路径如 `'user.name'` | `string` | — (必填) |
-| `title` | 列标题 | `string` | — (必填) |
-| `key` | 唯一标识，默认使用 dataIndex | `string` | — |
-| `valueType` | 值类型，决定渲染和搜索控件 | `ValueType` | `'text'` |
-| `valueEnum` | 枚举值映射 | `Record<string, { text, status? }>` | — |
-| `width` | 列宽 | `number \| string` | — |
-| `minWidth` | 最小列宽 | `number \| string` | `120` |
-| `fixed` | 固定列 | `'left' \| 'right'` | — |
-| `sortable` | 可排序 | `boolean \| 'custom'` | — |
-| `ellipsis` | 超出省略 | `boolean` | `true` |
-| `copyable` | 可复制 | `boolean` | — |
-| `render` | 自定义渲染 | `(row, index) => VNode` | — |
-| `hideInSearch` | 搜索表单中隐藏 | `boolean` | `false` |
-| `hideInTable` | 表格中隐藏 | `boolean` | `false` |
-| `hideInForm` | 表单中隐藏 | `boolean` | `false` |
-| `hideInDescriptions` | 描述列表中隐藏 | `boolean` | `false` |
-| `searchConfig` | 搜索配置 | `{ order?, span?, defaultValue?, rules?, render? }` | — |
-| `descriptionsRender` | 描述列表自定义渲染 | `(value, row) => VNode` | — |
+| 属性                 | 说明                                 | 类型                                                | 默认值   |
+| -------------------- | ------------------------------------ | --------------------------------------------------- | -------- |
+| `dataIndex`          | 字段名，支持嵌套路径如 `'user.name'` | `string`                                            | — (必填) |
+| `title`              | 列标题                               | `string`                                            | — (必填) |
+| `key`                | 唯一标识，默认使用 dataIndex         | `string`                                            | —        |
+| `valueType`          | 值类型，决定渲染和搜索控件           | `ValueType`                                         | `'text'` |
+| `valueEnum`          | 枚举值映射                           | `Record<string, { text, status? }>`                 | —        |
+| `width`              | 列宽                                 | `number \| string`                                  | —        |
+| `minWidth`           | 最小列宽                             | `number \| string`                                  | `120`    |
+| `fixed`              | 固定列                               | `'left' \| 'right'`                                 | —        |
+| `sortable`           | 可排序                               | `boolean \| 'custom'`                               | —        |
+| `ellipsis`           | 超出省略                             | `boolean`                                           | `true`   |
+| `copyable`           | 可复制                               | `boolean`                                           | —        |
+| `render`             | 自定义渲染                           | `(row, index) => VNode`                             | —        |
+| `hideInSearch`       | 搜索表单中隐藏                       | `boolean`                                           | `false`  |
+| `hideInTable`        | 表格中隐藏                           | `boolean`                                           | `false`  |
+| `hideInForm`         | 表单中隐藏                           | `boolean`                                           | `false`  |
+| `hideInDescriptions` | 描述列表中隐藏                       | `boolean`                                           | `false`  |
+| `searchConfig`       | 搜索配置                             | `{ order?, span?, defaultValue?, rules?, render? }` | —        |
+| `descriptionsRender` | 描述列表自定义渲染                   | `(value, row) => VNode`                             | —        |
 
 ### SearchConfig
 
-| 属性 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
-| `span` | 搜索字段列宽 | `number` | `6` |
-| `defaultCollapsed` | 默认折叠 | `boolean` | `false` |
-| `labelWidth` | 标签宽度 | `string \| number` | `'80px'` |
+| 属性               | 说明         | 类型               | 默认值   |
+| ------------------ | ------------ | ------------------ | -------- |
+| `span`             | 搜索字段列宽 | `number`           | `6`      |
+| `defaultCollapsed` | 默认折叠     | `boolean`          | `false`  |
+| `labelWidth`       | 标签宽度     | `string \| number` | `'80px'` |
 
 ### ToolbarConfig
 
-| 属性 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
-| `density` | 显示密度切换 | `boolean` | `true` |
-| `columnSetting` | 显示列设置 | `boolean` | `true` |
-| `fullscreen` | 显示全屏按钮 | `boolean` | `false` |
+| 属性            | 说明         | 类型      | 默认值  |
+| --------------- | ------------ | --------- | ------- |
+| `density`       | 显示密度切换 | `boolean` | `true`  |
+| `columnSetting` | 显示列设置   | `boolean` | `true`  |
+| `fullscreen`    | 显示全屏按钮 | `boolean` | `false` |
 
 ### RowSelectionConfig
 
-| 属性 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
-| `rowKey` | 行标识属性或函数 | `string \| ((row) => string)` | — |
-| `crossPageSelect` | 跨页选择保持 | `boolean` | `false` |
-| `onChange` | 选择变更回调 | `(keys, rows) => void` | — |
+| 属性              | 说明             | 类型                          | 默认值  |
+| ----------------- | ---------------- | ----------------------------- | ------- |
+| `rowKey`          | 行标识属性或函数 | `string \| ((row) => string)` | —       |
+| `crossPageSelect` | 跨页选择保持     | `boolean`                     | `false` |
+| `onChange`        | 选择变更回调     | `(keys, rows) => void`        | —       |
 
 ### EditableConfig
 
-| 属性 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
-| `editableKeys` | 受控的编辑行 key | `string[]` | — |
-| `onSave` | 保存回调，返回 true 确认 | `(key, row, originalRow) => Promise<boolean>` | — |
-| `onCancel` | 取消回调 | `(key, row) => void` | — |
-| `onDelete` | 删除回调，返回 true 确认 | `(key, row) => Promise<boolean>` | — |
-| `onChange` | editableKeys 变更回调 | `(keys) => void` | — |
+| 属性           | 说明                     | 类型                                          | 默认值 |
+| -------------- | ------------------------ | --------------------------------------------- | ------ |
+| `editableKeys` | 受控的编辑行 key         | `string[]`                                    | —      |
+| `onSave`       | 保存回调，返回 true 确认 | `(key, row, originalRow) => Promise<boolean>` | —      |
+| `onCancel`     | 取消回调                 | `(key, row) => void`                          | —      |
+| `onDelete`     | 删除回调，返回 true 确认 | `(key, row) => Promise<boolean>`              | —      |
+| `onChange`     | editableKeys 变更回调    | `(keys) => void`                              | —      |
 
 ### ValueType
 

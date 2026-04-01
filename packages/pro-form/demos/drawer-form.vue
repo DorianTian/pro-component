@@ -34,5 +34,10 @@ async function handleSubmit() {
 
 <template>
   <ElButton type="primary" @click="isVisible = true">新建配置</ElButton>
-  <DrawerForm v-model:visible="isVisible" title="新建配置" :fields="fields" :on-submit="handleSubmit" />
+  <DrawerForm
+    v-model:visible="isVisible"
+    title="新建配置"
+    :fields="fields"
+    :on-submit="handleSubmit"
+  />
 </template>

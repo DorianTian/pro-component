@@ -15,6 +15,7 @@
 ### Task 1: Fix ProDescriptions reactivity bug
 
 **Files:**
+
 - Modify: `packages/pro-descriptions/src/ProDescriptions.vue:30-33`
 - Modify: `packages/pro-descriptions/src/composables/use-pro-descriptions.ts:29-32,141-148`
 
@@ -73,6 +74,7 @@ git commit -m "fix(descriptions): make useProDescriptions reactive to data/colum
 ### Task 2: Implement fullscreen functionality
 
 **Files:**
+
 - Modify: `packages/pro-table/src/ProTable.vue:98-99,120-134`
 - Modify: `packages/pro-table/src/composables/use-pro-table-internal.ts:354-361,363-389`
 
@@ -89,17 +91,23 @@ function handleToggleFullscreen(): void {
   if (!tableContainerRef.value) return
 
   if (!document.fullscreenElement) {
-    tableContainerRef.value.requestFullscreen().then(() => {
-      isFullscreen.value = true
-    }).catch(() => {
-      // Fullscreen not supported or denied — ignore silently
-    })
+    tableContainerRef.value
+      .requestFullscreen()
+      .then(() => {
+        isFullscreen.value = true
+      })
+      .catch(() => {
+        // Fullscreen not supported or denied — ignore silently
+      })
   } else {
-    document.exitFullscreen().then(() => {
-      isFullscreen.value = false
-    }).catch(() => {
-      // Already exited — ignore
-    })
+    document
+      .exitFullscreen()
+      .then(() => {
+        isFullscreen.value = false
+      })
+      .catch(() => {
+        // Already exited — ignore
+      })
   }
 }
 ```
@@ -143,6 +151,7 @@ git commit -m "feat(table): implement fullscreen toggle via Fullscreen API"
 ### Task 3: Add toolbarActions slot to ProTable
 
 **Files:**
+
 - Modify: `packages/pro-table/src/ProTable.vue:120-134`
 
 - [ ] **Step 1: Add the slot to ProTable template**
@@ -205,6 +214,7 @@ git commit -m "feat(table): add toolbarActions slot, fix toolbar demo config"
 ### Task 4: Fix ProForm QueryFilter i18n
 
 **Files:**
+
 - Modify: `packages/pro-form/src/components/QueryFilter.vue:1-10,95-108`
 
 - [ ] **Step 1: Import and use useProLocale**
@@ -256,6 +266,7 @@ git commit -m "fix(form): use i18n for QueryFilter button labels"
 ### Task 5: Fix StepsForm last-step validation
 
 **Files:**
+
 - Modify: `packages/pro-form/src/composables/use-steps-form.ts:83-101`
 
 - [ ] **Step 1: Add validation before submit**
@@ -296,6 +307,7 @@ git commit -m "fix(form): validate last step before StepsForm submit"
 ### Task 6: Fix useModalForm / useDrawerForm double-reset
 
 **Files:**
+
 - Modify: `packages/pro-form/src/composables/use-modal-form.ts:22-31`
 - Modify: `packages/pro-form/src/composables/use-drawer-form.ts:22-31`
 
@@ -343,6 +355,7 @@ git commit -m "fix(form): remove double-reset in useModalForm and useDrawerForm"
 ### Task 7: Fix `as any` type escape in useProTable
 
 **Files:**
+
 - Modify: `packages/pro-table/src/composables/use-pro-table.ts`
 
 - [ ] **Step 1: Find and fix the `as any` cast**
@@ -367,6 +380,7 @@ git commit -m "fix(table): replace 'as any' with 'as unknown' in setDataSource"
 ### Task 8: Unify formatting system — delete duplicate formatters, use formatters.ts everywhere
 
 **Files:**
+
 - Modify: `packages/hooks/src/use-value-type.ts:91-161`
 - Modify: `packages/hooks/src/formatters.ts`
 - Modify: `packages/pro-descriptions/src/composables/use-pro-descriptions.ts:52-101`
@@ -376,7 +390,12 @@ git commit -m "fix(table): replace 'as any' with 'as unknown' in setDataSource"
 Replace the inline `formatNumber`, `formatMoney`, `formatPercent`, `formatDate`, `formatDateTime` functions with calls to the locale-aware `formatters.ts`. Since `useValueType` doesn't have locale context, add a `locale` parameter:
 
 ```ts
-import { formatDate as fmtDate, formatNumber as fmtNumber, formatMoney as fmtMoney, formatPercent as fmtPercent } from './formatters'
+import {
+  formatDate as fmtDate,
+  formatNumber as fmtNumber,
+  formatMoney as fmtMoney,
+  formatPercent as fmtPercent,
+} from './formatters'
 
 const DEFAULT_LOCALE = 'en-US'
 
@@ -442,6 +461,7 @@ git commit -m "refactor(hooks): unify formatting — single source of truth in f
 ### Task 9: Fix playground valueType error and type inconsistencies
 
 **Files:**
+
 - Modify: `playground/src/App.vue:63`
 - Modify: `packages/utils/src/types.ts`
 
@@ -534,6 +554,7 @@ git commit -m "feat(hooks): expand ValueType system with digit, index, rate, sli
 ### Task 10: Implement LightFilter component
 
 **Files:**
+
 - Create: `packages/pro-form/src/components/LightFilter.vue`
 - Modify: `packages/pro-form/src/index.ts`
 - Modify: `packages/pro-components/src/index.ts`
@@ -635,7 +656,7 @@ defineExpose({ formValues, resetFields })
       placement="bottom-start"
       :width="220"
       trigger="click"
-      @update:visible="(v: boolean) => activePopover = v ? field.dataIndex : null"
+      @update:visible="(v: boolean) => (activePopover = v ? field.dataIndex : null)"
     >
       <template #reference>
         <ElButton
@@ -706,6 +727,7 @@ defineExpose({ formValues, resetFields })
 - [ ] **Step 2: Export LightFilter from packages**
 
 In `packages/pro-form/src/index.ts`, add:
+
 ```ts
 export { default as LightFilter } from './components/LightFilter.vue'
 ```
@@ -726,6 +748,7 @@ git commit -m "feat(form): add LightFilter component for compact inline filterin
 ### Task 11: Implement ProFormDependency component
 
 **Files:**
+
 - Create: `packages/pro-form/src/components/ProFormDependency.vue`
 - Modify: `packages/pro-form/src/index.ts`
 - Modify: `packages/pro-components/src/index.ts`
@@ -780,6 +803,7 @@ git commit -m "feat(form): add ProFormDependency for field linkage"
 ### Task 12: Implement ProFormList component
 
 **Files:**
+
 - Create: `packages/pro-form/src/components/ProFormList.vue`
 - Modify: `packages/pro-form/src/index.ts`
 - Modify: `packages/pro-components/src/index.ts`
@@ -901,12 +925,7 @@ function updateItemField(index: number, fieldKey: string, value: unknown): void 
       </div>
     </div>
 
-    <ElButton
-      v-if="canAdd"
-      type="dashed"
-      class="pro-form-list__add"
-      @click="addItem"
-    >
+    <ElButton v-if="canAdd" type="dashed" class="pro-form-list__add" @click="addItem">
       <ElIcon><Plus /></ElIcon>
       {{ t('pro.common.create') }}
     </ElButton>
@@ -956,6 +975,7 @@ git commit -m "feat(form): add ProFormList for dynamic array fields"
 ### Task 13: Implement EditableProTable
 
 **Files:**
+
 - Create: `packages/pro-table/src/components/EditableCell.vue`
 - Create: `packages/pro-table/src/composables/use-editable.ts`
 - Modify: `packages/pro-table/src/ProTable.vue`
@@ -1171,6 +1191,7 @@ git commit -m "feat(table): add EditableProTable with inline cell editing"
 ### Task 14: Implement SchemaForm
 
 **Files:**
+
 - Create: `packages/pro-form/src/components/SchemaForm.vue`
 - Modify: `packages/pro-form/src/index.ts`
 - Modify: `packages/pro-components/src/index.ts`
@@ -1267,6 +1288,7 @@ git commit -m "feat(form): add SchemaForm for column-driven form rendering"
 ### Task 15: Rewrite ProTable documentation with API tables and more demos
 
 **Files:**
+
 - Modify: `docs/components/pro-table.md`
 - Create: `packages/pro-table/demos/editable.vue` (if not created in Task 13)
 - Create: `packages/pro-table/demos/selection.vue`
@@ -1277,6 +1299,7 @@ git commit -m "feat(form): add SchemaForm for column-driven form rendering"
 Add comprehensive API Props tables (not just TypeScript interfaces), add usage prose for each demo, add new demos for selection, editable, fullscreen:
 
 Structure:
+
 1. Overview with feature list
 2. Basic Usage (with prose explanation)
 3. Remote Request Mode
@@ -1302,6 +1325,7 @@ git commit -m "docs(table): rewrite ProTable docs with API tables and comprehens
 ### Task 16: Rewrite ProForm documentation
 
 **Files:**
+
 - Modify: `docs/components/pro-form.md`
 - Create: `packages/pro-form/demos/drawer-form.vue`
 - Create: `packages/pro-form/demos/light-filter.vue` (if not created in Task 10)
@@ -1312,6 +1336,7 @@ git commit -m "docs(table): rewrite ProTable docs with API tables and comprehens
 - [ ] **Step 1: Rewrite pro-form.md**
 
 Structure:
+
 1. Overview
 2. Basic Usage
 3. Layout Modes
@@ -1336,6 +1361,7 @@ git commit -m "docs(form): rewrite ProForm docs with all form variants and API t
 ### Task 17: Rewrite ProDescriptions documentation + add demos
 
 **Files:**
+
 - Modify: `docs/components/pro-descriptions.md`
 - Create: `packages/pro-descriptions/demos/loading.vue`
 - Create: `packages/pro-descriptions/demos/bordered.vue`
@@ -1344,6 +1370,7 @@ git commit -m "docs(form): rewrite ProForm docs with all form variants and API t
 - [ ] **Step 1: Rewrite pro-descriptions.md**
 
 Structure:
+
 1. Overview
 2. Basic Usage
 3. Bordered Style

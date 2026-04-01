@@ -64,101 +64,101 @@ outline: deep
 
 ### ProForm Props
 
-| 属性 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
-| `fields` | 字段定义 | `ProFieldDef[]` | — (必填) |
-| `initialValues` | 初始值 | `Record<string, unknown>` | `{}` |
-| `onSubmit` | 提交回调，返回 true 表示成功 | `(values) => Promise<boolean>` | — |
-| `layout` | 布局模式 | `'horizontal' \| 'vertical' \| 'inline'` | `'horizontal'` |
-| `labelWidth` | 标签宽度 | `string \| number` | — |
-| `columns` | 一行显示几列 | `number` | `1` |
-| `formProps` | 透传 el-form 属性 | `Record<string, unknown>` | — |
+| 属性            | 说明                         | 类型                                     | 默认值         |
+| --------------- | ---------------------------- | ---------------------------------------- | -------------- |
+| `fields`        | 字段定义                     | `ProFieldDef[]`                          | — (必填)       |
+| `initialValues` | 初始值                       | `Record<string, unknown>`                | `{}`           |
+| `onSubmit`      | 提交回调，返回 true 表示成功 | `(values) => Promise<boolean>`           | —              |
+| `layout`        | 布局模式                     | `'horizontal' \| 'vertical' \| 'inline'` | `'horizontal'` |
+| `labelWidth`    | 标签宽度                     | `string \| number`                       | —              |
+| `columns`       | 一行显示几列                 | `number`                                 | `1`            |
+| `formProps`     | 透传 el-form 属性            | `Record<string, unknown>`                | —              |
 
 ### ModalForm Props
 
-| 属性 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
-| `visible / v-model:visible` | 弹窗可见性 | `boolean` | — |
-| `title` | 弹窗标题 | `string` | — |
-| `width` | 弹窗宽度 | `string \| number` | — |
-| `fields` | 字段定义 | `ProFieldDef[]` | — |
-| `onSubmit` | 提交回调 | `(values) => Promise<boolean>` | — |
-| `dialogProps` | 透传 el-dialog 属性 | `Record<string, unknown>` | — |
+| 属性                        | 说明                | 类型                           | 默认值 |
+| --------------------------- | ------------------- | ------------------------------ | ------ |
+| `visible / v-model:visible` | 弹窗可见性          | `boolean`                      | —      |
+| `title`                     | 弹窗标题            | `string`                       | —      |
+| `width`                     | 弹窗宽度            | `string \| number`             | —      |
+| `fields`                    | 字段定义            | `ProFieldDef[]`                | —      |
+| `onSubmit`                  | 提交回调            | `(values) => Promise<boolean>` | —      |
+| `dialogProps`               | 透传 el-dialog 属性 | `Record<string, unknown>`      | —      |
 
 ### DrawerForm Props
 
-| 属性 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
-| `visible / v-model:visible` | 抽屉可见性 | `boolean` | — |
-| `title` | 抽屉标题 | `string` | — |
-| `width` | 抽屉宽度 | `string \| number` | `'30%'` |
-| `fields` | 字段定义 | `ProFieldDef[]` | — |
-| `onSubmit` | 提交回调 | `(values) => Promise<boolean>` | — |
-| `drawerProps` | 透传 el-drawer 属性 | `Record<string, unknown>` | — |
+| 属性                        | 说明                | 类型                           | 默认值  |
+| --------------------------- | ------------------- | ------------------------------ | ------- |
+| `visible / v-model:visible` | 抽屉可见性          | `boolean`                      | —       |
+| `title`                     | 抽屉标题            | `string`                       | —       |
+| `width`                     | 抽屉宽度            | `string \| number`             | `'30%'` |
+| `fields`                    | 字段定义            | `ProFieldDef[]`                | —       |
+| `onSubmit`                  | 提交回调            | `(values) => Promise<boolean>` | —       |
+| `drawerProps`               | 透传 el-drawer 属性 | `Record<string, unknown>`      | —       |
 
 ### StepsForm Props
 
-| 属性 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
-| `steps` | 步骤定义 | `StepFormDef[]` | — (必填) |
-| `onSubmit` | 最后一步提交回调 | `(values) => Promise<boolean>` | — |
+| 属性       | 说明             | 类型                           | 默认值   |
+| ---------- | ---------------- | ------------------------------ | -------- |
+| `steps`    | 步骤定义         | `StepFormDef[]`                | — (必填) |
+| `onSubmit` | 最后一步提交回调 | `(values) => Promise<boolean>` | —        |
 
 ### LightFilter Props
 
-| 属性 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
-| `fields` | 筛选字段定义 | `ProFieldDef[]` | — (必填) |
-| `initialValues` | 初始值 | `Record<string, unknown>` | — |
+| 属性            | 说明         | 类型                      | 默认值   |
+| --------------- | ------------ | ------------------------- | -------- |
+| `fields`        | 筛选字段定义 | `ProFieldDef[]`           | — (必填) |
+| `initialValues` | 初始值       | `Record<string, unknown>` | —        |
 
 ### LightFilter Events
 
-| 事件 | 说明 | 参数 |
-|------|------|------|
+| 事件     | 说明         | 参数                                |
+| -------- | ------------ | ----------------------------------- |
 | `change` | 筛选条件变更 | `(values: Record<string, unknown>)` |
-| `reset` | 重置 | — |
+| `reset`  | 重置         | —                                   |
 
 ### SchemaForm Props
 
-| 属性 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
-| `columns` | 使用 ProColumnDef 定义表单 | `ProColumnDef[]` | — (必填) |
-| `initialValues` | 初始值 | `Record<string, unknown>` | — |
-| `onSubmit` | 提交回调 | `(values) => Promise<boolean>` | — |
-| `layout` | 布局模式 | `FormLayout` | `'vertical'` |
-| `gridColumns` | 网格列数 | `number` | `1` |
+| 属性            | 说明                       | 类型                           | 默认值       |
+| --------------- | -------------------------- | ------------------------------ | ------------ |
+| `columns`       | 使用 ProColumnDef 定义表单 | `ProColumnDef[]`               | — (必填)     |
+| `initialValues` | 初始值                     | `Record<string, unknown>`      | —            |
+| `onSubmit`      | 提交回调                   | `(values) => Promise<boolean>` | —            |
+| `layout`        | 布局模式                   | `FormLayout`                   | `'vertical'` |
+| `gridColumns`   | 网格列数                   | `number`                       | `1`          |
 
 ### ProFormList Props
 
-| 属性 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
-| `name` | 数组字段在表单中的 key | `string` | — (必填) |
-| `fields` | 每行的字段定义 | `ProFieldDef[]` | — (必填) |
-| `max` | 最大行数 | `number` | `Infinity` |
-| `min` | 最小行数 | `number` | `0` |
-| `copyable` | 显示复制按钮 | `boolean` | `false` |
+| 属性       | 说明                   | 类型            | 默认值     |
+| ---------- | ---------------------- | --------------- | ---------- |
+| `name`     | 数组字段在表单中的 key | `string`        | — (必填)   |
+| `fields`   | 每行的字段定义         | `ProFieldDef[]` | — (必填)   |
+| `max`      | 最大行数               | `number`        | `Infinity` |
+| `min`      | 最小行数               | `number`        | `0`        |
+| `copyable` | 显示复制按钮           | `boolean`       | `false`    |
 
 ### ProFormDependency Props
 
-| 属性 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
+| 属性   | 说明             | 类型       | 默认值   |
+| ------ | ---------------- | ---------- | -------- |
 | `name` | 依赖的字段名数组 | `string[]` | — (必填) |
 
 ### ProFormDependency Scoped Slot
 
-| 属性 | 说明 | 类型 |
-|------|------|------|
-| `values` | 依赖字段的当前值 | `Record<string, unknown>` |
-| `formValues` | 完整的表单值 | `Record<string, unknown>` |
+| 属性         | 说明             | 类型                      |
+| ------------ | ---------------- | ------------------------- |
+| `values`     | 依赖字段的当前值 | `Record<string, unknown>` |
+| `formValues` | 完整的表单值     | `Record<string, unknown>` |
 
 ### ProFieldDef
 
-| 属性 | 说明 | 类型 | 默认值 |
-|------|------|------|--------|
-| `dataIndex` | 字段名 | `string` | — (必填) |
-| `title` | 标签文本 | `string` | — (必填) |
-| `valueType` | 值类型 | `ValueType` | `'text'` |
-| `valueEnum` | 枚举值 | `Record<string, { text, status? }>` | — |
-| `hideInForm` | 隐藏字段 | `boolean` | `false` |
-| `rules` | 校验规则 | `FormRule[]` | — |
-| `tooltip` | 字段提示 | `string` | — |
-| `span` | 占用列数 | `number` | — |
+| 属性         | 说明     | 类型                                | 默认值   |
+| ------------ | -------- | ----------------------------------- | -------- |
+| `dataIndex`  | 字段名   | `string`                            | — (必填) |
+| `title`      | 标签文本 | `string`                            | — (必填) |
+| `valueType`  | 值类型   | `ValueType`                         | `'text'` |
+| `valueEnum`  | 枚举值   | `Record<string, { text, status? }>` | —        |
+| `hideInForm` | 隐藏字段 | `boolean`                           | `false`  |
+| `rules`      | 校验规则 | `FormRule[]`                        | —        |
+| `tooltip`    | 字段提示 | `string`                            | —        |
+| `span`       | 占用列数 | `number`                            | —        |
