@@ -20,9 +20,10 @@
   justify-content: center;
 }
 
-/* Cell density */
-.pro-table .el-table td.el-table__cell {
-  padding: var(--pro-density-cell-padding-v) var(--pro-density-cell-padding-h);
+/* Cell density — only override font-size; avoid changing padding directly as
+   el-table calculates column widths from its internal padding values.
+   Use el-table's size prop (small/default/large) for padding density instead. */
+.pro-table .el-table {
   font-size: var(--pro-density-font-size);
 }
 
