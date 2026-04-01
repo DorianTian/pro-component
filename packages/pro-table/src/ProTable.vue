@@ -237,7 +237,6 @@ const { tableContainerRef } = state
   display: flex;
   flex-direction: column;
   background: var(--pro-bg-elevated);
-  overflow: hidden;
 }
 
 .pro-table :deep(*) {
