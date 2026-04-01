@@ -168,7 +168,7 @@ const { tableContainerRef } = state
         :prop="String(col.dataIndex)"
         :label="col.title"
         :width="col.width"
-        :min-width="col.minWidth ?? 120"
+        :min-width="col.minWidth"
         :fixed="col.fixed"
         :sortable="col.sortable"
         :show-overflow-tooltip="col.ellipsis !== false"
@@ -237,6 +237,7 @@ const { tableContainerRef } = state
   display: flex;
   flex-direction: column;
   background: var(--pro-bg-elevated);
+  overflow: hidden;
 }
 
 .pro-table :deep(*) {
