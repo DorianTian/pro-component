@@ -33,6 +33,17 @@
   "dependencies": {
     "@pro/locale": "workspace:*",
     "@pro/utils": "workspace:*",
+    "@pro/input": "workspace:*",
+    "@pro/input-number": "workspace:*",
+    "@pro/select": "workspace:*",
+    "@pro/date-picker": "workspace:*",
+    "@pro/radio": "workspace:*",
+    "@pro/checkbox": "workspace:*",
+    "@pro/switch": "workspace:*",
+    "@pro/rate": "workspace:*",
+    "@pro/slider": "workspace:*",
+    "@pro/cascader": "workspace:*",
+    "@pro/tree-select": "workspace:*",
     "dayjs": "^1.11.0"
   },
   "peerDependencies": {

@@ -1,17 +1,15 @@
 import type { Component } from 'vue'
-import {
-  ElInput,
-  ElInputNumber,
-  ElSelect,
-  ElDatePicker,
-  ElRadioGroup,
-  ElCheckboxGroup,
-  ElSwitch,
-  ElRate,
-  ElSlider,
-  ElCascader,
-  ElTreeSelect,
-} from 'element-plus'
+import { Input } from '@pro/input'
+import { InputNumber } from '@pro/input-number'
+import { Select } from '@pro/select'
+import { DatePicker } from '@pro/date-picker'
+import { RadioGroup } from '@pro/radio'
+import { CheckboxGroup } from '@pro/checkbox'
+import { Switch } from '@pro/switch'
+import { Rate } from '@pro/rate'
+import { Slider } from '@pro/slider'
+import { Cascader } from '@pro/cascader'
+import { TreeSelect } from '@pro/tree-select'
 
 import type { ValueType } from '@pro/utils'
 import {
@@ -78,32 +76,32 @@ const PROGRESS_MAX = 100
  * Single source of truth -- ProForm imports this instead of duplicating the switch.
  */
 export const CONTROL_REGISTRY: Record<ValueType, ControlRegistryEntry> = {
-  text: { component: ElInput, defaultProps: { clearable: true } },
-  textarea: { component: ElInput, defaultProps: { type: 'textarea', rows: TEXTAREA_ROWS } },
-  number: { component: ElInputNumber, defaultProps: {} },
-  select: { component: ElSelect, defaultProps: { clearable: true } },
-  date: { component: ElDatePicker, defaultProps: { type: 'date', valueFormat: 'YYYY-MM-DD' } },
-  dateTime: { component: ElDatePicker, defaultProps: { type: 'datetime' } },
-  dateRange: { component: ElDatePicker, defaultProps: { type: 'daterange' } },
-  radio: { component: ElRadioGroup, defaultProps: {} },
-  checkbox: { component: ElCheckboxGroup, defaultProps: {} },
-  switch: { component: ElSwitch, defaultProps: {} },
+  text: { component: Input, defaultProps: { clearable: true } },
+  textarea: { component: Input, defaultProps: { type: 'textarea', rows: TEXTAREA_ROWS } },
+  number: { component: InputNumber, defaultProps: {} },
+  select: { component: Select, defaultProps: { clearable: true } },
+  date: { component: DatePicker, defaultProps: { type: 'date', valueFormat: 'YYYY-MM-DD' } },
+  dateTime: { component: DatePicker, defaultProps: { type: 'datetime' } },
+  dateRange: { component: DatePicker, defaultProps: { type: 'daterange' } },
+  radio: { component: RadioGroup, defaultProps: {} },
+  checkbox: { component: CheckboxGroup, defaultProps: {} },
+  switch: { component: Switch, defaultProps: {} },
   money: {
-    component: ElInputNumber,
+    component: InputNumber,
     defaultProps: { prefix: '$', precision: MONEY_PRECISION },
   },
-  percent: { component: ElInputNumber, defaultProps: { suffix: '%' } },
-  progress: { component: ElInputNumber, defaultProps: { min: 0, max: PROGRESS_MAX } },
-  image: { component: ElInput, defaultProps: { placeholder: 'Image URL' } },
-  code: { component: ElInput, defaultProps: { type: 'textarea', rows: CODE_TEXTAREA_ROWS } },
-  digit: { component: ElInputNumber, defaultProps: {} },
-  index: { component: ElInput, defaultProps: { disabled: true } },
-  indexBorder: { component: ElInput, defaultProps: { disabled: true } },
-  option: { component: ElInput, defaultProps: {} },
-  rate: { component: ElRate, defaultProps: {} },
-  slider: { component: ElSlider, defaultProps: {} },
-  cascader: { component: ElCascader, defaultProps: {} },
-  treeSelect: { component: ElTreeSelect, defaultProps: {} },
+  percent: { component: InputNumber, defaultProps: { suffix: '%' } },
+  progress: { component: InputNumber, defaultProps: { min: 0, max: PROGRESS_MAX } },
+  image: { component: Input, defaultProps: { placeholder: 'Image URL' } },
+  code: { component: Input, defaultProps: { type: 'textarea', rows: CODE_TEXTAREA_ROWS } },
+  digit: { component: InputNumber, defaultProps: {} },
+  index: { component: Input, defaultProps: { disabled: true } },
+  indexBorder: { component: Input, defaultProps: { disabled: true } },
+  option: { component: Input, defaultProps: {} },
+  rate: { component: Rate, defaultProps: {} },
+  slider: { component: Slider, defaultProps: {} },
+  cascader: { component: Cascader, defaultProps: {} },
+  treeSelect: { component: TreeSelect, defaultProps: {} },
 }
 
 // --- Format functions ---

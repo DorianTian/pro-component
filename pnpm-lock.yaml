@@ -200,11 +200,143 @@ importers:
         specifier: ^3.2.6
         version: 3.2.6(typescript@5.9.3)
 
+  packages/auto-complete:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/badge:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/breadcrumb:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/cascader:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/checkbox:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/color-picker:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/date-picker:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/dialog:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/divider:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/drawer:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/empty:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
   packages/hooks:
     dependencies:
+      '@pro/cascader':
+        specifier: workspace:*
+        version: link:../cascader
+      '@pro/checkbox':
+        specifier: workspace:*
+        version: link:../checkbox
+      '@pro/date-picker':
+        specifier: workspace:*
+        version: link:../date-picker
+      '@pro/input':
+        specifier: workspace:*
+        version: link:../input
+      '@pro/input-number':
+        specifier: workspace:*
+        version: link:../input-number
       '@pro/locale':
         specifier: workspace:*
         version: link:../locale
+      '@pro/radio':
+        specifier: workspace:*
+        version: link:../radio
+      '@pro/rate':
+        specifier: workspace:*
+        version: link:../rate
+      '@pro/select':
+        specifier: workspace:*
+        version: link:../select
+      '@pro/slider':
+        specifier: workspace:*
+        version: link:../slider
+      '@pro/switch':
+        specifier: workspace:*
+        version: link:../switch
+      '@pro/tree-select':
+        specifier: workspace:*
+        version: link:../tree-select
       '@pro/utils':
         specifier: workspace:*
         version: link:../utils
@@ -228,28 +360,178 @@ importers:
         specifier: ^3.5.0
         version: 3.5.31(typescript@5.9.3)
 
+  packages/input:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/input-number:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/loading:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
   packages/locale: {}
+
+  packages/pagination:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/popconfirm:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/popover:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
 
   packages/pro-components:
     dependencies:
+      '@pro/auto-complete':
+        specifier: workspace:*
+        version: link:../auto-complete
+      '@pro/badge':
+        specifier: workspace:*
+        version: link:../badge
+      '@pro/breadcrumb':
+        specifier: workspace:*
+        version: link:../breadcrumb
+      '@pro/cascader':
+        specifier: workspace:*
+        version: link:../cascader
+      '@pro/checkbox':
+        specifier: workspace:*
+        version: link:../checkbox
+      '@pro/color-picker':
+        specifier: workspace:*
+        version: link:../color-picker
+      '@pro/date-picker':
+        specifier: workspace:*
+        version: link:../date-picker
       '@pro/descriptions':
         specifier: workspace:*
         version: link:../pro-descriptions
+      '@pro/dialog':
+        specifier: workspace:*
+        version: link:../dialog
+      '@pro/divider':
+        specifier: workspace:*
+        version: link:../divider
+      '@pro/drawer':
+        specifier: workspace:*
+        version: link:../drawer
+      '@pro/empty':
+        specifier: workspace:*
+        version: link:../empty
       '@pro/form':
         specifier: workspace:*
         version: link:../pro-form
       '@pro/hooks':
         specifier: workspace:*
         version: link:../hooks
+      '@pro/input':
+        specifier: workspace:*
+        version: link:../input
+      '@pro/input-number':
+        specifier: workspace:*
+        version: link:../input-number
+      '@pro/loading':
+        specifier: workspace:*
+        version: link:../loading
       '@pro/locale':
         specifier: workspace:*
         version: link:../locale
+      '@pro/pagination':
+        specifier: workspace:*
+        version: link:../pagination
+      '@pro/popconfirm':
+        specifier: workspace:*
+        version: link:../popconfirm
+      '@pro/popover':
+        specifier: workspace:*
+        version: link:../popover
+      '@pro/radio':
+        specifier: workspace:*
+        version: link:../radio
+      '@pro/rate':
+        specifier: workspace:*
+        version: link:../rate
+      '@pro/result':
+        specifier: workspace:*
+        version: link:../result
+      '@pro/select':
+        specifier: workspace:*
+        version: link:../select
+      '@pro/slider':
+        specifier: workspace:*
+        version: link:../slider
+      '@pro/statistic':
+        specifier: workspace:*
+        version: link:../statistic
+      '@pro/steps':
+        specifier: workspace:*
+        version: link:../steps
+      '@pro/switch':
+        specifier: workspace:*
+        version: link:../switch
       '@pro/table':
         specifier: workspace:*
         version: link:../pro-table
+      '@pro/tabs':
+        specifier: workspace:*
+        version: link:../tabs
+      '@pro/tag':
+        specifier: workspace:*
+        version: link:../tag
       '@pro/themes':
         specifier: workspace:*
         version: link:../themes
+      '@pro/time-picker':
+        specifier: workspace:*
+        version: link:../time-picker
+      '@pro/tooltip':
+        specifier: workspace:*
+        version: link:../tooltip
+      '@pro/tree':
+        specifier: workspace:*
+        version: link:../tree
+      '@pro/tree-select':
+        specifier: workspace:*
+        version: link:../tree-select
+      '@pro/upload':
+        specifier: workspace:*
+        version: link:../upload
       '@pro/utils':
         specifier: workspace:*
         version: link:../utils
@@ -359,9 +641,150 @@ importers:
         specifier: ^3.5.0
         version: 3.5.31(typescript@5.9.3)
 
+  packages/radio:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/rate:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
   packages/resolvers: {}
 
+  packages/result:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/select:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/slider:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/statistic:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/steps:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/switch:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/tabs:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/tag:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
   packages/themes: {}
+
+  packages/time-picker:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/tooltip:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/tree:
+    dependencies:
+      '@pro/hooks':
+        specifier: workspace:*
+        version: link:../hooks
+      '@pro/utils':
+        specifier: workspace:*
+        version: link:../utils
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/tree-select:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
+
+  packages/upload:
+    dependencies:
+      element-plus:
+        specifier: '>=2.9.0'
+        version: 2.13.6(typescript@5.9.3)(vue@3.5.31)
+      vue:
+        specifier: '>=3.4.0'
+        version: 3.5.31(typescript@5.9.3)
 
   packages/utils:
     dependencies:
