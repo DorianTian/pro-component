@@ -32,9 +32,10 @@ const DEFAULT_PAGE_SIZE = 5
 
 async function request(params: RequestParams): Promise<RequestResult<OrderRecord>> {
   await new Promise((resolve) => setTimeout(resolve, NETWORK_DELAY_MS))
+  const products = ['智能手表 Pro', '无线耳机 SE', '便携充电宝', '蓝牙键盘', '显示器支架']
   const data: OrderRecord[] = Array.from({ length: TOTAL_ORDERS }, (_, i) => ({
     id: `ORD-${String(i + 1).padStart(6, '0')}`,
-    product: `商品 ${i + 1}`,
+    product: products[i % 5],
     amount: Math.floor(Math.random() * 10000) / 100,
     status: ['pending', 'paid', 'cancelled'][i % 3],
   }))
@@ -69,16 +70,21 @@ function handleBatchDelete() {
 </script>
 
 <template>
-  <div style="margin-bottom: 16px">
-    <ElButton type="primary" @click="reload(true)">刷新数据</ElButton>
-    <ElButton type="danger" :disabled="selectedRows.length === 0" @click="handleBatchDelete">
-      批量删除 ({{ selectedRows.length }})
-    </ElButton>
-  </div>
-
   <ProTable
     v-bind="proTableProps"
     header-title="Composable 受控模式"
     :row-selection="{ type: 'checkbox' }"
-  />
+  >
+    <template #toolbarActions>
+      <ElButton type="primary" size="small" @click="reload(true)">刷新数据</ElButton>
+      <ElButton
+        type="danger"
+        size="small"
+        :disabled="selectedRows.length === 0"
+        @click="handleBatchDelete"
+      >
+        批量删除 ({{ selectedRows.length }})
+      </ElButton>
+    </template>
+  </ProTable>
 </template>
