@@ -175,6 +175,12 @@
 
 .el-pagination {
   font-weight: 500;
+  align-items: center;
+}
+
+.el-pagination .el-pager li {
+  line-height: 32px;
+  height: 32px;
 }
 
 .el-pagination .el-pager li.is-active {
@@ -185,6 +191,23 @@
 .el-pagination button:hover,
 .el-pagination .el-pager li:hover {
   color: var(--pro-color-primary);
+}
+
+.el-pagination .el-pagination__total,
+.el-pagination .el-pagination__jump {
+  line-height: 32px;
+  height: 32px;
+}
+
+.el-pagination .el-pagination__sizes .el-select,
+.el-pagination .el-pagination__jump .el-input {
+  height: 32px;
+}
+
+.el-pagination .el-select .el-input__wrapper,
+.el-pagination .el-pagination__jump .el-input__wrapper {
+  height: 32px;
+  line-height: 32px;
 }
 
 /* ========== Dialog ========== */
