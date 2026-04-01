@@ -10,65 +10,7 @@ outline: deep
 
 默认启用搜索框，支持节点 label 模糊匹配。
 
-```vue
-<script setup>
-import { ref } from 'vue'
-
-const treeData = [
-  {
-    id: 1,
-    label: '数据域 A',
-    children: [
-      { id: 11, label: '业务过程 A-1' },
-      { id: 12, label: '业务过程 A-2' },
-      { id: 13, label: '业务过程 A-3' },
-    ],
-  },
-  {
-    id: 2,
-    label: '数据域 B',
-    children: [
-      { id: 21, label: '业务过程 B-1' },
-      { id: 22, label: '业务过程 B-2' },
-    ],
-  },
-  {
-    id: 3,
-    label: '数据域 C',
-    children: [],
-  },
-]
-</script>
-
-<template>
-  <div style="width: 280px">
-    <ProTree :data="treeData" default-expand-all highlight-current />
-  </div>
-</template>
-```
-
-## 关闭搜索
-
-```vue
-<template>
-  <ProTree :data="treeData" :searchable="false" />
-</template>
-```
-
-## 自定义过滤方法
-
-```vue
-<script setup>
-function customFilter(keyword, data) {
-  // 同时匹配 label 和 id
-  return String(data.label).includes(keyword) || String(data.id).includes(keyword)
-}
-</script>
-
-<template>
-  <ProTree :data="treeData" :filter-method="customFilter" />
-</template>
-```
+<demo vue="../../packages/tree/demos/basic.vue" />
 
 ## API
 
@@ -91,8 +33,6 @@ function customFilter(keyword, data) {
 | 事件     | 参数                | 说明                 |
 | -------- | ------------------- | -------------------- |
 | `search` | `(keyword: string)` | 搜索关键词变化时触发 |
-
-其余 Events 同 Element Plus Tree。
 
 ### Slots
 

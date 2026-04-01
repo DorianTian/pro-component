@@ -6,40 +6,15 @@ outline: deep
 
 增强型结果页组件，支持 7 种预设类型，HTTP 错误码（403/404/500）自带水印背景。
 
-## 预设类型
+## 成功结果
 
-```vue
-<template>
-  <ProResult type="success" />
-</template>
-```
+<demo vue="../../packages/result/demos/basic.vue" />
 
 ## HTTP 错误码
 
 HTTP 错误类型带有大字水印效果：
 
-```vue
-<template>
-  <ProResult type="404">
-    <template #extra>
-      <el-button type="primary">返回首页</el-button>
-    </template>
-  </ProResult>
-</template>
-```
-
-## 自定义内容
-
-```vue
-<template>
-  <ProResult type="error" title="提交失败" sub-title="请检查网络连接后重试">
-    <template #extra>
-      <el-button type="primary">重试</el-button>
-      <el-button>返回</el-button>
-    </template>
-  </ProResult>
-</template>
-```
+<demo vue="../../packages/result/demos/http-error.vue" />
 
 ## API
 

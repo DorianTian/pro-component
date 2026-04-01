@@ -8,62 +8,17 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-
-const activeTab = ref('tab1')
-</script>
-
-<template>
-  <ProTabs v-model="activeTab">
-    <ProTabPane label="用户管理" name="tab1">用户管理内容</ProTabPane>
-    <ProTabPane label="角色管理" name="tab2">角色管理内容</ProTabPane>
-    <ProTabPane label="权限配置" name="tab3">权限配置内容</ProTabPane>
-  </ProTabs>
-</template>
-```
+<demo vue="../../packages/tabs/demos/basic.vue" />
 
 ## Card 变体
 
-```vue
-<template>
-  <ProTabs v-model="activeTab" variant="card">
-    <ProTabPane label="Tab 1" name="tab1">Content 1</ProTabPane>
-    <ProTabPane label="Tab 2" name="tab2">Content 2</ProTabPane>
-  </ProTabs>
-</template>
-```
+<demo vue="../../packages/tabs/demos/card.vue" />
 
 ## 可关闭 + 确认弹窗
 
-```vue
-<script setup>
-import { ref } from 'vue'
+关闭标签页前弹出确认对话框，防止误操作。
 
-const activeTab = ref('tab1')
-const tabs = ref([
-  { label: 'Tab 1', name: 'tab1' },
-  { label: 'Tab 2', name: 'tab2' },
-  { label: 'Tab 3', name: 'tab3' },
-])
-
-function handleRemove(name) {
-  tabs.value = tabs.value.filter((t) => t.name !== name)
-  if (activeTab.value === name) {
-    activeTab.value = tabs.value[0]?.name ?? ''
-  }
-}
-</script>
-
-<template>
-  <ProTabs v-model="activeTab" closable confirm-close @tab-remove="handleRemove">
-    <ProTabPane v-for="tab in tabs" :key="tab.name" :label="tab.label" :name="tab.name">
-      {{ tab.label }} 的内容
-    </ProTabPane>
-  </ProTabs>
-</template>
-```
+<demo vue="../../packages/tabs/demos/closable.vue" />
 
 ## API
 

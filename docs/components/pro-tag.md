@@ -8,28 +8,11 @@ outline: deep
 
 ## 状态标签
 
-```vue
-<template>
-  <div style="display: flex; gap: 8px; flex-wrap: wrap">
-    <ProTag status="success">正常运行</ProTag>
-    <ProTag status="warning">待审核</ProTag>
-    <ProTag status="error">已停用</ProTag>
-    <ProTag status="processing">同步中</ProTag>
-    <ProTag status="info">草稿</ProTag>
-    <ProTag status="default">未知</ProTag>
-  </div>
-</template>
-```
+<demo vue="../../packages/tag/demos/basic.vue" />
 
 ## 自定义颜色
 
-```vue
-<template>
-  <ProTag color="#f50">Hot</ProTag>
-  <ProTag color="#2db7f5">Cool</ProTag>
-  <ProTag color="#87d068">Success</ProTag>
-</template>
-```
+<demo vue="../../packages/tag/demos/custom-color.vue" />
 
 ## API
 

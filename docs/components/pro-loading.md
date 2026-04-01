@@ -8,64 +8,9 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
+点击按钮切换不同状态：
 
-const loading = ref(true)
-const data = ref([])
-const error = ref(null)
-
-// 模拟请求
-setTimeout(() => {
-  loading.value = false
-  data.value = [{ id: 1, name: 'Item 1' }]
-}, 2000)
-</script>
-
-<template>
-  <ProLoading :loading="loading" :empty="data.length === 0" :error="error" @retry="fetchData">
-    <ul>
-      <li v-for="item in data" :key="item.id">{{ item.name }}</li>
-    </ul>
-  </ProLoading>
-</template>
-```
-
-## 各状态展示
-
-```vue
-<template>
-  <!-- Loading 状态 -->
-  <ProLoading :loading="true" />
-
-  <!-- Empty 状态 -->
-  <ProLoading :loading="false" :empty="true" empty-description="暂无数据" />
-
-  <!-- Error 状态 -->
-  <ProLoading :loading="false" :error="'网络请求失败'" @retry="handleRetry" />
-</template>
-```
-
-## 自定义插槽
-
-```vue
-<template>
-  <ProLoading :loading="isLoading" :empty="isEmpty" :error="error">
-    <template #loading>
-      <MySkeleton />
-    </template>
-    <template #empty>
-      <ProEmpty type="no-result" description="没有匹配结果" />
-    </template>
-    <template #error="{ error: msg, retry }">
-      <div>{{ msg }}</div>
-      <el-button @click="retry">重新加载</el-button>
-    </template>
-    <MyContent />
-  </ProLoading>
-</template>
-```
+<demo vue="../../packages/loading/demos/basic.vue" />
 
 ## API
 
