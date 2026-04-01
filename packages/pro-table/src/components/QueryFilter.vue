@@ -59,15 +59,26 @@ const span = computed(() => {
 
 const GRID_COLUMNS = 24
 
+/** Calculate how many columns fit in one row based on actual per-column spans */
+const itemsInFirstRow = computed(() => {
+  let usedSpan = 0
+  let count = 0
+  for (const col of searchableColumns.value) {
+    const colSpan = col.searchConfig?.span ?? span.value
+    if (usedSpan + colSpan > GRID_COLUMNS) break
+    usedSpan += colSpan
+    count++
+  }
+  return Math.max(count, 1)
+})
+
 const visibleColumns = computed(() => {
   if (!isCollapsed.value) return searchableColumns.value
-  const itemsPerRow = Math.floor(GRID_COLUMNS / span.value)
-  return searchableColumns.value.slice(0, Math.max(itemsPerRow - 1, 1))
+  return searchableColumns.value.slice(0, itemsInFirstRow.value)
 })
 
 const hasCollapsibleOverflow = computed(() => {
-  const itemsPerRow = Math.floor(GRID_COLUMNS / span.value)
-  return searchableColumns.value.length > itemsPerRow
+  return searchableColumns.value.length > itemsInFirstRow.value
 })
 
 function getColumnSearchConfig(col: ProColumnDef) {
