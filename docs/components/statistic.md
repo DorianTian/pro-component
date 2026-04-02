@@ -8,15 +8,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { Statistic } from '@pro/statistic'
-</script>
-
-<template>
-  <Statistic title="活跃用户" :value="268500" />
-</template>
-```
+<demo vue="../../packages/statistic/demos/basic.vue" />
 
 ## API
 

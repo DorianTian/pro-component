@@ -15,21 +15,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { Dialog } from '@pro/dialog'
-
-const visible = ref(false)
-</script>
-
-<template>
-  <el-button @click="visible = true">打开对话框</el-button>
-  <Dialog v-model="visible" title="提示">
-    <p>这是一段内容。</p>
-  </Dialog>
-</template>
-```
+<demo vue="../../packages/dialog/demos/basic.vue" />
 
 ## API
 

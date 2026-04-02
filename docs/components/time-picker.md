@@ -14,18 +14,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { TimePicker } from '@pro/time-picker'
-
-const value = ref('')
-</script>
-
-<template>
-  <TimePicker v-model="value" placeholder="请选择时间" />
-</template>
-```
+<demo vue="../../packages/time-picker/demos/basic.vue" />
 
 ## API
 

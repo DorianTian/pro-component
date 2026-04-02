@@ -8,28 +8,13 @@ outline: deep
 
 ## 导出组件
 
-- `Radio` — 单个单选框
-- `RadioGroup` — 单选框组
-- `RadioButton` — 按钮式单选框
+- `Radio` -- 单个单选框
+- `RadioGroup` -- 单选框组
+- `RadioButton` -- 按钮式单选框
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { Radio, RadioGroup } from '@pro/radio'
-
-const value = ref('1')
-</script>
-
-<template>
-  <RadioGroup v-model="value">
-    <Radio value="1">选项一</Radio>
-    <Radio value="2">选项二</Radio>
-    <Radio value="3">选项三</Radio>
-  </RadioGroup>
-</template>
-```
+<demo vue="../../packages/radio/demos/basic.vue" />
 
 ## API
 

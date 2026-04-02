@@ -15,19 +15,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { Pagination } from '@pro/pagination'
-
-const currentPage = ref(1)
-const pageSize = ref(20)
-</script>
-
-<template>
-  <Pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :total="200" />
-</template>
-```
+<demo vue="../../packages/pagination/demos/basic.vue" />
 
 ## API
 

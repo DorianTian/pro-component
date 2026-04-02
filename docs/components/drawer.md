@@ -14,21 +14,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { Drawer } from '@pro/drawer'
-
-const visible = ref(false)
-</script>
-
-<template>
-  <el-button @click="visible = true">打开抽屉</el-button>
-  <Drawer v-model="visible" title="详情">
-    <p>这是抽屉内容。</p>
-  </Drawer>
-</template>
-```
+<demo vue="../../packages/drawer/demos/basic.vue" />
 
 ## API
 

@@ -15,18 +15,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { DatePicker } from '@pro/date-picker'
-
-const value = ref('')
-</script>
-
-<template>
-  <DatePicker v-model="value" placeholder="请选择日期" />
-</template>
-```
+<demo vue="../../packages/date-picker/demos/basic.vue" />
 
 ## API
 

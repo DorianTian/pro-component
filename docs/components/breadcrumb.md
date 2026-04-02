@@ -19,19 +19,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { Breadcrumb, BreadcrumbItem } from '@pro/breadcrumb'
-</script>
-
-<template>
-  <Breadcrumb>
-    <BreadcrumbItem to="/">首页</BreadcrumbItem>
-    <BreadcrumbItem to="/list">列表</BreadcrumbItem>
-    <BreadcrumbItem>详情</BreadcrumbItem>
-  </Breadcrumb>
-</template>
-```
+<demo vue="../../packages/breadcrumb/demos/basic.vue" />
 
 ## API
 

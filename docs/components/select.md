@@ -15,23 +15,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { Select } from '@pro/select'
-
-const value = ref('')
-const options = [
-  { label: '选项一', value: '1' },
-  { label: '选项二', value: '2' },
-  { label: '选项三', value: '3' },
-]
-</script>
-
-<template>
-  <Select v-model="value" :options="options" placeholder="请选择" />
-</template>
-```
+<demo vue="../../packages/select/demos/basic.vue" />
 
 ## API
 

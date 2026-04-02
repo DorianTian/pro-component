@@ -8,18 +8,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { Rate } from '@pro/rate'
-
-const value = ref(3)
-</script>
-
-<template>
-  <Rate v-model="value" />
-</template>
-```
+<demo vue="../../packages/rate/demos/basic.vue" />
 
 ## API
 

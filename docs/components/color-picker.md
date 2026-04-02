@@ -8,18 +8,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { ColorPicker } from '@pro/color-picker'
-
-const color = ref('#409EFF')
-</script>
-
-<template>
-  <ColorPicker v-model="color" />
-</template>
-```
+<demo vue="../../packages/color-picker/demos/basic.vue" />
 
 ## API
 

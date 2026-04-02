@@ -15,28 +15,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { Cascader } from '@pro/cascader'
-
-const value = ref([])
-const options = [
-  {
-    label: '浙江',
-    value: 'zj',
-    children: [
-      { label: '杭州', value: 'hz' },
-      { label: '宁波', value: 'nb' },
-    ],
-  },
-]
-</script>
-
-<template>
-  <Cascader v-model="value" :options="options" placeholder="请选择" />
-</template>
-```
+<demo vue="../../packages/cascader/demos/basic.vue" />
 
 ## API
 

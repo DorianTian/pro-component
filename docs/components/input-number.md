@@ -14,18 +14,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { InputNumber } from '@pro/input-number'
-
-const value = ref(0)
-</script>
-
-<template>
-  <InputNumber v-model="value" :min="0" :max="100" />
-</template>
-```
+<demo vue="../../packages/input-number/demos/basic.vue" />
 
 ## API
 

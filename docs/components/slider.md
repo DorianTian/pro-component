@@ -8,18 +8,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { Slider } from '@pro/slider'
-
-const value = ref(50)
-</script>
-
-<template>
-  <Slider v-model="value" />
-</template>
-```
+<demo vue="../../packages/slider/demos/basic.vue" />
 
 ## API
 

@@ -14,17 +14,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { Tooltip } from '@pro/tooltip'
-</script>
-
-<template>
-  <Tooltip content="这是提示内容">
-    <el-button>悬停查看</el-button>
-  </Tooltip>
-</template>
-```
+<demo vue="../../packages/tooltip/demos/basic.vue" />
 
 ## API
 

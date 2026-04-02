@@ -8,23 +8,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { Popconfirm } from '@pro/popconfirm'
-
-const handleConfirm = () => {
-  // 确认操作
-}
-</script>
-
-<template>
-  <Popconfirm title="确定删除吗？" @confirm="handleConfirm">
-    <template #reference>
-      <el-button type="danger">删除</el-button>
-    </template>
-  </Popconfirm>
-</template>
-```
+<demo vue="../../packages/popconfirm/demos/basic.vue" />
 
 ## API
 

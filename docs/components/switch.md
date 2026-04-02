@@ -8,18 +8,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { Switch } from '@pro/switch'
-
-const value = ref(false)
-</script>
-
-<template>
-  <Switch v-model="value" />
-</template>
-```
+<demo vue="../../packages/switch/demos/basic.vue" />
 
 ## API
 

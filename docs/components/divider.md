@@ -8,19 +8,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { Divider } from '@pro/divider'
-</script>
-
-<template>
-  <p>段落内容一</p>
-  <Divider />
-  <p>段落内容二</p>
-  <Divider content-position="left">标题</Divider>
-  <p>段落内容三</p>
-</template>
-```
+<demo vue="../../packages/divider/demos/basic.vue" />
 
 ## API
 

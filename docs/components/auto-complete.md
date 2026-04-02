@@ -8,27 +8,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { AutoComplete } from '@pro/auto-complete'
-
-const value = ref('')
-
-const fetchSuggestions = (query: string, cb: (results: Array<{ value: string }>) => void) => {
-  const results = [
-    { value: 'vue' },
-    { value: 'react' },
-    { value: 'angular' },
-  ].filter((item) => item.value.includes(query))
-  cb(results)
-}
-</script>
-
-<template>
-  <AutoComplete v-model="value" :fetch-suggestions="fetchSuggestions" placeholder="请输入内容" />
-</template>
-```
+<demo vue="../../packages/auto-complete/demos/basic.vue" />
 
 ## API
 

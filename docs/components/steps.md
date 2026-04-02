@@ -13,22 +13,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { Steps, Step } from '@pro/steps'
-
-const active = ref(1)
-</script>
-
-<template>
-  <Steps :active="active">
-    <Step title="步骤 1" description="提交信息" />
-    <Step title="步骤 2" description="审核中" />
-    <Step title="步骤 3" description="完成" />
-  </Steps>
-</template>
-```
+<demo vue="../../packages/steps/demos/basic.vue" />
 
 ## API
 

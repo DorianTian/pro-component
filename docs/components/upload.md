@@ -8,19 +8,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { Upload } from '@pro/upload'
-</script>
-
-<template>
-  <Upload action="/api/upload">
-    <template #trigger>
-      <el-button type="primary">点击上传</el-button>
-    </template>
-  </Upload>
-</template>
-```
+<demo vue="../../packages/upload/demos/basic.vue" />
 
 ## API
 

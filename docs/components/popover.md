@@ -8,19 +8,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { Popover } from '@pro/popover'
-</script>
-
-<template>
-  <Popover trigger="hover" content="这是一段提示内容">
-    <template #reference>
-      <el-button>悬停触发</el-button>
-    </template>
-  </Popover>
-</template>
-```
+<demo vue="../../packages/popover/demos/basic.vue" />
 
 ## API
 

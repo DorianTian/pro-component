@@ -15,28 +15,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { TreeSelect } from '@pro/tree-select'
-
-const value = ref('')
-const data = [
-  {
-    label: '部门 A',
-    value: 'a',
-    children: [
-      { label: '小组 A-1', value: 'a1' },
-      { label: '小组 A-2', value: 'a2' },
-    ],
-  },
-]
-</script>
-
-<template>
-  <TreeSelect v-model="value" :data="data" placeholder="请选择" />
-</template>
-```
+<demo vue="../../packages/tree-select/demos/basic.vue" />
 
 ## API
 

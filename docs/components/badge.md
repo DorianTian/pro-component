@@ -8,17 +8,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { Badge } from '@pro/badge'
-</script>
-
-<template>
-  <Badge :value="12">
-    <el-button>消息</el-button>
-  </Badge>
-</template>
-```
+<demo vue="../../packages/badge/demos/basic.vue" />
 
 ## API
 

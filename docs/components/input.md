@@ -14,18 +14,7 @@ outline: deep
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { Input } from '@pro/input'
-
-const value = ref('')
-</script>
-
-<template>
-  <Input v-model="value" placeholder="请输入内容" />
-</template>
-```
+<demo vue="../../packages/input/demos/basic.vue" />
 
 ## API
 

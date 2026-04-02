@@ -8,28 +8,13 @@ outline: deep
 
 ## 导出组件
 
-- `Checkbox` — 单个多选框
-- `CheckboxGroup` — 多选框组
-- `CheckboxButton` — 按钮式多选框
+- `Checkbox` -- 单个多选框
+- `CheckboxGroup` -- 多选框组
+- `CheckboxButton` -- 按钮式多选框
 
 ## 基础用法
 
-```vue
-<script setup>
-import { ref } from 'vue'
-import { Checkbox, CheckboxGroup } from '@pro/checkbox'
-
-const value = ref(['1'])
-</script>
-
-<template>
-  <CheckboxGroup v-model="value">
-    <Checkbox value="1">选项一</Checkbox>
-    <Checkbox value="2">选项二</Checkbox>
-    <Checkbox value="3">选项三</Checkbox>
-  </CheckboxGroup>
-</template>
-```
+<demo vue="../../packages/checkbox/demos/basic.vue" />
 
 ## API
 
