@@ -4,9 +4,9 @@ outline: deep
 
 # Select 选择器
 
-基于 Element Plus `ElSelect` 的企业级封装，默认启用 `clearable` 和 `filterable`。
+基于 Element Plus `ElSelect` 的统一封装，默认启用 `clearable` 和 `filterable`。
 
-## 企业级默认配置
+## 默认配置
 
 | 属性         | 默认值 | 说明           |
 | ------------ | ------ | -------------- |

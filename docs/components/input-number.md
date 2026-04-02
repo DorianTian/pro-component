@@ -4,9 +4,9 @@ outline: deep
 
 # InputNumber 数字输入框
 
-基于 Element Plus `ElInputNumber` 的企业级封装，默认右侧控制按钮布局。
+基于 Element Plus `ElInputNumber` 的统一封装，默认右侧控制按钮布局。
 
-## 企业级默认配置
+## 默认配置
 
 | 属性               | 默认值    | 说明             |
 | ------------------ | --------- | ---------------- |

@@ -4,9 +4,9 @@ outline: deep
 
 # Drawer 抽屉
 
-基于 Element Plus `ElDrawer` 的企业级封装，默认挂载到 body。
+基于 Element Plus `ElDrawer` 的统一封装，默认挂载到 body。
 
-## 企业级默认配置
+## 默认配置
 
 | 属性           | 默认值 | 说明                          |
 | -------------- | ------ | ----------------------------- |

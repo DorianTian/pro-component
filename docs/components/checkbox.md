@@ -4,7 +4,7 @@ outline: deep
 
 # Checkbox 多选框
 
-基于 Element Plus `ElCheckbox` / `ElCheckboxGroup` / `ElCheckboxButton` 的企业级封装。统一 shadcn-vue 视觉风格，API 同 Element Plus。
+基于 Element Plus `ElCheckbox` / `ElCheckboxGroup` / `ElCheckboxButton` 的统一封装。统一 shadcn-vue 视觉风格，API 同 Element Plus。
 
 ## 导出组件
 

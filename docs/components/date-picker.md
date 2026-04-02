@@ -4,9 +4,9 @@ outline: deep
 
 # DatePicker 日期选择器
 
-基于 Element Plus `ElDatePicker` 的企业级封装，默认启用 `clearable` 并统一日期格式。
+基于 Element Plus `ElDatePicker` 的统一封装，默认启用 `clearable` 并统一日期格式。
 
-## 企业级默认配置
+## 默认配置
 
 | 属性          | 默认值         | 说明               |
 | ------------- | -------------- | ------------------ |

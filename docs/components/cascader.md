@@ -4,9 +4,9 @@ outline: deep
 
 # Cascader 级联选择器
 
-基于 Element Plus `ElCascader` 的企业级封装，默认启用 `clearable` 和 `filterable`。
+基于 Element Plus `ElCascader` 的统一封装，默认启用 `clearable` 和 `filterable`。
 
-## 企业级默认配置
+## 默认配置
 
 | 属性         | 默认值 | 说明           |
 | ------------ | ------ | -------------- |

@@ -4,9 +4,9 @@ outline: deep
 
 # Dialog 对话框
 
-基于 Element Plus `ElDialog` 的企业级封装，默认挂载到 body 并启用拖拽。
+基于 Element Plus `ElDialog` 的统一封装，默认挂载到 body 并启用拖拽。
 
-## 企业级默认配置
+## 默认配置
 
 | 属性           | 默认值 | 说明                          |
 | -------------- | ------ | ----------------------------- |

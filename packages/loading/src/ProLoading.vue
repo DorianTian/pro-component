@@ -2,14 +2,6 @@
 /**
  * ProLoading — Declarative state machine component.
  * Renders loading/empty/error/success states with customizable slots.
- *
- * Usage:
- *   <ProLoading :loading="isLoading" :empty="!data.length" :error="error">
- *     <template #loading><MySkeleton /></template>
- *     <template #empty>No data found</template>
- *     <template #error="{ error, retry }">{{ error }} <button @click="retry">Retry</button></template>
- *     <MyContent :data="data" />
- *   </ProLoading>
  */
 import { computed } from 'vue'
 import { ElSkeleton, ElEmpty, ElResult, ElButton } from 'element-plus'
@@ -19,19 +11,12 @@ defineOptions({ name: 'ProLoading' })
 type LoadingState = 'loading' | 'empty' | 'error' | 'success'
 
 interface Props {
-  /** Whether data is currently loading */
   loading?: boolean
-  /** Whether the data set is empty (checked after loading = false) */
   empty?: boolean
-  /** Error object or message (checked after loading = false) */
   error?: string | Error | null
-  /** Number of skeleton rows to show in default loading state */
   skeletonRows?: number
-  /** Whether to show the skeleton animation */
   animated?: boolean
-  /** Custom empty description */
   emptyDescription?: string
-  /** Custom error title */
   errorTitle?: string
 }
 
@@ -68,35 +53,81 @@ function handleRetry() {
 
 <template>
   <div class="pro-loading">
-    <!-- Loading State -->
-    <template v-if="currentState === 'loading'">
-      <slot name="loading">
-        <ElSkeleton :rows="skeletonRows" :animated="animated" />
-      </slot>
-    </template>
+    <Transition name="pro-loading-fade" mode="out-in">
+      <!-- Loading State -->
+      <div v-if="currentState === 'loading'" key="loading" class="pro-loading__state">
+        <slot name="loading">
+          <div class="pro-loading__skeleton">
+            <ElSkeleton :rows="skeletonRows" :animated="animated" />
+          </div>
+        </slot>
+      </div>
 
-    <!-- Error State -->
-    <template v-else-if="currentState === 'error'">
-      <slot name="error" :error="errorMessage" :retry="handleRetry">
-        <ElResult icon="error" :title="errorTitle" :sub-title="errorMessage">
-          <template #extra>
-            <ElButton type="primary" @click="handleRetry">Retry</ElButton>
-          </template>
-        </ElResult>
-      </slot>
-    </template>
+      <!-- Error State -->
+      <div v-else-if="currentState === 'error'" key="error" class="pro-loading__state">
+        <slot name="error" :error="errorMessage" :retry="handleRetry">
+          <div class="pro-loading__error">
+            <div class="pro-loading__error-icon">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <circle cx="24" cy="24" r="20" fill="var(--pro-color-danger-light)" />
+                <circle
+                  cx="24"
+                  cy="24"
+                  r="20"
+                  stroke="var(--pro-color-danger)"
+                  stroke-width="1.2"
+                  opacity="0.3"
+                />
+                <path
+                  d="M24 16v12"
+                  stroke="var(--pro-color-danger)"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <circle cx="24" cy="33" r="1.5" fill="var(--pro-color-danger)" />
+              </svg>
+            </div>
+            <p class="pro-loading__error-title">{{ errorTitle }}</p>
+            <p class="pro-loading__error-message">{{ errorMessage }}</p>
+            <ElButton type="primary" size="small" @click="handleRetry">Retry</ElButton>
+          </div>
+        </slot>
+      </div>
 
-    <!-- Empty State -->
-    <template v-else-if="currentState === 'empty'">
-      <slot name="empty">
-        <ElEmpty :description="emptyDescription" />
-      </slot>
-    </template>
+      <!-- Empty State -->
+      <div v-else-if="currentState === 'empty'" key="empty" class="pro-loading__state">
+        <slot name="empty">
+          <div class="pro-loading__empty">
+            <div class="pro-loading__empty-icon">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <rect
+                  x="8"
+                  y="16"
+                  width="32"
+                  height="22"
+                  rx="3"
+                  fill="var(--pro-bg-sunken)"
+                  stroke="var(--pro-border-default)"
+                  stroke-width="1.2"
+                />
+                <path
+                  d="M8 26h10l3 5h6l3-5h10"
+                  stroke="var(--pro-border-default)"
+                  stroke-width="1.2"
+                  fill="none"
+                />
+              </svg>
+            </div>
+            <p class="pro-loading__empty-text">{{ emptyDescription }}</p>
+          </div>
+        </slot>
+      </div>
 
-    <!-- Success State -->
-    <template v-else>
-      <slot />
-    </template>
+      <!-- Success State -->
+      <div v-else key="success" class="pro-loading__state">
+        <slot />
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -104,5 +135,73 @@ function handleRetry() {
 .pro-loading {
   width: 100%;
   min-height: 120px;
+  position: relative;
+}
+
+.pro-loading__state {
+  width: 100%;
+}
+
+.pro-loading__skeleton {
+  padding: 16px 0;
+}
+
+/* Error state */
+.pro-loading__error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.pro-loading__error-icon {
+  margin-bottom: 12px;
+}
+
+.pro-loading__error-title {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pro-text-primary);
+}
+
+.pro-loading__error-message {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--pro-text-secondary);
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+/* Empty state */
+.pro-loading__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.pro-loading__empty-icon {
+  margin-bottom: 12px;
+  opacity: 0.7;
+}
+
+.pro-loading__empty-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--pro-text-tertiary);
+}
+
+/* Transition */
+.pro-loading-fade-enter-active,
+.pro-loading-fade-leave-active {
+  transition: opacity 200ms ease;
+}
+
+.pro-loading-fade-enter-from,
+.pro-loading-fade-leave-to {
+  opacity: 0;
 }
 </style>

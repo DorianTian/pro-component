@@ -4,7 +4,7 @@ outline: deep
 
 # Divider 分割线
 
-基于 Element Plus `ElDivider` 的企业级封装。统一 shadcn-vue 视觉风格，API 同 Element Plus。
+基于 Element Plus `ElDivider` 的统一封装。统一 shadcn-vue 视觉风格，API 同 Element Plus。
 
 ## 基础用法
 

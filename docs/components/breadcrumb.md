@@ -4,14 +4,14 @@ outline: deep
 
 # Breadcrumb 面包屑
 
-基于 Element Plus `ElBreadcrumb` / `ElBreadcrumbItem` 的企业级封装，预置分隔符。
+基于 Element Plus `ElBreadcrumb` / `ElBreadcrumbItem` 的统一封装，预置分隔符。
 
 ## 导出组件
 
 - `Breadcrumb` — 面包屑容器
 - `BreadcrumbItem` — 面包屑项
 
-## 企业级默认配置
+## 默认配置
 
 | 属性        | 默认值 | 说明       |
 | ----------- | ------ | ---------- |

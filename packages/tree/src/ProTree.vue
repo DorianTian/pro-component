@@ -210,7 +210,12 @@ defineExpose({
   </div>
 </template>
 
-<style scoped>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   ProTree — manually scoped via .pro-tree prefix (no <style scoped>)
+   so that descendant selectors can reach ElTree internals without :deep()
+   ═══════════════════════════════════════════════════════════════════════ */
+
 .pro-tree {
   display: flex;
   flex-direction: column;
@@ -224,7 +229,7 @@ defineExpose({
 }
 
 /* ─── Toolbar ──────────────────────────────────────────────────────── */
-.pro-tree__toolbar {
+.pro-tree .pro-tree__toolbar {
   display: flex;
   align-items: center;
   gap: var(--pro-space-2);
@@ -233,32 +238,32 @@ defineExpose({
   background: var(--pro-bg-elevated);
 }
 
-.pro-tree__search {
+.pro-tree .pro-tree__search {
   flex: 1;
   min-width: 0;
 }
 
-.pro-tree__search-input :deep(.el-input__wrapper) {
+.pro-tree .pro-tree__search-input .el-input__wrapper {
   border-radius: var(--pro-radius-sm);
   box-shadow: 0 0 0 1px var(--pro-border-default) inset;
   transition: box-shadow var(--pro-transition-fast);
 }
 
-.pro-tree__search-input :deep(.el-input__wrapper:hover) {
+.pro-tree .pro-tree__search-input .el-input__wrapper:hover {
   box-shadow: 0 0 0 1px var(--pro-border-focus) inset;
 }
 
-.pro-tree__search-input :deep(.el-input__wrapper.is-focus) {
+.pro-tree .pro-tree__search-input .el-input__wrapper.is-focus {
   box-shadow: 0 0 0 1px var(--pro-color-primary) inset;
 }
 
-.pro-tree__search-icon {
+.pro-tree .pro-tree__search-icon {
   color: var(--pro-text-tertiary);
   font-size: 14px;
 }
 
 /* ─── Expand / Collapse button ─────────────────────────────────────── */
-.pro-tree__expand-btn {
+.pro-tree .pro-tree__expand-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -277,39 +282,40 @@ defineExpose({
     border-color var(--pro-transition-fast);
 }
 
-.pro-tree__expand-btn:hover {
+.pro-tree .pro-tree__expand-btn:hover {
   background: var(--pro-bg-sunken);
   color: var(--pro-text-primary);
   border-color: var(--pro-border-focus);
 }
 
-.pro-tree__expand-btn:active {
+.pro-tree .pro-tree__expand-btn:active {
   background: var(--pro-border-default);
 }
 
-.pro-tree__expand-icon {
+.pro-tree .pro-tree__expand-icon {
+  display: block;
   width: 14px;
   height: 14px;
   transition: transform var(--pro-transition-fast);
 }
 
-.pro-tree__expand-icon--collapsed {
+.pro-tree .pro-tree__expand-icon--collapsed {
   transform: rotate(-90deg);
 }
 
 /* ─── Tree body ────────────────────────────────────────────────────── */
-.pro-tree__body {
+.pro-tree .pro-tree__body {
   flex: 1;
   overflow: auto;
   padding: var(--pro-space-2) 0;
 }
 
-.pro-tree__body :deep(.el-tree) {
+.pro-tree .pro-tree__body .el-tree {
   --el-tree-node-hover-bg-color: var(--pro-bg-sunken);
   background: transparent;
 }
 
-.pro-tree__body :deep(.el-tree-node__content) {
+.pro-tree .pro-tree__body .el-tree-node__content {
   height: 32px;
   padding-right: var(--pro-space-4);
   border-radius: 0;
@@ -319,34 +325,34 @@ defineExpose({
   border-left: 2px solid transparent;
 }
 
-.pro-tree__body :deep(.el-tree-node__content:hover) {
+.pro-tree .pro-tree__body .el-tree-node__content:hover {
   background: var(--pro-bg-sunken);
 }
 
-/* Selected node: blue background + left blue border */
-.pro-tree__body :deep(.el-tree-node.is-current > .el-tree-node__content) {
+/* Selected node: light blue background + left blue border */
+.pro-tree .pro-tree__body .el-tree-node.is-current > .el-tree-node__content {
   background: #e8f3ff;
   border-left: 2px solid var(--pro-color-primary);
 }
 
-.pro-tree__body :deep(.el-tree-node.is-current > .el-tree-node__content:hover) {
+.pro-tree .pro-tree__body .el-tree-node.is-current > .el-tree-node__content:hover {
   background: #ddeeff;
 }
 
 /* Expand arrow refinement */
-.pro-tree__body :deep(.el-tree-node__expand-icon) {
+.pro-tree .pro-tree__body .el-tree-node__expand-icon {
   color: var(--pro-text-tertiary);
   font-size: 12px;
   padding: 4px;
   transition: transform var(--pro-transition-fast);
 }
 
-.pro-tree__body :deep(.el-tree-node__expand-icon.is-leaf) {
+.pro-tree .pro-tree__body .el-tree-node__expand-icon.is-leaf {
   color: transparent;
 }
 
 /* ─── Node content ─────────────────────────────────────────────────── */
-.pro-tree__node {
+.pro-tree .pro-tree__node {
   display: inline-flex;
   align-items: center;
   gap: var(--pro-space-2);
@@ -355,27 +361,28 @@ defineExpose({
   line-height: var(--pro-line-height-base);
 }
 
-.pro-tree__node-label {
+.pro-tree .pro-tree__node-label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1;
   min-width: 0;
+  color: var(--pro-text-primary);
 }
 
 /* ─── Child count badge ────────────────────────────────────────────── */
-.pro-tree__node-badge {
+.pro-tree .pro-tree__node-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
-  border-radius: var(--pro-radius-pill);
+  border-radius: 9999px;
   background: var(--pro-bg-sunken);
   color: var(--pro-text-secondary);
-  font-size: var(--pro-text-xxs);
-  font-weight: var(--pro-font-weight-medium);
+  font-size: 11px;
+  font-weight: 500;
   line-height: 1;
   flex-shrink: 0;
   transition:
@@ -384,26 +391,26 @@ defineExpose({
 }
 
 /* Badge color shift on selected node */
-.pro-tree__node--selected .pro-tree__node-badge {
+.pro-tree .pro-tree__node--selected .pro-tree__node-badge {
   background: var(--pro-color-primary-light);
   color: var(--pro-color-primary);
 }
 
 /* ─── Scrollbar ────────────────────────────────────────────────────── */
-.pro-tree__body::-webkit-scrollbar {
+.pro-tree .pro-tree__body::-webkit-scrollbar {
   width: var(--pro-scrollbar-size);
 }
 
-.pro-tree__body::-webkit-scrollbar-track {
+.pro-tree .pro-tree__body::-webkit-scrollbar-track {
   background: var(--pro-scrollbar-track);
 }
 
-.pro-tree__body::-webkit-scrollbar-thumb {
+.pro-tree .pro-tree__body::-webkit-scrollbar-thumb {
   background: var(--pro-scrollbar-thumb);
   border-radius: var(--pro-radius-full);
 }
 
-.pro-tree__body::-webkit-scrollbar-thumb:hover {
+.pro-tree .pro-tree__body::-webkit-scrollbar-thumb:hover {
   background: var(--pro-scrollbar-thumb-hover);
 }
 </style>

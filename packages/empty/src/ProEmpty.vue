@@ -10,7 +10,7 @@
  *   <ProEmpty type="error" @retry="refetch" />
  */
 import { computed } from 'vue'
-import { ElEmpty, ElButton } from 'element-plus'
+import { ElButton } from 'element-plus'
 
 defineOptions({ name: 'ProEmpty', inheritAttrs: false })
 
@@ -92,105 +92,78 @@ const iconType = computed(() => preset.value.icon)
           <!-- No Data (inbox) -->
           <template v-if="iconType === 'inbox'">
             <rect
-              x="20"
-              y="35"
-              width="80"
-              height="55"
-              rx="6"
-              fill="var(--pro-bg-sunken)"
-              stroke="var(--pro-border-default)"
-              stroke-width="1.5"
+              x="22"
+              y="30"
+              width="76"
+              height="56"
+              rx="5"
+              fill="#f5f5f5"
+              stroke="#d4d4d4"
+              stroke-width="1.2"
             />
-            <path
-              d="M20 60h25l5 10h20l5-10h25"
-              stroke="var(--pro-border-default)"
-              stroke-width="1.5"
-              fill="none"
-            />
-            <path
-              d="M45 50h30"
-              stroke="var(--pro-text-disabled)"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-            <path
-              d="M50 58h20"
-              stroke="var(--pro-text-disabled)"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
+            <path d="M22 58h22l6 12h20l6-12h22" stroke="#d4d4d4" stroke-width="1.2" fill="none" />
+            <path d="M46 44h28" stroke="#a3a3a3" stroke-width="1.2" stroke-linecap="round" />
+            <path d="M50 52h20" stroke="#a3a3a3" stroke-width="1.2" stroke-linecap="round" />
           </template>
           <!-- No Result (search) -->
           <template v-else-if="iconType === 'search'">
-            <circle
-              cx="52"
-              cy="52"
-              r="24"
-              fill="var(--pro-bg-sunken)"
-              stroke="var(--pro-border-default)"
-              stroke-width="1.5"
-            />
+            <circle cx="52" cy="50" r="22" fill="#f5f5f5" stroke="#d4d4d4" stroke-width="1.2" />
             <line
-              x1="70"
-              y1="70"
-              x2="92"
-              y2="92"
-              stroke="var(--pro-text-disabled)"
-              stroke-width="3"
+              x1="68"
+              y1="66"
+              x2="88"
+              y2="86"
+              stroke="#a3a3a3"
+              stroke-width="2.5"
               stroke-linecap="round"
             />
-            <path
-              d="M44 52h16"
-              stroke="var(--pro-text-disabled)"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
+            <path d="M44 50h16" stroke="#a3a3a3" stroke-width="1.2" stroke-linecap="round" />
           </template>
           <!-- Error -->
           <template v-else-if="iconType === 'error'">
             <circle
               cx="60"
-              cy="55"
-              r="30"
-              fill="var(--pro-color-danger-light)"
-              stroke="var(--pro-color-danger)"
-              stroke-width="1.5"
-              opacity="0.8"
+              cy="56"
+              r="28"
+              fill="var(--pro-color-danger-light, #fef2f2)"
+              stroke="var(--pro-color-danger, #dc2626)"
+              stroke-width="1.2"
             />
             <path
-              d="M60 40v20"
-              stroke="var(--pro-color-danger)"
-              stroke-width="3"
+              d="M60 42v18"
+              stroke="var(--pro-color-danger, #dc2626)"
+              stroke-width="2"
               stroke-linecap="round"
             />
-            <circle cx="60" cy="68" r="2" fill="var(--pro-color-danger)" />
+            <circle cx="60" cy="68" r="2" fill="var(--pro-color-danger, #dc2626)" />
           </template>
           <!-- No Permission (lock) -->
           <template v-else-if="iconType === 'lock'">
             <rect
-              x="35"
+              x="36"
               y="52"
-              width="50"
-              height="36"
-              rx="6"
-              fill="var(--pro-bg-sunken)"
-              stroke="var(--pro-border-default)"
-              stroke-width="1.5"
+              width="48"
+              height="34"
+              rx="5"
+              fill="#f5f5f5"
+              stroke="#d4d4d4"
+              stroke-width="1.2"
             />
             <path
-              d="M45 52V42a15 15 0 0130 0v10"
+              d="M46 52V42a14 14 0 0128 0v10"
               fill="none"
-              stroke="var(--pro-border-default)"
-              stroke-width="1.5"
+              stroke="#d4d4d4"
+              stroke-width="1.2"
+              stroke-linecap="round"
             />
-            <circle cx="60" cy="68" r="4" fill="var(--pro-text-disabled)" />
+            <circle cx="60" cy="66" r="3.5" fill="#a3a3a3" />
             <line
               x1="60"
-              y1="72"
+              y1="69.5"
               x2="60"
-              y2="78"
-              stroke="var(--pro-text-disabled)"
-              stroke-width="2"
+              y2="76"
+              stroke="#a3a3a3"
+              stroke-width="1.2"
               stroke-linecap="round"
             />
           </template>
@@ -217,12 +190,15 @@ const iconType = computed(() => preset.value.icon)
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--pro-space-9) var(--pro-space-5);
   text-align: center;
+  min-height: 240px;
+  padding: 40px 20px;
 }
 
 .pro-empty__image {
-  margin-bottom: var(--pro-space-5);
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
 }
 
 .pro-empty__svg {
@@ -230,15 +206,15 @@ const iconType = computed(() => preset.value.icon)
 }
 
 .pro-empty__description {
-  margin: 0 0 var(--pro-space-5);
-  color: var(--pro-text-secondary);
-  font-size: var(--pro-text-sm);
-  line-height: var(--pro-line-height-base);
+  margin: 0 0 16px;
+  color: var(--pro-text-secondary, #737373);
+  font-size: var(--pro-text-sm, 14px);
+  line-height: var(--pro-line-height-base, 1.5);
   max-width: 320px;
 }
 
 .pro-empty__actions {
   display: flex;
-  gap: var(--pro-space-3);
+  gap: 8px;
 }
 </style>

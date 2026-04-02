@@ -9,7 +9,7 @@
  *   </ProResult>
  */
 import { computed } from 'vue'
-import { ElResult, ElButton } from 'element-plus'
+import { ElResult } from 'element-plus'
 
 defineOptions({ name: 'ProResult', inheritAttrs: false })
 
@@ -30,7 +30,9 @@ const props = withDefaults(defineProps<Props>(), {
   subTitle: undefined,
 })
 
-const PRESET_MAP: Record<ResultType, { icon: string; title: string; subTitle: string }> = {
+type ElResultIcon = 'success' | 'error' | 'warning' | 'info'
+
+const PRESET_MAP: Record<ResultType, { icon: ElResultIcon; title: string; subTitle: string }> = {
   success: {
     icon: 'success',
     title: 'Operation Succeeded',
@@ -78,6 +80,9 @@ const isHttpError = computed(() => ['403', '404', '500'].includes(props.type))
 
 <template>
   <div v-bind="$attrs" :class="['pro-result', { 'pro-result--http': isHttpError }]">
+    <!-- HTTP error code watermark — positioned behind content -->
+    <span v-if="isHttpError" class="pro-result__code">{{ type }}</span>
+
     <ElResult :icon="displayIcon" :title="displayTitle" :sub-title="displaySubTitle">
       <template v-if="$slots.icon" #icon>
         <slot name="icon" />
@@ -95,20 +100,18 @@ const isHttpError = computed(() => ['403', '404', '500'].includes(props.type))
         <slot name="extra" />
       </template>
     </ElResult>
-
-    <!-- HTTP error code watermark -->
-    <span v-if="isHttpError" class="pro-result__code">{{ type }}</span>
   </div>
 </template>
 
 <style>
 .pro-result {
   position: relative;
-  padding: var(--pro-space-9) var(--pro-space-5);
-}
-
-.pro-result--http {
   overflow: hidden;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pro-space-9, 36px) var(--pro-space-5, 20px);
 }
 
 .pro-result__code {
@@ -116,9 +119,10 @@ const isHttpError = computed(() => ['403', '404', '500'].includes(props.type))
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 160px;
-  font-weight: var(--pro-font-weight-bold);
-  color: var(--pro-border-light);
+  font-size: 180px;
+  font-weight: 800;
+  color: var(--pro-border-light, #f0f0f0);
+  opacity: 0.5;
   pointer-events: none;
   user-select: none;
   z-index: 0;
