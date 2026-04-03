@@ -59,6 +59,9 @@ export const enUS = {
         minLength: 'Minimum {min} characters',
         maxLength: 'Maximum {max} characters',
       },
+      input: {
+        placeholder: 'Please enter\u2026',
+      },
       select: {
         placeholder: 'Please select\u2026',
       },

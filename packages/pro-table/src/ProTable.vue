@@ -230,7 +230,7 @@ function editText(key: 'edit' | 'save' | 'cancel' | 'delete' | 'addRow' | 'actio
     <el-auto-resizer v-if="virtual">
       <template #default="{ height: autoHeight, width: autoWidth }">
         <el-table-v2
-          :columns="v2Columns as any"
+          :columns="v2Columns as unknown as Record<string, unknown>[]"
           :data="state.activeData.value"
           :width="autoWidth"
           :height="virtualHeight || autoHeight"
@@ -247,7 +247,10 @@ function editText(key: 'edit' | 'save' | 'cancel' | 'delete' | 'addRow' | 'actio
       :loading="state.activeLoading.value"
       :row-key="rowKey"
       :size="state.tableSize.value"
-      :row-class-name="(scope: { row: unknown }) => state.isRowEditing(scope.row) ? 'pro-table__row--editing' : ''"
+      :row-class-name="
+        (scope: { row: unknown }) =>
+          state.isRowEditing(scope.row) ? 'pro-table__row--editing' : ''
+      "
       v-bind="tableProps"
       @selection-change="state.handleSelectionChange"
       @sort-change="state.handleSortChange"

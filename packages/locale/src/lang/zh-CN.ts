@@ -59,6 +59,9 @@ export const zhCN = {
         minLength: '最少 {min} 个字符',
         maxLength: '最多 {max} 个字符',
       },
+      input: {
+        placeholder: '请输入\u2026',
+      },
       select: {
         placeholder: '请选择\u2026',
       },

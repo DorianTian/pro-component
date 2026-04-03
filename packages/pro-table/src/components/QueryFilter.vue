@@ -131,7 +131,7 @@ function toggleCollapse(): void {
               v-else-if="col.valueEnum"
               :model-value="modelValue[String(col.dataIndex)]"
               clearable
-              :placeholder="`Select ${col.title}`"
+              :placeholder="t('pro.form.select.placeholder')"
               @update:model-value="updateField(String(col.dataIndex), $event)"
             >
               <el-option
@@ -149,7 +149,7 @@ function toggleCollapse(): void {
               v-bind="getColumnSearchConfig(col)?.props ?? {}"
               :model-value="modelValue[String(col.dataIndex)]"
               clearable
-              :placeholder="`Enter ${col.title}`"
+              :placeholder="t('pro.form.input.placeholder')"
               @update:model-value="updateField(String(col.dataIndex), $event)"
             />
           </el-form-item>

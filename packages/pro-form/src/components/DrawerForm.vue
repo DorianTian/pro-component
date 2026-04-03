@@ -112,7 +112,7 @@ async function handleSubmit(): Promise<void> {
     <template #footer>
       <div class="pro-drawer-form__footer">
         <ElButton @click="handleClose">
-          {{ cancelText ?? t('pro.form.reset') }}
+          {{ cancelText ?? t('pro.form.cancel') }}
         </ElButton>
         <ElButton type="primary" :loading="submitting" @click="handleSubmit">
           {{ submitText ?? t('pro.form.submit') }}

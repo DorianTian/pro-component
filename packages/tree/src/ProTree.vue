@@ -432,8 +432,8 @@ defineExpose({
         :allow-drag="effectiveDraggable ? handleAllowDrag : undefined"
         :allow-drop="effectiveDraggable ? handleAllowDrop : undefined"
         v-bind="attrs"
-        @node-drag-start="effectiveDraggable ? handleDragStart : undefined"
-        @node-drop="effectiveDraggable ? handleNodeDrop : undefined"
+        @node-drag-start="handleDragStart"
+        @node-drop="handleNodeDrop"
       >
         <!-- Default node content with drag handle + count badge -->
         <template #default="{ node, data: nodeData }">
