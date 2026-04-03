@@ -9,7 +9,7 @@ import {
   type Ref,
   type ComputedRef,
 } from 'vue'
-import { useRequest, usePagination, useSelection, useValueType } from '@pro/hooks'
+import { useRequest, usePagination, useSelection, useValueType, useProLocale } from '@pro/hooks'
 
 import type { RequestParams, RequestResult } from '@pro/utils'
 import type {
@@ -107,7 +107,11 @@ export interface UseProTableInternalReturn {
   getEditingCellValue: (row: unknown, dataIndex: string) => unknown
   setEditingCellValue: (row: unknown, dataIndex: string, value: unknown) => void
   getCellValidationError: (row: unknown, dataIndex: string) => string | undefined
-  getCellFieldProps: (col: ProColumnDef, row: unknown, index: number) => Record<string, unknown> | undefined
+  getCellFieldProps: (
+    col: ProColumnDef,
+    row: unknown,
+    index: number,
+  ) => Record<string, unknown> | undefined
   handleEditStart: (row: unknown) => void
   handleEditSave: (row: unknown) => Promise<void>
   handleEditCancel: (row: unknown) => void
@@ -371,8 +375,9 @@ export function useProTableInternal(
 
   const visibleColumns = computed(() => buildVisible(options.columns.value, columnSettings.value))
 
-  // --- ValueType rendering ---
-  const { getTableRenderConfig } = useValueType()
+  // --- ValueType rendering (locale-aware) ---
+  const { locale: currentLocale } = useProLocale()
+  const { getTableRenderConfig } = useValueType(currentLocale.value)
 
   // --- Pagination config ---
   const isPaginationEnabled = computed(() => options.pagination.value !== false)

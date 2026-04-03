@@ -17,7 +17,7 @@ const DEFAULT_ITEM_SIZE = 32
 
 const props = defineProps({
   searchable: { type: Boolean, default: true },
-  searchPlaceholder: { type: String, default: 'Search...' },
+  searchPlaceholder: { type: String, default: undefined },
   defaultExpandAll: { type: Boolean, default: false },
   searchDebounceMs: { type: Number, default: 300 },
   filterMethod: {

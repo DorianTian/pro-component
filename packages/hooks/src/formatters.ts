@@ -29,9 +29,10 @@ export function formatDate(
   return dayjs(value).format(fmt)
 }
 
-/** Format a value as relative time (e.g., "2 hours ago"). Respects current dayjs locale. */
-export function formatRelativeTime(value: Date | string | number): string {
-  return dayjs(value).fromNow()
+/** Format a value as relative time (e.g., "2 hours ago"). Uses locale-specific dayjs output. */
+export function formatRelativeTime(value: Date | string | number, locale = 'en'): string {
+  const dayjsLocale = locale.startsWith('zh') ? 'zh-cn' : 'en'
+  return dayjs(value).locale(dayjsLocale).fromNow()
 }
 
 /** Format a number with locale-appropriate grouping separators */

@@ -119,26 +119,26 @@ function wrapFormat(fn: (value: unknown) => string): (value: unknown) => string 
   }
 }
 
-const DEFAULT_LOCALE = 'en-US'
+const FALLBACK_LOCALE = 'en-US'
 
-function formatNumber(value: unknown): string {
-  return fmtNumber(Number(value), DEFAULT_LOCALE)
+function formatNumber(value: unknown, locale = FALLBACK_LOCALE): string {
+  return fmtNumber(Number(value), locale)
 }
 
-function formatMoney(value: unknown): string {
-  return fmtMoney(Number(value), DEFAULT_LOCALE)
+function formatMoney(value: unknown, locale = FALLBACK_LOCALE): string {
+  return fmtMoney(Number(value), locale)
 }
 
-function formatPercent(value: unknown): string {
-  return fmtPercent(Number(value), DEFAULT_LOCALE)
+function formatPercent(value: unknown, locale = FALLBACK_LOCALE): string {
+  return fmtPercent(Number(value), locale)
 }
 
-function formatDate(value: unknown): string {
-  return fmtDate(value as string | number | Date, 'date', DEFAULT_LOCALE)
+function formatDate(value: unknown, locale = FALLBACK_LOCALE): string {
+  return fmtDate(value as string | number | Date, 'date', locale)
 }
 
-function formatDateTime(value: unknown): string {
-  return fmtDate(value as string | number | Date, 'dateTime', DEFAULT_LOCALE)
+function formatDateTime(value: unknown, locale = FALLBACK_LOCALE): string {
+  return fmtDate(value as string | number | Date, 'dateTime', locale)
 }
 
 // --- Static config maps ---
@@ -206,10 +206,23 @@ const DEFAULT_TABLE_CONFIG: TableRenderConfig = {
  *
  * Shared between ProTable, ProForm, and ProDescriptions.
  */
-export function useValueType(): UseValueTypeReturn {
-  /** Get table cell render configuration for a valueType */
+export function useValueType(locale = FALLBACK_LOCALE): UseValueTypeReturn {
+  /** Build locale-aware table render config — overrides format functions with current locale */
   function getTableRenderConfig(valueType: ValueType): TableRenderConfig {
-    return TABLE_RENDER_MAP[valueType] ?? DEFAULT_TABLE_CONFIG
+    const base = TABLE_RENDER_MAP[valueType] ?? DEFAULT_TABLE_CONFIG
+    // Inject locale into format functions that need it
+    const localeFormats: Record<string, (value: unknown) => string> = {
+      number: wrapFormat((v) => formatNumber(v, locale)),
+      money: wrapFormat((v) => formatMoney(v, locale)),
+      percent: wrapFormat((v) => formatPercent(v, locale)),
+      date: wrapFormat((v) => formatDate(v, locale)),
+      dateTime: wrapFormat((v) => formatDateTime(v, locale)),
+      digit: wrapFormat((v) => formatNumber(v, locale)),
+    }
+    if (valueType in localeFormats) {
+      return { ...base, format: localeFormats[valueType] }
+    }
+    return base
   }
 
   /** Get search form component configuration. Returns null for non-searchable types. */
