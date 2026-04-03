@@ -260,7 +260,7 @@ export function useProTableInternal(
   async function handleEditSave(row: unknown): Promise<void> {
     if (!editableInstance) return
     const key = getRowKeyValue(row)
-    const isValid = editableInstance.validateRow(key, options.columns.value)
+    const isValid = await editableInstance.validateRow(key, options.columns.value)
     if (!isValid) return
     await editableInstance.saveEdit(key)
   }

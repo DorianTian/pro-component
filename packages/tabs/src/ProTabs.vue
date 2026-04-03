@@ -36,7 +36,7 @@ const resolvedConfirmTitle = computed(() => props.confirmTitle || t('pro.tabs.cl
 const emit = defineEmits<{
   'update:modelValue': [value: string]
   'tab-remove': [name: string]
-  'tab-click': [pane: unknown, ev: Event]
+  'tab-click': [pane: { paneName: string; props: Record<string, unknown> }, ev: Event]
 }>()
 
 const innerValue = ref(props.modelValue ?? '')

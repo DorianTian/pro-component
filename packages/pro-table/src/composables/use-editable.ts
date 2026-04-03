@@ -38,34 +38,28 @@ export interface UseEditableReturn<T = Record<string, unknown>> {
   setEditingValue: (key: string, dataIndex: string, value: unknown) => void
   newRowKeys: Ref<Set<string>>
   validationErrors: Ref<Map<string, Record<string, string>>>
-  validateRow: (key: string, columns: ProColumnDef[]) => boolean
+  validateRow: (key: string, columns: ProColumnDef[]) => Promise<boolean>
   clearValidationErrors: (key: string) => void
 }
 
 /** Resolve the string key for a row */
-function resolveKey<T>(
-  rowKey: string | ((row: T) => string),
-  row: T,
-): string {
+function resolveKey<T>(rowKey: string | ((row: T) => string), row: T): string {
   if (typeof rowKey === 'function') return rowKey(row)
   return String((row as Record<string, unknown>)[rowKey])
 }
 
 /** Resolve rules from a column's formItemProps */
-function resolveRules<T>(
-  col: ProColumnDef<T>,
-  row: T,
-  rowIndex: number,
-): FormItemRule[] {
+function resolveRules<T>(col: ProColumnDef<T>, row: T, rowIndex: number): FormItemRule[] {
   if (!col.formItemProps) return []
-  const props = typeof col.formItemProps === 'function'
-    ? col.formItemProps(row, { rowIndex })
-    : col.formItemProps
+  const props =
+    typeof col.formItemProps === 'function'
+      ? col.formItemProps(row, { rowIndex })
+      : col.formItemProps
   return props.rules ?? []
 }
 
-/** Run synchronous validation against a single value */
-function validateField(value: unknown, rules: FormItemRule[]): string | null {
+/** Run validation against a single value (supports sync rules + async validator) */
+async function validateField(value: unknown, rules: FormItemRule[]): Promise<string | null> {
   for (const rule of rules) {
     if (rule.required && (value === undefined || value === null || value === '')) {
       return (rule.message as string) ?? 'Required'
@@ -79,6 +73,19 @@ function validateField(value: unknown, rules: FormItemRule[]): string | null {
     if (rule.pattern instanceof RegExp && typeof value === 'string' && !rule.pattern.test(value)) {
       return (rule.message as string) ?? 'Invalid format'
     }
+    if (typeof rule.validator === 'function') {
+      try {
+        await new Promise<void>((resolve, reject) => {
+          rule.validator!(rule, value, (err?: Error) => {
+            if (err) reject(err)
+            else resolve()
+          })
+        })
+      } catch (err: unknown) {
+        if (err instanceof Error) return err.message
+        return (rule.message as string) ?? 'Validation failed'
+      }
+    }
   }
   return null
 }
@@ -90,7 +97,9 @@ export function useEditable<T = Record<string, unknown>>(
   const editingRows: Map<string, T> = reactive(new Map())
   const originalRows: Map<string, T> = reactive(new Map())
   const newRowKeys = ref(new Set<string>()) as Ref<Set<string>>
-  const validationErrors = ref(new Map<string, Record<string, string>>()) as Ref<Map<string, Record<string, string>>>
+  const validationErrors = ref(new Map<string, Record<string, string>>()) as Ref<
+    Map<string, Record<string, string>>
+  >
 
   // Sync controlled keys from parent → internal state
   if (options.controlledKeys) {
@@ -152,12 +161,7 @@ export function useEditable<T = Record<string, unknown>>(
       newRowKeys.value = new Set([...newRowKeys.value].filter((k) => k !== key))
     }
 
-    options.onCancel?.(
-      key,
-      (editedRow ?? {}) as T,
-      (originalRow ?? {}) as T,
-      isNew,
-    )
+    options.onCancel?.(key, (editedRow ?? {}) as T, (originalRow ?? {}) as T, isNew)
 
     editableKeys.value = editableKeys.value.filter((k) => k !== key)
     editingRows.delete(key)
@@ -280,8 +284,8 @@ export function useEditable<T = Record<string, unknown>>(
     }
   }
 
-  /** Run synchronous validation for all editable columns of a row */
-  function validateRow(key: string, columns: ProColumnDef[]): boolean {
+  /** Run validation for all editable columns of a row (supports async validators) */
+  async function validateRow(key: string, columns: ProColumnDef[]): Promise<boolean> {
     const row = editingRows.get(key)
     if (!row) return false
 
@@ -293,14 +297,22 @@ export function useEditable<T = Record<string, unknown>>(
     for (const col of columns) {
       // Skip non-editable columns
       if (col.editable === false) continue
-      if (typeof col.editable === 'function' && !col.editable(row as Record<string, unknown> as T & Record<string, unknown>, rowIndex)) continue
+      if (
+        typeof col.editable === 'function' &&
+        !col.editable(row as Record<string, unknown> as T & Record<string, unknown>, rowIndex)
+      )
+        continue
 
-      const rules = resolveRules(col, row as Record<string, unknown> as T & Record<string, unknown>, rowIndex)
+      const rules = resolveRules(
+        col,
+        row as Record<string, unknown> as T & Record<string, unknown>,
+        rowIndex,
+      )
       if (rules.length === 0) continue
 
       const dataIndex = String(col.dataIndex)
       const value = (row as Record<string, unknown>)[dataIndex]
-      const error = validateField(value, rules)
+      const error = await validateField(value, rules)
       if (error) {
         errors[dataIndex] = error
       }

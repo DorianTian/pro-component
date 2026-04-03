@@ -57,9 +57,11 @@ function readFromURL(config: PaginationURLSyncConfig): { current?: number; pageS
   const params = new URLSearchParams(window.location.search)
   const rawCurrent = params.get(config.currentKey!)
   const rawPageSize = params.get(config.pageSizeKey!)
+  const parsedCurrent = rawCurrent ? Number(rawCurrent) : NaN
+  const parsedPageSize = rawPageSize ? Number(rawPageSize) : NaN
   return {
-    current: rawCurrent ? Number(rawCurrent) : undefined,
-    pageSize: rawPageSize ? Number(rawPageSize) : undefined,
+    current: Number.isFinite(parsedCurrent) && parsedCurrent > 0 ? parsedCurrent : undefined,
+    pageSize: Number.isFinite(parsedPageSize) && parsedPageSize > 0 ? parsedPageSize : undefined,
   }
 }
 
