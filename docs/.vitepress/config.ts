@@ -7,6 +7,9 @@ export default defineConfig({
   description: 'Vue 3 + Element Plus enterprise SaaS component library',
   lang: 'zh-CN',
 
+  /* Exclude internal planning/spec docs from VitePress page generation */
+  srcExclude: ['superpowers/**'],
+
   /* ---- i18n: dual-language locale support ---- */
   locales: {
     en: {
