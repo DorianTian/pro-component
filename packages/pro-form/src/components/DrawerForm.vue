@@ -1,78 +1,131 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { ElDrawer } from 'element-plus'
+import { ref, computed } from 'vue'
+import { ElDrawer, ElButton } from 'element-plus'
+import { useProLocale } from '@pro/hooks'
 import ProForm from '../ProForm.vue'
 
-import type { ProFieldDef, FormLayout } from '@pro/utils'
+import type { ProFormItem, FormLayout } from '@pro/utils'
 
 defineOptions({ name: 'DrawerForm' })
 
+const { t } = useProLocale()
+
 const props = withDefaults(
   defineProps<{
+    /** Drawer visibility (v-model or v-model:visible) */
     modelValue?: boolean
+    visible?: boolean
     title?: string
     width?: string | number
-    fields: ProFieldDef[]
+    fields: ProFormItem[]
     initialValues?: Record<string, unknown>
     onSubmit?: (values: Record<string, unknown>) => Promise<boolean>
     formProps?: Record<string, unknown>
     labelWidth?: string | number
     layout?: FormLayout
+    columns?: number
     drawerProps?: Record<string, unknown>
+    submitText?: string
+    cancelText?: string
   }>(),
   {
-    modelValue: false,
+    modelValue: undefined,
+    visible: undefined,
     title: '',
-    width: '30%',
-    layout: 'horizontal',
+    width: '480px',
+    layout: 'vertical',
+    columns: 1,
+    submitText: undefined,
+    cancelText: undefined,
   },
 )
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
+  'update:visible': [value: boolean]
   submit: [values: Record<string, unknown>]
 }>()
 
+const internalVisible = ref(false)
+
 const drawerVisible = computed({
-  get: () => props.modelValue,
+  get: () => props.modelValue ?? props.visible ?? internalVisible.value,
   set: (val: boolean) => {
+    internalVisible.value = val
     emit('update:modelValue', val)
+    emit('update:visible', val)
   },
 })
 
-function handleClose() {
+const formRef = ref<InstanceType<typeof ProForm> | null>(null)
+const submitting = ref(false)
+
+function handleOpen(): void {
+  drawerVisible.value = true
+}
+
+function handleClose(): void {
   drawerVisible.value = false
 }
 
-async function handleSubmit(values: Record<string, unknown>): Promise<boolean> {
-  if (!props.onSubmit) return false
-  const result = await props.onSubmit(values)
-  if (result) {
-    emit('submit', values)
-    handleClose()
+async function handleSubmit(): Promise<void> {
+  if (!formRef.value) return
+  submitting.value = true
+  try {
+    const success = await formRef.value.submit()
+    if (success) {
+      emit('submit', { ...formRef.value.formValues })
+      handleClose()
+    }
+  } finally {
+    submitting.value = false
   }
-  return result
 }
 </script>
 
 <template>
+  <!-- Trigger slot: click to open drawer -->
+  <span v-if="$slots.trigger" @click="handleOpen">
+    <slot name="trigger" />
+  </span>
+
   <ElDrawer
     v-model="drawerVisible"
     :title="title"
     :size="width"
     destroy-on-close
-    custom-class="pro-drawer-form"
+    class="pro-drawer-form"
     v-bind="drawerProps"
   >
     <ProForm
+      ref="formRef"
       :fields="fields"
       :initial-values="initialValues"
-      :on-submit="handleSubmit"
+      :on-submit="onSubmit"
       :form-props="formProps"
       :label-width="labelWidth"
       :layout="layout"
+      :columns="columns"
+      :show-actions="false"
     />
+
+    <template #footer>
+      <div class="pro-drawer-form__footer">
+        <ElButton @click="handleClose">
+          {{ cancelText ?? t('pro.form.reset') }}
+        </ElButton>
+        <ElButton type="primary" :loading="submitting" @click="handleSubmit">
+          {{ submitText ?? t('pro.form.submit') }}
+        </ElButton>
+      </div>
+    </template>
   </ElDrawer>
 </template>
 
-<!-- Styles extracted to @pro/themes/overrides/dialog.css + components.css -->
+<style>
+.pro-drawer-form__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--pro-space-3);
+}
+</style>

@@ -149,9 +149,18 @@ defineExpose({
   </div>
 </template>
 
-<style scoped>
+<style>
 .pro-steps-form__steps {
   margin-bottom: var(--pro-space-7);
+}
+
+.pro-steps-form__form .el-form-item__content > .el-input,
+.pro-steps-form__form .el-form-item__content > .el-select,
+.pro-steps-form__form .el-form-item__content > .el-date-editor,
+.pro-steps-form__form .el-form-item__content > .el-input-number,
+.pro-steps-form__form .el-form-item__content > .el-cascader,
+.pro-steps-form__form .el-form-item__content > .el-tree-select {
+  width: 100%;
 }
 
 .pro-steps-form__actions {

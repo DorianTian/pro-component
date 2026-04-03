@@ -1,43 +1,57 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { DrawerForm } from '@pro/form'
-import { ElButton, ElMessage } from 'element-plus'
+import { ElMessage } from 'element-plus'
 
-const isVisible = ref(false)
+import type { ProFormItem } from '@pro/utils'
 
-const fields = [
+const fields: ProFormItem[] = [
   {
     dataIndex: 'name',
     title: '配置名称',
-    valueType: 'text' as const,
-    searchConfig: { rules: [{ required: true, message: '请输入名称' }] },
+    valueType: 'text',
+    rules: [{ required: true, message: '请输入名称' }],
   },
   {
     dataIndex: 'type',
     title: '类型',
-    valueType: 'select' as const,
+    valueType: 'select',
     valueEnum: {
       api: { text: 'API' },
       webhook: { text: 'Webhook' },
       cron: { text: '定时任务' },
     },
+    rules: [{ required: true, message: '请选择类型' }],
   },
-  { dataIndex: 'description', title: '描述', valueType: 'textarea' as const },
+  {
+    dataIndex: 'endpoint',
+    title: '端点地址',
+    valueType: 'text',
+    placeholder: 'https://api.example.com/webhook',
+  },
+  {
+    dataIndex: 'enabled',
+    title: '启用',
+    valueType: 'switch',
+    defaultValue: true,
+  },
+  {
+    dataIndex: 'description',
+    title: '描述',
+    valueType: 'textarea',
+  },
 ]
 
-async function handleSubmit() {
+async function handleSubmit(values: Record<string, unknown>) {
   await new Promise((r) => setTimeout(r, 800))
-  ElMessage.success('配置创建成功')
+  ElMessage.success(`配置 "${values.name}" 创建成功`)
   return true
 }
 </script>
 
 <template>
-  <ElButton type="primary" @click="isVisible = true">新建配置</ElButton>
-  <DrawerForm
-    v-model:visible="isVisible"
-    title="新建配置"
-    :fields="fields"
-    :on-submit="handleSubmit"
-  />
+  <DrawerForm title="新建配置" :fields="fields" :on-submit="handleSubmit">
+    <template #trigger>
+      <el-button type="primary">新建配置</el-button>
+    </template>
+  </DrawerForm>
 </template>

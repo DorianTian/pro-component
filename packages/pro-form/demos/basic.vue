@@ -2,30 +2,28 @@
 import { ProForm } from '@pro/form'
 import { ElMessage } from 'element-plus'
 
-const fields = [
+import type { ProFormItem } from '@pro/utils'
+
+const fields: ProFormItem[] = [
   {
     dataIndex: 'name',
     title: '姓名',
-    valueType: 'text' as const,
-    searchConfig: {
-      rules: [{ required: true, message: '请输入姓名' }],
-    },
+    valueType: 'text',
+    rules: [{ required: true, message: '请输入姓名' }],
   },
   {
     dataIndex: 'email',
     title: '邮箱',
-    valueType: 'text' as const,
-    searchConfig: {
-      rules: [
-        { required: true, message: '请输入邮箱' },
-        { type: 'email' as const, message: '请输入有效的邮箱地址' },
-      ],
-    },
+    valueType: 'text',
+    rules: [
+      { required: true, message: '请输入邮箱' },
+      { type: 'email', message: '请输入有效的邮箱地址' },
+    ],
   },
   {
     dataIndex: 'role',
     title: '角色',
-    valueType: 'select' as const,
+    valueType: 'select',
     valueEnum: {
       admin: { text: '管理员' },
       editor: { text: '编辑' },
@@ -35,31 +33,28 @@ const fields = [
   {
     dataIndex: 'birthday',
     title: '生日',
-    valueType: 'date' as const,
+    valueType: 'date',
   },
   {
     dataIndex: 'bio',
     title: '简介',
-    valueType: 'textarea' as const,
+    valueType: 'textarea',
+    colSpan: 'full',
   },
 ]
 
-interface BasicFormValues {
-  name: string
-  email: string
-  role: string
-  birthday: string
-  bio: string
-}
-
-async function handleSubmit(values: BasicFormValues) {
-  // Simulate API call
+async function handleSubmit(values: Record<string, unknown>) {
   await new Promise((resolve) => setTimeout(resolve, 1000))
-  ElMessage.success(`提交成功: ${JSON.stringify(values)}`)
+  ElMessage.success('提交成功')
   return true
 }
 </script>
 
 <template>
-  <ProForm :fields="fields" :on-submit="handleSubmit" :initial-values="{ role: 'editor' }" />
+  <ProForm
+    :fields="fields"
+    :columns="2"
+    :on-submit="handleSubmit"
+    :initial-values="{ role: 'editor' }"
+  />
 </template>
