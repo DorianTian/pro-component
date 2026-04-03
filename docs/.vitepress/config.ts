@@ -158,6 +158,30 @@ export default defineConfig({
 
     search: {
       provider: 'local',
+      options: {
+        detailedView: true,
+        miniSearch: {
+          options: {
+            tokenize: (text: string) =>
+              text.split(/[\s\-_/()（）【】「」、，。！？：；]+/u).filter(Boolean),
+          },
+          searchOptions: {
+            fuzzy: 0.2,
+            prefix: true,
+            boost: { title: 4, text: 2, titles: 1 },
+          },
+        },
+        translations: {
+          button: { buttonText: '搜索', buttonAriaLabel: '搜索' },
+          modal: {
+            displayDetails: '显示详情',
+            resetButtonTitle: '清除搜索',
+            backButtonTitle: '返回',
+            noResultsText: '没有找到相关结果',
+            footer: { selectText: '选择', navigateText: '导航', closeText: '关闭' },
+          },
+        },
+      },
     },
 
     footer: {
