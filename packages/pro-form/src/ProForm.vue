@@ -226,8 +226,14 @@ defineExpose({
     ref="formRef"
     :model="formValues"
     :rules="validationRules"
-    :label-position="layout === 'vertical' ? 'top' : 'right'"
-    :label-width="layout === 'vertical' ? undefined : (labelWidth ?? DEFAULT_LABEL_WIDTH)"
+    :label-position="layout === 'vertical' ? 'top' : layout === 'inline' ? 'left' : 'right'"
+    :label-width="
+      layout === 'vertical'
+        ? undefined
+        : layout === 'inline'
+          ? 'auto'
+          : (labelWidth ?? DEFAULT_LABEL_WIDTH)
+    "
     v-bind="formProps"
     class="pro-form"
     :class="[`pro-form--${layout}`]"
@@ -321,10 +327,17 @@ defineExpose({
   width: 100%;
 }
 
-/* ─── Inline mode: compact spacing, no label-width ───────────────── */
+/* ─── Inline mode: compact spacing, label-left auto-width ────────── */
 .pro-form--inline .el-form-item {
-  margin-right: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+}
+
+.pro-form--inline .el-form-item .el-form-item__label {
+  padding-right: 8px;
+}
+
+.pro-form--inline .el-row {
+  row-gap: 0;
 }
 
 /* ─── Actions ─────────────────────────────────────────────────────── */

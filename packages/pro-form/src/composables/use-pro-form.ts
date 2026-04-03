@@ -58,7 +58,11 @@ export function useProForm(config: ProFormConfig): UseProFormReturn {
   const snapshotInitial = { ...initialValues }
 
   const visibleFields = computed<ProFieldDef[]>(() => {
-    const visible = fields.filter((f) => !f.hideInForm)
+    const visible = fields.filter((f) => {
+      if (f.hideInForm) return false
+      if (f.visible && !f.visible(formValues.value)) return false
+      return true
+    })
     return visible.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   })
 

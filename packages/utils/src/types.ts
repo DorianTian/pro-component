@@ -141,6 +141,8 @@ export interface ProFieldDef {
   dependencies?: string[]
   /** Reset this field's value when any dependency field changes */
   resetOnDependencyChange?: boolean
+  /** Dynamic visibility — return false to hide this field based on form values */
+  visible?: (formValues: Record<string, unknown>) => boolean
 
   /**
    * Dynamic field props — compute props based on current form values.

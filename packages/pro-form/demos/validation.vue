@@ -78,5 +78,5 @@ async function handleSubmit(values: Record<string, unknown>) {
 </script>
 
 <template>
-  <ProForm :fields="fields" :on-submit="handleSubmit" submit-text="注册" />
+  <ProForm :fields="fields" :columns="2" :on-submit="handleSubmit" submit-text="注册" />
 </template>
