@@ -1,8 +1,11 @@
 /* Pro Components — Dark Mode Token Overrides
  * Visual system: shadcn New York dark — Neutral gray, Blue-500 primary.
- * Activated by ProConfigProvider theme="dark" → sets data-theme="dark" on root. */
+ * Activated by:
+ *   1. ProConfigProvider theme="dark" → sets data-theme="dark" on wrapper
+ *   2. html.dark class (VitePress / Tailwind dark mode convention) */
 
-[data-theme='dark'] {
+[data-theme='dark'],
+.dark {
   /* Text */
   --pro-text-primary: #fafafa;
   --pro-text-secondary: #a3a3a3;
