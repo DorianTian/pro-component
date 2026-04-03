@@ -111,6 +111,8 @@ export interface ProFieldDef {
 
   /** Grid span (out of 24) for responsive layout */
   span?: number
+  /** Logical column span — how many grid columns this field occupies. 'full' = entire row */
+  colSpan?: number | 'full'
   /** Sort order in form layout */
   order?: number
 
@@ -137,6 +139,8 @@ export interface ProFieldDef {
 
   /** Dependencies — re-render when these fields change */
   dependencies?: string[]
+  /** Reset this field's value when any dependency field changes */
+  resetOnDependencyChange?: boolean
 
   /**
    * Dynamic field props — compute props based on current form values.
@@ -144,6 +148,27 @@ export interface ProFieldDef {
    */
   getFieldProps?: (formValues: Record<string, unknown>) => Record<string, unknown>
 }
+
+/** A group of fields rendered as a collapsible section */
+export interface ProFieldGroup {
+  /** Discriminator — marks this as a group, not a field */
+  type: 'group'
+  /** Section title */
+  title: string
+  /** Unique key for the group */
+  key?: string
+  /** Whether the group can be collapsed */
+  collapsible?: boolean
+  /** Start collapsed (only applies when collapsible=true) */
+  defaultCollapsed?: boolean
+  /** Override grid columns for this group */
+  columns?: number
+  /** Fields in this group */
+  children: ProFieldDef[]
+}
+
+/** A form item can be either a field or a group of fields */
+export type ProFormItem = ProFieldDef | ProFieldGroup
 
 /** Step definition for StepsForm */
 export interface StepFormDef {
@@ -164,8 +189,8 @@ export interface StepFormDef {
 export interface ProFormConfig {
   /** Form layout direction */
   layout?: FormLayout
-  /** Field definitions */
-  fields: ProFieldDef[]
+  /** Field definitions — can include groups for sectioned layout */
+  fields: ProFormItem[]
   /** Initial form values */
   initialValues?: Record<string, unknown>
   /** Submit handler — receives validated form values */

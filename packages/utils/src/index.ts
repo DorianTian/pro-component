@@ -11,6 +11,8 @@ export type {
   FormLayout,
   ProFormRule,
   ProFieldDef,
+  ProFieldGroup,
+  ProFormItem,
   StepFormDef,
   ProFormConfig,
 } from './types'

@@ -1,7 +1,13 @@
 import { ref, computed, shallowRef, toRaw } from 'vue'
 import type { ElForm } from 'element-plus'
 
-import type { ProFieldDef, ProFormConfig, ProFormRule } from '@pro/utils'
+import type {
+  ProFieldDef,
+  ProFieldGroup,
+  ProFormItem,
+  ProFormConfig,
+  ProFormRule,
+} from '@pro/utils'
 import type { UseProFormReturn } from '../types'
 
 /** Grid layout total columns for form row spans */
@@ -22,8 +28,27 @@ export const QUERY_FILTER_DEFAULT_COLLAPSE_THRESHOLD = 3
  * @returns Reactive form state and control methods
  */
 // eslint-disable-next-line max-lines-per-function -- Form orchestrator composable; splitting deferred to dedicated refactor
+/** Check if an item is a field group */
+function isGroup(item: ProFormItem): item is ProFieldGroup {
+  return 'type' in item && item.type === 'group'
+}
+
+/** Flatten ProFormItem[] (fields + groups) into a flat ProFieldDef[] */
+function flattenItems(items: ProFormItem[]): ProFieldDef[] {
+  const result: ProFieldDef[] = []
+  for (const item of items) {
+    if (isGroup(item)) {
+      result.push(...item.children)
+    } else {
+      result.push(item)
+    }
+  }
+  return result
+}
+
 export function useProForm(config: ProFormConfig): UseProFormReturn {
-  const { fields, initialValues = {}, onSubmit, onError } = config
+  const { fields: rawFields, initialValues = {}, onSubmit, onError } = config
+  const fields = Array.isArray(rawFields) ? flattenItems(rawFields) : []
 
   const formValues = ref({ ...initialValues })
   const isSubmitting = ref(false)
