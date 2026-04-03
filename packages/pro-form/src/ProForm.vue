@@ -226,9 +226,8 @@ defineExpose({
     ref="formRef"
     :model="formValues"
     :rules="validationRules"
-    :inline="layout === 'inline'"
     :label-position="layout === 'vertical' ? 'top' : 'right'"
-    :label-width="labelWidth ?? DEFAULT_LABEL_WIDTH"
+    :label-width="layout === 'vertical' ? undefined : (labelWidth ?? DEFAULT_LABEL_WIDTH)"
     v-bind="formProps"
     class="pro-form"
     :class="[`pro-form--${layout}`]"
@@ -312,11 +311,20 @@ defineExpose({
   width: 100%;
 }
 
-/* Inline mode: fields flow horizontally */
-.pro-form--inline .el-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
+/* ─── Force form controls to fill column width ───────────────────── */
+.pro-form .el-form-item__content > .el-input,
+.pro-form .el-form-item__content > .el-select,
+.pro-form .el-form-item__content > .el-date-editor,
+.pro-form .el-form-item__content > .el-input-number,
+.pro-form .el-form-item__content > .el-cascader,
+.pro-form .el-form-item__content > .el-tree-select {
+  width: 100%;
+}
+
+/* ─── Inline mode: compact spacing, no label-width ───────────────── */
+.pro-form--inline .el-form-item {
+  margin-right: 16px;
+  margin-bottom: 16px;
 }
 
 /* ─── Actions ─────────────────────────────────────────────────────── */
