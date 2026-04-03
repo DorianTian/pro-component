@@ -317,6 +317,20 @@
   margin-top: 0 !important;
 }
 
+/* ---- Search result highlight: browser-style yellow ---- */
+
+.VPLocalSearchBox mark {
+  background-color: #ffff00 !important;
+  color: #000 !important;
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+
+.dark .VPLocalSearchBox mark {
+  background-color: #ffdd00 !important;
+  color: #000 !important;
+}
+
 /* ---- Input focus ring in demos ---- */
 
 .vitepress-demo-plugin__preview .el-input__wrapper:focus-within {

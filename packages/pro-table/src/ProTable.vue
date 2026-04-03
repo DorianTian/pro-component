@@ -243,8 +243,8 @@ function editText(key: 'edit' | 'save' | 'cancel' | 'delete' | 'addRow' | 'actio
     <!-- ═══════ Standard Table (ElTable) ═══════ -->
     <el-table
       v-else
+      v-loading="state.activeLoading.value"
       :data="state.activeData.value"
-      :loading="state.activeLoading.value"
       :row-key="rowKey"
       :size="state.tableSize.value"
       :row-class-name="
