@@ -26,23 +26,23 @@
 .el-button--primary {
   --el-button-bg-color: var(--pro-color-primary);
   --el-button-border-color: var(--pro-color-primary);
-  --el-button-text-color: var(--pro-text-inverse);
+  --el-button-text-color: #fff;
   --el-button-hover-bg-color: var(--pro-color-primary-hover);
   --el-button-hover-border-color: var(--pro-color-primary-hover);
-  --el-button-hover-text-color: var(--pro-text-inverse);
+  --el-button-hover-text-color: #fff;
   --el-button-active-bg-color: var(--pro-color-primary-active);
   --el-button-active-border-color: var(--pro-color-primary-active);
-  --el-button-active-text-color: var(--pro-text-inverse);
+  --el-button-active-text-color: #fff;
 }
 
 /* Danger variant: solid red, white text */
 .el-button--danger {
   --el-button-bg-color: var(--pro-color-danger);
   --el-button-border-color: var(--pro-color-danger);
-  --el-button-text-color: var(--pro-text-inverse);
+  --el-button-text-color: #fff;
   --el-button-hover-bg-color: #b91c1c;
   --el-button-hover-border-color: #b91c1c;
-  --el-button-hover-text-color: var(--pro-text-inverse);
+  --el-button-hover-text-color: #fff;
   --el-button-active-bg-color: #991b1b;
   --el-button-active-border-color: #991b1b;
 }
