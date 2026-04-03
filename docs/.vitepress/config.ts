@@ -207,10 +207,11 @@ export default defineConfig({
         '@pro/breadcrumb': resolve(__dirname, '../../packages/breadcrumb/src'),
         '@pro/steps': resolve(__dirname, '../../packages/steps/src'),
         '@pro/divider': resolve(__dirname, '../../packages/divider/src'),
+        '@pro/code-editor': resolve(__dirname, '../../packages/code-editor/src'),
       },
     },
     ssr: {
-      noExternal: ['element-plus'],
+      noExternal: ['element-plus', 'monaco-editor'],
     },
   },
 
