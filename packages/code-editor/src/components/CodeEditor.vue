@@ -220,6 +220,7 @@ defineExpose({
     <div v-if="showToolbar" class="pro-code-editor__toolbar">
       <slot name="toolbar-left">
         <span class="pro-code-editor__lang-badge">{{ languageLabel }}</span>
+        <span v-if="readOnly" class="pro-code-editor__readonly-badge">READ ONLY</span>
       </slot>
       <div class="pro-code-editor__toolbar-spacer" />
       <slot name="toolbar-right">
@@ -310,6 +311,23 @@ defineExpose({
 .pro-code-editor--dark {
   background: #1e1e1e;
   border-color: #3e3e3e;
+}
+
+/* ─── Read-only badge ─────────────────────────────────────────────── */
+.pro-code-editor__readonly-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #f59e0b;
+  background: #fef3c7;
+  padding: 1px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  user-select: none;
+}
+
+.pro-code-editor--dark .pro-code-editor__readonly-badge {
+  color: #fbbf24;
+  background: #422006;
 }
 
 /* ─── Toolbar ─────────────────────────────────────────────────────── */
