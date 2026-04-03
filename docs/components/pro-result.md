@@ -8,13 +8,39 @@ outline: deep
 
 ## 成功结果
 
+默认 `type="success"`，自带预设标题和副标题。
+
 <demo vue="../../packages/result/demos/basic.vue" />
+
+## 所有基础类型
+
+4 种基础类型：success、error、warning、info，每种有不同的图标和配色。
+
+<demo vue="../../packages/result/demos/all-types.vue" />
+
+## 自定义图标
+
+通过 `#icon` 插槽替换默认图标，实现个性化展示。
+
+<demo vue="../../packages/result/demos/custom-icon.vue" />
+
+## 操作按钮
+
+通过 `#extra` 插槽添加操作按钮，支持多个按钮组合。
+
+<demo vue="../../packages/result/demos/extra.vue" />
 
 ## HTTP 错误码
 
-HTTP 错误类型带有大字水印效果：
+单个 HTTP 错误类型带有大字水印效果：
 
 <demo vue="../../packages/result/demos/http-error.vue" />
+
+## 所有 HTTP 错误
+
+403、404、500 三种 HTTP 错误码对比展示：
+
+<demo vue="../../packages/result/demos/http-errors.vue" />
 
 ## API
 

@@ -493,9 +493,7 @@ function pgTotalFormatter(total: number, range: [number, number]): string {
           </div>
 
           <!-- State readout -->
-          <div class="pg-state">
-            page={{ pgPage }}, pageSize={{ pgSize }}, total={{ pgTotal }}
-          </div>
+          <div class="pg-state">page={{ pgPage }}, pageSize={{ pgSize }}, total={{ pgTotal }}</div>
         </div>
       </main>
     </div>

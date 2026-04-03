@@ -6,9 +6,35 @@ outline: deep
 
 增强型空状态组件，内置 4 种预设类型，每种配有专属 SVG 图标，支持自定义操作按钮。
 
-## 预设类型
+## 基础用法
+
+最简单的空状态展示，默认类型为 `no-data`。
 
 <demo vue="../../packages/empty/demos/basic.vue" />
+
+## 预设类型
+
+4 种预设类型对比：no-data、no-result、error、no-permission。
+
+<demo vue="../../packages/empty/demos/types.vue" />
+
+## 自定义图片和描述
+
+使用 `type="custom"` 配合 `image` 和 `description` 属性，实现完全自定义的空状态。
+
+<demo vue="../../packages/empty/demos/custom.vue" />
+
+## 表格空状态
+
+在 ElTable 的 `#empty` 插槽中使用 ProEmpty，替代默认的空状态展示。
+
+<demo vue="../../packages/empty/demos/in-table.vue" />
+
+## 错误重试
+
+`type="error"` 时自动显示重试按钮，通过 `@retry` 事件处理重新请求。
+
+<demo vue="../../packages/empty/demos/retry.vue" />
 
 ## API
 

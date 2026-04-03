@@ -36,6 +36,48 @@ outline: deep
 
 <demo vue="../../packages/pro-descriptions/demos/columns-reuse.vue" />
 
+## 不同尺寸
+
+通过 `size` 属性切换大、中、小三种尺寸。
+
+<demo vue="../../packages/pro-descriptions/demos/sizes.vue" />
+
+## 列数控制
+
+通过 `column` 属性控制一行显示的字段数量，适配不同宽度的容器。
+
+<demo vue="../../packages/pro-descriptions/demos/column-count.vue" />
+
+## ValueType 展示
+
+展示所有常用 valueType 在描述列表中的渲染效果。
+
+<demo vue="../../packages/pro-descriptions/demos/value-types.vue" />
+
+## 隐藏敏感字段
+
+通过 `hideInDescriptions` 控制字段可见性，隐藏敏感信息（如身份证、密码）。
+
+<demo vue="../../packages/pro-descriptions/demos/hide-fields.vue" />
+
+## 垂直布局
+
+通过 `descriptionsProps` 透传 `direction: 'vertical'` 实现标签在上、内容在下的垂直布局。
+
+<demo vue="../../packages/pro-descriptions/demos/vertical.vue" />
+
+## 异步加载详情
+
+模拟从接口异步加载详情数据，加载期间显示骨架屏。
+
+<demo vue="../../packages/pro-descriptions/demos/request.vue" />
+
+## 结合 ProForm 编辑
+
+将 ProDescriptions 与 ProForm 结合，实现查看/编辑模式切换。
+
+<demo vue="../../packages/pro-descriptions/demos/editable.vue" />
+
 ## API
 
 ### ProDescriptions Props

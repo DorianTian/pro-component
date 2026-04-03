@@ -54,6 +54,66 @@ Schema 驱动的数据表格，内置搜索表单、分页、列设置、工具�
 
 <demo vue="../../packages/pro-table/demos/editable.vue" />
 
+## 列排序
+
+支持本地排序和远程排序。设置 `sortable: true` 启用本地排序，`sortable: 'custom'` 配合 `request` 实现服务端排序。
+
+<demo vue="../../packages/pro-table/demos/sort.vue" />
+
+## 固定列
+
+通过 `fixed: 'left'` 或 `fixed: 'right'` 固定列，配合水平滚动查看更多列。
+
+<demo vue="../../packages/pro-table/demos/fixed-columns.vue" />
+
+## 嵌套数据路径
+
+`dataIndex` 支持点号分隔的嵌套路径（如 `'user.name'`、`'product.category.label'`），自动从嵌套对象中取值。
+
+<demo vue="../../packages/pro-table/demos/nested-data.vue" />
+
+## 自定义列渲染
+
+通过列定义的 `render` 函数自定义单元格渲染，支持返回 VNode 实现复杂展示效果。
+
+<demo vue="../../packages/pro-table/demos/custom-render.vue" />
+
+## 请求/响应转换钩子
+
+`beforeRequest` 在请求发出前转换参数，`afterResponse` 在响应返回后转换数据格式，适配各种后端接口规范。
+
+<demo vue="../../packages/pro-table/demos/before-after.vue" />
+
+## 密度切换
+
+通过工具栏的密度切换按钮调整表格行高和间距，提供紧凑、默认、宽松三种密度。
+
+<demo vue="../../packages/pro-table/demos/sizes.vue" />
+
+## 分页配置
+
+支持自定义每页条数、页码选项、禁用分页等配置。
+
+<demo vue="../../packages/pro-table/demos/pagination.vue" />
+
+## 空数据状态
+
+表格无数据时的空状态展示，通过 `tableProps` 透传 `emptyText` 自定义提示文案。
+
+<demo vue="../../packages/pro-table/demos/empty-state.vue" />
+
+## 可展开行
+
+通过 `#action` 插槽配合 `el-table-column type="expand"` 实现行展开详情。
+
+<demo vue="../../packages/pro-table/demos/expandable.vue" />
+
+## 斑马纹与边框
+
+通过 `tableProps` 透传 `stripe` 和 `border` 属性，启用斑马纹和边框样式。
+
+<demo vue="../../packages/pro-table/demos/stripe.vue" />
+
 ## API
 
 ### ProTable Props

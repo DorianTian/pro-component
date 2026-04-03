@@ -8,9 +8,39 @@ outline: deep
 
 ## 基础用法
 
-点击按钮切换不同状态：
+通过开关控制加载状态，加载完成后显示实际内容。
 
 <demo vue="../../packages/loading/demos/basic.vue" />
+
+## 四种状态切换
+
+点击按钮切换 loading / empty / error / success 四种状态：
+
+<demo vue="../../packages/loading/demos/states.vue" />
+
+## 骨架屏行数
+
+通过 `skeletonRows` 控制默认骨架屏的行数，适配不同内容高度。
+
+<demo vue="../../packages/loading/demos/skeleton.vue" />
+
+## 自定义插槽
+
+通过 `#loading`、`#empty`、`#error` 插槽完全自定义各状态的展示内容。
+
+<demo vue="../../packages/loading/demos/custom-slots.vue" />
+
+## 错误重试
+
+错误状态带有重试按钮，点击后触发 `@retry` 事件。
+
+<demo vue="../../packages/loading/demos/retry.vue" />
+
+## 真实场景
+
+模拟异步请求场景：加载 → 随机返回数据 / 空数据 / 错误。
+
+<demo vue="../../packages/loading/demos/real-world.vue" />
 
 ## API
 

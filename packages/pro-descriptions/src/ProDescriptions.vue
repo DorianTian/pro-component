@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import { h, toRef } from 'vue'
-import { ElDescriptions, ElDescriptionsItem, ElTag, ElSkeleton } from 'element-plus'
+import {
+  ElDescriptions,
+  ElDescriptionsItem,
+  ElTag,
+  ElSkeleton,
+  ElProgress,
+  ElRate,
+  ElImage,
+} from 'element-plus'
 import { useProDescriptions } from './composables/use-pro-descriptions'
 
-import type { ProColumnDef, StatusType } from '@pro/utils'
+import type { ProColumnDef, StatusType, ValueType } from '@pro/utils'
 import type { DescriptionItem } from './composables/use-pro-descriptions'
 
 defineOptions({ name: 'ProDescriptions' })
@@ -43,6 +51,65 @@ const STATUS_TAG_TYPE_MAP: Record<
   default: undefined,
 }
 
+/** Render visual value types as actual components instead of plain text */
+function renderVisualValueType(valueType: ValueType, value: unknown) {
+  if (value === null || value === undefined) return '-'
+
+  switch (valueType) {
+    case 'progress':
+      return h(ElProgress, {
+        percentage: Number(value),
+        strokeWidth: 8,
+        class: 'pro-descriptions__progress',
+      })
+
+    case 'rate':
+      return h(ElRate, {
+        modelValue: Number(value),
+        disabled: true,
+        allowHalf: true,
+        class: 'pro-descriptions__rate',
+      })
+
+    case 'switch':
+      return h('span', { class: `pro-descriptions__switch ${value ? 'is-active' : ''}` }, [
+        h('span', { class: 'pro-descriptions__switch-dot' }),
+        h('span', { class: 'pro-descriptions__switch-text' }, value ? '已开启' : '已关闭'),
+      ])
+
+    case 'code':
+      return h('code', { class: 'pro-descriptions__code' }, String(value))
+
+    case 'image':
+      return h(ElImage, {
+        src: String(value),
+        fit: 'cover',
+        previewSrcList: [String(value)],
+        class: 'pro-descriptions__image',
+        style: { width: '80px', height: '80px', borderRadius: '6px' },
+      })
+
+    case 'percent':
+      return h('span', { class: 'pro-descriptions__percent' }, [
+        h('span', { class: 'pro-descriptions__percent-value' }, String(value)),
+        h('span', { class: 'pro-descriptions__percent-symbol' }, '%'),
+      ])
+
+    default:
+      return null
+  }
+}
+
+/** Value types that get visual component rendering */
+const VISUAL_VALUE_TYPES = new Set<string>([
+  'progress',
+  'rate',
+  'switch',
+  'code',
+  'image',
+  'percent',
+])
+
 function renderItemContent(item: DescriptionItem) {
   // Custom render takes priority
   if (item.hasCustomRender && item.descriptionsRender) {
@@ -53,6 +120,13 @@ function renderItemContent(item: DescriptionItem) {
   if (item.displayText) {
     const tagType = item.statusType ? STATUS_TAG_TYPE_MAP[item.statusType] : undefined
     return h(ElTag, { type: tagType, size: 'small' }, { default: () => item.displayText })
+  }
+
+  // Visual value types → render as components
+  const valueType = item.column.valueType ?? 'text'
+  if (VISUAL_VALUE_TYPES.has(valueType)) {
+    const visual = renderVisualValueType(valueType as ValueType, item.value)
+    if (visual) return visual
   }
 
   // Default: formatted text
@@ -92,8 +166,9 @@ defineExpose({
   width: 100%;
 }
 
-/* Loading state spacing */
 .pro-descriptions--loading {
   padding: var(--pro-space-5);
 }
+/* Visual value type styles are in themes/overrides/descriptions.css (global)
+   because h() rendered elements don't get Vue scoped attributes. */
 </style>

@@ -1,17 +1,266 @@
 /* Pro Components — Descriptions Override Styles
- * Scoped to .pro-descriptions container. */
+ * Refined shadcn New York treatment for ElDescriptions.
+ * Uses high-specificity selectors to override Element Plus defaults. */
 
-/* Cell spacing */
-.pro-descriptions .el-descriptions__cell {
-  padding-bottom: var(--pro-space-4);
+/* ---- Title: stronger visual weight ---- */
+.pro-descriptions .el-descriptions__title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: var(--pro-text-primary) !important;
+  line-height: 1.4;
 }
 
-/* Value font weight */
-.pro-descriptions .el-descriptions__content {
-  font-weight: var(--pro-font-weight-medium);
+/* ---- Header: bottom separator for visual structure ---- */
+.pro-descriptions .el-descriptions__header {
+  margin-bottom: 20px !important;
+  padding-bottom: 16px !important;
+  border-bottom: 1px solid var(--pro-border-default) !important;
 }
 
-/* Tags inside descriptions */
+/* Bordered mode: no double header border */
+.pro-descriptions .el-descriptions--border .el-descriptions__header {
+  border-bottom: none !important;
+  margin-bottom: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+/* ==========================
+   NON-BORDERED MODE
+   ========================== */
+
+/* Label: stronger, readable */
+.pro-descriptions .el-descriptions__cell .el-descriptions__label:not(.is-bordered-label) {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--pro-text-secondary) !important;
+  min-width: 80px !important;
+  padding-right: 16px !important;
+  white-space: nowrap;
+}
+
+/* Content: clear dark text */
+.pro-descriptions .el-descriptions__cell .el-descriptions__content:not(.is-bordered-content) {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--pro-text-primary) !important;
+}
+
+/* Cell spacing: generous vertical rhythm */
+.pro-descriptions .el-descriptions:not(.el-descriptions--border) .el-descriptions__cell {
+  padding-bottom: 16px !important;
+}
+
+/* Row bottom border for visual separation */
+.pro-descriptions .el-descriptions:not(.el-descriptions--border) .el-descriptions__body tr {
+  border-bottom: 1px solid var(--pro-border-light);
+}
+
+.pro-descriptions
+  .el-descriptions:not(.el-descriptions--border)
+  .el-descriptions__body
+  tr:last-child {
+  border-bottom: none;
+}
+
+/* Top padding on rows (except first) */
+.pro-descriptions
+  .el-descriptions:not(.el-descriptions--border)
+  .el-descriptions__body
+  tr
+  + tr
+  .el-descriptions__cell {
+  padding-top: 16px !important;
+}
+
+/* ==========================
+   BORDERED MODE
+   ========================== */
+
+/* Bordered: override EP's border variable at root */
+.pro-descriptions .el-descriptions--border {
+  --el-descriptions-table-border: 1px solid #f0f0f0 !important;
+  --el-descriptions-item-bordered-label-background: #fafafa !important;
+}
+
+/* Bordered: outer container */
+.pro-descriptions .el-descriptions--border .el-descriptions__body {
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+/* Bordered: label cell */
+.pro-descriptions
+  .el-descriptions__body
+  .el-descriptions__table.is-bordered
+  .el-descriptions__label {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--pro-text-secondary) !important;
+  background-color: #fafafa !important;
+  padding: 12px 20px !important;
+  white-space: nowrap;
+}
+
+/* Bordered: content cell */
+.pro-descriptions
+  .el-descriptions__body
+  .el-descriptions__table.is-bordered
+  .el-descriptions__content {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--pro-text-primary) !important;
+  padding: 12px 20px !important;
+}
+
+/* ==========================
+   SIZE VARIANTS
+   ========================== */
+
+/* Small */
+.pro-descriptions
+  .el-descriptions--small
+  .el-descriptions__cell
+  .el-descriptions__label:not(.is-bordered-label) {
+  font-size: 13px !important;
+}
+
+.pro-descriptions
+  .el-descriptions--small
+  .el-descriptions__cell
+  .el-descriptions__content:not(.is-bordered-content) {
+  font-size: 13px !important;
+}
+
+.pro-descriptions .el-descriptions--small .el-descriptions__label.is-bordered-label {
+  padding: 8px 16px !important;
+  font-size: 13px !important;
+}
+
+.pro-descriptions .el-descriptions--small .el-descriptions__content.is-bordered-content {
+  padding: 8px 16px !important;
+  font-size: 13px !important;
+}
+
+/* Large */
+.pro-descriptions
+  .el-descriptions--large
+  .el-descriptions__cell
+  .el-descriptions__label:not(.is-bordered-label) {
+  font-size: 15px !important;
+}
+
+.pro-descriptions
+  .el-descriptions--large
+  .el-descriptions__cell
+  .el-descriptions__content:not(.is-bordered-content) {
+  font-size: 15px !important;
+}
+
+.pro-descriptions .el-descriptions--large .el-descriptions__label.is-bordered-label {
+  padding: 16px 24px !important;
+  font-size: 15px !important;
+}
+
+.pro-descriptions .el-descriptions--large .el-descriptions__content.is-bordered-content {
+  padding: 16px 24px !important;
+  font-size: 15px !important;
+}
+
+/* ==========================
+   VISUAL VALUE TYPE STYLES
+   (must be global, not scoped — h() rendered elements
+    don't get Vue scoped attributes)
+   ========================== */
+
+/* ---- Switch indicator ---- */
+.pro-descriptions__switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pro-descriptions__switch-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--pro-text-disabled, #d4d4d4);
+  flex-shrink: 0;
+}
+
+.pro-descriptions__switch.is-active .pro-descriptions__switch-dot {
+  background-color: var(--pro-color-success, #16a34a);
+}
+
+.pro-descriptions__switch-text {
+  font-size: 14px;
+  color: var(--pro-text-secondary, #737373);
+}
+
+.pro-descriptions__switch.is-active .pro-descriptions__switch-text {
+  color: var(--pro-text-primary, #0a0a0a);
+}
+
+/* ---- Code block ---- */
+.pro-descriptions__code {
+  display: inline-block;
+  padding: 2px 8px;
+  font-family: var(--pro-font-mono, 'SF Mono', Monaco, monospace);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--pro-color-danger, #dc2626);
+  background-color: var(--pro-bg-sunken, #f5f5f5);
+  border: 1px solid var(--pro-border-light, #f0f0f0);
+  border-radius: 4px;
+  word-break: break-all;
+}
+
+/* ---- Percent ---- */
+.pro-descriptions__percent {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.pro-descriptions__percent-value {
+  font-weight: 600;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pro-descriptions__percent-symbol {
+  font-size: 12px;
+  color: var(--pro-text-secondary, #737373);
+  margin-left: 1px;
+}
+
+/* ---- Progress ---- */
+.pro-descriptions__progress {
+  max-width: 180px;
+}
+
+/* ---- Rate ---- */
+.pro-descriptions__rate {
+  display: inline-flex !important;
+  vertical-align: middle;
+  --el-rate-height: 18px;
+  --el-rate-font-size: 16px;
+}
+
+/* ---- Image ---- */
+.pro-descriptions__image {
+  border: 1px solid var(--pro-border-light, #f0f0f0);
+}
+
+/* ==========================
+   MISC
+   ========================== */
+
+/* Tags */
 .pro-descriptions .el-tag {
-  border-radius: var(--pro-radius-pill);
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* Loading skeleton */
+.pro-descriptions--loading .el-skeleton__item {
+  border-radius: 4px;
 }
