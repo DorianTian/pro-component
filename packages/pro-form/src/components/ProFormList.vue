@@ -114,27 +114,59 @@ function updateItemField(index: number, fieldKey: string, value: unknown): void 
 </template>
 
 <style scoped>
+.pro-form-list {
+  margin-bottom: var(--pro-space-4);
+}
+
 .pro-form-list__item {
   display: flex;
   align-items: flex-start;
-  gap: var(--pro-space-3);
-  padding: var(--pro-space-4);
+  gap: var(--pro-space-4);
+  padding: var(--pro-space-4) var(--pro-space-5);
   margin-bottom: var(--pro-space-3);
-  border: 1px dashed var(--pro-border-light);
+  border: 1px solid var(--pro-border-light);
   border-radius: var(--pro-radius-md);
+  background: var(--pro-bg-sunken);
+  transition: border-color var(--pro-transition-fast);
+}
+
+.pro-form-list__item:hover {
+  border-color: var(--pro-border-default);
 }
 
 .pro-form-list__fields {
   flex: 1;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--pro-space-3);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0 var(--pro-space-4);
+  min-width: 0;
+}
+
+/* Force labels above controls inside list items for compact layout */
+.pro-form-list__fields :deep(.el-form-item) {
+  margin-bottom: var(--pro-space-2);
+}
+
+.pro-form-list__fields :deep(.el-form-item__label) {
+  float: none;
+  display: block;
+  text-align: left;
+  padding-bottom: 4px;
+  line-height: 1.4;
+  font-size: var(--pro-text-xs);
+  color: var(--pro-text-secondary);
+}
+
+.pro-form-list__fields :deep(.el-form-item__content) {
+  margin-left: 0 !important;
 }
 
 .pro-form-list__actions {
   display: flex;
+  flex-direction: column;
   gap: var(--pro-space-1);
-  padding-top: var(--pro-space-1);
+  padding-top: 20px; /* align with input (below label) */
+  flex-shrink: 0;
 }
 
 .pro-form-list__add {
