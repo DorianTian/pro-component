@@ -8,11 +8,12 @@ outline: deep
 
 ::: info Pro 深度增强
 ProTabs 在 ElTabs 基础上增加了关键的业务体验优化：
+
 - **关闭确认** — `confirmClose` 启用关闭前确认弹窗，防止误关重要标签页
 - **语义化变体** — `variant` 属性支持 `'line'` / `'card'` / `'border-card'` 三种风格
 - **自定义确认文案** — 支持配置确认弹窗标题和内容
 - **ProTabPane** — 配套的标签面板组件，统一使用体验
-:::
+  :::
 
 ## 基础用法
 

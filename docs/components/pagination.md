@@ -8,9 +8,10 @@ outline: deep
 
 ::: info Pro 增强
 相比原生 `ElPagination`，Pro Pagination 提供：
+
 - **智能默认值** — `layout` 默认包含完整功能（total + sizes + prev/pager/next + jumper），`pageSizes` 默认 `[10, 20, 50, 100]`
 - **Design Token** — 自动集成 shadcn New York 视觉规范（按钮对齐、字重）
-:::
+  :::
 
 ## 默认配置
 

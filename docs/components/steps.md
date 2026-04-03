@@ -7,9 +7,10 @@ outline: deep
 基于 Element Plus `ElSteps` / `ElStep` 的统一封装。统一 shadcn-vue 视觉风格，API 同 Element Plus。
 
 ::: info Pro 增强
+
 - **Design Token** — 自动集成 shadcn New York 视觉规范（步骤条配色、字重）
 - **统一导出** — 同时导出 `Steps` 和 `Step` 组件
-:::
+  :::
 
 ## 导出组件
 

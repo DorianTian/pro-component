@@ -8,10 +8,11 @@ outline: deep
 
 ::: info Pro 增强
 相比原生 `ElCascader`，Pro Cascader 提供：
+
 - **智能默认值** — `clearable` 和 `filterable` 默认开启
 - **Design Token** — 自动集成 shadcn New York 视觉规范
 - **ValueType 生态** — `valueType: 'cascader'` 在 ProTable / ProForm 中统一驱动渲染
-:::
+  :::
 
 ## 默认配置
 

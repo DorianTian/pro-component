@@ -8,11 +8,12 @@ outline: deep
 
 ::: info Pro 深度增强
 ProTag 不是 ElTag 的简单封装，而是面向状态展示的增强组件：
+
 - **状态预设** — 6 种语义状态（`success` / `warning` / `error` / `info` / `processing` / `default`），一个 `status` 属性搞定颜色
 - **Processing 动画** — `processing` 状态自带脉冲圆点动画，适合"运行中"场景
 - **自定义颜色** — `color` 属性支持任意色值，自动计算背景和边框的透明度
 - **Pill 圆角** — 默认胶囊形圆角，现代感更强
-:::
+  :::
 
 ## 导出
 

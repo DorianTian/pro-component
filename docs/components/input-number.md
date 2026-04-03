@@ -8,10 +8,11 @@ outline: deep
 
 ::: info Pro 增强
 相比原生 `ElInputNumber`，Pro InputNumber 提供：
+
 - **智能默认值** — `controlsPosition` 默认为 `'right'`（更紧凑的按钮布局）
 - **Design Token** — 自动集成 shadcn New York 视觉规范
 - **ValueType 生态** — `valueType: 'number' | 'money' | 'percent'` 在 ProTable / ProForm 中统一驱动渲染
-:::
+  :::
 
 ## 默认配置
 

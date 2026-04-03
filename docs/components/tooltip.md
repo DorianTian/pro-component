@@ -8,9 +8,10 @@ outline: deep
 
 ::: info Pro 增强
 相比原生 `ElTooltip`，Pro Tooltip 提供：
+
 - **智能默认值** — `showAfter` 默认 300ms，避免鼠标快速划过时频繁弹出
 - **Design Token** — 自动集成 shadcn New York 视觉规范
-:::
+  :::
 
 ## 默认配置
 

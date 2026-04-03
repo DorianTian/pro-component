@@ -7,9 +7,10 @@ outline: deep
 基于 Element Plus `ElRate` 的统一封装。统一 shadcn-vue 视觉风格，API 同 Element Plus。
 
 ::: info Pro 增强
+
 - **Design Token** — 自动集成 shadcn New York 视觉规范
 - **ValueType 生态** — `valueType: 'rate'` 在 ProTable / ProForm 中自动渲染评分控件，ProDescriptions 中渲染为只读星级
-:::
+  :::
 
 ## 基础用法
 

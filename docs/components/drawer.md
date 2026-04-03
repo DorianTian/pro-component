@@ -8,9 +8,10 @@ outline: deep
 
 ::: info Pro 增强
 相比原生 `ElDrawer`，Pro Drawer 提供：
+
 - **智能默认值** — `appendToBody` 默认开启，避免 z-index 层级问题
 - **Design Token** — 自动集成 shadcn New York 视觉规范
-:::
+  :::
 
 ## 默认配置
 
