@@ -144,12 +144,19 @@ function getChildCount(data: ProTreeNodeData): number {
 // ─── Drag-and-drop data layer ──────────────────────────────────────
 const undoStack = ref<ProTreeNodeData[][]>([])
 const redoStack = ref<ProTreeNodeData[][]>([])
+/** Snapshot taken at drag-start, before ElTree mutates data */
+let preDragSnapshot: ProTreeNodeData[] | null = null
 
 const canUndo = computed(() => undoStack.value.length > 0)
 const canRedo = computed(() => redoStack.value.length > 0)
 
-function pushSnapshot(): void {
-  undoStack.value.push(cloneTree(props.data))
+/** Capture snapshot BEFORE ElTree starts mutating */
+function handleDragStart(): void {
+  preDragSnapshot = cloneTree(props.data)
+}
+
+function pushSnapshot(snapshot: ProTreeNodeData[]): void {
+  undoStack.value.push(snapshot)
   if (undoStack.value.length > props.maxHistory) {
     undoStack.value.shift()
   }
@@ -201,9 +208,10 @@ function handleAllowDrop(
 }
 
 /**
- * ElTree node-drop handler — the core of our data layer.
- * ElTree has ALREADY mutated its internal tree by this point.
- * We compute the correct new data ourselves and emit it.
+ * ElTree node-drop handler.
+ * By this point ElTree has ALREADY mutated the data array in place.
+ * We save the pre-drag snapshot for undo and emit the mutated data
+ * so the parent stays in sync.
  */
 async function handleNodeDrop(
   dragging: { data: ProTreeNodeData },
@@ -221,19 +229,18 @@ async function handleNodeDrop(
     dropData: drop.data,
   }
 
-  // Build new data from our own source of truth (not ElTree's internal state)
-  pushSnapshot()
-  const newData = cloneTree(props.data)
-  const removed = removeNode(newData, dragKey, props.nodeKey)
-  if (!removed) return
+  // Save pre-drag snapshot for undo (captured at drag-start, before mutation)
+  if (preDragSnapshot) {
+    pushSnapshot(preDragSnapshot)
+    preDragSnapshot = null
+  }
 
-  insertNode(newData, dropKey, removed, type, props.nodeKey)
-
-  // Optimistic update
-  emit('update:data', newData)
+  // ElTree already mutated props.data in place — emit a clone
+  // so the parent v-model gets a new reference and stays reactive
+  emit('update:data', cloneTree(props.data))
   emit('drag-end', dragEvent)
 
-  // Server confirm
+  // Server confirm — rollback on failure
   if (props.onDragConfirm) {
     try {
       const result = await props.onDragConfirm(dragEvent)
@@ -333,11 +340,26 @@ defineExpose({
         :allow-drag="draggable ? handleAllowDrag : undefined"
         :allow-drop="draggable ? handleAllowDrop : undefined"
         v-bind="attrs"
+        @node-drag-start="draggable ? handleDragStart : undefined"
         @node-drop="draggable ? handleNodeDrop : undefined"
       >
-        <!-- Default node content with count badge -->
+        <!-- Default node content with drag handle + count badge -->
         <template #default="{ node, data: nodeData }">
           <span class="pro-tree__node" :class="{ 'pro-tree__node--selected': node.isCurrent }">
+            <svg
+              v-if="draggable"
+              class="pro-tree__drag-handle"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="5.5" cy="4" r="1.2" />
+              <circle cx="10.5" cy="4" r="1.2" />
+              <circle cx="5.5" cy="8" r="1.2" />
+              <circle cx="10.5" cy="8" r="1.2" />
+              <circle cx="5.5" cy="12" r="1.2" />
+              <circle cx="10.5" cy="12" r="1.2" />
+            </svg>
             <span class="pro-tree__node-label">{{ node.label }}</span>
             <span v-if="getChildCount(nodeData) > 0" class="pro-tree__node-badge">
               {{ getChildCount(nodeData) }}
@@ -511,6 +533,31 @@ defineExpose({
   flex: 1;
   min-width: 0;
   color: var(--pro-text-primary);
+}
+
+/* ─── Drag handle ─────────────────────────────────────────────────── */
+.pro-tree .pro-tree__drag-handle {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--pro-text-quaternary, #d4d4d4);
+  cursor: grab;
+  opacity: 0;
+  transition:
+    opacity var(--pro-transition-fast),
+    color var(--pro-transition-fast);
+}
+
+.pro-tree .el-tree-node__content:hover .pro-tree__drag-handle {
+  opacity: 1;
+}
+
+.pro-tree .pro-tree__drag-handle:hover {
+  color: var(--pro-text-tertiary);
+}
+
+.pro-tree .pro-tree__drag-handle:active {
+  cursor: grabbing;
 }
 
 /* ─── Child count badge ────────────────────────────────────────────── */
