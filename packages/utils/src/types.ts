@@ -191,8 +191,8 @@ export interface StepFormDef {
 export interface ProFormConfig {
   /** Form layout direction */
   layout?: FormLayout
-  /** Field definitions — can include groups for sectioned layout */
-  fields: ProFormItem[]
+  /** Field definitions — can include groups for sectioned layout. Accepts array or reactive ref. */
+  fields: ProFormItem[] | { value: ProFormItem[] }
   /** Initial form values */
   initialValues?: Record<string, unknown>
   /** Submit handler — receives validated form values */

@@ -63,7 +63,7 @@ const allFields = computed(() => flattenFields(props.fields))
 // ─── Form state composable (works with flat fields) ────────────────
 const formState = useProForm({
   layout: props.layout,
-  fields: allFields.value,
+  fields: allFields,
   initialValues: props.initialValues,
   onSubmit: props.onSubmit,
   onError: props.onError,

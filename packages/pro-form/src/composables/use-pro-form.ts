@@ -48,7 +48,14 @@ function flattenItems(items: ProFormItem[]): ProFieldDef[] {
 
 export function useProForm(config: ProFormConfig): UseProFormReturn {
   const { fields: rawFields, initialValues = {}, onSubmit, onError } = config
-  const fields = Array.isArray(rawFields) ? flattenItems(rawFields) : []
+
+  /** Resolve fields reactively — accepts plain array or computed ref */
+  const resolveRawFields = (): ProFormItem[] => {
+    if (Array.isArray(rawFields)) return rawFields
+    return (rawFields as { value: ProFormItem[] }).value
+  }
+
+  const fields = computed(() => flattenItems(resolveRawFields()))
 
   const formValues = ref({ ...initialValues })
   const isSubmitting = ref(false)
@@ -58,7 +65,7 @@ export function useProForm(config: ProFormConfig): UseProFormReturn {
   const snapshotInitial = { ...initialValues }
 
   const visibleFields = computed<ProFieldDef[]>(() => {
-    const visible = fields.filter((f) => {
+    const visible = fields.value.filter((f) => {
       if (f.hideInForm) return false
       if (f.visible && !f.visible(formValues.value)) return false
       return true
@@ -68,7 +75,7 @@ export function useProForm(config: ProFormConfig): UseProFormReturn {
 
   const validationRules = computed<Record<string, ProFormRule[]>>(() => {
     const rules: Record<string, ProFormRule[]> = {}
-    for (const field of fields) {
+    for (const field of fields.value) {
       if (field.rules && field.rules.length > 0) {
         rules[field.dataIndex] = field.rules
       }
@@ -81,7 +88,10 @@ export function useProForm(config: ProFormConfig): UseProFormReturn {
     const initial = snapshotInitial
     const allKeys = new Set([...Object.keys(current), ...Object.keys(initial)])
     for (const key of allKeys) {
-      if (current[key] !== initial[key]) {
+      const a = current[key]
+      const b = initial[key]
+      // Deep comparison for objects/arrays, strict for primitives
+      if (a !== b && JSON.stringify(a) !== JSON.stringify(b)) {
         return true
       }
     }

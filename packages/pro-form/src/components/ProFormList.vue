@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { ElButton, ElIcon } from 'element-plus'
 import { Plus, Delete, CopyDocument } from '@element-plus/icons-vue'
 import { useProLocale } from '@pro/hooks'
@@ -37,10 +37,24 @@ const items = computed<Record<string, unknown>[]>({
   },
   set(newItems) {
     if (formCtx) {
-      formCtx.formValues.value[props.name] = newItems
+      formCtx.setFieldValue(props.name, newItems)
     }
   },
 })
+
+/** Stable key counter for v-for — avoids index-based keying anti-pattern */
+let keyCounter = 0
+const itemKeys = ref<number[]>([])
+
+// Initialize keys for existing items
+function ensureKeys(): void {
+  while (itemKeys.value.length < items.value.length) {
+    itemKeys.value.push(keyCounter++)
+  }
+  if (itemKeys.value.length > items.value.length) {
+    itemKeys.value = itemKeys.value.slice(0, items.value.length)
+  }
+}
 
 const canAdd = computed(() => items.value.length < props.max)
 const canRemove = computed(() => items.value.length > props.min)
@@ -48,6 +62,7 @@ const canRemove = computed(() => items.value.length > props.min)
 function addItem(): void {
   if (!canAdd.value) return
   items.value = [...items.value, props.creatorInitialValue()]
+  itemKeys.value = [...itemKeys.value, keyCounter++]
 }
 
 function removeItem(index: number): void {
@@ -55,6 +70,9 @@ function removeItem(index: number): void {
   const newItems = [...items.value]
   newItems.splice(index, 1)
   items.value = newItems
+  const newKeys = [...itemKeys.value]
+  newKeys.splice(index, 1)
+  itemKeys.value = newKeys
 }
 
 function copyItem(index: number): void {
@@ -62,6 +80,9 @@ function copyItem(index: number): void {
   const newItems = [...items.value]
   newItems.splice(index + 1, 0, { ...newItems[index] })
   items.value = newItems
+  const newKeys = [...itemKeys.value]
+  newKeys.splice(index + 1, 0, keyCounter++)
+  itemKeys.value = newKeys
 }
 
 function updateItemField(index: number, fieldKey: string, value: unknown): void {
@@ -80,7 +101,11 @@ function fieldProp(index: number, dataIndex: string): string {
 
 <template>
   <div class="pro-form-list">
-    <div v-for="(item, index) in items" :key="index" class="pro-form-list__item">
+    <div
+      v-for="(item, index) in (ensureKeys(), items)"
+      :key="itemKeys[index]"
+      class="pro-form-list__item"
+    >
       <div class="pro-form-list__fields">
         <ProFormField
           v-for="field in fields"
