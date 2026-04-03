@@ -400,6 +400,11 @@ function editText(key: 'edit' | 'save' | 'cancel' | 'delete' | 'addRow' | 'actio
 }
 
 .pro-table :deep(.pro-table__row--editing td .cell) {
+  overflow: visible !important;
+  text-overflow: clip;
+}
+
+.pro-table :deep(.pro-table__row--editing td) {
   overflow: visible;
 }
 
