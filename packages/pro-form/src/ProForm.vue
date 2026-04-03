@@ -299,6 +299,9 @@ defineExpose({
       </div>
     </template>
 
+    <!-- Default slot for custom content (e.g. ProFormList) -->
+    <slot />
+
     <div v-if="showActions" class="pro-form__actions">
       <slot name="actions" :loading="loading" :submit="handleSubmit" :reset="handleReset">
         <ElButton type="primary" :loading="loading" class="pro-form__submit" @click="handleSubmit">
