@@ -6,6 +6,11 @@ outline: deep
 
 基于 Element Plus `ElAutocomplete` 的统一封装。统一 shadcn-vue 视觉风格，API 同 Element Plus。
 
+::: info Pro 增强
+- **Design Token** — 自动集成 shadcn New York 视觉规范（focus ring、border、圆角）
+- **统一导入** — `import { AutoComplete } from '@pro/auto-complete'`，与 Pro 组件生态统一
+:::
+
 ## 基础用法
 
 基本的自动补全输入框用法。

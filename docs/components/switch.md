@@ -6,6 +6,11 @@ outline: deep
 
 基于 Element Plus `ElSwitch` 的统一封装。统一 shadcn-vue 视觉风格，API 同 Element Plus。
 
+::: info Pro 增强
+- **Design Token** — 自动集成 shadcn New York 视觉规范（选中色）
+- **ValueType 生态** — `valueType: 'switch'` 在 ProTable / ProForm 中自动渲染开关控件，ProDescriptions 中渲染为状态指示器
+:::
+
 ## 基础用法
 
 基本的开关用法。

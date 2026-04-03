@@ -6,6 +6,12 @@ outline: deep
 
 基于 Element Plus `ElRadio` / `ElRadioGroup` / `ElRadioButton` 的统一封装。统一 shadcn-vue 视觉风格，API 同 Element Plus。
 
+::: info Pro 增强
+- **Design Token** — 自动集成 shadcn New York 视觉规范
+- **统一导出** — 同时导出 `Radio`、`RadioGroup`、`RadioButton` 三个组件
+- **ValueType 生态** — `valueType: 'radio'` 在 ProTable / ProForm 中统一驱动渲染
+:::
+
 ## 导出组件
 
 - `Radio` -- 单个单选框

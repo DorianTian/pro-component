@@ -6,6 +6,13 @@ outline: deep
 
 基于 Element Plus `ElDatePicker` 的统一封装，默认启用 `clearable` 并统一日期格式。
 
+::: info Pro 增强
+相比原生 `ElDatePicker`，Pro DatePicker 提供：
+- **智能默认值** — `clearable` 默认开启，`valueFormat` 默认 `'YYYY-MM-DD'`（统一日期格式）
+- **Design Token** — 自动集成 shadcn New York 视觉规范
+- **ValueType 生态** — `valueType: 'date' | 'dateTime' | 'dateRange'` 在 ProTable / ProForm 中统一驱动渲染
+:::
+
 ## 默认配置
 
 | 属性          | 默认值         | 说明               |

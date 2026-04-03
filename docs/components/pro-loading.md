@@ -6,6 +6,15 @@ outline: deep
 
 声明式状态机组件，根据 `loading`、`empty`、`error` 三个 prop 自动切换对应的 UI 状态。优先级：loading > error > empty > success。
 
+::: info Pro 深度增强
+ProLoading 是一个状态机组件，统一管理异步数据的四种状态：
+- **四态切换** — `loading` → `success` / `empty` / `error`，一个组件覆盖全部场景
+- **骨架屏加载** — 加载状态自带动画骨架屏，可配行数
+- **Error 重试** — 错误状态显示错误信息 + 重试按钮，触发 `@retry` 事件
+- **自定义插槽** — `#loading` / `#empty` / `#error` 三个插槽支持完全自定义
+- **真实场景** — 配合 async 请求使用，自动切换 loading → data/empty/error
+:::
+
 ## 基础用法
 
 通过开关控制加载状态，加载完成后显示实际内容。

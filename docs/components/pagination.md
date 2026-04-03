@@ -6,6 +6,12 @@ outline: deep
 
 基于 Element Plus `ElPagination` 的统一封装，预置完整分页布局和常用页码选项。
 
+::: info Pro 增强
+相比原生 `ElPagination`，Pro Pagination 提供：
+- **智能默认值** — `layout` 默认包含完整功能（total + sizes + prev/pager/next + jumper），`pageSizes` 默认 `[10, 20, 50, 100]`
+- **Design Token** — 自动集成 shadcn New York 视觉规范（按钮对齐、字重）
+:::
+
 ## 默认配置
 
 | 属性        | 默认值                                      | 说明             |

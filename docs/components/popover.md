@@ -6,6 +6,11 @@ outline: deep
 
 基于 Element Plus `ElPopover` 的统一封装。统一 shadcn-vue 视觉风格，API 同 Element Plus。
 
+::: info Pro 增强
+- **Design Token** — 自动集成 shadcn New York 视觉规范（圆角、阴影、边框）
+- **统一导入** — `import { Popover } from '@pro/popover'`，与 Pro 组件生态统一
+:::
+
 ## 基础用法
 
 <demo vue="../../packages/popover/demos/basic.vue" />

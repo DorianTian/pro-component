@@ -6,6 +6,12 @@ outline: deep
 
 基于 Element Plus `ElBreadcrumb` / `ElBreadcrumbItem` 的统一封装，预置分隔符。
 
+::: info Pro 增强
+相比原生 `ElBreadcrumb`，Pro Breadcrumb 提供：
+- **智能默认值** — `separator` 默认 `'/'`
+- **Design Token** — 自动集成 shadcn New York 视觉规范
+:::
+
 ## 导出组件
 
 - `Breadcrumb` — 面包屑容器

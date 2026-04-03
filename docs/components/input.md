@@ -6,6 +6,13 @@ outline: deep
 
 基于 Element Plus `ElInput` 的统一封装，默认启用 `clearable`。
 
+::: info Pro 增强
+相比原生 `ElInput`，Pro Input 提供：
+- **智能默认值** — `clearable` 默认开启，无需每次手动配置
+- **Design Token** — 自动集成 shadcn New York 视觉规范（focus ring、border、圆角）
+- **ValueType 生态** — 在 ProTable 中 `valueType: 'text'` 自动渲染为此组件，ProForm 中自动生成对应表单控件
+:::
+
 ## 默认配置
 
 | 属性        | 默认值 | 说明       |
