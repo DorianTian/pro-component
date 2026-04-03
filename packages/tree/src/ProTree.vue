@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, useSlots, useAttrs, onBeforeUnmount, type PropType } from 'vue'
 import { Search } from '@element-plus/icons-vue'
+import { useProLocale } from '@pro/hooks'
 
 import type { ProTreeNodeData, DragEvent as TreeDragEvent } from './types'
 import { cloneTree, removeNode, insertNode, getNodeDepth, getSubtreeDepth } from './tree-utils'
@@ -55,6 +56,14 @@ const emit = defineEmits<{
 
 const slots = useSlots()
 const attrs = useAttrs()
+const { t } = useProLocale()
+
+const resolvedSearchPlaceholder = computed(
+  () => props.searchPlaceholder || t('pro.tree.search.placeholder'),
+)
+const resolvedExpandTitle = computed(() =>
+  isAllExpanded.value ? t('pro.tree.collapseAll') : t('pro.tree.expandAll'),
+)
 
 const treeRef = ref<InstanceType<(typeof import('element-plus'))['ElTree']> | null>(null)
 const searchKeyword = ref('')
@@ -292,7 +301,7 @@ defineExpose({
       <div class="pro-tree__search">
         <el-input
           v-model="searchKeyword"
-          :placeholder="searchPlaceholder"
+          :placeholder="resolvedSearchPlaceholder"
           clearable
           size="default"
           class="pro-tree__search-input"
@@ -305,7 +314,7 @@ defineExpose({
       <button
         class="pro-tree__expand-btn"
         type="button"
-        :title="isAllExpanded ? 'Collapse all' : 'Expand all'"
+        :title="resolvedExpandTitle"
         @click="toggleExpandAll"
       >
         <svg
@@ -496,12 +505,12 @@ defineExpose({
 
 /* Selected node: light blue background + left blue border */
 .pro-tree .pro-tree__body .el-tree-node.is-current > .el-tree-node__content {
-  background: #e8f3ff;
+  background: var(--pro-color-primary-ultra-light, #e8f3ff);
   border-left: 2px solid var(--pro-color-primary);
 }
 
 .pro-tree .pro-tree__body .el-tree-node.is-current > .el-tree-node__content:hover {
-  background: #ddeeff;
+  background: var(--pro-color-primary-light, #ddeeff);
 }
 
 /* Expand arrow refinement */

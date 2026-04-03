@@ -4,6 +4,7 @@
  */
 import { ref, computed, watch } from 'vue'
 import { ElTabs, ElMessageBox } from 'element-plus'
+import { useProLocale } from '@pro/hooks'
 
 defineOptions({ name: 'ProTabs', inheritAttrs: false })
 
@@ -21,9 +22,16 @@ const props = withDefaults(defineProps<Props>(), {
   variant: 'line',
   closable: false,
   confirmClose: false,
-  confirmMessage: 'Are you sure you want to close this tab?',
-  confirmTitle: 'Confirm',
+  confirmMessage: undefined,
+  confirmTitle: undefined,
 })
+
+const { t } = useProLocale()
+
+const resolvedConfirmMessage = computed(
+  () => props.confirmMessage || t('pro.tabs.closeConfirm.message'),
+)
+const resolvedConfirmTitle = computed(() => props.confirmTitle || t('pro.tabs.closeConfirm.title'))
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
@@ -55,9 +63,9 @@ async function handleRemove(name: unknown) {
   const tabName = name as string
   if (props.confirmClose) {
     try {
-      await ElMessageBox.confirm(props.confirmMessage, props.confirmTitle, {
-        confirmButtonText: 'OK',
-        cancelButtonText: 'Cancel',
+      await ElMessageBox.confirm(resolvedConfirmMessage.value, resolvedConfirmTitle.value, {
+        confirmButtonText: t('pro.tabs.closeConfirm.ok'),
+        cancelButtonText: t('pro.tabs.closeConfirm.cancel'),
         type: 'warning',
       })
     } catch {

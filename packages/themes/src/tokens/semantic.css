@@ -16,6 +16,7 @@
   --pro-bg-elevated: #ffffff;
   --pro-bg-sunken: #f5f5f5;
   --pro-bg-overlay: rgba(10, 10, 10, 0.5);
+  --pro-bg-loading: rgba(255, 255, 255, 0.8);
 
   /* ---- Border ---- */
   --pro-border-default: #e5e5e5;

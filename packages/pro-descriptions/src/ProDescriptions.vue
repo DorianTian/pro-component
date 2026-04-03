@@ -9,6 +9,7 @@ import {
   ElRate,
   ElImage,
 } from 'element-plus'
+import { useProLocale } from '@pro/hooks'
 import { useProDescriptions } from './composables/use-pro-descriptions'
 
 import type { ProColumnDef, StatusType, ValueType } from '@pro/utils'
@@ -34,6 +35,8 @@ const props = withDefaults(
     size: 'default',
   },
 )
+
+const { t } = useProLocale()
 
 const { descriptionItems } = useProDescriptions({
   columns: toRef(props, 'columns'),
@@ -74,7 +77,11 @@ function renderVisualValueType(valueType: ValueType, value: unknown) {
     case 'switch':
       return h('span', { class: `pro-descriptions__switch ${value ? 'is-active' : ''}` }, [
         h('span', { class: 'pro-descriptions__switch-dot' }),
-        h('span', { class: 'pro-descriptions__switch-text' }, value ? '已开启' : '已关闭'),
+        h(
+          'span',
+          { class: 'pro-descriptions__switch-text' },
+          value ? t('pro.descriptions.switch.on') : t('pro.descriptions.switch.off'),
+        ),
       ])
 
     case 'code':

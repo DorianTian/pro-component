@@ -11,6 +11,7 @@
  */
 import { computed } from 'vue'
 import { ElButton } from 'element-plus'
+import { useProLocale } from '@pro/hooks'
 
 defineOptions({ name: 'ProEmpty', inheritAttrs: false })
 
@@ -41,31 +42,30 @@ const emit = defineEmits<{
   retry: []
 }>()
 
-/** Preset config per empty type */
-const PRESET_MAP: Record<EmptyType, { description: string; icon: string }> = {
-  'no-data': {
-    description: 'No data yet',
-    icon: 'inbox',
-  },
-  'no-result': {
-    description: 'No results found',
-    icon: 'search',
-  },
-  error: {
-    description: 'Failed to load data',
-    icon: 'error',
-  },
-  'no-permission': {
-    description: 'You do not have permission to view this',
-    icon: 'lock',
-  },
-  custom: {
-    description: '',
-    icon: '',
-  },
+const { t } = useProLocale()
+
+/** Icon mapping per empty type */
+const ICON_MAP: Record<EmptyType, string> = {
+  'no-data': 'inbox',
+  'no-result': 'search',
+  error: 'error',
+  'no-permission': 'lock',
+  custom: '',
 }
 
-const preset = computed(() => PRESET_MAP[props.type] ?? PRESET_MAP['no-data'])
+/** i18n description mapping per empty type */
+const DESCRIPTION_KEY_MAP: Record<EmptyType, string> = {
+  'no-data': 'pro.empty.noData.description',
+  'no-result': 'pro.empty.noResult.description',
+  error: 'pro.empty.error.description',
+  'no-permission': 'pro.empty.noPermission.description',
+  custom: '',
+}
+
+const preset = computed(() => ({
+  description: DESCRIPTION_KEY_MAP[props.type] ? t(DESCRIPTION_KEY_MAP[props.type]) : '',
+  icon: ICON_MAP[props.type] ?? ICON_MAP['no-data'],
+}))
 const displayDescription = computed(() => props.description ?? preset.value.description)
 const iconType = computed(() => preset.value.icon)
 </script>
@@ -97,27 +97,58 @@ const iconType = computed(() => preset.value.icon)
               width="76"
               height="56"
               rx="5"
-              fill="#f5f5f5"
-              stroke="#d4d4d4"
+              :style="{
+                fill: 'var(--pro-bg-sunken, #f5f5f5)',
+                stroke: 'var(--pro-border-default, #d4d4d4)',
+              }"
               stroke-width="1.2"
             />
-            <path d="M22 58h22l6 12h20l6-12h22" stroke="#d4d4d4" stroke-width="1.2" fill="none" />
-            <path d="M46 44h28" stroke="#a3a3a3" stroke-width="1.2" stroke-linecap="round" />
-            <path d="M50 52h20" stroke="#a3a3a3" stroke-width="1.2" stroke-linecap="round" />
+            <path
+              d="M22 58h22l6 12h20l6-12h22"
+              :style="{ stroke: 'var(--pro-border-default, #d4d4d4)' }"
+              stroke-width="1.2"
+              fill="none"
+            />
+            <path
+              d="M46 44h28"
+              :style="{ stroke: 'var(--pro-text-tertiary, #a3a3a3)' }"
+              stroke-width="1.2"
+              stroke-linecap="round"
+            />
+            <path
+              d="M50 52h20"
+              :style="{ stroke: 'var(--pro-text-tertiary, #a3a3a3)' }"
+              stroke-width="1.2"
+              stroke-linecap="round"
+            />
           </template>
           <!-- No Result (search) -->
           <template v-else-if="iconType === 'search'">
-            <circle cx="52" cy="50" r="22" fill="#f5f5f5" stroke="#d4d4d4" stroke-width="1.2" />
+            <circle
+              cx="52"
+              cy="50"
+              r="22"
+              :style="{
+                fill: 'var(--pro-bg-sunken, #f5f5f5)',
+                stroke: 'var(--pro-border-default, #d4d4d4)',
+              }"
+              stroke-width="1.2"
+            />
             <line
               x1="68"
               y1="66"
               x2="88"
               y2="86"
-              stroke="#a3a3a3"
+              :style="{ stroke: 'var(--pro-text-tertiary, #a3a3a3)' }"
               stroke-width="2.5"
               stroke-linecap="round"
             />
-            <path d="M44 50h16" stroke="#a3a3a3" stroke-width="1.2" stroke-linecap="round" />
+            <path
+              d="M44 50h16"
+              :style="{ stroke: 'var(--pro-text-tertiary, #a3a3a3)' }"
+              stroke-width="1.2"
+              stroke-linecap="round"
+            />
           </template>
           <!-- Error -->
           <template v-else-if="iconType === 'error'">
@@ -145,24 +176,31 @@ const iconType = computed(() => preset.value.icon)
               width="48"
               height="34"
               rx="5"
-              fill="#f5f5f5"
-              stroke="#d4d4d4"
+              :style="{
+                fill: 'var(--pro-bg-sunken, #f5f5f5)',
+                stroke: 'var(--pro-border-default, #d4d4d4)',
+              }"
               stroke-width="1.2"
             />
             <path
               d="M46 52V42a14 14 0 0128 0v10"
               fill="none"
-              stroke="#d4d4d4"
+              :style="{ stroke: 'var(--pro-border-default, #d4d4d4)' }"
               stroke-width="1.2"
               stroke-linecap="round"
             />
-            <circle cx="60" cy="66" r="3.5" fill="#a3a3a3" />
+            <circle
+              cx="60"
+              cy="66"
+              r="3.5"
+              :style="{ fill: 'var(--pro-text-tertiary, #a3a3a3)' }"
+            />
             <line
               x1="60"
               y1="69.5"
               x2="60"
               y2="76"
-              stroke="#a3a3a3"
+              :style="{ stroke: 'var(--pro-text-tertiary, #a3a3a3)' }"
               stroke-width="1.2"
               stroke-linecap="round"
             />
@@ -175,7 +213,9 @@ const iconType = computed(() => preset.value.icon)
 
     <div v-if="type === 'error' && showRetry" class="pro-empty__actions">
       <slot name="extra">
-        <ElButton type="primary" size="small" @click="emit('retry')">Retry</ElButton>
+        <ElButton type="primary" size="small" @click="emit('retry')">{{
+          t('pro.empty.retry')
+        }}</ElButton>
       </slot>
     </div>
     <div v-else-if="$slots.extra" class="pro-empty__actions">

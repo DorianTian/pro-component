@@ -5,6 +5,7 @@
  */
 import { computed } from 'vue'
 import { ElSkeleton, ElEmpty, ElResult, ElButton } from 'element-plus'
+import { useProLocale } from '@pro/hooks'
 
 defineOptions({ name: 'ProLoading' })
 
@@ -26,9 +27,16 @@ const props = withDefaults(defineProps<Props>(), {
   error: null,
   skeletonRows: 4,
   animated: true,
-  emptyDescription: 'No data',
-  errorTitle: 'Something went wrong',
+  emptyDescription: undefined,
+  errorTitle: undefined,
 })
+
+const { t } = useProLocale()
+
+const resolvedEmptyDescription = computed(
+  () => props.emptyDescription || t('pro.loading.empty.description'),
+)
+const resolvedErrorTitle = computed(() => props.errorTitle || t('pro.loading.error.title'))
 
 const emit = defineEmits<{
   retry: []
@@ -87,9 +95,11 @@ function handleRetry() {
                 <circle cx="24" cy="33" r="1.5" fill="var(--pro-color-danger)" />
               </svg>
             </div>
-            <p class="pro-loading__error-title">{{ errorTitle }}</p>
+            <p class="pro-loading__error-title">{{ resolvedErrorTitle }}</p>
             <p class="pro-loading__error-message">{{ errorMessage }}</p>
-            <ElButton type="primary" size="small" @click="handleRetry">Retry</ElButton>
+            <ElButton type="primary" size="small" @click="handleRetry">{{
+              t('pro.loading.error.retry')
+            }}</ElButton>
           </div>
         </slot>
       </div>
@@ -118,7 +128,7 @@ function handleRetry() {
                 />
               </svg>
             </div>
-            <p class="pro-loading__empty-text">{{ emptyDescription }}</p>
+            <p class="pro-loading__empty-text">{{ resolvedEmptyDescription }}</p>
           </div>
         </slot>
       </div>

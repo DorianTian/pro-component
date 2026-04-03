@@ -15,6 +15,7 @@
   --pro-bg-elevated: #171717;
   --pro-bg-sunken: #0a0a0a;
   --pro-bg-overlay: rgba(0, 0, 0, 0.7);
+  --pro-bg-loading: rgba(0, 0, 0, 0.8);
 
   /* Borders */
   --pro-border-default: #262626;
@@ -47,4 +48,39 @@
   --pro-color-danger-light: #450a0a;
   --pro-color-info: #a3a3a3;
   --pro-color-info-light: #262626;
+
+  /* ---- Element Plus dark overrides ---- */
+  --el-bg-color: #0a0a0a;
+  --el-bg-color-overlay: #171717;
+  --el-bg-color-page: #0a0a0a;
+  --el-text-color-primary: #fafafa;
+  --el-text-color-regular: #a3a3a3;
+  --el-text-color-secondary: #737373;
+  --el-text-color-placeholder: #525252;
+  --el-text-color-disabled: #404040;
+  --el-border-color: #262626;
+  --el-border-color-light: #1c1c1c;
+  --el-border-color-lighter: #1c1c1c;
+  --el-border-color-extra-light: #1a1a1a;
+  --el-fill-color: #262626;
+  --el-fill-color-light: #1c1c1c;
+  --el-fill-color-lighter: #171717;
+  --el-fill-color-extra-light: #141414;
+  --el-fill-color-dark: #404040;
+  --el-fill-color-darker: #525252;
+  --el-fill-color-blank: #0a0a0a;
+  --el-color-primary-light-3: #1e3a5f;
+  --el-color-primary-light-5: #172d4d;
+  --el-color-primary-light-7: #11213a;
+  --el-color-primary-light-8: #0d1a2d;
+  --el-color-primary-light-9: #0a1420;
+  --el-color-primary-dark-2: #60a5fa;
+  --el-mask-color: rgba(0, 0, 0, 0.7);
+  --el-mask-color-extra-light: rgba(0, 0, 0, 0.3);
+  --el-box-shadow: 0 12px 32px 4px rgba(0, 0, 0, 0.36), 0 8px 20px rgba(0, 0, 0, 0.72);
+  --el-box-shadow-light: 0 0 12px rgba(0, 0, 0, 0.72);
+  --el-box-shadow-lighter: 0 0 6px rgba(0, 0, 0, 0.72);
+  --el-box-shadow-dark:
+    0 16px 48px 16px rgba(0, 0, 0, 0.72), 0 12px 32px rgba(0, 0, 0, 0.72),
+    0 8px 16px -8px rgba(0, 0, 0, 0.72);
 }

@@ -18,7 +18,7 @@
   --el-button-hover-border-color: var(--pro-border-default);
   --el-button-hover-text-color: var(--pro-text-primary);
   --el-button-active-bg-color: var(--pro-bg-sunken);
-  --el-button-active-border-color: #d4d4d4;
+  --el-button-active-border-color: var(--pro-border-default);
   --el-button-active-text-color: var(--pro-text-primary);
 }
 
@@ -71,7 +71,7 @@
 }
 
 .el-input__wrapper:hover {
-  box-shadow: 0 0 0 1px #d4d4d4 inset;
+  box-shadow: 0 0 0 1px var(--pro-border-default) inset;
 }
 
 .el-input__wrapper.is-focus,
@@ -411,7 +411,7 @@
 /* ========== Loading ========== */
 
 .el-loading-mask {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: var(--pro-bg-loading);
 }
 
 /* ========== Scrollbar ========== */

@@ -56,9 +56,85 @@ export const enUS = {
       date: {
         placeholder: 'Select date',
       },
+      image: {
+        placeholder: 'Image URL',
+      },
     },
     descriptions: {
       empty: '\u2014',
+      switch: {
+        on: 'Enabled',
+        off: 'Disabled',
+      },
+    },
+    tree: {
+      search: {
+        placeholder: 'Search...',
+      },
+      expandAll: 'Expand all',
+      collapseAll: 'Collapse all',
+    },
+    loading: {
+      empty: {
+        description: 'No data',
+      },
+      error: {
+        title: 'Something went wrong',
+        retry: 'Retry',
+      },
+    },
+    tabs: {
+      closeConfirm: {
+        title: 'Confirm',
+        message: 'Are you sure you want to close this tab?',
+        ok: 'OK',
+        cancel: 'Cancel',
+      },
+    },
+    result: {
+      success: {
+        title: 'Operation Succeeded',
+        subtitle: 'Your request has been processed successfully.',
+      },
+      error: {
+        title: 'Operation Failed',
+        subtitle: 'Something went wrong. Please try again.',
+      },
+      warning: {
+        title: 'Warning',
+        subtitle: 'Please review the following information.',
+      },
+      info: {
+        title: 'Information',
+        subtitle: '',
+      },
+      http403: {
+        title: '403 — Access Denied',
+        subtitle: 'You do not have permission to access this page.',
+      },
+      http404: {
+        title: '404 — Page Not Found',
+        subtitle: 'The page you are looking for does not exist.',
+      },
+      http500: {
+        title: '500 — Server Error',
+        subtitle: 'An unexpected error occurred on the server.',
+      },
+    },
+    empty: {
+      noData: {
+        description: 'No data yet',
+      },
+      noResult: {
+        description: 'No results found',
+      },
+      error: {
+        description: 'Failed to load data',
+      },
+      noPermission: {
+        description: 'You do not have permission to view this',
+      },
+      retry: 'Retry',
     },
     common: {
       confirm: 'Confirm',
@@ -75,6 +151,10 @@ export const enUS = {
       required: 'Required',
       noResults: 'No results found',
       loading: 'Loading\u2026',
+      yes: 'Yes',
+      no: 'No',
+      ok: 'OK',
+      retry: 'Retry',
       aria: {
         expand: 'Expand',
         collapse: 'Collapse',

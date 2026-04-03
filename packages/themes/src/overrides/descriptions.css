@@ -78,8 +78,8 @@
 
 /* Bordered: override EP's border variable at root */
 .pro-descriptions .el-descriptions--border {
-  --el-descriptions-table-border: 1px solid #f0f0f0 !important;
-  --el-descriptions-item-bordered-label-background: #fafafa !important;
+  --el-descriptions-table-border: 1px solid var(--pro-border-light) !important;
+  --el-descriptions-item-bordered-label-background: var(--pro-bg-sunken) !important;
 }
 
 /* Bordered: outer container */
@@ -96,7 +96,7 @@
   font-size: 14px !important;
   font-weight: 500 !important;
   color: var(--pro-text-secondary) !important;
-  background-color: #fafafa !important;
+  background-color: var(--pro-bg-sunken) !important;
   padding: 12px 20px !important;
   white-space: nowrap;
 }

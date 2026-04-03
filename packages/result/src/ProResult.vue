@@ -10,6 +10,7 @@
  */
 import { computed } from 'vue'
 import { ElResult } from 'element-plus'
+import { useProLocale } from '@pro/hooks'
 
 defineOptions({ name: 'ProResult', inheritAttrs: false })
 
@@ -32,45 +33,49 @@ const props = withDefaults(defineProps<Props>(), {
 
 type ElResultIcon = 'success' | 'error' | 'warning' | 'info'
 
-const PRESET_MAP: Record<ResultType, { icon: ElResultIcon; title: string; subTitle: string }> = {
+const { t } = useProLocale()
+
+const presetMap = computed<
+  Record<ResultType, { icon: ElResultIcon; title: string; subTitle: string }>
+>(() => ({
   success: {
     icon: 'success',
-    title: 'Operation Succeeded',
-    subTitle: 'Your request has been processed successfully.',
+    title: t('pro.result.success.title'),
+    subTitle: t('pro.result.success.subtitle'),
   },
   error: {
     icon: 'error',
-    title: 'Operation Failed',
-    subTitle: 'Something went wrong. Please try again.',
+    title: t('pro.result.error.title'),
+    subTitle: t('pro.result.error.subtitle'),
   },
   warning: {
     icon: 'warning',
-    title: 'Warning',
-    subTitle: 'Please review the following information.',
+    title: t('pro.result.warning.title'),
+    subTitle: t('pro.result.warning.subtitle'),
   },
   info: {
     icon: 'info',
-    title: 'Information',
-    subTitle: '',
+    title: t('pro.result.info.title'),
+    subTitle: t('pro.result.info.subtitle'),
   },
   '403': {
     icon: 'error',
-    title: '403 — Access Denied',
-    subTitle: 'You do not have permission to access this page.',
+    title: t('pro.result.http403.title'),
+    subTitle: t('pro.result.http403.subtitle'),
   },
   '404': {
     icon: 'warning',
-    title: '404 — Page Not Found',
-    subTitle: 'The page you are looking for does not exist.',
+    title: t('pro.result.http404.title'),
+    subTitle: t('pro.result.http404.subtitle'),
   },
   '500': {
     icon: 'error',
-    title: '500 — Server Error',
-    subTitle: 'An unexpected error occurred on the server.',
+    title: t('pro.result.http500.title'),
+    subTitle: t('pro.result.http500.subtitle'),
   },
-}
+}))
 
-const preset = computed(() => PRESET_MAP[props.type] ?? PRESET_MAP.success)
+const preset = computed(() => presetMap.value[props.type] ?? presetMap.value.success)
 const displayIcon = computed(() => preset.value.icon)
 const displayTitle = computed(() => props.title ?? preset.value.title)
 const displaySubTitle = computed(() => props.subTitle ?? preset.value.subTitle)
