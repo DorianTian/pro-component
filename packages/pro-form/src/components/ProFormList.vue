@@ -120,10 +120,10 @@ function updateItemField(index: number, fieldKey: string, value: unknown): void 
 
 .pro-form-list__item {
   display: flex;
-  align-items: flex-start;
-  gap: var(--pro-space-4);
-  padding: var(--pro-space-4) var(--pro-space-5);
-  margin-bottom: var(--pro-space-3);
+  align-items: flex-end;
+  gap: var(--pro-space-3);
+  padding: var(--pro-space-3) var(--pro-space-4);
+  margin-bottom: var(--pro-space-2);
   border: 1px solid var(--pro-border-light);
   border-radius: var(--pro-radius-md);
   background: var(--pro-bg-sunken);
@@ -137,36 +137,44 @@ function updateItemField(index: number, fieldKey: string, value: unknown): void 
 .pro-form-list__fields {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0 var(--pro-space-4);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0 var(--pro-space-3);
   min-width: 0;
 }
 
-/* Force labels above controls inside list items for compact layout */
+/*
+ * Force label-top inside list rows.
+ * EP injects inline label-width via el-form — override with flex-column
+ * so the inline `width` on el-form-item__label becomes irrelevant.
+ */
 .pro-form-list__fields :deep(.el-form-item) {
+  display: flex;
+  flex-direction: column;
   margin-bottom: var(--pro-space-2);
 }
 
 .pro-form-list__fields :deep(.el-form-item__label) {
+  width: auto !important;
   float: none;
   display: block;
   text-align: left;
-  padding-bottom: 4px;
+  padding: 0 0 4px;
   line-height: 1.4;
-  font-size: var(--pro-text-xs);
+  font-size: 12px;
   color: var(--pro-text-secondary);
+  height: auto;
 }
 
 .pro-form-list__fields :deep(.el-form-item__content) {
   margin-left: 0 !important;
+  flex: none;
 }
 
 .pro-form-list__actions {
   display: flex;
-  flex-direction: column;
   gap: var(--pro-space-1);
-  padding-top: 20px; /* align with input (below label) */
   flex-shrink: 0;
+  padding-bottom: var(--pro-space-2); /* match field margin-bottom */
 }
 
 .pro-form-list__add {
