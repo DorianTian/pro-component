@@ -1,6 +1,6 @@
 ---
-"@pro/pagination": minor
-"@pro/hooks": minor
+'@pro/pagination': minor
+'@pro/hooks': minor
 ---
 
 feat(pagination): rewrite as SFC with semantic props + enhance usePagination

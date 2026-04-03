@@ -130,7 +130,7 @@ export interface ColumnSettingItem {
 }
 
 /** Action config passed to editable actionRender callback */
-export interface EditableActionConfig {
+export interface EditableActionConfig<T = Record<string, unknown>> {
   editableKeys: string[]
   recordKey: string
   index: number
@@ -166,13 +166,13 @@ export interface EditableConfig<T = Record<string, unknown>> {
   /** Fires on every cell value change during editing (real-time sync) */
   onValuesChange?: (record: T, dataSource: T[]) => void
   /** Save handler — return false to prevent save */
-  onSave?: (key: string, row: T, originalRow: T, isNewRow: boolean) => Promise<boolean | undefined>
+  onSave?: (key: string, row: T, originalRow: T, isNewRow: boolean) => Promise<boolean | void>
   /** Cancel handler */
   onCancel?: (key: string, row: T, originRow: T, isNewRow: boolean) => void
   /** Delete handler — return false to prevent deletion */
-  onDelete?: (key: string, row: T) => Promise<boolean | undefined>
+  onDelete?: (key: string, row: T) => Promise<boolean | void>
   /** Custom action column renderer */
-  actionRender?: (row: T, config: EditableActionConfig) => VNode[]
+  actionRender?: (row: T, config: EditableActionConfig<T>) => VNode[]
   /** New row creation button config. false = hidden */
   recordCreatorProps?: RecordCreatorProps<T> | false
   /** Max rows — hides add button when reached */
@@ -236,6 +236,19 @@ export interface ProTableProps<T = Record<string, unknown>> {
   virtualHeight?: number
 }
 
+/** useProTable configuration options */
+export interface UseProTableOptions<T = unknown> {
+  columns: ProColumnDef<T>[]
+  request?: (params: RequestParams) => Promise<RequestResult<T>>
+  rowKey?: string | ((row: T) => string)
+  defaultPageSize?: number
+  defaultCurrent?: number
+  crossPageSelect?: boolean
+  debounceMs?: number
+  beforeRequest?: (params: RequestParams) => RequestParams
+  afterResponse?: (raw: unknown) => RequestResult<T>
+}
+
 /** Editable API exposed on UseProTableReturn for programmatic control */
 export interface UseEditableApi<T = Record<string, unknown>> {
   editableKeys: Ref<string[]>
@@ -250,19 +263,6 @@ export interface UseEditableApi<T = Record<string, unknown>> {
   getRowData: (key: string) => T | undefined
   getRowsData: () => T[]
   setRowData: (key: string, partial: Partial<T>) => void
-}
-
-/** useProTable configuration options */
-export interface UseProTableOptions<T = unknown> {
-  columns: ProColumnDef<T>[]
-  request?: (params: RequestParams) => Promise<RequestResult<T>>
-  rowKey?: string | ((row: T) => string)
-  defaultPageSize?: number
-  defaultCurrent?: number
-  crossPageSelect?: boolean
-  debounceMs?: number
-  beforeRequest?: (params: RequestParams) => RequestParams
-  afterResponse?: (raw: unknown) => RequestResult<T>
 }
 
 /** useProTable return type */

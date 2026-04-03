@@ -1,6 +1,6 @@
 ---
-"@pro/form": minor
-"@pro/utils": minor
+'@pro/form': minor
+'@pro/utils': minor
 ---
 
 feat(form): field groups, colSpan, visible() callback, ModalForm/DrawerForm overhaul

@@ -1,5 +1,5 @@
 ---
-"@pro/tree": minor
+'@pro/tree': minor
 ---
 
 feat(tree): add drag-and-drop data layer with undo/redo and constraints

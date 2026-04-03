@@ -107,11 +107,7 @@ export interface UseProTableInternalReturn {
   getEditingCellValue: (row: unknown, dataIndex: string) => unknown
   setEditingCellValue: (row: unknown, dataIndex: string, value: unknown) => void
   getCellValidationError: (row: unknown, dataIndex: string) => string | undefined
-  getCellFieldProps: (
-    col: ProColumnDef,
-    row: unknown,
-    index: number,
-  ) => Record<string, unknown> | undefined
+  getCellFieldProps: (col: ProColumnDef, row: unknown, index: number) => Record<string, unknown> | undefined
   handleEditStart: (row: unknown) => void
   handleEditSave: (row: unknown) => Promise<void>
   handleEditCancel: (row: unknown) => void
