@@ -4,7 +4,7 @@
 
 /* ---- Title: stronger visual weight ---- */
 .pro-descriptions .el-descriptions__title {
-  font-size: 16px !important;
+  font-size: var(--pro-text-lg) !important;
   font-weight: 600 !important;
   color: var(--pro-text-primary) !important;
   line-height: 1.4;
@@ -30,7 +30,7 @@
 
 /* Label: stronger, readable */
 .pro-descriptions .el-descriptions__cell .el-descriptions__label:not(.is-bordered-label) {
-  font-size: 14px !important;
+  font-size: var(--pro-text-base) !important;
   font-weight: 500 !important;
   color: var(--pro-text-secondary) !important;
   min-width: 80px !important;
@@ -40,7 +40,7 @@
 
 /* Content: clear dark text */
 .pro-descriptions .el-descriptions__cell .el-descriptions__content:not(.is-bordered-content) {
-  font-size: 14px !important;
+  font-size: var(--pro-text-base) !important;
   font-weight: 500 !important;
   color: var(--pro-text-primary) !important;
 }
@@ -93,7 +93,7 @@
   .el-descriptions__body
   .el-descriptions__table.is-bordered
   .el-descriptions__label {
-  font-size: 14px !important;
+  font-size: var(--pro-text-base) !important;
   font-weight: 500 !important;
   color: var(--pro-text-secondary) !important;
   background-color: var(--pro-bg-sunken) !important;
@@ -106,7 +106,7 @@
   .el-descriptions__body
   .el-descriptions__table.is-bordered
   .el-descriptions__content {
-  font-size: 14px !important;
+  font-size: var(--pro-text-base) !important;
   font-weight: 500 !important;
   color: var(--pro-text-primary) !important;
   padding: 12px 20px !important;
@@ -121,24 +121,24 @@
   .el-descriptions--small
   .el-descriptions__cell
   .el-descriptions__label:not(.is-bordered-label) {
-  font-size: 13px !important;
+  font-size: var(--pro-text-sm) !important;
 }
 
 .pro-descriptions
   .el-descriptions--small
   .el-descriptions__cell
   .el-descriptions__content:not(.is-bordered-content) {
-  font-size: 13px !important;
+  font-size: var(--pro-text-sm) !important;
 }
 
 .pro-descriptions .el-descriptions--small .el-descriptions__label.is-bordered-label {
   padding: 8px 16px !important;
-  font-size: 13px !important;
+  font-size: var(--pro-text-sm) !important;
 }
 
 .pro-descriptions .el-descriptions--small .el-descriptions__content.is-bordered-content {
   padding: 8px 16px !important;
-  font-size: 13px !important;
+  font-size: var(--pro-text-sm) !important;
 }
 
 /* Large */
@@ -146,24 +146,24 @@
   .el-descriptions--large
   .el-descriptions__cell
   .el-descriptions__label:not(.is-bordered-label) {
-  font-size: 15px !important;
+  font-size: var(--pro-text-base) !important;
 }
 
 .pro-descriptions
   .el-descriptions--large
   .el-descriptions__cell
   .el-descriptions__content:not(.is-bordered-content) {
-  font-size: 15px !important;
+  font-size: var(--pro-text-base) !important;
 }
 
 .pro-descriptions .el-descriptions--large .el-descriptions__label.is-bordered-label {
   padding: 16px 24px !important;
-  font-size: 15px !important;
+  font-size: var(--pro-text-base) !important;
 }
 
 .pro-descriptions .el-descriptions--large .el-descriptions__content.is-bordered-content {
   padding: 16px 24px !important;
-  font-size: 15px !important;
+  font-size: var(--pro-text-base) !important;
 }
 
 /* ==========================

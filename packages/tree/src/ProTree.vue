@@ -640,7 +640,7 @@ defineExpose({
   width: 14px;
   height: 14px;
   flex-shrink: 0;
-  color: var(--pro-text-quaternary, #d4d4d4);
+  color: var(--pro-text-quaternary);
   cursor: grab;
   opacity: 0;
   transition:

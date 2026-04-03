@@ -97,17 +97,17 @@ function handleClick(pane: unknown, ev: Event) {
 
 <style>
 .pro-tabs.el-tabs .el-tabs__header {
-  margin-bottom: 16px;
+  margin-bottom: var(--pro-space-4);
 }
 
 .pro-tabs.el-tabs .el-tabs__item {
-  font-size: 13px;
+  font-size: var(--pro-text-sm);
   font-weight: 500;
-  padding: 0 16px;
+  padding: 0 var(--pro-space-4);
   height: 38px;
   line-height: 38px;
   color: var(--pro-text-secondary);
-  transition: color 150ms ease;
+  transition: color var(--pro-transition-fast);
 }
 
 .pro-tabs.el-tabs .el-tabs__item:hover {
@@ -127,9 +127,9 @@ function handleClick(pane: unknown, ev: Event) {
 .pro-tabs.el-tabs .el-tabs__item .el-icon.is-icon-close {
   width: 14px;
   height: 14px;
-  margin-left: 6px;
-  border-radius: 50%;
-  transition: all 150ms ease;
+  margin-left: var(--pro-space-1);
+  border-radius: var(--pro-radius-full);
+  transition: all var(--pro-transition-fast);
 }
 
 .pro-tabs.el-tabs .el-tabs__item .el-icon.is-icon-close:hover {

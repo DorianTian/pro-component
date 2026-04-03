@@ -40,7 +40,7 @@
   --pro-radius-sm: 0.375rem;
   --pro-radius-xs: 0.25rem;
   --pro-radius-pill: 1.25rem;
-  --pro-radius-full: 50%;
+  --pro-radius-full: 9999px;
 
   /* ---- Typography: Font Stack ---- */
   --pro-font-family:
