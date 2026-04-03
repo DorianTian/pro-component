@@ -153,10 +153,17 @@ function handleVirtualSelectAll(checked: boolean): void {
 
 const hasRowSelection = computed(() => !!props.rowSelection)
 
+/** ElTableV2 requires a string key, not a function */
+const v2RowKey = computed(() => {
+  const rk = props.rowKey
+  return typeof rk === 'string' ? rk : 'id'
+})
+
 const { v2Columns } = useVirtualColumns({
   columns: toRef(props, 'columns'),
   visibleColumns: state.visibleColumns,
   formatCellValue: state.formatCellValue,
+  rowKeyField: v2RowKey,
   hasRowSelection,
   selectedRowKeys: virtualSelectedKeys,
   allRowKeys,
@@ -227,7 +234,7 @@ function editText(key: 'edit' | 'save' | 'cancel' | 'delete' | 'addRow' | 'actio
           :data="state.activeData.value"
           :width="autoWidth"
           :height="virtualHeight || autoHeight"
-          :row-key="rowKey"
+          :row-key="v2RowKey"
           v-bind="tableProps"
         />
       </template>

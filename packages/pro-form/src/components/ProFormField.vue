@@ -97,6 +97,16 @@ const FieldControl = defineComponent({
         'onUpdate:modelValue': handleUpdate,
       }
 
+      // Virtual select: pass options array instead of slot children
+      if (field.valueType === 'select' && field.valueEnum && computedFieldProps.value.virtual) {
+        resolvedProps.virtual = true
+        resolvedProps.options = Object.entries(field.valueEnum).map(([value, config]) => ({
+          label: typeof config === 'string' ? config : config.text,
+          value,
+        }))
+        return h(entry.component, resolvedProps)
+      }
+
       const children = buildEnumChildren(field)
       if (children) {
         return h(entry.component, resolvedProps, { default: () => children })

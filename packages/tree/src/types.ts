@@ -60,6 +60,10 @@ export interface ProTreeProps {
   onDragConfirm?: (event: DragEvent) => Promise<boolean | void>
   /** Max undo history size (default: 50) */
   maxHistory?: number
+  /** Enable virtual scrolling via ElTreeV2 for large datasets (500+ nodes). Disables drag-and-drop. */
+  virtual?: boolean
+  /** Virtual tree viewport height in px (only used when virtual: true, default: 400) */
+  height?: number
 }
 
 /** Events emitted by ProTree */

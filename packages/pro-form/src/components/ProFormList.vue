@@ -65,9 +65,10 @@ function copyItem(index: number): void {
 }
 
 function updateItemField(index: number, fieldKey: string, value: unknown): void {
-  const newItems = [...items.value]
-  newItems[index] = { ...newItems[index], [fieldKey]: value }
-  items.value = newItems
+  const arr = items.value
+  if (arr[index]) {
+    arr[index][fieldKey] = value
+  }
 }
 </script>
 

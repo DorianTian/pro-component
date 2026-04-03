@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { ref, computed, watch, useSlots, useAttrs, onBeforeUnmount, type PropType } from 'vue'
 import { Search } from '@element-plus/icons-vue'
+import { ElTreeV2 } from 'element-plus'
 import { useProLocale } from '@pro/hooks'
 
 import type { ProTreeNodeData, DragEvent as TreeDragEvent } from './types'
 import { cloneTree, removeNode, insertNode, getNodeDepth, getSubtreeDepth } from './tree-utils'
 
 defineOptions({ name: 'ProTree', inheritAttrs: false })
+
+/** Default virtual tree viewport height in px */
+const DEFAULT_VIRTUAL_HEIGHT = 400
+
+/** Default node item height for ElTreeV2 */
+const DEFAULT_ITEM_SIZE = 32
 
 const props = defineProps({
   searchable: { type: Boolean, default: true },
@@ -46,6 +53,10 @@ const props = defineProps({
   },
   /** Max undo history size */
   maxHistory: { type: Number, default: 50 },
+  /** Enable virtual scrolling for large datasets (500+ nodes). Disables drag-and-drop. */
+  virtual: { type: Boolean, default: false },
+  /** Virtual tree viewport height in px (only when virtual: true) */
+  height: { type: Number, default: DEFAULT_VIRTUAL_HEIGHT },
 })
 
 const emit = defineEmits<{
@@ -65,10 +76,26 @@ const resolvedExpandTitle = computed(() =>
   isAllExpanded.value ? t('pro.tree.collapseAll') : t('pro.tree.expandAll'),
 )
 
+// ─── Refs for both tree modes ──────────────────────────────────────
 const treeRef = ref<InstanceType<(typeof import('element-plus'))['ElTree']> | null>(null)
+const treeV2Ref = ref<InstanceType<typeof ElTreeV2> | null>(null)
 const searchKeyword = ref('')
 const debouncedKeyword = ref('')
 const isAllExpanded = ref(props.defaultExpandAll)
+
+// ─── ElTreeV2 props mapping ────────────────────────────────────────
+const treeV2Props = computed(() => ({
+  value: props.nodeKey,
+  label: 'label',
+  children: 'children',
+  disabled: 'disabled',
+}))
+
+/** Compute default expanded keys for ElTreeV2 */
+const defaultExpandedKeys = computed(() => {
+  if (!props.defaultExpandAll) return []
+  return getAllNodeKeys(props.data)
+})
 
 // ─── Debounced search ───────────────────────────────────────────────
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -100,11 +127,21 @@ function defaultFilterMethod(keyword: string, data: ProTreeNodeData): boolean {
 const activeFilter = computed(() => props.filterMethod ?? defaultFilterMethod)
 
 watch(debouncedKeyword, () => {
-  treeRef.value?.filter(debouncedKeyword.value)
+  if (props.virtual) {
+    treeV2Ref.value?.filter(debouncedKeyword.value)
+  } else {
+    treeRef.value?.filter(debouncedKeyword.value)
+  }
 })
 
+/** ElTree filter callback */
 function handleFilterNode(value: string, data: ProTreeNodeData): boolean {
   return activeFilter.value(value, data)
+}
+
+/** ElTreeV2 filter callback — uses TreeNodeData from EP, cast to our type */
+function handleFilterNodeV2(query: string, node: unknown): boolean {
+  return activeFilter.value(query, node as ProTreeNodeData)
 }
 
 // ─── Expand / Collapse all ──────────────────────────────────────────
@@ -123,6 +160,20 @@ function getAllNodeKeys(nodes: ProTreeNodeData[]): (string | number)[] {
 
 function toggleExpandAll(): void {
   isAllExpanded.value = !isAllExpanded.value
+
+  if (props.virtual) {
+    // ElTreeV2: use setExpandedKeys
+    const v2 = treeV2Ref.value
+    if (!v2) return
+    if (isAllExpanded.value) {
+      v2.setExpandedKeys(getAllNodeKeys(props.data))
+    } else {
+      v2.setExpandedKeys([])
+    }
+    return
+  }
+
+  // ElTree: per-node expansion toggle
   const tree = treeRef.value
   if (!tree) return
 
@@ -150,7 +201,7 @@ function getChildCount(data: ProTreeNodeData): number {
   return data.children?.length ?? 0
 }
 
-// ─── Drag-and-drop data layer ──────────────────────────────────────
+// ─── Drag-and-drop data layer (disabled in virtual mode) ───────────
 const undoStack = ref<ProTreeNodeData[][]>([])
 const redoStack = ref<ProTreeNodeData[][]>([])
 /** Snapshot taken at drag-start, before ElTree mutates data */
@@ -267,10 +318,15 @@ const passthroughSlotNames = computed(() =>
   Object.keys(slots).filter((name) => name !== 'toolbar-extra'),
 )
 
+// ─── Effective draggable (disabled in virtual mode) ─────────────────
+const effectiveDraggable = computed(() => props.draggable && !props.virtual)
+
 // ─── Expose tree instance methods ───────────────────────────────────
 defineExpose({
-  /** Access the underlying ElTree ref */
+  /** Access the underlying ElTree ref (null in virtual mode) */
   getTreeRef: () => treeRef.value,
+  /** Access the underlying ElTreeV2 ref (null in non-virtual mode) */
+  getTreeV2Ref: () => treeV2Ref.value,
   /** Expand all nodes */
   expandAll: () => {
     if (!isAllExpanded.value) toggleExpandAll()
@@ -283,9 +339,9 @@ defineExpose({
   setSearchKeyword: (keyword: string) => {
     searchKeyword.value = keyword
   },
-  /** Undo last drag operation */
+  /** Undo last drag operation (non-virtual only) */
   undo,
-  /** Redo last undone drag operation */
+  /** Redo last undone drag operation (non-virtual only) */
   redo,
   /** Whether undo is available */
   canUndo,
@@ -337,26 +393,53 @@ defineExpose({
       <slot name="toolbar-extra" />
     </div>
 
-    <!-- Tree -->
-    <div class="pro-tree__body">
+    <!-- Virtual Tree (ElTreeV2) -->
+    <div v-if="virtual" class="pro-tree__body pro-tree__body--virtual">
+      <el-tree-v2
+        ref="treeV2Ref"
+        :data="data"
+        :props="treeV2Props"
+        :height="height"
+        :item-size="DEFAULT_ITEM_SIZE"
+        :default-expanded-keys="defaultExpandedKeys"
+        :filter-method="handleFilterNodeV2"
+        v-bind="attrs"
+      >
+        <template #default="{ node, data: nodeData }">
+          <span class="pro-tree__node" :class="{ 'pro-tree__node--selected': node.isCurrent }">
+            <span class="pro-tree__node-label">{{ nodeData.label }}</span>
+            <span v-if="getChildCount(nodeData)" class="pro-tree__node-badge">
+              {{ getChildCount(nodeData) }}
+            </span>
+          </span>
+        </template>
+        <!-- Forward named slots to ElTreeV2 -->
+        <template v-for="slotName in passthroughSlotNames" :key="slotName" #[slotName]="slotProps">
+          <slot :name="slotName" v-bind="slotProps ?? {}" />
+        </template>
+      </el-tree-v2>
+    </div>
+
+    <!-- Standard Tree (ElTree) -->
+    <div v-else class="pro-tree__body">
       <el-tree
         ref="treeRef"
         :data="data"
         :node-key="nodeKey"
         :default-expand-all="defaultExpandAll"
         :filter-node-method="handleFilterNode"
-        :draggable="draggable"
-        :allow-drag="draggable ? handleAllowDrag : undefined"
-        :allow-drop="draggable ? handleAllowDrop : undefined"
+        :draggable="effectiveDraggable"
+        :allow-drag="effectiveDraggable ? handleAllowDrag : undefined"
+        :allow-drop="effectiveDraggable ? handleAllowDrop : undefined"
         v-bind="attrs"
-        @node-drag-start="draggable ? handleDragStart : undefined"
-        @node-drop="draggable ? handleNodeDrop : undefined"
+        @node-drag-start="effectiveDraggable ? handleDragStart : undefined"
+        @node-drop="effectiveDraggable ? handleNodeDrop : undefined"
       >
         <!-- Default node content with drag handle + count badge -->
         <template #default="{ node, data: nodeData }">
           <span class="pro-tree__node" :class="{ 'pro-tree__node--selected': node.isCurrent }">
             <svg
-              v-if="draggable"
+              v-if="effectiveDraggable"
               class="pro-tree__drag-handle"
               viewBox="0 0 16 16"
               fill="currentColor"
@@ -484,12 +567,19 @@ defineExpose({
   padding: var(--pro-space-2) 0;
 }
 
-.pro-tree .pro-tree__body .el-tree {
+.pro-tree .pro-tree__body--virtual {
+  overflow: hidden;
+  padding: 0;
+}
+
+.pro-tree .pro-tree__body .el-tree,
+.pro-tree .pro-tree__body .el-tree-v2 {
   --el-tree-node-hover-bg-color: var(--pro-bg-sunken);
   background: transparent;
 }
 
-.pro-tree .pro-tree__body .el-tree-node__content {
+.pro-tree .pro-tree__body .el-tree-node__content,
+.pro-tree .pro-tree__body .el-tree-v2__item {
   height: 32px;
   padding-right: var(--pro-space-4);
   border-radius: 0;
@@ -499,7 +589,8 @@ defineExpose({
   border-left: 2px solid transparent;
 }
 
-.pro-tree .pro-tree__body .el-tree-node__content:hover {
+.pro-tree .pro-tree__body .el-tree-node__content:hover,
+.pro-tree .pro-tree__body .el-tree-v2__item:hover {
   background: var(--pro-bg-sunken);
 }
 
