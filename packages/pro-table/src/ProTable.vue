@@ -304,8 +304,7 @@ function editText(key: 'edit' | 'save' | 'cancel' | 'delete' | 'addRow' | 'actio
       <el-table-column
         v-if="state.isEditableEnabled.value"
         :label="editText('actions')"
-        width="160"
-        fixed="right"
+        min-width="120"
       >
         <template #default="{ row }">
           <template v-if="state.isRowEditing(row)">
