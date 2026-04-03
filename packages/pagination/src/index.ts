@@ -1,3 +1,3 @@
-export { Pagination } from './pagination'
+export { default as Pagination } from './Pagination.vue'
 
-export type { PaginationProps, PaginationEmits } from 'element-plus'
+export type { ProPaginationProps, ProPaginationEmits } from './types'

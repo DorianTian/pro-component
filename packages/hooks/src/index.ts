@@ -3,7 +3,11 @@ export { useRequest } from './use-request'
 export type { UseRequestOptions, UseRequestReturn } from './use-request'
 
 export { usePagination } from './use-pagination'
-export type { UsePaginationOptions, UsePaginationReturn } from './use-pagination'
+export type {
+  UsePaginationOptions,
+  UsePaginationReturn,
+  PaginationURLSyncConfig,
+} from './use-pagination'
 
 export { useSelection } from './use-selection'
 export type { UseSelectionOptions, UseSelectionReturn } from './use-selection'

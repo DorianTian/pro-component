@@ -303,6 +303,20 @@
   background: transparent;
 }
 
+/* ---- Pagination: undo VitePress ul/li styles inside demos ---- */
+/* VitePress .vp-doc sets list-style, padding-left on ul/ol and
+   margin-top: 8px on li + li — breaks el-pager alignment. */
+
+.vp-doc .vp-raw .el-pager {
+  list-style: none !important;
+  padding-left: 0 !important;
+  margin: 0 !important;
+}
+
+.vp-doc .vp-raw .el-pager li + li {
+  margin-top: 0 !important;
+}
+
 /* ---- Input focus ring in demos ---- */
 
 .vitepress-demo-plugin__preview .el-input__wrapper:focus-within {

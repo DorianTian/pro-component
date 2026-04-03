@@ -13,6 +13,7 @@ export default defineConfig({
       '@pro/utils': resolve(__dirname, '../packages/utils/src'),
       '@pro/themes': resolve(__dirname, '../packages/themes/src'),
       '@pro/locale': resolve(__dirname, '../packages/locale/src'),
+      '@pro/pagination': resolve(__dirname, '../packages/pagination/src'),
       '@pro/pro-components': resolve(__dirname, '../packages/pro-components/src'),
     },
     dedupe: ['vue', 'element-plus'],

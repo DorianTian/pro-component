@@ -174,13 +174,9 @@
 /* ========== Pagination ========== */
 
 .el-pagination {
+  --el-pagination-button-width: 32px;
+  --el-pagination-button-height: 32px;
   font-weight: 500;
-  align-items: center;
-}
-
-.el-pagination .el-pager li {
-  line-height: 32px;
-  height: 32px;
 }
 
 .el-pagination .el-pager li.is-active {
@@ -193,21 +189,22 @@
   color: var(--pro-color-primary);
 }
 
+/* Force vertical alignment — element-plus leaves __total/__sizes as plain
+   inline elements, which causes baseline misalignment with flex siblings.
+   !important needed because Vite CSS injection order is non-deterministic
+   and element-plus styles may load after theme overrides. */
 .el-pagination .el-pagination__total,
-.el-pagination .el-pagination__jump {
-  line-height: 32px;
-  height: 32px;
-}
-
-.el-pagination .el-pagination__sizes .el-select,
-.el-pagination .el-pagination__jump .el-input {
-  height: 32px;
+.el-pagination .el-pagination__jump,
+.el-pagination .el-pagination__sizes {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: var(--el-pagination-button-height) !important;
 }
 
 .el-pagination .el-select .el-input__wrapper,
 .el-pagination .el-pagination__jump .el-input__wrapper {
-  height: 32px;
-  line-height: 32px;
+  height: var(--el-pagination-button-height);
+  line-height: var(--el-pagination-button-height);
 }
 
 /* ========== Dialog ========== */
@@ -382,12 +379,12 @@
 }
 
 /* ========== Descriptions ========== */
+/* Main styling in overrides/descriptions.css scoped to .pro-descriptions */
 
 .el-descriptions__label {
-  font-size: var(--pro-text-xs);
+  font-size: var(--pro-text-sm);
   font-weight: var(--pro-font-weight-medium);
-  color: var(--pro-text-tertiary);
-  letter-spacing: 0.02em;
+  color: var(--pro-text-secondary);
 }
 
 .el-descriptions__content {
@@ -396,7 +393,7 @@
 }
 
 .el-descriptions__title {
-  font-size: var(--pro-text-md);
+  font-size: var(--pro-text-lg);
   font-weight: var(--pro-font-weight-semibold);
   color: var(--pro-text-primary);
 }

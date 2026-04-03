@@ -194,6 +194,24 @@ const selectValue = ref('')
 const dateValue = ref('')
 const baseDialogVisible = ref(false)
 const paginationPage = ref(1)
+const paginationSize = ref(20)
+
+// ── Pagination Playground state ────────────────────────────────────
+const pgPage = ref(1)
+const pgSize = ref(20)
+const pgTotal = ref(500)
+const pgAutoHide = ref(false)
+const pgCompact = ref(false)
+const pgShowTotal = ref(true)
+const pgShowSizeChanger = ref(true)
+const pgShowQuickJumper = ref(true)
+const pgBackground = ref(false)
+const pgDisabled = ref(false)
+const pgUseFormatter = ref(false)
+
+function pgTotalFormatter(total: number, range: [number, number]): string {
+  return `Showing ${range[0]}-${range[1]} of ${total} records`
+}
 </script>
 
 <template>
@@ -430,8 +448,53 @@ const paginationPage = ref(1)
             </div>
             <div class="base-demo-item" style="flex: 2">
               <label class="base-demo-label">Pagination</label>
-              <Pagination v-model:current-page="paginationPage" :total="200" />
+              <Pagination v-model:current-page="paginationPage" :page-size="20" :total="200" />
             </div>
+          </div>
+        </div>
+        <!-- ── Pagination Playground ────────────────────────────────── -->
+        <h2 class="section-title">Pagination Playground</h2>
+        <div class="card" style="padding: var(--pro-space-5)">
+          <!-- Controls -->
+          <div class="pg-controls">
+            <div class="pg-controls__row">
+              <label class="pg-controls__label">total</label>
+              <el-input-number v-model="pgTotal" :min="0" :max="10000" :step="50" size="small" />
+            </div>
+            <div class="pg-controls__row">
+              <el-checkbox v-model="pgAutoHide">autoHide</el-checkbox>
+              <el-checkbox v-model="pgCompact">compact</el-checkbox>
+              <el-checkbox v-model="pgBackground">background</el-checkbox>
+              <el-checkbox v-model="pgDisabled">disabled</el-checkbox>
+            </div>
+            <div class="pg-controls__row">
+              <el-checkbox v-model="pgShowTotal">showTotal</el-checkbox>
+              <el-checkbox v-model="pgShowSizeChanger">showSizeChanger</el-checkbox>
+              <el-checkbox v-model="pgShowQuickJumper">showQuickJumper</el-checkbox>
+              <el-checkbox v-model="pgUseFormatter">totalFormatter</el-checkbox>
+            </div>
+          </div>
+
+          <!-- Live preview -->
+          <div class="pg-preview">
+            <Pagination
+              v-model:current-page="pgPage"
+              v-model:page-size="pgSize"
+              :total="pgTotal"
+              :auto-hide="pgAutoHide"
+              :compact="pgCompact"
+              :background="pgBackground"
+              :disabled="pgDisabled"
+              :show-total="pgShowTotal"
+              :show-size-changer="pgShowSizeChanger"
+              :show-quick-jumper="pgShowQuickJumper"
+              :total-formatter="pgUseFormatter ? pgTotalFormatter : undefined"
+            />
+          </div>
+
+          <!-- State readout -->
+          <div class="pg-state">
+            page={{ pgPage }}, pageSize={{ pgSize }}, total={{ pgTotal }}
           </div>
         </div>
       </main>
@@ -521,5 +584,42 @@ body {
   font-size: var(--pro-text-sm);
   font-weight: var(--pro-font-weight-medium);
   color: var(--pro-text-secondary);
+}
+
+/* Pagination playground */
+.pg-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pro-space-3);
+  padding-bottom: var(--pro-space-5);
+  border-bottom: 1px solid var(--pro-border-light);
+  margin-bottom: var(--pro-space-5);
+}
+
+.pg-controls__row {
+  display: flex;
+  align-items: center;
+  gap: var(--pro-space-4);
+}
+
+.pg-controls__label {
+  font-size: var(--pro-text-sm);
+  color: var(--pro-text-secondary);
+  min-width: 40px;
+}
+
+.pg-preview {
+  padding: var(--pro-space-5) 0;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.pg-state {
+  padding-top: var(--pro-space-3);
+  border-top: 1px solid var(--pro-border-light);
+  font-size: 13px;
+  font-family: monospace;
+  color: var(--pro-text-tertiary);
 }
 </style>
