@@ -247,6 +247,7 @@ function editText(key: 'edit' | 'save' | 'cancel' | 'delete' | 'addRow' | 'actio
       :loading="state.activeLoading.value"
       :row-key="rowKey"
       :size="state.tableSize.value"
+      :row-class-name="(scope: { row: unknown }) => state.isRowEditing(scope.row) ? 'pro-table__row--editing' : ''"
       v-bind="tableProps"
       @selection-change="state.handleSelectionChange"
       @sort-change="state.handleSortChange"
@@ -392,6 +393,15 @@ function editText(key: 'edit' | 'save' | 'cancel' | 'delete' | 'addRow' | 'actio
   justify-content: center;
   padding: var(--pro-space-3) 0;
   border-top: 1px dashed var(--el-border-color-lighter);
+}
+
+/* Editing row: subtle highlight background */
+.pro-table :deep(.pro-table__row--editing) {
+  background-color: var(--el-color-primary-light-9, #ecf5ff);
+}
+
+.pro-table :deep(.pro-table__row--editing td .cell) {
+  overflow: visible;
 }
 
 .pro-table--fullscreen {

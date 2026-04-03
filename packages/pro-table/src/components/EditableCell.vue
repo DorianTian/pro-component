@@ -40,11 +40,10 @@ const enumSlotChildren = computed((): VNode[] | undefined => {
 const mergedProps = computed(() => {
   const base = { ...controlEntry.value.defaultProps }
 
-  // InputNumber in table cells: hide controls, strip prefix (not supported)
+  // InputNumber in table cells: hide step controls, strip unsupported prefix/suffix
   const numericTypes: ValueType[] = ['number', 'digit', 'money', 'percent', 'progress']
   if (numericTypes.includes(props.valueType)) {
     base.controls = false
-    // el-input-number doesn't support prefix/suffix — remove them
     delete base.prefix
     delete base.suffix
   }
@@ -60,20 +59,17 @@ const mergedProps = computed(() => {
 
 <template>
   <template v-if="isEditing">
-    <div class="editable-cell">
+    <div class="editable-cell" :class="{ 'editable-cell--error': validationError }">
       <component
         :is="controlEntry.component"
         :model-value="modelValue"
         v-bind="mergedProps"
         size="small"
-        :class="{ 'editable-cell--error': validationError }"
         @update:model-value="emit('update:modelValue', $event)"
       >
         <!-- Render ElOption children for select with valueEnum -->
         <template v-if="enumSlotChildren" #default>
-          <component
-            :is="() => enumSlotChildren"
-          />
+          <component :is="() => enumSlotChildren" />
         </template>
       </component>
       <div v-if="validationError" class="editable-cell__error">
@@ -89,34 +85,50 @@ const mergedProps = computed(() => {
 <style scoped>
 .editable-cell {
   width: 100%;
+  min-height: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-/* Strip default border from inputs inside table cells for a clean inline look */
-.editable-cell :deep(.el-input__wrapper),
-.editable-cell :deep(.el-select__wrapper),
-.editable-cell :deep(.el-textarea__inner) {
-  box-shadow: none;
-  background: transparent;
-}
-
-/* InputNumber: remove outer border and make compact */
+/*
+ * All controls inside editable cells get consistent compact sizing.
+ * Border is always visible (light gray) to clearly indicate editability.
+ */
+.editable-cell :deep(.el-input),
+.editable-cell :deep(.el-select),
 .editable-cell :deep(.el-input-number) {
   width: 100%;
 }
 
-.editable-cell :deep(.el-input__wrapper:hover),
-.editable-cell :deep(.el-select__wrapper:hover),
-.editable-cell :deep(.el-textarea__inner:hover) {
+.editable-cell :deep(.el-input__wrapper) {
+  padding: 1px 8px;
   box-shadow: 0 0 0 1px var(--el-border-color) inset;
+  border-radius: 4px;
 }
 
-.editable-cell :deep(.el-input__wrapper:focus-within),
-.editable-cell :deep(.el-select__wrapper:focus-within),
-.editable-cell :deep(.el-textarea__inner:focus) {
+.editable-cell :deep(.el-input__wrapper:focus-within) {
   box-shadow: 0 0 0 1px var(--el-color-primary) inset;
 }
 
-/* Error state overrides hover/focus */
+.editable-cell :deep(.el-select__wrapper) {
+  min-height: 30px;
+  padding: 1px 8px;
+  box-shadow: 0 0 0 1px var(--el-border-color) inset;
+  border-radius: 4px;
+}
+
+.editable-cell :deep(.el-select__wrapper:focus-within),
+.editable-cell :deep(.el-select__wrapper.is-focused) {
+  box-shadow: 0 0 0 1px var(--el-color-primary) inset;
+}
+
+/* InputNumber: consistent width and hide outer frame */
+.editable-cell :deep(.el-input-number .el-input__wrapper) {
+  padding: 1px 8px;
+}
+
+/* Error state */
 .editable-cell--error :deep(.el-input__wrapper),
 .editable-cell--error :deep(.el-select__wrapper) {
   box-shadow: 0 0 0 1px var(--el-color-danger) inset;
