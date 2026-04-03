@@ -120,7 +120,7 @@ function updateItemField(index: number, fieldKey: string, value: unknown): void 
 
 .pro-form-list__item {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: var(--pro-space-3);
   padding: var(--pro-space-3) var(--pro-space-4);
   margin-bottom: var(--pro-space-2);
@@ -174,6 +174,8 @@ function updateItemField(index: number, fieldKey: string, value: unknown): void 
   display: flex;
   gap: var(--pro-space-1);
   flex-shrink: 0;
+  /* Offset for label height so buttons center-align with inputs, not with label+input */
+  padding-top: 21px;
 }
 
 .pro-form-list__add {
