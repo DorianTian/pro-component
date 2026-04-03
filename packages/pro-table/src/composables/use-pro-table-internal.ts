@@ -24,7 +24,7 @@ import type {
 } from '../types'
 import { useEditable } from './use-editable'
 
-import type { UseEditableOptions } from './use-editable'
+import type { UseEditableReturn } from './use-editable'
 import {
   DENSITY_INJECTION_KEY,
   COLUMN_SETTING_INJECTION_KEY,
@@ -50,7 +50,11 @@ export interface UseProTableInternalOptions {
   initialValues: Ref<Record<string, unknown>>
   pagination: Ref<false | PaginationConfig>
   rowSelection?: Ref<RowSelectionConfig | undefined>
-  editable?: EditableConfig
+  editable: Ref<EditableConfig | undefined>
+  /** Enable virtual scrolling via ElTableV2 */
+  virtual?: Ref<boolean>
+  /** Virtual table viewport height in px */
+  virtualHeight?: Ref<number>
   beforeRequest?: (params: RequestParams) => RequestParams
   afterResponse?: (raw: unknown) => RequestResult
   onSelectionChange: (keys: string[], rows: unknown[]) => void
@@ -95,13 +99,24 @@ export interface UseProTableInternalReturn {
   paginationLayout: ComputedRef<string>
 
   // Editable
-  isRowEditing: ((row: unknown) => boolean) | undefined
-  getEditingCellValue: ((row: unknown, dataIndex: string) => unknown) | undefined
-  setEditingCellValue: ((row: unknown, dataIndex: string, value: unknown) => void) | undefined
-  handleEditStart: ((row: unknown) => void) | undefined
-  handleEditSave: ((row: unknown) => void) | undefined
-  handleEditCancel: ((row: unknown) => void) | undefined
-  handleEditDelete: ((row: unknown) => void) | undefined
+  editableInstance: UseEditableReturn | null
+  isEditableEnabled: ComputedRef<boolean>
+  canAddRow: ComputedRef<boolean>
+  isRowEditing: (row: unknown) => boolean
+  isCellEditable: (col: ProColumnDef, row: unknown, index: number) => boolean
+  getEditingCellValue: (row: unknown, dataIndex: string) => unknown
+  setEditingCellValue: (row: unknown, dataIndex: string, value: unknown) => void
+  getCellValidationError: (row: unknown, dataIndex: string) => string | undefined
+  getCellFieldProps: (
+    col: ProColumnDef,
+    row: unknown,
+    index: number,
+  ) => Record<string, unknown> | undefined
+  handleEditStart: (row: unknown) => void
+  handleEditSave: (row: unknown) => Promise<void>
+  handleEditCancel: (row: unknown) => void
+  handleEditDelete: (row: unknown) => Promise<void>
+  handleAddEditRecord: () => void
 
   // ValueType
   formatCellValue: (col: ProColumnDef, row: Record<string, unknown>) => string
@@ -172,13 +187,21 @@ export function useProTableInternal(
   })
 
   // --- Editable ---
-  const editableInstance = options.editable
+  const editableConfig = options.editable
+  const isEditableEnabled = computed(() => editableConfig.value !== undefined)
+
+  const editableInstance: UseEditableReturn | null = editableConfig.value
     ? useEditable({
+        type: editableConfig.value.type,
         rowKey: resolveRowKey(),
-        onSave: options.editable.onSave as UseEditableOptions['onSave'],
-        onCancel: options.editable.onCancel as UseEditableOptions['onCancel'],
-        onDelete: options.editable.onDelete as UseEditableOptions['onDelete'],
-        onChange: options.editable.onChange,
+        controlledKeys: computed(() => editableConfig.value?.editableKeys),
+        onChange: (keys, rows) => editableConfig.value?.onChange?.(keys, rows),
+        onValuesChange: (record, ds) => editableConfig.value?.onValuesChange?.(record, ds),
+        onSave: (key, row, orig, isNew) =>
+          editableConfig.value?.onSave?.(key, row, orig, isNew) ?? Promise.resolve(true),
+        onCancel: (key, row, orig, isNew) =>
+          editableConfig.value?.onCancel?.(key, row, orig, isNew),
+        onDelete: (key, row) => editableConfig.value?.onDelete?.(key, row) ?? Promise.resolve(true),
       })
     : null
 
@@ -192,6 +215,14 @@ export function useProTableInternal(
     return editableInstance.isEditing(getRowKeyValue(row))
   }
 
+  function isCellEditable(col: ProColumnDef, row: unknown, index: number): boolean {
+    if (col.editable === false) return false
+    if (typeof col.editable === 'function') {
+      return col.editable(row as Record<string, unknown>, index)
+    }
+    return true
+  }
+
   function getEditingCellValue(row: unknown, dataIndex: string): unknown {
     if (!editableInstance) return undefined
     return editableInstance.getEditingValue(getRowKeyValue(row), dataIndex)
@@ -202,14 +233,36 @@ export function useProTableInternal(
     editableInstance.setEditingValue(getRowKeyValue(row), dataIndex, value)
   }
 
+  function getCellValidationError(row: unknown, dataIndex: string): string | undefined {
+    if (!editableInstance) return undefined
+    const key = getRowKeyValue(row)
+    const errors = editableInstance.validationErrors.value.get(key)
+    return errors?.[dataIndex]
+  }
+
+  function getCellFieldProps(
+    col: ProColumnDef,
+    row: unknown,
+    index: number,
+  ): Record<string, unknown> | undefined {
+    if (!col.fieldProps) return undefined
+    if (typeof col.fieldProps === 'function') {
+      return col.fieldProps(row as Record<string, unknown>, index)
+    }
+    return col.fieldProps
+  }
+
   function handleEditStart(row: unknown): void {
     if (!editableInstance) return
     editableInstance.startEdit(getRowKeyValue(row), row as Record<string, unknown>)
   }
 
-  function handleEditSave(row: unknown): void {
+  async function handleEditSave(row: unknown): Promise<void> {
     if (!editableInstance) return
-    void editableInstance.saveEdit(getRowKeyValue(row))
+    const key = getRowKeyValue(row)
+    const isValid = editableInstance.validateRow(key, options.columns.value)
+    if (!isValid) return
+    await editableInstance.saveEdit(key)
   }
 
   function handleEditCancel(row: unknown): void {
@@ -217,15 +270,51 @@ export function useProTableInternal(
     editableInstance.cancelEdit(getRowKeyValue(row))
   }
 
-  function handleEditDelete(row: unknown): void {
+  async function handleEditDelete(row: unknown): Promise<void> {
     if (!editableInstance) return
-    void editableInstance.deleteRow(getRowKeyValue(row), row as Record<string, unknown>)
+    await editableInstance.deleteRow(getRowKeyValue(row))
   }
 
+  function handleAddEditRecord(): void {
+    if (!editableInstance || !editableConfig.value) return
+    const creatorProps = editableConfig.value.recordCreatorProps
+    if (!creatorProps) return
+
+    const ds = activeData.value as Record<string, unknown>[]
+    const record =
+      typeof creatorProps.record === 'function'
+        ? creatorProps.record(ds.length, ds)
+        : ({ ...creatorProps.record } as Record<string, unknown>)
+
+    editableInstance.addEditRecord(record)
+  }
+
+  const canAddRow = computed(() => {
+    if (!editableConfig.value) return false
+    const creatorProps = editableConfig.value.recordCreatorProps
+    if (!creatorProps) return false
+    if (editableConfig.value.maxLength !== undefined) {
+      return (activeData.value as unknown[]).length < editableConfig.value.maxLength
+    }
+    return true
+  })
+
   // --- Resolved active state ---
+  const isClientDataMode = computed(
+    () => !isExternalMode.value && options.data?.value !== undefined,
+  )
+
   const activeData = computed(() => {
     if (externalInstance) return externalInstance.dataSource.value
-    if (options.data?.value !== undefined) return options.data.value
+    if (isClientDataMode.value) {
+      const allData = options.data!.value!
+      // Client-side auto-pagination: slice data based on current page
+      if (isPaginationEnabled.value && !options.virtual?.value) {
+        const start = (internalPagination.current.value - 1) * internalPagination.pageSize.value
+        return allData.slice(start, start + internalPagination.pageSize.value)
+      }
+      return allData
+    }
     return internalRequest.data.value
   })
 
@@ -489,13 +578,20 @@ export function useProTableInternal(
     isPaginationEnabled,
     pageSizes,
     paginationLayout,
-    isRowEditing: editableInstance ? isRowEditing : undefined,
-    getEditingCellValue: editableInstance ? getEditingCellValue : undefined,
-    setEditingCellValue: editableInstance ? setEditingCellValue : undefined,
-    handleEditStart: editableInstance ? handleEditStart : undefined,
-    handleEditSave: editableInstance ? handleEditSave : undefined,
-    handleEditCancel: editableInstance ? handleEditCancel : undefined,
-    handleEditDelete: editableInstance ? handleEditDelete : undefined,
+    editableInstance,
+    isEditableEnabled,
+    canAddRow,
+    isRowEditing,
+    isCellEditable,
+    getEditingCellValue,
+    setEditingCellValue,
+    getCellValidationError,
+    getCellFieldProps,
+    handleEditStart,
+    handleEditSave,
+    handleEditCancel,
+    handleEditDelete,
+    handleAddEditRecord,
     formatCellValue,
     handleSelectionChange,
     fetchData,

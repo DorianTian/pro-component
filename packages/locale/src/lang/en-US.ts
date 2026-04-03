@@ -33,6 +33,15 @@ export const enUS = {
         reload: 'Reload',
         fullscreen: 'Fullscreen',
       },
+      editable: {
+        edit: 'Edit',
+        save: 'Save',
+        cancel: 'Cancel',
+        delete: 'Delete',
+        addRow: 'Add Row',
+        actions: 'Actions',
+        deleteConfirm: 'Are you sure you want to delete this row?',
+      },
     },
     form: {
       submit: 'Submit',

@@ -143,6 +143,7 @@ export function useProTable<T = Record<string, unknown>>(
     insertRow: rowOps.insertRow,
     updateRow: rowOps.updateRow,
     deleteRow: rowOps.deleteRow,
+    editable: null,
   }
 
   provide(PRO_TABLE_INJECTION_KEY, instance as UseProTableReturn)

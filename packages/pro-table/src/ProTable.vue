@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { inject, toRef, type PropType, type VNode } from 'vue'
-import { Setting } from '@element-plus/icons-vue'
+import { inject, toRef, computed, ref, type PropType, type VNode } from 'vue'
+import { Setting, Plus } from '@element-plus/icons-vue'
+import { ElAutoResizer, ElTableV2 } from 'element-plus'
+import { useProLocale } from '@pro/hooks'
 
 import type { RequestParams, RequestResult } from '@pro/utils'
 import type {
@@ -14,12 +16,16 @@ import type {
 } from './types'
 import { PRO_TABLE_INJECTION_KEY } from './constants'
 import { useProTableInternal } from './composables/use-pro-table-internal'
+import { useVirtualColumns } from './composables/use-virtual-columns'
 import QueryFilter from './components/QueryFilter.vue'
 import ToolBar from './components/ToolBar.vue'
 import ColumnSetting from './components/ColumnSetting.vue'
 import EditableCell from './components/EditableCell.vue'
 
 defineOptions({ name: 'ProTable' })
+
+/** Default virtual table height */
+const DEFAULT_VIRTUAL_HEIGHT = 500
 
 const props = defineProps({
   request: {
@@ -53,6 +59,10 @@ const props = defineProps({
     type: Function as PropType<(raw: unknown) => RequestResult>,
     default: undefined,
   },
+  /** Enable virtual scrolling via ElTableV2 for large datasets */
+  virtual: { type: Boolean, default: false },
+  /** Virtual table viewport height in px (default 500, or auto via ElAutoResizer) */
+  virtualHeight: { type: Number, default: DEFAULT_VIRTUAL_HEIGHT },
 })
 
 const emit = defineEmits<{
@@ -62,6 +72,8 @@ const emit = defineEmits<{
   reload: []
   reset: []
 }>()
+
+const { t } = useProLocale()
 
 const externalInstance = inject<UseProTableReturn | null>(PRO_TABLE_INJECTION_KEY, null)
 
@@ -76,7 +88,9 @@ const state = useProTableInternal(
     initialValues: toRef(props, 'initialValues'),
     pagination: toRef(props, 'pagination'),
     rowSelection: toRef(props, 'rowSelection'),
-    editable: props.editable,
+    editable: toRef(props, 'editable'),
+    virtual: toRef(props, 'virtual'),
+    virtualHeight: toRef(props, 'virtualHeight'),
     beforeRequest: props.beforeRequest,
     afterResponse: props.afterResponse,
     onSelectionChange: (keys, rows) => {
@@ -99,6 +113,63 @@ const state = useProTableInternal(
 )
 
 const { tableContainerRef } = state
+
+// ─── Virtual table (ElTableV2) selection support ───────────────────
+const virtualSelectedKeys = ref<Set<string>>(new Set())
+
+function getRowKey(row: Record<string, unknown>): string {
+  const rk = props.rowKey
+  if (typeof rk === 'function') return rk(row)
+  return String(row[rk])
+}
+
+const allRowKeys = computed(() =>
+  (state.activeData.value as Record<string, unknown>[]).map(getRowKey),
+)
+
+function handleVirtualSelectRow(key: string, checked: boolean): void {
+  const next = new Set(virtualSelectedKeys.value)
+  if (checked) {
+    next.add(key)
+  } else {
+    next.delete(key)
+  }
+  virtualSelectedKeys.value = next
+  const rows = (state.activeData.value as Record<string, unknown>[]).filter((r) =>
+    next.has(getRowKey(r)),
+  )
+  emit('selection-change', [...next], rows)
+}
+
+function handleVirtualSelectAll(checked: boolean): void {
+  if (checked) {
+    virtualSelectedKeys.value = new Set(allRowKeys.value)
+    emit('selection-change', allRowKeys.value, [...state.activeData.value])
+  } else {
+    virtualSelectedKeys.value = new Set()
+    emit('selection-change', [], [])
+  }
+}
+
+const hasRowSelection = computed(() => !!props.rowSelection)
+
+const { v2Columns } = useVirtualColumns({
+  columns: toRef(props, 'columns'),
+  visibleColumns: state.visibleColumns,
+  formatCellValue: state.formatCellValue,
+  hasRowSelection,
+  selectedRowKeys: virtualSelectedKeys,
+  allRowKeys,
+  onSelectRow: handleVirtualSelectRow,
+  onSelectAll: handleVirtualSelectAll,
+})
+
+/** Resolve editable text with user override → i18n fallback */
+function editText(key: 'edit' | 'save' | 'cancel' | 'delete' | 'addRow' | 'actions'): string {
+  const override = props.editable?.[`${key}Text` as keyof EditableConfig] as string | undefined
+  if (override) return override
+  return t(`pro.table.editable.${key}`)
+}
 </script>
 
 <template>
@@ -148,8 +219,23 @@ const { tableContainerRef } = state
       </template>
     </ToolBar>
 
-    <!-- Table -->
+    <!-- ═══════ Virtual Table (ElTableV2) ═══════ -->
+    <el-auto-resizer v-if="virtual">
+      <template #default="{ height: autoHeight, width: autoWidth }">
+        <el-table-v2
+          :columns="v2Columns as any"
+          :data="state.activeData.value"
+          :width="autoWidth"
+          :height="virtualHeight || autoHeight"
+          :row-key="rowKey"
+          v-bind="tableProps"
+        />
+      </template>
+    </el-auto-resizer>
+
+    <!-- ═══════ Standard Table (ElTable) ═══════ -->
     <el-table
+      v-else
       :data="state.activeData.value"
       :loading="state.activeLoading.value"
       :row-key="rowKey"
@@ -174,49 +260,86 @@ const { tableContainerRef } = state
         :show-overflow-tooltip="col.ellipsis !== false"
       >
         <template #default="{ row, $index }">
-          <template v-if="col.render && !state.isRowEditing?.(row)">
+          <!-- Custom render (skip when row is editing) -->
+          <template v-if="col.render && !state.isRowEditing(row)">
             <component :is="() => col.render!(row, $index)" />
           </template>
-          <template v-else-if="editable && state.isRowEditing?.(row)">
+          <!-- Editable cell -->
+          <template
+            v-else-if="
+              state.isEditableEnabled.value &&
+              state.isRowEditing(row) &&
+              state.isCellEditable(col, row, $index)
+            "
+          >
             <EditableCell
               :value-type="col.valueType ?? 'text'"
-              :model-value="state.getEditingCellValue?.(row, String(col.dataIndex))"
+              :model-value="state.getEditingCellValue(row, String(col.dataIndex))"
               :is-editing="true"
-              @update:model-value="state.setEditingCellValue?.(row, String(col.dataIndex), $event)"
+              :value-enum="col.valueEnum"
+              :field-props="state.getCellFieldProps(col, row, $index)"
+              :validation-error="state.getCellValidationError(row, String(col.dataIndex))"
+              @update:model-value="state.setEditingCellValue(row, String(col.dataIndex), $event)"
             />
           </template>
+          <!-- Read-only display -->
           <template v-else>
             <span>{{ state.formatCellValue(col, row) }}</span>
           </template>
         </template>
       </el-table-column>
 
-      <!-- Action column slot -->
+      <!-- Action column slot (user-provided) -->
       <slot name="action" />
 
       <!-- Editable action column -->
-      <el-table-column v-if="editable" label="操作" width="150" fixed="right">
+      <el-table-column
+        v-if="state.isEditableEnabled.value"
+        :label="editText('actions')"
+        width="160"
+        fixed="right"
+      >
         <template #default="{ row }">
-          <template v-if="state.isRowEditing?.(row)">
-            <el-button link type="primary" size="small" @click="state.handleEditSave?.(row)"
-              >保存</el-button
-            >
-            <el-button link size="small" @click="state.handleEditCancel?.(row)">取消</el-button>
+          <template v-if="state.isRowEditing(row)">
+            <el-button link type="primary" size="small" @click="state.handleEditSave(row)">
+              {{ editText('save') }}
+            </el-button>
+            <el-button link size="small" @click="state.handleEditCancel(row)">
+              {{ editText('cancel') }}
+            </el-button>
           </template>
           <template v-else>
-            <el-button link type="primary" size="small" @click="state.handleEditStart?.(row)"
-              >编辑</el-button
+            <el-button link type="primary" size="small" @click="state.handleEditStart(row)">
+              {{ editText('edit') }}
+            </el-button>
+            <el-popconfirm
+              :title="editable?.deleteConfirmText ?? t('pro.table.editable.deleteConfirm')"
+              @confirm="state.handleEditDelete(row)"
             >
-            <el-button link type="danger" size="small" @click="state.handleEditDelete?.(row)"
-              >删除</el-button
-            >
+              <template #reference>
+                <el-button link type="danger" size="small">
+                  {{ editText('delete') }}
+                </el-button>
+              </template>
+            </el-popconfirm>
           </template>
         </template>
       </el-table-column>
     </el-table>
 
-    <!-- Pagination -->
-    <div v-if="state.isPaginationEnabled.value" class="pro-table__pagination">
+    <!-- Add Row Button (for editable table mode with recordCreatorProps) -->
+    <div v-if="!virtual && state.canAddRow.value" class="pro-table__add-row">
+      <el-button type="primary" :icon="Plus" link @click="state.handleAddEditRecord">
+        {{
+          editable?.recordCreatorProps && typeof editable.recordCreatorProps === 'object'
+            ? (editable.recordCreatorProps.creatorButtonText ?? editText('addRow'))
+            : editText('addRow')
+        }}
+      </el-button>
+    </div>
+
+    <!-- Pagination (not shown in virtual mode — virtual renders all rows) -->
+    <div v-if="!virtual && state.isPaginationEnabled.value" class="pro-table__pagination">
       <el-pagination
         :current-page="state.activePagination.value.current.value"
         :page-size="state.activePagination.value.pageSize.value"
@@ -244,6 +367,10 @@ const { tableContainerRef } = state
   box-sizing: border-box;
 }
 
+.pro-table :deep(.el-auto-resizer) {
+  min-height: 300px;
+}
+
 .pro-table__pagination {
   display: flex;
   justify-content: flex-end;
@@ -251,6 +378,13 @@ const { tableContainerRef } = state
   padding: var(--pro-space-4) var(--pro-space-7) var(--pro-space-4);
   font-size: var(--pro-text-xs);
   color: var(--pro-text-tertiary);
+}
+
+.pro-table__add-row {
+  display: flex;
+  justify-content: center;
+  padding: var(--pro-space-3) 0;
+  border-top: 1px dashed var(--el-border-color-lighter);
 }
 
 .pro-table--fullscreen {

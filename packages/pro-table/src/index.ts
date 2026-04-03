@@ -15,6 +15,13 @@ export {
 export { useEditable } from './composables/use-editable'
 export type { UseEditableOptions, UseEditableReturn } from './composables/use-editable'
 
+export { useVirtualColumns } from './composables/use-virtual-columns'
+export type {
+  V2Column,
+  UseVirtualColumnsOptions,
+  UseVirtualColumnsReturn,
+} from './composables/use-virtual-columns'
+
 export { ProRequestError } from './types'
 export type {
   ProTableProps,
@@ -26,6 +33,9 @@ export type {
   DensitySize,
   ColumnSettingItem,
   EditableConfig,
+  EditableActionConfig,
+  RecordCreatorProps,
+  UseEditableApi,
   UseProTableOptions,
   UseProTableReturn,
 } from './types'
