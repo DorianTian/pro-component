@@ -65,10 +65,16 @@ function copyItem(index: number): void {
 }
 
 function updateItemField(index: number, fieldKey: string, value: unknown): void {
-  const arr = items.value
-  if (arr[index]) {
-    arr[index][fieldKey] = value
-  }
+  // Create new item + array reference so the computed re-evaluates
+  // and v-for re-renders with updated model-value bindings
+  const newItems = [...items.value]
+  newItems[index] = { ...newItems[index], [fieldKey]: value }
+  items.value = newItems
+}
+
+/** Build the full prop path for EP validation: e.g. "members.0.name" */
+function fieldProp(index: number, dataIndex: string): string {
+  return `${props.name}.${index}.${dataIndex}`
 }
 </script>
 
@@ -80,6 +86,7 @@ function updateItemField(index: number, fieldKey: string, value: unknown): void 
           v-for="field in fields"
           :key="field.dataIndex"
           :field="field"
+          :prop="fieldProp(index, field.dataIndex)"
           :model-value="item[field.dataIndex]"
           :form-values="item"
           @update:model-value="updateItemField(index, field.dataIndex, $event)"

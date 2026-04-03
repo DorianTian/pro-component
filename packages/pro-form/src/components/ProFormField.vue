@@ -12,6 +12,8 @@ const props = defineProps<{
   field: ProFieldDef
   modelValue: unknown
   formValues?: Record<string, unknown>
+  /** Override the el-form-item :prop path (used by ProFormList for nested paths like "members.0.name") */
+  prop?: string
 }>()
 
 const emit = defineEmits<{
@@ -119,7 +121,12 @@ const FieldControl = defineComponent({
 </script>
 
 <template>
-  <ElFormItem :label="field.title" :prop="field.dataIndex" v-bind="field.formItemProps">
+  <ElFormItem
+    :label="field.title"
+    :prop="prop ?? field.dataIndex"
+    :rules="field.rules"
+    v-bind="field.formItemProps"
+  >
     <template v-if="field.tooltip" #label>
       {{ field.title }}
       <ElTooltip :content="field.tooltip" placement="top">
