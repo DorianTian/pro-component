@@ -46,6 +46,23 @@
   background: var(--pro-scrollbar-track);
 }
 
+/* ---- Editable Row ---- */
+
+/* Editing row: highlight background */
+.pro-table .el-table .pro-table__row--editing {
+  background-color: var(--el-color-primary-light-9, #ecf5ff);
+}
+
+.pro-table .el-table .pro-table__row--editing:hover > td.el-table__cell {
+  background-color: var(--el-color-primary-light-9, #ecf5ff);
+}
+
+/* Editing cells: relax padding to accommodate input controls */
+.pro-table .el-table .pro-table__row--editing td.el-table__cell > .cell {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
 /* Toolbar divider */
 .pro-toolbar .el-divider--vertical {
   height: 16px;

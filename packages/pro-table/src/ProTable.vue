@@ -394,18 +394,14 @@ function editText(key: 'edit' | 'save' | 'cancel' | 'delete' | 'addRow' | 'actio
   border-top: 1px dashed var(--el-border-color-lighter);
 }
 
-/* Editing row: subtle highlight background */
+/* Editing row: subtle highlight + relaxed cell padding for controls */
 .pro-table :deep(.pro-table__row--editing) {
   background-color: var(--el-color-primary-light-9, #ecf5ff);
 }
 
 .pro-table :deep(.pro-table__row--editing td .cell) {
-  overflow: visible !important;
-  text-overflow: clip;
-}
-
-.pro-table :deep(.pro-table__row--editing td) {
-  overflow: visible;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 .pro-table--fullscreen {

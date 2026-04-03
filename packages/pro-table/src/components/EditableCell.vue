@@ -83,61 +83,90 @@ const mergedProps = computed(() => {
 </template>
 
 <style scoped>
+/*
+ * Editable cell styling strategy:
+ *
+ * The parent `.el-table .cell` has `overflow: hidden` (from Element Plus)
+ * which clips any outward-facing borders or shadows. We work WITHIN this
+ * constraint by using `box-shadow: inset` for all border effects — inset
+ * shadows render inside the element boundary and are never clipped.
+ *
+ * No need to fight overflow:hidden. Just stay inside the box.
+ */
+
 .editable-cell {
   width: 100%;
-  min-height: 32px;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-/*
- * All controls inside editable cells get consistent compact sizing.
- * Border is always visible (light gray) to clearly indicate editability.
- */
+/* All input-like controls: full width */
 .editable-cell :deep(.el-input),
 .editable-cell :deep(.el-select),
 .editable-cell :deep(.el-input-number) {
   width: 100%;
 }
 
+/*
+ * Input wrapper: subtle inset border, compact height.
+ * Using inset box-shadow so overflow:hidden doesn't clip it.
+ */
 .editable-cell :deep(.el-input__wrapper) {
-  padding: 1px 8px;
-  box-shadow: 0 0 0 1px var(--el-border-color) inset;
-  border-radius: 4px;
+  padding: 2px 8px;
+  border-radius: var(--pro-radius-xs, 3px);
+  background: var(--pro-bg-base, #fff);
+  box-shadow: inset 0 0 0 1px var(--pro-border-default, #e5e5e5);
+  transition: box-shadow var(--pro-transition-fast, 150ms);
 }
 
+.editable-cell :deep(.el-input__wrapper:hover) {
+  box-shadow: inset 0 0 0 1px var(--el-border-color-hover, #c0c4cc);
+}
+
+.editable-cell :deep(.el-input__wrapper.is-focus),
 .editable-cell :deep(.el-input__wrapper:focus-within) {
-  box-shadow: 0 0 0 1px var(--el-color-primary) inset;
+  box-shadow: inset 0 0 0 1.5px var(--pro-border-focus, #2563eb);
 }
 
+/* Select wrapper: same treatment */
 .editable-cell :deep(.el-select__wrapper) {
-  min-height: 30px;
-  padding: 1px 8px;
-  box-shadow: 0 0 0 1px var(--el-border-color) inset;
-  border-radius: 4px;
+  min-height: 28px;
+  padding: 2px 8px;
+  border-radius: var(--pro-radius-xs, 3px);
+  background: var(--pro-bg-base, #fff);
+  box-shadow: inset 0 0 0 1px var(--pro-border-default, #e5e5e5);
+  transition: box-shadow var(--pro-transition-fast, 150ms);
 }
 
-.editable-cell :deep(.el-select__wrapper:focus-within),
-.editable-cell :deep(.el-select__wrapper.is-focused) {
-  box-shadow: 0 0 0 1px var(--el-color-primary) inset;
+.editable-cell :deep(.el-select__wrapper:hover) {
+  box-shadow: inset 0 0 0 1px var(--el-border-color-hover, #c0c4cc);
 }
 
-/* InputNumber: consistent width and hide outer frame */
+.editable-cell :deep(.el-select__wrapper.is-focused),
+.editable-cell :deep(.el-select__wrapper:focus-within) {
+  box-shadow: inset 0 0 0 1.5px var(--pro-border-focus, #2563eb);
+}
+
+/* InputNumber: consistent full-width */
 .editable-cell :deep(.el-input-number .el-input__wrapper) {
-  padding: 1px 8px;
+  padding: 2px 8px;
 }
 
-/* Error state */
+/* ── Error state ── */
 .editable-cell--error :deep(.el-input__wrapper),
-.editable-cell--error :deep(.el-select__wrapper) {
-  box-shadow: 0 0 0 1px var(--el-color-danger) inset;
+.editable-cell--error :deep(.el-input__wrapper:hover),
+.editable-cell--error :deep(.el-input__wrapper.is-focus),
+.editable-cell--error :deep(.el-select__wrapper),
+.editable-cell--error :deep(.el-select__wrapper:hover),
+.editable-cell--error :deep(.el-select__wrapper.is-focused) {
+  box-shadow: inset 0 0 0 1.5px var(--el-color-danger, #dc2626);
 }
 
 .editable-cell__error {
   font-size: 12px;
-  line-height: 1.2;
-  color: var(--el-color-danger);
+  line-height: 1.3;
+  color: var(--el-color-danger, #dc2626);
   margin-top: 2px;
 }
 </style>
