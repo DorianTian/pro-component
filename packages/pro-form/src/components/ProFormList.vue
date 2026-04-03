@@ -150,7 +150,7 @@ function updateItemField(index: number, fieldKey: string, value: unknown): void 
 .pro-form-list__fields :deep(.el-form-item) {
   display: flex;
   flex-direction: column;
-  margin-bottom: var(--pro-space-2);
+  margin-bottom: 0;
 }
 
 .pro-form-list__fields :deep(.el-form-item__label) {
@@ -174,7 +174,6 @@ function updateItemField(index: number, fieldKey: string, value: unknown): void 
   display: flex;
   gap: var(--pro-space-1);
   flex-shrink: 0;
-  padding-bottom: var(--pro-space-2); /* match field margin-bottom */
 }
 
 .pro-form-list__add {
