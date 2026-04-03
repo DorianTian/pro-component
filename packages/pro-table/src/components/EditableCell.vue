@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, h, type VNode } from 'vue'
+import { ElOption } from 'element-plus'
 import { CONTROL_REGISTRY } from '@pro/hooks'
 
 import type { ValueType, StatusType } from '@pro/utils'
@@ -21,25 +22,31 @@ const emit = defineEmits<{
 
 const controlEntry = computed(() => CONTROL_REGISTRY[props.valueType] ?? CONTROL_REGISTRY.text)
 
-/** Convert valueEnum to options array for select/radio/checkbox controls */
-const enumOptions = computed(() => {
-  if (!props.valueEnum) return undefined
-  return Object.entries(props.valueEnum).map(([value, config]) => ({
-    label: config.text,
-    value,
-  }))
+/** Whether this valueType uses enum options rendered as slot children */
+const isEnumType = computed(() => {
+  const types: ValueType[] = ['select', 'radio', 'checkbox']
+  return types.includes(props.valueType) && !!props.valueEnum
 })
 
-/** Merged props: controlEntry defaults + enum options + user fieldProps */
+/** Build ElOption VNodes for select/radio/checkbox from valueEnum */
+const enumSlotChildren = computed((): VNode[] | undefined => {
+  if (!isEnumType.value || !props.valueEnum) return undefined
+  return Object.entries(props.valueEnum).map(([value, config]) =>
+    h(ElOption, { key: value, label: config.text, value }),
+  )
+})
+
+/** Merged props with table-cell-friendly overrides */
 const mergedProps = computed(() => {
   const base = { ...controlEntry.value.defaultProps }
 
-  // Inject options for select/radio/checkbox types
-  if (enumOptions.value) {
-    const optionTypes: ValueType[] = ['select', 'radio', 'checkbox']
-    if (optionTypes.includes(props.valueType)) {
-      base.options = enumOptions.value
-    }
+  // InputNumber in table cells: hide controls, strip prefix (not supported)
+  const numericTypes: ValueType[] = ['number', 'digit', 'money', 'percent', 'progress']
+  if (numericTypes.includes(props.valueType)) {
+    base.controls = false
+    // el-input-number doesn't support prefix/suffix — remove them
+    delete base.prefix
+    delete base.suffix
   }
 
   // User fieldProps override everything
@@ -61,7 +68,14 @@ const mergedProps = computed(() => {
         size="small"
         :class="{ 'editable-cell--error': validationError }"
         @update:model-value="emit('update:modelValue', $event)"
-      />
+      >
+        <!-- Render ElOption children for select with valueEnum -->
+        <template v-if="enumSlotChildren" #default>
+          <component
+            :is="() => enumSlotChildren"
+          />
+        </template>
+      </component>
       <div v-if="validationError" class="editable-cell__error">
         {{ validationError }}
       </div>
@@ -80,10 +94,14 @@ const mergedProps = computed(() => {
 /* Strip default border from inputs inside table cells for a clean inline look */
 .editable-cell :deep(.el-input__wrapper),
 .editable-cell :deep(.el-select__wrapper),
-.editable-cell :deep(.el-input-number),
 .editable-cell :deep(.el-textarea__inner) {
   box-shadow: none;
   background: transparent;
+}
+
+/* InputNumber: remove outer border and make compact */
+.editable-cell :deep(.el-input-number) {
+  width: 100%;
 }
 
 .editable-cell :deep(.el-input__wrapper:hover),
