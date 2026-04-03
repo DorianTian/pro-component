@@ -2,7 +2,8 @@
 import { ref, computed, watch, useSlots, useAttrs, onBeforeUnmount, type PropType } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 
-import type { ProTreeNodeData } from './types'
+import type { ProTreeNodeData, DragEvent as TreeDragEvent } from './types'
+import { cloneTree, removeNode, insertNode, getNodeDepth, getSubtreeDepth } from './tree-utils'
 
 defineOptions({ name: 'ProTree', inheritAttrs: false })
 
@@ -17,10 +18,39 @@ const props = defineProps({
   },
   data: { type: Array as PropType<ProTreeNodeData[]>, default: () => [] },
   nodeKey: { type: String, default: 'id' },
+  /** Enable drag-and-drop with data layer management */
+  draggable: { type: Boolean, default: false },
+  /** Max allowed tree depth. 0 = unlimited. */
+  maxDepth: { type: Number, default: 0 },
+  /** Custom drag guard — return false to prevent dragging a node */
+  allowDrag: {
+    type: Function as PropType<(data: ProTreeNodeData) => boolean>,
+    default: undefined,
+  },
+  /** Custom drop guard — return false to prevent dropping at a position */
+  allowDrop: {
+    type: Function as PropType<
+      (
+        dragging: ProTreeNodeData,
+        drop: ProTreeNodeData,
+        type: 'before' | 'after' | 'inner',
+      ) => boolean
+    >,
+    default: undefined,
+  },
+  /** Async confirm callback. Return false or throw to rollback the drop. */
+  onDragConfirm: {
+    type: Function as PropType<(event: TreeDragEvent) => Promise<boolean | void>>,
+    default: undefined,
+  },
+  /** Max undo history size */
+  maxHistory: { type: Number, default: 50 },
 })
 
 const emit = defineEmits<{
   search: [keyword: string]
+  'update:data': [data: ProTreeNodeData[]]
+  'drag-end': [event: TreeDragEvent]
 }>()
 
 const slots = useSlots()
@@ -111,6 +141,111 @@ function getChildCount(data: ProTreeNodeData): number {
   return data.children?.length ?? 0
 }
 
+// ─── Drag-and-drop data layer ──────────────────────────────────────
+const undoStack = ref<ProTreeNodeData[][]>([])
+const redoStack = ref<ProTreeNodeData[][]>([])
+
+const canUndo = computed(() => undoStack.value.length > 0)
+const canRedo = computed(() => redoStack.value.length > 0)
+
+function pushSnapshot(): void {
+  undoStack.value.push(cloneTree(props.data))
+  if (undoStack.value.length > props.maxHistory) {
+    undoStack.value.shift()
+  }
+  redoStack.value = []
+}
+
+function undo(): void {
+  if (undoStack.value.length === 0) return
+  redoStack.value.push(cloneTree(props.data))
+  const prev = undoStack.value.pop()!
+  emit('update:data', prev)
+}
+
+function redo(): void {
+  if (redoStack.value.length === 0) return
+  undoStack.value.push(cloneTree(props.data))
+  const next = redoStack.value.pop()!
+  emit('update:data', next)
+}
+
+/** ElTree allow-drag callback — wraps user's allowDrag */
+function handleAllowDrag(elNode: { data: ProTreeNodeData }): boolean {
+  if (props.allowDrag) return props.allowDrag(elNode.data)
+  return true
+}
+
+/** ElTree allow-drop callback — wraps user's allowDrop + maxDepth check */
+function handleAllowDrop(
+  dragging: { data: ProTreeNodeData },
+  drop: { data: ProTreeNodeData },
+  type: 'prev' | 'next' | 'inner',
+): boolean {
+  const position = type === 'prev' ? 'before' : type === 'next' ? 'after' : 'inner'
+
+  if (props.maxDepth > 0 && position === 'inner') {
+    const dropDepth = getNodeDepth(props.data, String(drop.data[props.nodeKey]), props.nodeKey)
+    const subtreeDepth = getSubtreeDepth(dragging.data)
+    if (dropDepth + subtreeDepth > props.maxDepth) return false
+  }
+
+  if (props.maxDepth > 0 && position !== 'inner') {
+    const dropDepth = getNodeDepth(props.data, String(drop.data[props.nodeKey]), props.nodeKey)
+    const subtreeDepth = getSubtreeDepth(dragging.data)
+    if (dropDepth - 1 + subtreeDepth > props.maxDepth) return false
+  }
+
+  if (props.allowDrop) return props.allowDrop(dragging.data, drop.data, position)
+  return true
+}
+
+/**
+ * ElTree node-drop handler — the core of our data layer.
+ * ElTree has ALREADY mutated its internal tree by this point.
+ * We compute the correct new data ourselves and emit it.
+ */
+async function handleNodeDrop(
+  dragging: { data: ProTreeNodeData },
+  drop: { data: ProTreeNodeData },
+  type: 'before' | 'after' | 'inner',
+): Promise<void> {
+  const dragKey = String(dragging.data[props.nodeKey])
+  const dropKey = String(drop.data[props.nodeKey])
+
+  const dragEvent: TreeDragEvent = {
+    dragKey,
+    dropKey,
+    position: type,
+    dragData: dragging.data,
+    dropData: drop.data,
+  }
+
+  // Build new data from our own source of truth (not ElTree's internal state)
+  pushSnapshot()
+  const newData = cloneTree(props.data)
+  const removed = removeNode(newData, dragKey, props.nodeKey)
+  if (!removed) return
+
+  insertNode(newData, dropKey, removed, type, props.nodeKey)
+
+  // Optimistic update
+  emit('update:data', newData)
+  emit('drag-end', dragEvent)
+
+  // Server confirm
+  if (props.onDragConfirm) {
+    try {
+      const result = await props.onDragConfirm(dragEvent)
+      if (result === false) {
+        undo()
+      }
+    } catch {
+      undo()
+    }
+  }
+}
+
 // ─── Forwarded slots (exclude our custom ones) ──────────────────────
 const passthroughSlotNames = computed(() =>
   Object.keys(slots).filter((name) => name !== 'toolbar-extra'),
@@ -122,20 +257,24 @@ defineExpose({
   getTreeRef: () => treeRef.value,
   /** Expand all nodes */
   expandAll: () => {
-    if (!isAllExpanded.value) {
-      toggleExpandAll()
-    }
+    if (!isAllExpanded.value) toggleExpandAll()
   },
   /** Collapse all nodes */
   collapseAll: () => {
-    if (isAllExpanded.value) {
-      toggleExpandAll()
-    }
+    if (isAllExpanded.value) toggleExpandAll()
   },
   /** Programmatically set search keyword */
   setSearchKeyword: (keyword: string) => {
     searchKeyword.value = keyword
   },
+  /** Undo last drag operation */
+  undo,
+  /** Redo last undone drag operation */
+  redo,
+  /** Whether undo is available */
+  canUndo,
+  /** Whether redo is available */
+  canRedo,
 })
 </script>
 
@@ -190,7 +329,11 @@ defineExpose({
         :node-key="nodeKey"
         :default-expand-all="defaultExpandAll"
         :filter-node-method="handleFilterNode"
+        :draggable="draggable"
+        :allow-drag="draggable ? handleAllowDrag : undefined"
+        :allow-drop="draggable ? handleAllowDrop : undefined"
         v-bind="attrs"
+        @node-drop="draggable ? handleNodeDrop : undefined"
       >
         <!-- Default node content with count badge -->
         <template #default="{ node, data: nodeData }">
