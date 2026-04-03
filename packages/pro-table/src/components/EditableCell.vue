@@ -77,6 +77,28 @@ const mergedProps = computed(() => {
   width: 100%;
 }
 
+/* Strip default border from inputs inside table cells for a clean inline look */
+.editable-cell :deep(.el-input__wrapper),
+.editable-cell :deep(.el-select__wrapper),
+.editable-cell :deep(.el-input-number),
+.editable-cell :deep(.el-textarea__inner) {
+  box-shadow: none;
+  background: transparent;
+}
+
+.editable-cell :deep(.el-input__wrapper:hover),
+.editable-cell :deep(.el-select__wrapper:hover),
+.editable-cell :deep(.el-textarea__inner:hover) {
+  box-shadow: 0 0 0 1px var(--el-border-color) inset;
+}
+
+.editable-cell :deep(.el-input__wrapper:focus-within),
+.editable-cell :deep(.el-select__wrapper:focus-within),
+.editable-cell :deep(.el-textarea__inner:focus) {
+  box-shadow: 0 0 0 1px var(--el-color-primary) inset;
+}
+
+/* Error state overrides hover/focus */
 .editable-cell--error :deep(.el-input__wrapper),
 .editable-cell--error :deep(.el-select__wrapper) {
   box-shadow: 0 0 0 1px var(--el-color-danger) inset;
