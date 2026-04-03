@@ -60,7 +60,7 @@ function handleRetry() {
 </script>
 
 <template>
-  <div class="pro-loading">
+  <div class="pro-loading" role="status" aria-live="polite">
     <Transition name="pro-loading-fade" mode="out-in">
       <!-- Loading State -->
       <div v-if="currentState === 'loading'" key="loading" class="pro-loading__state">

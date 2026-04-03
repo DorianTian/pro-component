@@ -85,7 +85,14 @@ function handleToggleFullscreen(): void {
 
       <!-- Reload -->
       <el-tooltip :content="t('pro.table.toolbar.reload')" placement="top">
-        <span class="pro-toolbar__icon" @click="handleReload">
+        <span
+          class="pro-toolbar__icon"
+          role="button"
+          tabindex="0"
+          :aria-label="t('pro.table.toolbar.reload')"
+          @click="handleReload"
+          @keydown.enter.space.prevent="handleReload"
+        >
           <el-icon :size="16"><Refresh /></el-icon>
         </span>
       </el-tooltip>
@@ -97,7 +104,12 @@ function handleToggleFullscreen(): void {
           :key="opt.value"
           class="pro-toolbar__density-item"
           :class="{ 'is-active': currentDensity === opt.value }"
+          role="button"
+          tabindex="0"
+          :aria-pressed="currentDensity === opt.value"
+          :aria-label="opt.label"
           @click="handleDensityChange(opt.value)"
+          @keydown.enter.space.prevent="handleDensityChange(opt.value)"
         >
           {{ opt.label }}
         </span>
@@ -114,7 +126,14 @@ function handleToggleFullscreen(): void {
         :content="t('pro.table.toolbar.fullscreen')"
         placement="top"
       >
-        <span class="pro-toolbar__icon" @click="handleToggleFullscreen">
+        <span
+          class="pro-toolbar__icon"
+          role="button"
+          tabindex="0"
+          :aria-label="t('pro.table.toolbar.fullscreen')"
+          @click="handleToggleFullscreen"
+          @keydown.enter.space.prevent="handleToggleFullscreen"
+        >
           <el-icon :size="16"><FullScreen /></el-icon>
         </span>
       </el-tooltip>

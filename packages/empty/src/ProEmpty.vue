@@ -26,6 +26,8 @@ interface Props {
   image?: string
   /** Image size in pixels */
   imageSize?: number
+  /** Alt text for custom image (accessibility) */
+  imageAlt?: string
   /** Show retry button for error type */
   showRetry?: boolean
 }
@@ -35,6 +37,7 @@ const props = withDefaults(defineProps<Props>(), {
   description: undefined,
   image: undefined,
   imageSize: 120,
+  imageAlt: undefined,
   showRetry: true,
 })
 
@@ -78,7 +81,7 @@ const iconType = computed(() => preset.value.icon)
           v-if="image"
           :src="image"
           :style="{ width: `${imageSize}px`, height: `${imageSize}px` }"
-          alt=""
+          :alt="imageAlt ?? displayDescription"
         />
         <svg
           v-else
