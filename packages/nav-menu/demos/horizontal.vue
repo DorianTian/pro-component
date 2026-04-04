@@ -2,11 +2,9 @@
 import { ref } from 'vue'
 import { Home, Package, BookOpen, Github } from 'lucide-vue-next'
 
-import type { NavMenuItem } from '@pro/nav-menu'
-
 const activeKey = ref('home')
 
-const menuItems: NavMenuItem[] = [
+const menuItems = [
   { key: 'home', label: '首页', icon: Home },
   { key: 'components', label: '组件', icon: Package },
   { key: 'docs', label: '文档', icon: BookOpen },

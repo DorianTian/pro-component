@@ -42,7 +42,7 @@ function handleSelect(key: string) {
     style="
       display: flex;
       height: 400px;
-      border: 1px solid var(--pro-border-light);
+      border: 1px solid var(--pro-border-light, #f0f0f0);
       border-radius: 8px;
       overflow: hidden;
     "
@@ -54,8 +54,8 @@ function handleSelect(key: string) {
       :default-open-keys="['users', 'content']"
       @select="handleSelect"
     />
-    <div style="flex: 1; padding: 24px; background: var(--pro-bg-base)">
-      <p style="color: var(--pro-text-secondary)">
+    <div style="flex: 1; padding: 24px">
+      <p>
         当前选中: <strong>{{ activeKey }}</strong>
       </p>
     </div>
