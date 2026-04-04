@@ -115,10 +115,7 @@ const hasSidebar = computed(() => currentSideItems.value.length > 0)
           class="mix-layout__top-item"
           :class="{ 'is-active': topActive === item.key }"
           href="javascript:void(0)"
-          @click="
-            topActive = item.key
-            sideActive = ''
-          "
+          @click="topActive = item.key; sideActive = ''"
         >
           {{ item.label }}
         </a>
