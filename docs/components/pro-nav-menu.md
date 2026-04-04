@@ -6,7 +6,7 @@ Schema 驱动的侧边导航菜单，支持折叠、徽标和多级子菜单。
 
 通过 `items` 数组配置菜单项，点击底部按钮可折叠/展开侧边栏。
 
-<demo src="./nav-menu/basic.vue" />
+<demo vue="./nav-menu/basic.vue" />
 
 ## API
 
