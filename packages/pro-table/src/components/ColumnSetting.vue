@@ -116,6 +116,7 @@ function restoreState(): void {
     const raw = localStorage.getItem(props.persistKey)
     if (!raw) return
     const state = JSON.parse(raw) as PersistedColumnState
+    if (!Array.isArray(state.visible) || !Array.isArray(state.order)) return
     const visibleSet = new Set(state.visible)
 
     state.order.forEach((key, idx) => {

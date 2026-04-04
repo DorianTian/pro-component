@@ -214,14 +214,15 @@ const iconType = computed(() => preset.value.icon)
 
     <p class="pro-empty__description">{{ displayDescription }}</p>
 
-    <div v-if="type === 'error' && showRetry" class="pro-empty__actions">
-      <slot name="extra">
-        <ElButton type="primary" size="small" @click="emit('retry')">{{
-          t('pro.empty.retry')
-        }}</ElButton>
-      </slot>
-    </div>
-    <div v-else-if="$slots.extra" class="pro-empty__actions">
+    <div v-if="(type === 'error' && showRetry) || $slots.extra" class="pro-empty__actions">
+      <ElButton
+        v-if="type === 'error' && showRetry"
+        type="primary"
+        size="small"
+        @click="emit('retry')"
+      >
+        {{ t('pro.empty.retry') }}
+      </ElButton>
       <slot name="extra" />
     </div>
   </div>

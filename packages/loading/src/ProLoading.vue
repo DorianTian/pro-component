@@ -3,8 +3,8 @@
  * ProLoading — Declarative state machine component.
  * Renders loading/empty/error/success states with customizable slots.
  */
-import { computed } from 'vue'
-import { ElSkeleton, ElEmpty, ElResult, ElButton } from 'element-plus'
+import { computed, ref, watch, onBeforeUnmount } from 'vue'
+import { ElSkeleton, ElButton } from 'element-plus'
 import { useProLocale } from '@pro/hooks'
 
 defineOptions({ name: 'ProLoading' })
@@ -19,6 +19,8 @@ interface Props {
   animated?: boolean
   emptyDescription?: string
   errorTitle?: string
+  /** Delay in ms before showing loading state — prevents flicker on fast loads */
+  delay?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -29,6 +31,7 @@ const props = withDefaults(defineProps<Props>(), {
   animated: true,
   emptyDescription: undefined,
   errorTitle: undefined,
+  delay: 0,
 })
 
 const { t } = useProLocale()
@@ -42,8 +45,35 @@ const emit = defineEmits<{
   retry: []
 }>()
 
+/** Delay gate: suppresses loading display for `delay` ms to prevent flicker */
+const isDelayElapsed = ref(props.delay === 0)
+let delayTimer: ReturnType<typeof setTimeout> | null = null
+
+watch(
+  () => props.loading,
+  (loading) => {
+    if (delayTimer) {
+      clearTimeout(delayTimer)
+      delayTimer = null
+    }
+    if (loading && props.delay > 0) {
+      isDelayElapsed.value = false
+      delayTimer = setTimeout(() => {
+        isDelayElapsed.value = true
+      }, props.delay)
+    } else {
+      isDelayElapsed.value = true
+    }
+  },
+  { immediate: true },
+)
+
+onBeforeUnmount(() => {
+  if (delayTimer) clearTimeout(delayTimer)
+})
+
 const currentState = computed<LoadingState>(() => {
-  if (props.loading) return 'loading'
+  if (props.loading && isDelayElapsed.value) return 'loading'
   if (props.error) return 'error'
   if (props.empty) return 'empty'
   return 'success'

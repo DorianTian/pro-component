@@ -83,6 +83,7 @@ export function useStepsForm(options: UseStepsFormOptions): UseStepsFormReturn {
   async function submit(): Promise<boolean> {
     if (isSubmitting.value) return false
     if (!onSubmit) return false
+    if (!isLastStep.value) return false
 
     const isValid = await validateCurrentStep()
     if (!isValid) return false
