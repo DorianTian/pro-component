@@ -482,14 +482,33 @@ defineExpose({
 }
 
 /* ─── Monaco overrides ───────────────────────────────────────────── */
-/* Force-hide overview ruler (red error markers bar) */
-.pro-code-tabs .decorationsOverviewRuler,
-.pro-code-tabs .monaco-editor .overflow-guard > .monaco-scrollable-element > .scrollbar.vertical + div {
+/* Kill the top scroll shadow (shows as a colored line when --vscode-scrollbar-shadow is unset) */
+.pro-code-tabs .monaco-scrollable-element > .shadow {
   display: none !important;
 }
 
-/* Slim down scrollbar */
-.pro-code-tabs .monaco-scrollable-element > .scrollbar > .slider {
+/* Hide overview ruler (red/yellow error marker canvas) */
+.pro-code-tabs .decorationsOverviewRuler {
+  display: none !important;
+  width: 0 !important;
+}
+
+/* Force slim scrollbar */
+.pro-code-tabs .monaco-scrollable-element > .scrollbar.vertical {
+  width: 6px !important;
+}
+
+.pro-code-tabs .monaco-scrollable-element > .scrollbar.vertical > .slider {
+  width: 6px !important;
+  border-radius: 3px;
+}
+
+.pro-code-tabs .monaco-scrollable-element > .scrollbar.horizontal {
+  height: 6px !important;
+}
+
+.pro-code-tabs .monaco-scrollable-element > .scrollbar.horizontal > .slider {
+  height: 6px !important;
   border-radius: 3px;
 }
 </style>

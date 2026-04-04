@@ -441,4 +441,32 @@ defineExpose({
 .pro-code-editor__statusbar-spacer {
   flex: 1;
 }
+
+/* ─── Monaco overrides ───────────────────────────────────────────── */
+.pro-code-editor .monaco-scrollable-element > .shadow {
+  display: none !important;
+}
+
+.pro-code-editor .decorationsOverviewRuler {
+  display: none !important;
+  width: 0 !important;
+}
+
+.pro-code-editor .monaco-scrollable-element > .scrollbar.vertical {
+  width: 6px !important;
+}
+
+.pro-code-editor .monaco-scrollable-element > .scrollbar.vertical > .slider {
+  width: 6px !important;
+  border-radius: 3px;
+}
+
+.pro-code-editor .monaco-scrollable-element > .scrollbar.horizontal {
+  height: 6px !important;
+}
+
+.pro-code-editor .monaco-scrollable-element > .scrollbar.horizontal > .slider {
+  height: 6px !important;
+  border-radius: 3px;
+}
 </style>
