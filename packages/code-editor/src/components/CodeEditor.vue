@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { AlignLeft, Search, SquareTerminal } from 'lucide-vue-next'
 import { useCodeEditor } from '../composables/use-code-editor'
 
 import type { EditorLanguage, EditorTheme } from '../types'
@@ -235,37 +236,21 @@ defineExpose({
           :disabled="readOnly"
           @click="editor.formatDocument()"
         >
-          <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-            <path d="M2 3h12v1H2zm2 3h8v1H4zm-2 3h12v1H2zm2 3h8v1H4z" />
-          </svg>
+          <AlignLeft :size="14" />
         </button>
         <button
           class="pro-code-editor__action"
           title="Search (Ctrl+F)"
           @click="editor.openSearch()"
         >
-          <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-            <path
-              d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"
-            />
-          </svg>
+          <Search :size="14" />
         </button>
         <button
           class="pro-code-editor__action"
           title="Command Palette (F1)"
           @click="editor.openCommandPalette()"
         >
-          <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-            <path
-              d="M2 4l4 4-4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              fill="none"
-            />
-            <path d="M8 14h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          </svg>
+          <SquareTerminal :size="14" />
         </button>
         <slot name="toolbar-actions" />
       </slot>

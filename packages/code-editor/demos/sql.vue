@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { CodeEditor } from '@pro/code-editor'
+import { Copy } from 'lucide-vue-next'
 
 const editorRef = ref<InstanceType<typeof CodeEditor> | null>(null)
 
@@ -53,11 +54,7 @@ function handleCopy() {
     <CodeEditor ref="editorRef" v-model="sql" language="sql" :min-height="420" :show-toolbar="true">
       <template #toolbar-actions>
         <button class="pro-code-editor__action" title="Copy" @click="handleCopy">
-          <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-            <path
-              d="M4 2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"
-            />
-          </svg>
+          <Copy :size="14" />
         </button>
       </template>
     </CodeEditor>

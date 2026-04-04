@@ -1,6 +1,29 @@
 <script setup lang="ts">
 import { computed, watch, onBeforeUnmount } from 'vue'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
+import {
+  Bold as BoldIcon,
+  Italic as ItalicIcon,
+  Underline as UnderlineIcon,
+  Strikethrough,
+  Code as CodeIcon,
+  Heading1,
+  Heading2,
+  Heading3,
+  List as ListIcon,
+  ListOrdered,
+  ListTodo,
+  Quote,
+  CodeSquare,
+  Minus as HrIcon,
+  Link2,
+  ImageIcon,
+  Table2,
+  Palette,
+  Highlighter,
+  Undo2,
+  Redo2,
+} from 'lucide-vue-next'
 import { StarterKit } from '@tiptap/starter-kit'
 import { Underline } from '@tiptap/extension-underline'
 import { Link } from '@tiptap/extension-link'
@@ -251,7 +274,7 @@ defineExpose({
         title="Bold"
         @click="toggleBold"
       >
-        <strong>B</strong>
+        <BoldIcon :size="16" />
       </button>
       <button
         v-if="has('italic')"
@@ -260,7 +283,7 @@ defineExpose({
         title="Italic"
         @click="toggleItalic"
       >
-        <em>I</em>
+        <ItalicIcon :size="16" />
       </button>
       <button
         v-if="has('underline')"
@@ -269,7 +292,7 @@ defineExpose({
         title="Underline"
         @click="toggleUnderline"
       >
-        <u>U</u>
+        <UnderlineIcon :size="16" />
       </button>
       <button
         v-if="has('strike')"
@@ -278,7 +301,7 @@ defineExpose({
         title="Strikethrough"
         @click="toggleStrike"
       >
-        <s>S</s>
+        <Strikethrough :size="16" />
       </button>
       <button
         v-if="has('code')"
@@ -287,7 +310,7 @@ defineExpose({
         title="Inline Code"
         @click="toggleCode"
       >
-        &lt;/&gt;
+        <CodeIcon :size="16" />
       </button>
 
       <span
@@ -303,7 +326,7 @@ defineExpose({
         title="Heading 1"
         @click="setHeading(1)"
       >
-        H1
+        <Heading1 :size="16" />
       </button>
       <button
         v-if="has('heading2')"
@@ -312,7 +335,7 @@ defineExpose({
         title="Heading 2"
         @click="setHeading(2)"
       >
-        H2
+        <Heading2 :size="16" />
       </button>
       <button
         v-if="has('heading3')"
@@ -321,7 +344,7 @@ defineExpose({
         title="Heading 3"
         @click="setHeading(3)"
       >
-        H3
+        <Heading3 :size="16" />
       </button>
 
       <span
@@ -337,14 +360,7 @@ defineExpose({
         title="Bullet List"
         @click="toggleBulletList"
       >
-        <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor">
-          <circle cx="2.5" cy="4" r="1.5" />
-          <rect x="6" y="3" width="9" height="2" rx="0.5" />
-          <circle cx="2.5" cy="8" r="1.5" />
-          <rect x="6" y="7" width="9" height="2" rx="0.5" />
-          <circle cx="2.5" cy="12" r="1.5" />
-          <rect x="6" y="11" width="9" height="2" rx="0.5" />
-        </svg>
+        <ListIcon :size="16" />
       </button>
       <button
         v-if="has('orderedList')"
@@ -353,14 +369,7 @@ defineExpose({
         title="Ordered List"
         @click="toggleOrderedList"
       >
-        <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor">
-          <text x="1" y="5.5" font-size="5" font-weight="600">1</text>
-          <rect x="6" y="3" width="9" height="2" rx="0.5" />
-          <text x="1" y="9.5" font-size="5" font-weight="600">2</text>
-          <rect x="6" y="7" width="9" height="2" rx="0.5" />
-          <text x="1" y="13.5" font-size="5" font-weight="600">3</text>
-          <rect x="6" y="11" width="9" height="2" rx="0.5" />
-        </svg>
+        <ListOrdered :size="16" />
       </button>
       <button
         v-if="has('taskList')"
@@ -369,20 +378,7 @@ defineExpose({
         title="Task List"
         @click="toggleTaskList"
       >
-        <svg
-          viewBox="0 0 16 16"
-          width="15"
-          height="15"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-        >
-          <rect x="1" y="2" width="5" height="5" rx="1" />
-          <path d="M2.5 4.5l1.2 1.2 2.3-2.4" />
-          <rect x="1" y="9" width="5" height="5" rx="1" />
-          <line x1="8" y1="4.5" x2="15" y2="4.5" />
-          <line x1="8" y1="11.5" x2="15" y2="11.5" />
-        </svg>
+        <ListTodo :size="16" />
       </button>
 
       <span
@@ -398,9 +394,7 @@ defineExpose({
         title="Blockquote"
         @click="toggleBlockquote"
       >
-        <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor">
-          <path d="M3 3h2.5L4 7h2v6H2V7l1-4zm7 0h2.5L11 7h2v6H9V7l1-4z" />
-        </svg>
+        <Quote :size="16" />
       </button>
       <button
         v-if="has('codeBlock')"
@@ -409,20 +403,7 @@ defineExpose({
         title="Code Block"
         @click="toggleCodeBlock"
       >
-        <svg
-          viewBox="0 0 16 16"
-          width="15"
-          height="15"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M5 3L1 8l4 5" />
-          <path d="M11 3l4 5-4 5" />
-          <line x1="9" y1="2" x2="7" y2="14" />
-        </svg>
+        <CodeSquare :size="16" />
       </button>
       <button
         v-if="has('horizontalRule')"
@@ -430,17 +411,7 @@ defineExpose({
         title="Horizontal Rule"
         @click="insertHorizontalRule"
       >
-        <svg
-          viewBox="0 0 16 16"
-          width="15"
-          height="15"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-        >
-          <line x1="1" y1="8" x2="15" y2="8" />
-        </svg>
+        <HrIcon :size="16" />
       </button>
 
       <span v-if="has('link') || has('image') || has('table')" class="pro-rich-editor__divider" />
@@ -453,18 +424,7 @@ defineExpose({
         title="Insert Link"
         @click="insertLink"
       >
-        <svg
-          viewBox="0 0 16 16"
-          width="15"
-          height="15"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-        >
-          <path d="M6.5 9.5a3.5 3.5 0 005 0l2-2a3.5 3.5 0 00-5-5l-1 1" />
-          <path d="M9.5 6.5a3.5 3.5 0 00-5 0l-2 2a3.5 3.5 0 005 5l1-1" />
-        </svg>
+        <Link2 :size="16" />
       </button>
       <button
         v-if="has('image')"
@@ -472,20 +432,7 @@ defineExpose({
         title="Insert Image"
         @click="insertImage"
       >
-        <svg
-          viewBox="0 0 16 16"
-          width="15"
-          height="15"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <rect x="1" y="2" width="14" height="12" rx="2" />
-          <circle cx="5" cy="6" r="1.5" fill="currentColor" stroke="none" />
-          <path d="M1 11l3.5-3.5 2.5 2.5 3-3L15 12" />
-        </svg>
+        <ImageIcon :size="16" />
       </button>
       <button
         v-if="has('table')"
@@ -493,54 +440,17 @@ defineExpose({
         title="Insert Table"
         @click="insertTable"
       >
-        <svg
-          viewBox="0 0 16 16"
-          width="15"
-          height="15"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-        >
-          <rect x="1" y="2" width="14" height="12" rx="1.5" />
-          <line x1="1" y1="6" x2="15" y2="6" />
-          <line x1="1" y1="10" x2="15" y2="10" />
-          <line x1="6" y1="2" x2="6" y2="14" />
-          <line x1="11" y1="2" x2="11" y2="14" />
-        </svg>
+        <Table2 :size="16" />
       </button>
 
       <div style="flex: 1" />
 
       <!-- Undo/Redo -->
       <button v-if="has('undo')" class="pro-rich-editor__btn" title="Undo" @click="handleUndo">
-        <svg
-          viewBox="0 0 16 16"
-          width="15"
-          height="15"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M3 7h7a4 4 0 110 8H8" />
-          <path d="M6 4L3 7l3 3" />
-        </svg>
+        <Undo2 :size="16" />
       </button>
       <button v-if="has('redo')" class="pro-rich-editor__btn" title="Redo" @click="handleRedo">
-        <svg
-          viewBox="0 0 16 16"
-          width="15"
-          height="15"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M13 7H6a4 4 0 100 8h2" />
-          <path d="M10 4l3 3-3 3" />
-        </svg>
+        <Redo2 :size="16" />
       </button>
     </div>
 
