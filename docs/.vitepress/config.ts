@@ -165,7 +165,15 @@ export default defineConfig({
             const cjkRe = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/g
             const wordRe = /[a-zA-Z0-9][\w]*/g
             let m
-            while ((m = wordRe.exec(text)) !== null) tokens.push(m[0].toLowerCase())
+            while ((m = wordRe.exec(text)) !== null) {
+              const word = m[0].toLowerCase()
+              tokens.push(word)
+              /* Split PascalCase/camelCase: ProTable → [pro, table], DatePicker → [date, picker] */
+              const parts = m[0].split(/(?=[A-Z])/).filter(Boolean)
+              if (parts.length > 1) {
+                for (const p of parts) tokens.push(p.toLowerCase())
+              }
+            }
             const chars: string[] = []
             while ((m = cjkRe.exec(text)) !== null) {
               tokens.push(m[0])
