@@ -52,19 +52,12 @@ function handleCopy() {
   <div>
     <CodeEditor ref="editorRef" v-model="sql" language="sql" :min-height="420" :show-toolbar="true">
       <template #toolbar-actions>
-        <button
-          style="
-            padding: 4px 10px;
-            font-size: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background: #fff;
-            cursor: pointer;
-            margin-left: 4px;
-          "
-          @click="handleCopy"
-        >
-          Copy
+        <button class="pro-code-editor__action" title="Copy" @click="handleCopy">
+          <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+            <path
+              d="M4 2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"
+            />
+          </svg>
         </button>
       </template>
     </CodeEditor>
