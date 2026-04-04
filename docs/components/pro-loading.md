@@ -52,9 +52,31 @@ ProLoading 是一个状态机组件，统一管理异步数据的四种状态：
 
 <demo vue="../../packages/loading/demos/real-world.vue" />
 
+## ProSpin 旋转加载
+
+轻量级旋转加载指示器，支持内联使用和内容包裹模式。
+
+### 基础 Spin
+
+三种尺寸和带文字的旋转加载器。
+
+<demo vue="../../packages/loading/demos/spin-basic.vue" />
+
+### 包裹内容
+
+将 ProSpin 包裹在内容外部，加载时自动模糊内容并显示旋转指示器。
+
+<demo vue="../../packages/loading/demos/spin-wrapper.vue" />
+
+### 包裹表格
+
+配合 ElTable 使用，在数据加载时显示覆盖层。
+
+<demo vue="../../packages/loading/demos/spin-nested.vue" />
+
 ## API
 
-### Props
+### ProLoading Props
 
 | 属性               | 类型                      | 默认值                   | 说明             |
 | ------------------ | ------------------------- | ------------------------ | ---------------- |
@@ -80,3 +102,18 @@ ProLoading 是一个状态机组件，统一管理异步数据的四种状态：
 | `loading` | —                                      | 自定义加载状态     |
 | `empty`   | —                                      | 自定义空状态       |
 | `error`   | `{ error: string, retry: () => void }` | 自定义错误状态     |
+
+### ProSpin Props
+
+| 属性       | 类型                              | 默认值      | 说明                                 |
+| ---------- | --------------------------------- | ----------- | ------------------------------------ |
+| `spinning` | `boolean`                         | `true`      | 是否显示旋转加载                     |
+| `size`     | `'small' \| 'default' \| 'large'` | `'default'` | 尺寸（16px / 24px / 40px）           |
+| `tip`      | `string`                          | —           | 加载提示文字                         |
+| `delay`    | `number`                          | `0`         | 延迟显示（ms），防止快速加载时的闪烁 |
+
+### ProSpin Slots
+
+| 插槽      | 说明                                           |
+| --------- | ---------------------------------------------- |
+| `default` | 被包裹的内容，加载时自动模糊化并显示旋转覆盖层 |
