@@ -132,9 +132,6 @@ function handleSelect(key: string): void {
       :mode="mode"
       :collapse="mode === 'vertical' && innerCollapsed"
       :default-openeds="defaultOpenKeys"
-      :background-color="backgroundColor"
-      :text-color="textColor"
-      :active-text-color="activeTextColor"
       :collapse-transition="true"
       :router="router"
       class="pro-nav-menu__el-menu"
@@ -152,9 +149,9 @@ function handleSelect(key: string): void {
             <component :is="item.icon" v-if="item.icon" class="pro-nav-menu__icon" />
             <span class="pro-nav-menu__label">{{ item.label }}</span>
             <ElBadge
-              v-if="item.badge || item.dot"
-              :value="item.badge"
-              :is-dot="item.dot"
+              v-if="item.badge !== undefined || item.dot"
+              :value="item.badge ?? 0"
+              :is-dot="!!item.dot"
               class="pro-nav-menu__badge"
             />
           </template>
@@ -194,9 +191,9 @@ function handleSelect(key: string): void {
               <component :is="child.icon" v-if="child.icon" class="pro-nav-menu__icon" />
               <span class="pro-nav-menu__label">{{ child.label }}</span>
               <ElBadge
-                v-if="child.badge || child.dot"
-                :value="child.badge"
-                :is-dot="child.dot"
+                v-if="child.badge !== undefined || child.dot"
+                :value="child.badge ?? 0"
+                :is-dot="!!child.dot"
                 class="pro-nav-menu__badge"
               />
             </ElMenuItem>
