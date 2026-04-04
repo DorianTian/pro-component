@@ -4,9 +4,12 @@ import type { Component } from 'vue'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import '@pro/themes'
+import { setupMonacoWorkers } from './monaco-setup'
 import ApiTable from './components/ApiTable.vue'
 import TypeBlock from './components/TypeBlock.vue'
 import './style.css'
+
+setupMonacoWorkers()
 
 /**
  * Type guard: checks whether a value is a Vue component (SFC or object component).
