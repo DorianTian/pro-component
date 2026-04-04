@@ -5,6 +5,7 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import '@pro/themes'
 import { setupMonacoWorkers } from './monaco-setup'
+import ProLayout from './components/ProLayout.vue'
 import ApiTable from './components/ApiTable.vue'
 import TypeBlock from './components/TypeBlock.vue'
 import './style.css'
@@ -26,6 +27,7 @@ function isVueComponent(value: unknown): value is Component {
 
 const theme: Theme = {
   extends: DefaultTheme,
+  Layout: ProLayout,
   enhanceApp({ app }) {
     // Register Element Plus globally for all demos
     app.use(ElementPlus)
