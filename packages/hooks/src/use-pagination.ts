@@ -66,7 +66,12 @@ function readFromURL(config: PaginationURLSyncConfig): { current?: number; pageS
 }
 
 /** Write pagination params to URL via replaceState (no navigation) */
-function writeToURL(config: PaginationURLSyncConfig, current: number, pageSize: number): void {
+function writeToURL(
+  config: PaginationURLSyncConfig,
+  current: number,
+  pageSize: number,
+  defaultPageSize: number,
+): void {
   if (typeof window === 'undefined') return
   const url = new URL(window.location.href)
   if (current === 1) {
@@ -74,7 +79,12 @@ function writeToURL(config: PaginationURLSyncConfig, current: number, pageSize: 
   } else {
     url.searchParams.set(config.currentKey!, String(current))
   }
-  url.searchParams.set(config.pageSizeKey!, String(pageSize))
+  // Only write pageSize to URL when it differs from default — keep URLs clean
+  if (pageSize === defaultPageSize) {
+    url.searchParams.delete(config.pageSizeKey!)
+  } else {
+    url.searchParams.set(config.pageSizeKey!, String(pageSize))
+  }
   window.history.replaceState(null, '', url.toString())
 }
 
@@ -119,7 +129,7 @@ export function usePagination(options: UsePaginationOptions = {}): UsePagination
   function notifyChange(): void {
     onChange?.({ current: current.value, pageSize: pageSize.value })
     if (urlSync) {
-      writeToURL(urlSync, current.value, pageSize.value)
+      writeToURL(urlSync, current.value, pageSize.value, defaultPageSize)
     }
   }
 

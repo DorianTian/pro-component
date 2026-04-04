@@ -186,7 +186,7 @@ export interface EditableConfig<T = Record<string, unknown>> {
   cancelText?: string
   editText?: string
   deleteText?: string
-  addText?: string
+  addRowText?: string
 }
 
 /** ProTable component props */

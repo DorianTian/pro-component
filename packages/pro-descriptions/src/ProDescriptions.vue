@@ -93,7 +93,7 @@ function renderVisualValueType(valueType: ValueType, value: unknown) {
         fit: 'cover',
         previewSrcList: [String(value)],
         class: 'pro-descriptions__image',
-        style: { width: '80px', height: '80px', borderRadius: '6px' },
+        style: { width: '80px', height: '80px', borderRadius: 'var(--pro-radius-md)' },
       })
 
     case 'percent':
