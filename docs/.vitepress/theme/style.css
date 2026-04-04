@@ -9,6 +9,12 @@
   --vp-layout-max-width: 1680px;
 }
 
+/* ---- Scroll: offset for fixed navbar when jumping to anchors ---- */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
 /* Widen the content area — default ~688px is too narrow for table demos */
 .VPDoc .content-container {
   max-width: 1280px !important;
