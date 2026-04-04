@@ -235,10 +235,11 @@ export default defineConfig({
         '@pro/steps': resolve(__dirname, '../../packages/steps/src'),
         '@pro/divider': resolve(__dirname, '../../packages/divider/src'),
         '@pro/code-editor': resolve(__dirname, '../../packages/code-editor/src'),
+        '@pro/editor': resolve(__dirname, '../../packages/editor/src'),
       },
     },
     ssr: {
-      noExternal: ['element-plus', 'monaco-editor'],
+      noExternal: ['element-plus', 'monaco-editor', /^@tiptap\//],
     },
   },
 
