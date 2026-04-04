@@ -159,9 +159,12 @@ function onSelect(key: string) {
   width: 100%;
 }
 
-/* Badge inside menu */
+/* Badge — position next to the expand arrow in sub-menu title */
 .side-demo__badge {
-  margin-left: auto;
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 /* Toggle */
