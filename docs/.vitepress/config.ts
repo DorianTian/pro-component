@@ -10,34 +10,21 @@ export default defineConfig({
   /* Exclude internal planning/spec docs from VitePress page generation */
   srcExclude: ['superpowers/**'],
 
-  /* ---- i18n: dual-language locale support ---- */
+  /* ---- i18n: root = zh-CN, /en/ = English ---- */
   locales: {
+    root: {
+      label: '简体中文',
+      lang: 'zh-CN',
+    },
     en: {
       label: 'English',
       lang: 'en-US',
+      link: '/en/',
       themeConfig: {
         nav: [
-          { text: 'Guide', link: '/en/guide/i18n' },
-          { text: 'API', link: '/en/api/locale' },
+          { text: 'Guide', link: '/en/guide/introduction' },
+          { text: 'Components', link: '/en/components/pro-table' },
         ],
-        sidebar: {
-          '/en/guide/': [{ text: 'Internationalization', link: '/en/guide/i18n' }],
-          '/en/api/': [{ text: 'Locale', link: '/en/api/locale' }],
-        },
-      },
-    },
-    zh: {
-      label: '\u7b80\u4f53\u4e2d\u6587',
-      lang: 'zh-CN',
-      themeConfig: {
-        nav: [
-          { text: '\u6307\u5357', link: '/zh/guide/i18n' },
-          { text: 'API', link: '/zh/api/locale' },
-        ],
-        sidebar: {
-          '/zh/guide/': [{ text: '\u56fd\u9645\u5316', link: '/zh/guide/i18n' }],
-          '/zh/api/': [{ text: 'Locale', link: '/zh/api/locale' }],
-        },
       },
     },
   },
@@ -161,7 +148,7 @@ export default defineConfig({
       ],
     },
 
-    socialLinks: [{ icon: 'github', link: 'https://github.com/Dorian-Lab/pro-components' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/dorian-lab/pro-components' }],
 
     search: {
       provider: 'local',
