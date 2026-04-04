@@ -127,13 +127,16 @@ defineExpose({
   <div
     class="pro-diff-editor"
     :class="{ 'pro-diff-editor--dark': theme === 'vs-dark' || theme === 'hc-black' }"
+    :style="containerStyle"
   >
-    <div ref="containerRef" class="pro-diff-editor__body" :style="containerStyle" />
+    <div ref="containerRef" class="pro-diff-editor__body" />
   </div>
 </template>
 
 <style>
 .pro-diff-editor {
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--pro-border-default, #e5e5e5);
   border-radius: var(--pro-radius-md, 8px);
   overflow: hidden;
@@ -146,6 +149,7 @@ defineExpose({
 }
 
 .pro-diff-editor__body {
+  flex: 1;
   overflow: hidden;
 }
 </style>

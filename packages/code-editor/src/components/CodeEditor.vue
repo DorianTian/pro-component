@@ -156,7 +156,7 @@ watch(
   },
 )
 
-const containerStyle = computed(() => {
+const wrapperStyle = computed(() => {
   const style: Record<string, string> = {
     height: `${props.minHeight}px`,
   }
@@ -215,6 +215,7 @@ defineExpose({
   <div
     class="pro-code-editor"
     :class="{ 'pro-code-editor--dark': theme === 'vs-dark' || theme === 'hc-black' }"
+    :style="wrapperStyle"
   >
     <!-- Toolbar -->
     <div v-if="showToolbar" class="pro-code-editor__toolbar">
@@ -261,7 +262,7 @@ defineExpose({
     </div>
 
     <!-- Editor container -->
-    <div ref="containerRef" class="pro-code-editor__body" :style="containerStyle" />
+    <div ref="containerRef" class="pro-code-editor__body" />
 
     <!-- Status bar -->
     <div v-if="showStatusBar" class="pro-code-editor__statusbar">

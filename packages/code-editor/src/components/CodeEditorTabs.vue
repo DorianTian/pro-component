@@ -236,6 +236,7 @@ defineExpose({
   <div
     class="pro-code-tabs"
     :class="{ 'pro-code-tabs--dark': theme === 'vs-dark' || theme === 'hc-black' }"
+    :style="containerStyle"
   >
     <!-- Tab bar -->
     <div class="pro-code-tabs__bar">
@@ -262,7 +263,7 @@ defineExpose({
     </div>
 
     <!-- Editor -->
-    <div ref="containerRef" class="pro-code-tabs__body" :style="containerStyle" />
+    <div ref="containerRef" class="pro-code-tabs__body" />
 
     <!-- Status bar -->
     <div class="pro-code-tabs__statusbar">
