@@ -58,6 +58,7 @@ const theme: Theme = {
         eager: true,
       }) as unknown as Record<string, Record<string, unknown>>
       for (const [, mod] of Object.entries(proComponents)) {
+        if (!mod || typeof mod !== 'object') continue
         // Each package exports named components — register them all
         for (const [exportName, exportValue] of Object.entries(mod)) {
           if (isVueComponent(exportValue)) {
