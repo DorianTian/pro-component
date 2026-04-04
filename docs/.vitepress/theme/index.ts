@@ -25,10 +25,27 @@ function isVueComponent(value: unknown): value is Component {
   )
 }
 
+const SCROLL_OFFSET = 80
+const SCROLL_DELAY = 200
+
 const theme: Theme = {
   extends: DefaultTheme,
   Layout: ProLayout,
-  enhanceApp({ app }) {
+  enhanceApp({ app, router }) {
+    /* Scroll to hash anchor after SPA navigation (search results, sidebar links) */
+    if (typeof window !== 'undefined') {
+      router.onAfterRouteChanged = () => {
+        const { hash } = window.location
+        if (!hash) return
+        setTimeout(() => {
+          const el = document.querySelector(decodeURIComponent(hash))
+          if (el) {
+            const top = el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET
+            window.scrollTo({ top, behavior: 'smooth' })
+          }
+        }, SCROLL_DELAY)
+      }
+    }
     // Register Element Plus globally for all demos
     app.use(ElementPlus)
 

@@ -101,6 +101,9 @@ export function useCodeEditor(opts: UseCodeEditorOptions): UseCodeEditorReturn {
       contextmenu: true,
       mouseWheelZoom: true,
       formatOnPaste: true,
+      overviewRulerLanes: 0,
+      overviewRulerBorder: false,
+      hideCursorInOverviewRuler: true,
       ...opts.options,
     }
 
