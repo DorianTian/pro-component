@@ -48,6 +48,7 @@ import { Pagination } from '@pro/pagination'
 import { Breadcrumb, BreadcrumbItem } from '@pro/breadcrumb'
 import { Steps, Step } from '@pro/steps'
 import { Divider } from '@pro/divider'
+import { ProNavMenu } from '@pro/nav-menu'
 
 import { checkDependencies } from '@pro/utils'
 import ProConfigProvider from './pro-config-provider.vue'
@@ -74,6 +75,7 @@ export { ProTag } from '@pro/tag'
 export { ProEmpty } from '@pro/empty'
 export { ProResult } from '@pro/result'
 export { ProLoading } from '@pro/loading'
+export { ProNavMenu } from '@pro/nav-menu'
 export { ProConfigProvider }
 
 // ── Re-exports: Base Components ──
@@ -136,6 +138,7 @@ const components = [
   ProEmpty,
   ProResult,
   ProLoading,
+  ProNavMenu,
   ProConfigProvider,
   // Base
   Input,

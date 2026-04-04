@@ -89,6 +89,7 @@ export default defineConfig({
         {
           text: '增强组件',
           items: [
+            { text: 'ProNavMenu 导航菜单', link: '/components/pro-nav-menu' },
             { text: 'ProTree 增强树', link: '/components/pro-tree' },
             { text: 'ProTabs 增强标签页', link: '/components/pro-tabs' },
             { text: 'ProTag 增强标签', link: '/components/pro-tag' },
@@ -276,6 +277,7 @@ export default defineConfig({
         '@pro/code-editor': resolve(__dirname, '../../packages/code-editor/src'),
         '@pro/editor': resolve(__dirname, '../../packages/editor/src'),
         '@pro/icons': resolve(__dirname, '../../packages/icons/src'),
+        '@pro/nav-menu': resolve(__dirname, '../../packages/nav-menu/src'),
       },
     },
     ssr: {

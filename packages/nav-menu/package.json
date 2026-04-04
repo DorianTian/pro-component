@@ -1,0 +1,30 @@
+{
+  "name": "@pro/nav-menu",
+  "version": "0.0.1",
+  "description": "ProNavMenu — schema-driven navigation menu with sidebar collapse, badges, and route integration",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.mjs",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsx ../../scripts/build-package.ts .",
+    "build:dts": "vue-tsc --declaration --emitDeclarationOnly --outDir dist/types",
+    "type-check": "vue-tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "peerDependencies": {
+    "vue": ">=3.4.0",
+    "element-plus": ">=2.9.0"
+  }
+}
