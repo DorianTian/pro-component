@@ -83,6 +83,10 @@ export default defineConfig({
           ],
         },
         {
+          text: '图标',
+          items: [{ text: 'Icons 图标库', link: '/components/icons' }],
+        },
+        {
           text: '增强组件',
           items: [
             { text: 'ProTree 增强树', link: '/components/pro-tree' },
