@@ -22,7 +22,6 @@ const menuItems = [
     key: 'users',
     label: '用户管理',
     icon: Users,
-    badge: 3,
     children: [
       { key: 'users-list', label: '用户列表' },
       { key: 'users-roles', label: '角色管理' },
@@ -77,7 +76,6 @@ function onSelect(key: string) {
             <template #title>
               <el-icon :size="18"><component :is="item.icon" /></el-icon>
               <span>{{ item.label }}</span>
-              <ElBadge v-if="item.badge" :value="item.badge" :max="99" class="side-demo__badge" />
             </template>
             <ElMenuItem v-for="child in item.children" :key="child.key" :index="child.key">
               <el-icon v-if="child.icon" :size="15"><component :is="child.icon" /></el-icon>
