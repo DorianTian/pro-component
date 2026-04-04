@@ -104,6 +104,13 @@ export function useCodeEditor(opts: UseCodeEditorOptions): UseCodeEditorReturn {
       overviewRulerLanes: 0,
       overviewRulerBorder: false,
       hideCursorInOverviewRuler: true,
+      scrollbar: {
+        vertical: 'auto',
+        horizontal: 'auto',
+        verticalScrollbarSize: 6,
+        horizontalScrollbarSize: 6,
+        useShadows: false,
+      },
       ...opts.options,
     }
 

@@ -141,6 +141,13 @@ function createEditor(): void {
     overviewRulerLanes: 0,
     overviewRulerBorder: false,
     hideCursorInOverviewRuler: true,
+    scrollbar: {
+      vertical: 'auto',
+      horizontal: 'auto',
+      verticalScrollbarSize: 6,
+      horizontalScrollbarSize: 6,
+      useShadows: false,
+    },
     padding: { top: 12, bottom: 12 },
     renderLineHighlight: 'line',
     smoothScrolling: true,
@@ -472,5 +479,17 @@ defineExpose({
 
 .pro-code-tabs__status-item--warning {
   color: #f59e0b;
+}
+
+/* ─── Monaco overrides ───────────────────────────────────────────── */
+/* Force-hide overview ruler (red error markers bar) */
+.pro-code-tabs .decorationsOverviewRuler,
+.pro-code-tabs .monaco-editor .overflow-guard > .monaco-scrollable-element > .scrollbar.vertical + div {
+  display: none !important;
+}
+
+/* Slim down scrollbar */
+.pro-code-tabs .monaco-scrollable-element > .scrollbar > .slider {
+  border-radius: 3px;
 }
 </style>
