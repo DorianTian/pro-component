@@ -275,10 +275,11 @@ export default defineConfig({
         '@pro/divider': resolve(__dirname, '../../packages/divider/src'),
         '@pro/code-editor': resolve(__dirname, '../../packages/code-editor/src'),
         '@pro/editor': resolve(__dirname, '../../packages/editor/src'),
+        '@pro/icons': resolve(__dirname, '../../packages/icons/src'),
       },
     },
     ssr: {
-      noExternal: ['element-plus', 'monaco-editor', /^@tiptap\//],
+      noExternal: ['element-plus', 'monaco-editor', /^@tiptap\//, 'lucide-vue-next'],
     },
   },
 
