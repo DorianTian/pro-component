@@ -63,6 +63,33 @@
   padding-bottom: 4px;
 }
 
+/*
+ * Override the global focus ring for inputs inside editable table rows.
+ *
+ * Root cause: components.css sets an OUTWARD 3px focus shadow on
+ * .el-input__wrapper:focus-within with !important. This shadow extends
+ * beyond the element boundary and gets clipped by .cell { overflow: hidden }
+ * (set by Element Plus for show-overflow-tooltip).
+ *
+ * Fix: inside editing rows, replace the outward focus ring with a purely
+ * inset shadow. Same specificity level as components.css + !important to win.
+ */
+.pro-table .pro-table__row--editing .el-input__wrapper.is-focus,
+.pro-table .pro-table__row--editing .el-input__wrapper:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--pro-border-focus) !important;
+}
+
+.pro-table .pro-table__row--editing .el-select__wrapper.is-focused,
+.pro-table .pro-table__row--editing .el-select__wrapper:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--pro-border-focus) !important;
+}
+
+/* Error state in editable rows */
+.pro-table .pro-table__row--editing .editable-cell--error .el-input__wrapper,
+.pro-table .pro-table__row--editing .editable-cell--error .el-select__wrapper {
+  box-shadow: inset 0 0 0 1.5px var(--pro-color-danger) !important;
+}
+
 /* Toolbar divider */
 .pro-toolbar .el-divider--vertical {
   height: 16px;

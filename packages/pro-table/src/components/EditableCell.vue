@@ -84,14 +84,9 @@ const mergedProps = computed(() => {
 
 <style scoped>
 /*
- * Editable cell styling strategy:
- *
- * The parent `.el-table .cell` has `overflow: hidden` (from Element Plus)
- * which clips any outward-facing borders or shadows. We work WITHIN this
- * constraint by using `box-shadow: inset` for all border effects — inset
- * shadows render inside the element boundary and are never clipped.
- *
- * No need to fight overflow:hidden. Just stay inside the box.
+ * EditableCell layout styles only.
+ * Focus/hover/error border overrides live in themes/overrides/table.css
+ * to match the same specificity + !important level as components.css.
  */
 
 .editable-cell {
@@ -101,66 +96,24 @@ const mergedProps = computed(() => {
   justify-content: center;
 }
 
-/* All input-like controls: full width */
+/* All input-like controls: full width, compact sizing */
 .editable-cell :deep(.el-input),
 .editable-cell :deep(.el-select),
 .editable-cell :deep(.el-input-number) {
   width: 100%;
 }
 
-/*
- * Input wrapper: subtle inset border, compact height.
- * Using inset box-shadow so overflow:hidden doesn't clip it.
- */
 .editable-cell :deep(.el-input__wrapper) {
   padding: 2px 8px;
-  border-radius: var(--pro-radius-xs, 3px);
-  background: var(--pro-bg-base, #fff);
-  box-shadow: inset 0 0 0 1px var(--pro-border-default, #e5e5e5);
-  transition: box-shadow var(--pro-transition-fast, 150ms);
 }
 
-.editable-cell :deep(.el-input__wrapper:hover) {
-  box-shadow: inset 0 0 0 1px var(--el-border-color-hover, #c0c4cc);
-}
-
-.editable-cell :deep(.el-input__wrapper.is-focus),
-.editable-cell :deep(.el-input__wrapper:focus-within) {
-  box-shadow: inset 0 0 0 1.5px var(--pro-border-focus, #2563eb);
-}
-
-/* Select wrapper: same treatment */
 .editable-cell :deep(.el-select__wrapper) {
   min-height: 28px;
   padding: 2px 8px;
-  border-radius: var(--pro-radius-xs, 3px);
-  background: var(--pro-bg-base, #fff);
-  box-shadow: inset 0 0 0 1px var(--pro-border-default, #e5e5e5);
-  transition: box-shadow var(--pro-transition-fast, 150ms);
 }
 
-.editable-cell :deep(.el-select__wrapper:hover) {
-  box-shadow: inset 0 0 0 1px var(--el-border-color-hover, #c0c4cc);
-}
-
-.editable-cell :deep(.el-select__wrapper.is-focused),
-.editable-cell :deep(.el-select__wrapper:focus-within) {
-  box-shadow: inset 0 0 0 1.5px var(--pro-border-focus, #2563eb);
-}
-
-/* InputNumber: consistent full-width */
 .editable-cell :deep(.el-input-number .el-input__wrapper) {
   padding: 2px 8px;
-}
-
-/* ── Error state ── */
-.editable-cell--error :deep(.el-input__wrapper),
-.editable-cell--error :deep(.el-input__wrapper:hover),
-.editable-cell--error :deep(.el-input__wrapper.is-focus),
-.editable-cell--error :deep(.el-select__wrapper),
-.editable-cell--error :deep(.el-select__wrapper:hover),
-.editable-cell--error :deep(.el-select__wrapper.is-focused) {
-  box-shadow: inset 0 0 0 1.5px var(--el-color-danger, #dc2626);
 }
 
 .editable-cell__error {

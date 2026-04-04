@@ -3,6 +3,7 @@ import { inject, toRef, computed, ref, type PropType, type VNode } from 'vue'
 import { Setting, Plus } from '@element-plus/icons-vue'
 import { ElAutoResizer, ElTableV2 } from 'element-plus'
 import { useProLocale } from '@pro/hooks'
+import { ProSpin } from '@pro/loading'
 
 import type { RequestParams, RequestResult } from '@pro/utils'
 import type {
@@ -397,15 +398,7 @@ function editText(key: 'edit' | 'save' | 'cancel' | 'delete' | 'addRow' | 'actio
   border-top: 1px dashed var(--el-border-color-lighter);
 }
 
-/* Editing row: subtle highlight + relaxed cell padding for controls */
-.pro-table :deep(.pro-table__row--editing) {
-  background-color: var(--el-color-primary-light-9, #ecf5ff);
-}
-
-.pro-table :deep(.pro-table__row--editing td .cell) {
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
+/* Editing row styles live in themes/overrides/table.css for proper specificity */
 
 .pro-table--fullscreen {
   padding: var(--pro-space-6);
