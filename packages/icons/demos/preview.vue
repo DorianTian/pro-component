@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, type Component } from 'vue'
-import { ElTabs, ElTabPane, ElInput, ElTooltip } from 'element-plus'
+import { ElTabs, ElTabPane, ElInput, ElMessage } from 'element-plus'
 import * as NavigationIcons from '../src/categories/navigation'
 import * as ActionIcons from '../src/categories/action'
 import * as StatusIcons from '../src/categories/status'
@@ -49,6 +49,7 @@ const filteredCategories = computed(() => {
 function handleCopy(name: string): void {
   navigator.clipboard.writeText(name)
   copiedName.value = name
+  ElMessage.success({ message: `Copied: ${name}`, duration: 1500 })
   setTimeout(() => {
     copiedName.value = ''
   }, 1500)
@@ -56,7 +57,7 @@ function handleCopy(name: string): void {
 </script>
 
 <template>
-  <div class="icon-preview">
+  <div class="pro-icon-preview">
     <ElInput v-model="search" placeholder="搜索图标名称..." clearable style="margin-bottom: 16px" />
 
     <ElTabs v-model="activeTab" type="border-card">
@@ -66,75 +67,70 @@ function handleCopy(name: string): void {
         :label="cat.label"
         :name="cat.name"
       >
-        <div class="icon-preview__grid">
-          <ElTooltip
+        <div class="pro-icon-preview__grid">
+          <div
             v-for="(comp, name) in cat.icons"
             :key="name"
-            :content="copiedName === name ? 'Copied!' : name"
-            placement="top"
+            class="pro-icon-preview__card"
+            :class="{ 'pro-icon-preview__card--active': copiedName === String(name) }"
+            @click="handleCopy(String(name))"
           >
-            <div
-              class="icon-preview__item"
-              :class="{ 'icon-preview__item--copied': copiedName === name }"
-              @click="handleCopy(String(name))"
-            >
-              <component :is="comp" :size="22" class="icon-preview__icon" />
-              <span class="icon-preview__name">{{ name }}</span>
-            </div>
-          </ElTooltip>
+            <component :is="comp" :size="24" />
+            <span class="pro-icon-preview__label">{{ name }}</span>
+          </div>
         </div>
-        <div class="icon-preview__count">{{ Object.keys(cat.icons).length }} icons</div>
+        <div style="margin-top: 12px; font-size: 12px; color: #999; text-align: right">
+          {{ Object.keys(cat.icons).length }} icons
+        </div>
       </ElTabPane>
     </ElTabs>
   </div>
 </template>
 
 <style>
-.icon-preview__grid {
+.pro-icon-preview__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 8px;
 }
 
-.icon-preview__item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 14px 6px 10px;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.15s;
-  user-select: none;
+.pro-icon-preview__card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 16px 8px 10px !important;
+  border-radius: 8px !important;
+  border: 1px solid #f0f0f0 !important;
+  background: #fff !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  color: #333 !important;
 }
 
-.icon-preview__item:hover {
-  background: var(--pro-bg-sunken, #f5f5f5);
-  border-color: var(--pro-border-light, #e5e5e5);
+.pro-icon-preview__card:hover {
+  background: #f5f7fa !important;
+  border-color: #c0c4cc !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.icon-preview__item--copied {
-  background: var(--pro-color-primary-ultra-light, #ecf5ff) !important;
-  border-color: var(--pro-color-primary, #409eff) !important;
+.pro-icon-preview__card--active {
+  background: #ecf5ff !important;
+  border-color: #409eff !important;
+  color: #409eff !important;
 }
 
-.icon-preview__icon {
-  color: var(--pro-text-primary, #1f2937);
+.pro-icon-preview__card--active .pro-icon-preview__label {
+  color: #409eff !important;
 }
 
-.icon-preview__name {
-  font-size: 11px;
-  color: var(--pro-text-tertiary, #999);
+.pro-icon-preview__label {
+  font-size: 11px !important;
+  color: #909399 !important;
   text-align: center;
   word-break: break-all;
   line-height: 1.3;
-}
-
-.icon-preview__count {
-  margin-top: 12px;
-  font-size: 12px;
-  color: var(--pro-text-quaternary, #bbb);
-  text-align: right;
 }
 </style>
