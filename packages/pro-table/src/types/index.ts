@@ -48,6 +48,8 @@ export interface ProColumnDef<T = Record<string, unknown>> {
 
   // Descriptions behavior
   hideInDescriptions?: boolean
+  /** Number of columns this item spans in ProDescriptions layout */
+  descriptionsSpan?: number
   descriptionsRender?: (value: unknown, row: T) => VNode
 
   // Editable behavior

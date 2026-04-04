@@ -113,7 +113,7 @@ function resolveDescriptionItem(col: ProColumnDef, data: Record<string, unknown>
     hasCustomRender: typeof col.descriptionsRender === 'function',
     descriptionsRender: col.descriptionsRender,
     column: col,
-    span: col.searchConfig?.span,
+    span: col.descriptionsSpan,
   }
 }
 

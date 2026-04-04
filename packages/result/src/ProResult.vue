@@ -64,7 +64,7 @@ const presetMap = computed<
     subTitle: t('pro.result.http403.subtitle'),
   },
   '404': {
-    icon: 'warning',
+    icon: 'info',
     title: t('pro.result.http404.title'),
     subTitle: t('pro.result.http404.subtitle'),
   },

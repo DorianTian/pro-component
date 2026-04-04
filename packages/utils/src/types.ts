@@ -64,6 +64,8 @@ export interface ProColumnDef {
   hideInSearch?: boolean
   /** Hide in descriptions view */
   hideInDescriptions?: boolean
+  /** Number of columns this item spans in ProDescriptions layout */
+  descriptionsSpan?: number
   /** Hide in form */
   hideInForm?: boolean
   /** Search config */

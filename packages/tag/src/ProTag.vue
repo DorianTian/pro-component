@@ -40,8 +40,8 @@ const tagType = computed(() => statusConfig.value?.type || undefined)
 const customStyle = computed(() => {
   if (props.color) {
     return {
-      '--el-tag-bg-color': `${props.color}14`,
-      '--el-tag-border-color': `${props.color}40`,
+      '--el-tag-bg-color': `color-mix(in srgb, ${props.color} 8%, transparent)`,
+      '--el-tag-border-color': `color-mix(in srgb, ${props.color} 25%, transparent)`,
       '--el-tag-text-color': props.color,
     }
   }
