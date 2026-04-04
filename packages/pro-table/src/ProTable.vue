@@ -243,99 +243,99 @@ function editText(key: 'edit' | 'save' | 'cancel' | 'delete' | 'addRow' | 'actio
 
     <!-- ═══════ Standard Table (ElTable) ═══════ -->
     <ProSpin v-if="!virtual" :spinning="state.activeLoading.value" size="large">
-    <el-table
-      :data="state.activeData.value"
-      :row-key="rowKey"
-      :size="state.tableSize.value"
-      :row-class-name="
-        (scope: { row: unknown }) =>
-          state.isRowEditing(scope.row) ? 'pro-table__row--editing' : ''
-      "
-      v-bind="tableProps"
-      @selection-change="state.handleSelectionChange"
-      @sort-change="state.handleSortChange"
-    >
-      <!-- Selection column -->
-      <el-table-column v-if="rowSelection" type="selection" width="55" fixed="left" />
-
-      <!-- Data columns -->
-      <el-table-column
-        v-for="col in state.visibleColumns.value"
-        :key="col.key ?? String(col.dataIndex)"
-        :prop="String(col.dataIndex)"
-        :label="col.title"
-        :width="col.width"
-        :min-width="col.minWidth"
-        :fixed="col.fixed"
-        :sortable="col.sortable"
-        :show-overflow-tooltip="col.ellipsis !== false"
+      <el-table
+        :data="state.activeData.value"
+        :row-key="rowKey"
+        :size="state.tableSize.value"
+        :row-class-name="
+          (scope: { row: unknown }) =>
+            state.isRowEditing(scope.row) ? 'pro-table__row--editing' : ''
+        "
+        v-bind="tableProps"
+        @selection-change="state.handleSelectionChange"
+        @sort-change="state.handleSortChange"
       >
-        <template #default="{ row, $index }">
-          <!-- Custom render (skip when row is editing) -->
-          <template v-if="col.render && !state.isRowEditing(row)">
-            <component :is="() => col.render!(row, $index)" />
-          </template>
-          <!-- Editable cell -->
-          <template
-            v-else-if="
-              state.isEditableEnabled.value &&
-              state.isRowEditing(row) &&
-              state.isCellEditable(col, row, $index)
-            "
-          >
-            <EditableCell
-              :value-type="col.valueType ?? 'text'"
-              :model-value="state.getEditingCellValue(row, String(col.dataIndex))"
-              :is-editing="true"
-              :value-enum="col.valueEnum"
-              :field-props="state.getCellFieldProps(col, row, $index)"
-              :validation-error="state.getCellValidationError(row, String(col.dataIndex))"
-              @update:model-value="state.setEditingCellValue(row, String(col.dataIndex), $event)"
-            />
-          </template>
-          <!-- Read-only display -->
-          <template v-else>
-            <span>{{ state.formatCellValue(col, row) }}</span>
-          </template>
-        </template>
-      </el-table-column>
+        <!-- Selection column -->
+        <el-table-column v-if="rowSelection" type="selection" width="55" fixed="left" />
 
-      <!-- Action column slot (user-provided) -->
-      <slot name="action" />
-
-      <!-- Editable action column -->
-      <el-table-column
-        v-if="state.isEditableEnabled.value"
-        :label="editText('actions')"
-        min-width="120"
-      >
-        <template #default="{ row }">
-          <template v-if="state.isRowEditing(row)">
-            <el-button link type="primary" size="small" @click="state.handleEditSave(row)">
-              {{ editText('save') }}
-            </el-button>
-            <el-button link size="small" @click="state.handleEditCancel(row)">
-              {{ editText('cancel') }}
-            </el-button>
-          </template>
-          <template v-else>
-            <el-button link type="primary" size="small" @click="state.handleEditStart(row)">
-              {{ editText('edit') }}
-            </el-button>
-            <el-popconfirm
-              :title="editable?.deleteConfirmText ?? t('pro.table.editable.deleteConfirm')"
-              @confirm="state.handleEditDelete(row)"
+        <!-- Data columns -->
+        <el-table-column
+          v-for="col in state.visibleColumns.value"
+          :key="col.key ?? String(col.dataIndex)"
+          :prop="String(col.dataIndex)"
+          :label="col.title"
+          :width="col.width"
+          :min-width="col.minWidth"
+          :fixed="col.fixed"
+          :sortable="col.sortable"
+          :show-overflow-tooltip="col.ellipsis !== false"
+        >
+          <template #default="{ row, $index }">
+            <!-- Custom render (skip when row is editing) -->
+            <template v-if="col.render && !state.isRowEditing(row)">
+              <component :is="() => col.render!(row, $index)" />
+            </template>
+            <!-- Editable cell -->
+            <template
+              v-else-if="
+                state.isEditableEnabled.value &&
+                state.isRowEditing(row) &&
+                state.isCellEditable(col, row, $index)
+              "
             >
-              <template #reference>
-                <el-button link type="danger" size="small">
-                  {{ editText('delete') }}
-                </el-button>
-              </template>
-            </el-popconfirm>
+              <EditableCell
+                :value-type="col.valueType ?? 'text'"
+                :model-value="state.getEditingCellValue(row, String(col.dataIndex))"
+                :is-editing="true"
+                :value-enum="col.valueEnum"
+                :field-props="state.getCellFieldProps(col, row, $index)"
+                :validation-error="state.getCellValidationError(row, String(col.dataIndex))"
+                @update:model-value="state.setEditingCellValue(row, String(col.dataIndex), $event)"
+              />
+            </template>
+            <!-- Read-only display -->
+            <template v-else>
+              <span>{{ state.formatCellValue(col, row) }}</span>
+            </template>
           </template>
-        </template>
-      </el-table-column>
-    </el-table>
+        </el-table-column>
+
+        <!-- Action column slot (user-provided) -->
+        <slot name="action" />
+
+        <!-- Editable action column -->
+        <el-table-column
+          v-if="state.isEditableEnabled.value"
+          :label="editText('actions')"
+          min-width="120"
+        >
+          <template #default="{ row }">
+            <template v-if="state.isRowEditing(row)">
+              <el-button link type="primary" size="small" @click="state.handleEditSave(row)">
+                {{ editText('save') }}
+              </el-button>
+              <el-button link size="small" @click="state.handleEditCancel(row)">
+                {{ editText('cancel') }}
+              </el-button>
+            </template>
+            <template v-else>
+              <el-button link type="primary" size="small" @click="state.handleEditStart(row)">
+                {{ editText('edit') }}
+              </el-button>
+              <el-popconfirm
+                :title="editable?.deleteConfirmText ?? t('pro.table.editable.deleteConfirm')"
+                @confirm="state.handleEditDelete(row)"
+              >
+                <template #reference>
+                  <el-button link type="danger" size="small">
+                    {{ editText('delete') }}
+                  </el-button>
+                </template>
+              </el-popconfirm>
+            </template>
+          </template>
+        </el-table-column>
+      </el-table>
     </ProSpin>
 
     <!-- Add Row Button (for editable table mode with recordCreatorProps) -->

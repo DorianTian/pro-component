@@ -1,5 +1,5 @@
 ---
-"@pro/editor": minor
+'@pro/editor': minor
 ---
 
 feat(editor): add @pro/editor — TipTap-based rich text editor

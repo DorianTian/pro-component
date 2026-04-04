@@ -1,5 +1,5 @@
 ---
-"@pro/code-editor": minor
+'@pro/code-editor': minor
 ---
 
 feat(code-editor): add @pro/code-editor — Monaco-based IDE component

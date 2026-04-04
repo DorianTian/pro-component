@@ -38,7 +38,10 @@ const spinnerSize = computed(() => sizeMap[props.size] ?? 28)
     <Transition name="pro-spin-fade">
       <div v-if="spinning" class="pro-spin__overlay">
         <div class="pro-spin__indicator">
-          <div class="pro-spin__dot" :style="{ width: spinnerSize + 'px', height: spinnerSize + 'px' }">
+          <div
+            class="pro-spin__dot"
+            :style="{ width: spinnerSize + 'px', height: spinnerSize + 'px' }"
+          >
             <span /><span /><span /><span />
           </div>
           <span v-if="tip" class="pro-spin__tip">{{ tip }}</span>

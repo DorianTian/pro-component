@@ -277,7 +277,6 @@ export default defineConfig({
         '@pro/code-editor': resolve(__dirname, '../../packages/code-editor/src'),
         '@pro/editor': resolve(__dirname, '../../packages/editor/src'),
         '@pro/icons': resolve(__dirname, '../../packages/icons/src'),
-        '@pro/nav-menu': resolve(__dirname, '../../packages/nav-menu/src'),
       },
     },
     ssr: {

@@ -9,7 +9,6 @@ import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 
 export function setupMonacoWorkers(): void {
   if (typeof window === 'undefined') return
-
   ;(self as unknown as Record<string, unknown>).MonacoEnvironment = {
     getWorker(_: unknown, label: string) {
       if (label === 'json') return new jsonWorker()

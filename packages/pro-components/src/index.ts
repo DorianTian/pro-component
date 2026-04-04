@@ -51,7 +51,6 @@ import { Divider } from '@pro/divider'
 
 import { checkDependencies } from '@pro/utils'
 import ProConfigProvider from './pro-config-provider.vue'
-import ProNavMenu from './pro-nav-menu.vue'
 
 import type { App } from 'vue'
 
@@ -75,7 +74,6 @@ export { ProTag } from '@pro/tag'
 export { ProEmpty } from '@pro/empty'
 export { ProResult } from '@pro/result'
 export { ProLoading } from '@pro/loading'
-export { default as ProNavMenu } from './pro-nav-menu.vue'
 export { ProConfigProvider }
 
 // ── Re-exports: Base Components ──
@@ -138,7 +136,6 @@ const components = [
   ProEmpty,
   ProResult,
   ProLoading,
-  ProNavMenu,
   ProConfigProvider,
   // Base
   Input,
