@@ -1,22 +1,36 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { ElMenu, ElMenuItem, ElSubMenu } from 'element-plus'
+import {
+  ElMenu,
+  ElMenuItem,
+  ElSubMenu,
+  ElIcon,
+  ElDropdown,
+  ElDropdownMenu,
+  ElDropdownItem,
+  ElSwitch,
+  ElAvatar,
+} from 'element-plus'
 import {
   Home,
   Package,
   BookOpen,
   Code,
-  Users,
-  FileText,
-  ShieldCheck,
   BarChart3,
+  Bell,
+  Globe,
+  Moon,
+  Sun,
+  User,
+  LogOut,
   Settings,
 } from 'lucide-vue-next'
 
 const topActive = ref('components')
 const sideActive = ref('pro-table')
+const isDark = ref(false)
+const lang = ref('zh-CN')
 
-/** Top-level menu items */
 const topItems = [
   { key: 'home', label: '首页', icon: Home },
   { key: 'components', label: '组件', icon: Package },
@@ -24,7 +38,6 @@ const topItems = [
   { key: 'api', label: 'API', icon: Code },
 ]
 
-/** Side sub-menus keyed by top-level item */
 const sideMenuMap: Record<
   string,
   { key: string; label: string; icon?: unknown; children?: { key: string; label: string }[] }[]
@@ -93,27 +106,73 @@ const hasSidebar = computed(() => currentSideItems.value.length > 0)
         </svg>
         <span class="mix-layout__logo-text">Pro Admin</span>
       </div>
-      <ElMenu
-        :default-active="topActive"
-        mode="horizontal"
-        class="mix-layout__top-menu"
-        @select="
-          (key: string) => {
-            topActive = key
+
+      <!-- Top nav -->
+      <nav class="mix-layout__top-nav">
+        <a
+          v-for="item in topItems"
+          :key="item.key"
+          class="mix-layout__top-item"
+          :class="{ 'is-active': topActive === item.key }"
+          href="javascript:void(0)"
+          @click="
+            topActive = item.key
             sideActive = ''
-          }
-        "
-      >
-        <ElMenuItem v-for="item in topItems" :key="item.key" :index="item.key">
-          <component :is="item.icon" class="mix-layout__top-icon" />
-          <span>{{ item.label }}</span>
-        </ElMenuItem>
-      </ElMenu>
+          "
+        >
+          {{ item.label }}
+        </a>
+      </nav>
+
+      <!-- Right actions -->
+      <div class="mix-layout__actions">
+        <!-- Notification -->
+        <button class="mix-layout__action-btn" title="通知">
+          <Bell :size="16" />
+        </button>
+
+        <!-- Language -->
+        <ElDropdown trigger="click" @command="(cmd: string) => (lang = cmd)">
+          <button class="mix-layout__action-btn" title="语言">
+            <Globe :size="16" />
+          </button>
+          <template #dropdown>
+            <ElDropdownMenu>
+              <ElDropdownItem command="zh-CN" :class="{ 'is-active': lang === 'zh-CN' }"
+                >简体中文</ElDropdownItem
+              >
+              <ElDropdownItem command="en-US" :class="{ 'is-active': lang === 'en-US' }"
+                >English</ElDropdownItem
+              >
+            </ElDropdownMenu>
+          </template>
+        </ElDropdown>
+
+        <!-- Theme toggle -->
+        <button class="mix-layout__action-btn" title="主题" @click="isDark = !isDark">
+          <Moon v-if="!isDark" :size="16" />
+          <Sun v-else :size="16" />
+        </button>
+
+        <!-- User -->
+        <ElDropdown trigger="click">
+          <div class="mix-layout__user">
+            <ElAvatar :size="28" style="background: var(--pro-color-primary, #7c6ce7)">D</ElAvatar>
+          </div>
+          <template #dropdown>
+            <ElDropdownMenu>
+              <ElDropdownItem><Settings :size="14" style="margin-right: 6px" />设置</ElDropdownItem>
+              <ElDropdownItem divided
+                ><LogOut :size="14" style="margin-right: 6px" />退出登录</ElDropdownItem
+              >
+            </ElDropdownMenu>
+          </template>
+        </ElDropdown>
+      </div>
     </header>
 
-    <!-- ═══ Body: Sidebar + Content ═══ -->
+    <!-- ═══ Body ═══ -->
     <div class="mix-layout__body">
-      <!-- Left sidebar (second-level) -->
       <aside v-if="hasSidebar" class="mix-layout__sidebar">
         <ElMenu
           :default-active="sideActive"
@@ -123,7 +182,7 @@ const hasSidebar = computed(() => currentSideItems.value.length > 0)
         >
           <ElSubMenu v-for="group in currentSideItems" :key="group.key" :index="group.key">
             <template #title>
-              <component :is="group.icon" v-if="group.icon" class="mix-layout__side-icon" />
+              <el-icon v-if="group.icon" :size="15"><component :is="group.icon" /></el-icon>
               <span>{{ group.label }}</span>
             </template>
             <ElMenuItem v-for="child in group.children" :key="child.key" :index="child.key">
@@ -132,15 +191,11 @@ const hasSidebar = computed(() => currentSideItems.value.length > 0)
           </ElSubMenu>
         </ElMenu>
       </aside>
-
-      <!-- Content -->
       <main class="mix-layout__content">
         <p v-if="sideActive">
           当前页面: <strong>{{ sideActive }}</strong>
         </p>
-        <p v-else style="color: var(--pro-text-tertiary, #a3a3a3)">
-          点击顶部导航选择模块，左侧展示二级菜单
-        </p>
+        <p v-else style="color: #a3a3a3">点击顶部导航选择模块</p>
       </main>
     </div>
   </div>
@@ -152,59 +207,84 @@ const hasSidebar = computed(() => currentSideItems.value.length > 0)
   flex-direction: column;
   height: 440px;
   border: 1px solid var(--pro-border-default, #e5e5e5);
-  border-radius: var(--pro-radius-lg, 12px);
+  border-radius: 12px;
   overflow: hidden;
-  background: var(--pro-bg-base, #fff);
 }
 
 /* ── Header ── */
 .mix-layout__header {
   display: flex;
   align-items: center;
-  height: 56px;
-  padding: 0 20px;
+  height: 52px;
+  padding: 0 16px;
   border-bottom: 1px solid var(--pro-border-light, #f0f0f0);
   background: var(--pro-bg-elevated, #fff);
   flex-shrink: 0;
+  gap: 8px;
 }
 .mix-layout__logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-right: 32px;
+  gap: 8px;
+  margin-right: 24px;
   flex-shrink: 0;
 }
 .mix-layout__logo-text {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
-  color: var(--pro-text-primary, #0a0a0a);
 }
 
-/* Top menu — reset EP defaults */
-.mix-layout__top-menu {
-  border-bottom: none !important;
-  height: 56px;
-  flex: 1;
-}
-.mix-layout :deep(.mix-layout__top-menu .el-menu-item) {
-  display: inline-flex;
+/* Top nav — plain links, no ElMenu overhead */
+.mix-layout__top-nav {
+  display: flex;
   align-items: center;
   gap: 4px;
-  height: 56px;
-  line-height: 56px;
+  flex: 1;
+}
+.mix-layout__top-item {
+  padding: 6px 14px;
   font-size: 14px;
-  border-bottom: 2px solid transparent !important;
-  padding: 0 16px;
+  color: var(--pro-text-secondary, #737373);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.15s;
 }
-.mix-layout :deep(.mix-layout__top-menu .el-menu-item.is-active) {
-  border-bottom-color: var(--pro-color-primary, #7c6ce7) !important;
+.mix-layout__top-item:hover {
+  color: var(--pro-text-primary, #0a0a0a);
+  background: var(--pro-bg-sunken, #f5f5f5);
+}
+.mix-layout__top-item.is-active {
   color: var(--pro-color-primary, #7c6ce7);
-  font-weight: 500;
+  font-weight: 600;
 }
-.mix-layout__top-icon {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
+
+/* Right actions */
+.mix-layout__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+.mix-layout__action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pro-text-secondary, #737373);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mix-layout__action-btn:hover {
+  background: var(--pro-bg-sunken, #f5f5f5);
+  color: var(--pro-text-primary, #0a0a0a);
+}
+.mix-layout__user {
+  cursor: pointer;
+  margin-left: 4px;
 }
 
 /* ── Body ── */
@@ -214,11 +294,9 @@ const hasSidebar = computed(() => currentSideItems.value.length > 0)
   min-height: 0;
 }
 
-/* ── Sidebar ── */
 .mix-layout__sidebar {
   width: 200px;
   border-right: 1px solid var(--pro-border-light, #f0f0f0);
-  background: var(--pro-bg-elevated, #fff);
   overflow-y: auto;
   flex-shrink: 0;
 }
@@ -227,16 +305,15 @@ const hasSidebar = computed(() => currentSideItems.value.length > 0)
   padding: 8px 0;
 }
 .mix-layout :deep(.mix-layout__side-menu .el-menu-item) {
-  height: 38px;
-  line-height: 38px;
+  height: 36px;
+  line-height: 36px;
   font-size: 13px;
   margin: 1px 6px;
   border-radius: 6px;
-  padding-left: 44px !important;
 }
 .mix-layout :deep(.mix-layout__side-menu .el-sub-menu__title) {
-  height: 38px;
-  line-height: 38px;
+  height: 36px;
+  line-height: 36px;
   font-size: 13px;
   font-weight: 500;
   color: var(--pro-text-secondary, #737373);
@@ -246,13 +323,7 @@ const hasSidebar = computed(() => currentSideItems.value.length > 0)
   color: var(--pro-color-primary, #7c6ce7);
   font-weight: 500;
 }
-.mix-layout__side-icon {
-  width: 15px;
-  height: 15px;
-  margin-right: 6px;
-}
 
-/* ── Content ── */
 .mix-layout__content {
   flex: 1;
   padding: 24px;
