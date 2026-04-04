@@ -169,8 +169,22 @@ export default defineConfig({
         detailedView: true,
         miniSearch: {
           options: {
-            tokenize: (text: string) =>
-              text.split(/[\s\-_/()（）【】「」、，。！？：；]+/u).filter(Boolean),
+            tokenize: (text: string) => {
+              const tokens: string[] = []
+              /* CJK individual chars + CJK bigrams for better phrase matching */
+              const cjkRe = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/g
+              const wordRe = /[a-zA-Z0-9][\w]*/g
+              let m
+              while ((m = wordRe.exec(text)) !== null) tokens.push(m[0].toLowerCase())
+              const chars: string[] = []
+              while ((m = cjkRe.exec(text)) !== null) {
+                tokens.push(m[0])
+                chars.push(m[0])
+              }
+              /* bigrams: 基础用法 → 基础, 础用, 用法 */
+              for (let i = 0; i < chars.length - 1; i++) tokens.push(chars[i] + chars[i + 1])
+              return tokens
+            },
           },
           searchOptions: {
             fuzzy: 0.2,
