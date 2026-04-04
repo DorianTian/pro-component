@@ -6,7 +6,7 @@ const { lang } = useData()
 const isZh = computed(() => lang.value?.startsWith('zh'))
 
 const isVisible = ref(false)
-const githubUrl = 'https://github.com/dorian-lab/pro-components'
+const githubUrl = 'https://github.com/DorianTian/pro-component'
 
 onMounted(() => {
   requestAnimationFrame(() => {

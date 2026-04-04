@@ -148,7 +148,7 @@ export default defineConfig({
       ],
     },
 
-    socialLinks: [{ icon: 'github', link: 'https://github.com/dorian-lab/pro-components' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/DorianTian/pro-component' }],
 
     search: {
       provider: 'local',
