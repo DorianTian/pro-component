@@ -54,10 +54,9 @@ const theme: Theme = {
     // so no build step required during docs dev
     try {
       // Dynamic import allows graceful degradation if packages not yet built
-      const proComponents = import.meta.glob(
-        ['../../packages/pro-*/src/index.ts', '../../packages/nav-menu/src/index.ts'],
-        { eager: true },
-      ) as unknown as Record<string, Record<string, unknown>>
+      const proComponents = import.meta.glob('../../packages/*/src/index.ts', {
+        eager: true,
+      }) as unknown as Record<string, Record<string, unknown>>
       for (const [, mod] of Object.entries(proComponents)) {
         // Each package exports named components — register them all
         for (const [exportName, exportValue] of Object.entries(mod)) {
