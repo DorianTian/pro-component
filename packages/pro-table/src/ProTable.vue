@@ -242,9 +242,8 @@ function editText(key: 'edit' | 'save' | 'cancel' | 'delete' | 'addRow' | 'actio
     </el-auto-resizer>
 
     <!-- ═══════ Standard Table (ElTable) ═══════ -->
+    <ProSpin v-if="!virtual" :spinning="state.activeLoading.value" size="large">
     <el-table
-      v-else
-      v-loading="state.activeLoading.value"
       :data="state.activeData.value"
       :row-key="rowKey"
       :size="state.tableSize.value"
@@ -337,6 +336,7 @@ function editText(key: 'edit' | 'save' | 'cancel' | 'delete' | 'addRow' | 'actio
         </template>
       </el-table-column>
     </el-table>
+    </ProSpin>
 
     <!-- Add Row Button (for editable table mode with recordCreatorProps) -->
     <div v-if="!virtual && state.canAddRow.value" class="pro-table__add-row">
