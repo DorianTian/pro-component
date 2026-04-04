@@ -90,7 +90,12 @@ const mergedProps = computed(() => {
  */
 
 .editable-cell {
+  /*
+   * 2px padding creates breathing room between the input border and the
+   * cell's overflow:hidden boundary, preventing inset shadow clipping.
+   */
   width: 100%;
+  padding: 2px;
   display: flex;
   flex-direction: column;
   justify-content: center;
