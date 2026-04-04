@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, h } from 'vue'
-import { ProNavMenu } from '@pro/nav-menu'
+import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   LayoutDashboard,

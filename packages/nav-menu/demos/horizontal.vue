@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ProNavMenu } from '@pro/nav-menu'
 import { Home, Package, BookOpen, Github } from 'lucide-vue-next'
 
 import type { NavMenuItem } from '@pro/nav-menu'

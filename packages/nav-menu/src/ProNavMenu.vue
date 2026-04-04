@@ -11,9 +11,8 @@
  * - Horizontal + vertical modes
  * - Dark mode via theme tokens
  */
-import { ref, computed, watch, type PropType } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { ElMenu, ElMenuItem, ElSubMenu, ElBadge, ElTooltip } from 'element-plus'
-import { useProLocale } from '@pro/hooks'
 
 import type { NavMenuItem } from './types'
 
@@ -62,8 +61,6 @@ const emit = defineEmits<{
   'update:collapsed': [collapsed: boolean]
   'update:activeKey': [key: string]
 }>()
-
-const { t } = useProLocale()
 
 const innerCollapsed = ref(props.collapsed)
 const innerActiveKey = ref(props.activeKey ?? props.defaultActiveKey ?? '')
@@ -241,7 +238,7 @@ function handleSelect(key: string): void {
       type="button"
       role="button"
       tabindex="0"
-      :aria-label="innerCollapsed ? t('pro.common.aria.expand') : t('pro.common.aria.collapse')"
+      :aria-label="innerCollapsed ? 'Expand' : 'Collapse'"
       @click="toggleCollapse"
       @keydown.enter.space.prevent="toggleCollapse"
     >
