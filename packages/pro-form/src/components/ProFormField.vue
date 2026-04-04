@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, h, defineComponent } from 'vue'
 import { ElFormItem, ElOption, ElRadio, ElCheckbox, ElTooltip, ElIcon } from 'element-plus'
+import { HelpCircle } from 'lucide-vue-next'
 import { CONTROL_REGISTRY } from '@pro/hooks'
 
 import type { VNode } from 'vue'
@@ -130,14 +131,15 @@ const FieldControl = defineComponent({
     <template v-if="field.tooltip" #label>
       {{ field.title }}
       <ElTooltip :content="field.tooltip" placement="top">
-        <ElIcon style="margin-left: var(--pro-space-1); cursor: help">
-          <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
-            <path
-              d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372zm-48-524h96v64h-96zm0 128h96v320h-96z"
-              fill="currentColor"
-            />
-          </svg>
-        </ElIcon>
+        <HelpCircle
+          style="
+            margin-left: var(--pro-space-1);
+            cursor: help;
+            width: 14px;
+            height: 14px;
+            color: var(--pro-text-tertiary);
+          "
+        />
       </ElTooltip>
     </template>
     <FieldControl />

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, useSlots, useAttrs, onBeforeUnmount, type PropType } from 'vue'
 import { Search } from '@element-plus/icons-vue'
+import { ChevronDown, GripVertical } from 'lucide-vue-next'
 import { ElTreeV2 } from 'element-plus'
 import { useProLocale } from '@pro/hooks'
 
@@ -373,21 +374,11 @@ defineExpose({
         :title="resolvedExpandTitle"
         @click="toggleExpandAll"
       >
-        <svg
+        <ChevronDown
           class="pro-tree__expand-icon"
           :class="{ 'pro-tree__expand-icon--collapsed': !isAllExpanded }"
-          viewBox="0 0 16 16"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M4 6L8 10L12 6"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
+          :size="14"
+        />
       </button>
       <!-- Extra toolbar slot for custom actions -->
       <slot name="toolbar-extra" />
@@ -438,20 +429,7 @@ defineExpose({
         <!-- Default node content with drag handle + count badge -->
         <template #default="{ node, data: nodeData }">
           <span class="pro-tree__node" :class="{ 'pro-tree__node--selected': node.isCurrent }">
-            <svg
-              v-if="effectiveDraggable"
-              class="pro-tree__drag-handle"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="5.5" cy="4" r="1.2" />
-              <circle cx="10.5" cy="4" r="1.2" />
-              <circle cx="5.5" cy="8" r="1.2" />
-              <circle cx="10.5" cy="8" r="1.2" />
-              <circle cx="5.5" cy="12" r="1.2" />
-              <circle cx="10.5" cy="12" r="1.2" />
-            </svg>
+            <GripVertical v-if="effectiveDraggable" class="pro-tree__drag-handle" :size="14" />
             <span class="pro-tree__node-label">{{ node.label }}</span>
             <span v-if="getChildCount(nodeData) > 0" class="pro-tree__node-badge">
               {{ getChildCount(nodeData) }}

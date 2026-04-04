@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, provide, ref, watch } from 'vue'
 import { ElForm, ElButton, ElRow, ElCol, ElCollapse, ElCollapseItem } from 'element-plus'
+import { ChevronDown } from 'lucide-vue-next'
 import { useProForm, GRID_GUTTER, DEFAULT_LABEL_WIDTH } from './composables/use-pro-form'
 import { useProLocale } from '@pro/hooks'
 import { PRO_FORM_INJECTION_KEY } from './injection-keys'
@@ -263,22 +264,12 @@ defineExpose({
           @click="block.group.collapsible && toggleGroup(block.group.key ?? block.group.title)"
         >
           <span class="pro-form__group-title">{{ block.group.title }}</span>
-          <svg
+          <ChevronDown
             v-if="block.group.collapsible"
             class="pro-form__group-arrow"
             :class="{ 'pro-form__group-arrow--collapsed': isGroupCollapsed(block.group) }"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M4 6L8 10L12 6"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
+            :size="14"
+          />
         </div>
         <div v-show="!isGroupCollapsed(block.group)" class="pro-form__group-body">
           <ElRow :gutter="GRID_GUTTER">
