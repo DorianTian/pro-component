@@ -22,9 +22,23 @@ export default defineConfig({
       link: '/en/',
       themeConfig: {
         nav: [
-          { text: 'Guide', link: '/en/guide/introduction' },
-          { text: 'Components', link: '/en/components/pro-table' },
+          { text: 'Guide', link: '/guide/introduction', activeMatch: '/guide/' },
+          { text: 'Components', link: '/components/pro-table', activeMatch: '/components/' },
+          { text: 'Composables', link: '/composables/use-pro-table', activeMatch: '/composables/' },
+          { text: 'Changelog', link: '/changelog' },
         ],
+        sidebar: {
+          '/guide/': [
+            {
+              text: 'Guide',
+              items: [
+                { text: 'Introduction', link: '/guide/introduction' },
+                { text: 'Getting Started', link: '/guide/getting-started' },
+                { text: 'CDN Mode', link: '/guide/cdn-mode' },
+              ],
+            },
+          ],
+        },
       },
     },
   },
