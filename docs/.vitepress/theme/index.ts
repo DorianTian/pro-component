@@ -1,6 +1,8 @@
 import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
 import type { Component } from 'vue'
+import { useRoute } from 'vitepress'
+import { onMounted, watch } from 'vue'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import '@pro/themes'
@@ -24,12 +26,30 @@ function isVueComponent(value: unknown): value is Component {
   )
 }
 
-/**
- * Custom VitePress theme that registers Element Plus and all Pro Components
- * globally so interactive demos render correctly within doc pages.
- */
+const SCROLL_DELAY_MS = 200
+
+/** Scroll to element matching current URL hash */
+function scrollToHash(): void {
+  const { hash } = window.location
+  if (!hash) return
+  setTimeout(() => {
+    const el = document.querySelector(decodeURIComponent(hash))
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, SCROLL_DELAY_MS)
+}
+
 const theme: Theme = {
   extends: DefaultTheme,
+  setup() {
+    const route = useRoute()
+    /* Watch route path changes → scroll to hash after SPA navigation */
+    watch(() => route.path, scrollToHash)
+    /* Handle same-page hash changes (e.g. search result on current page) */
+    onMounted(() => {
+      window.addEventListener('hashchange', scrollToHash)
+      scrollToHash()
+    })
+  },
   enhanceApp({ app }) {
     // Register Element Plus globally for all demos
     app.use(ElementPlus)
