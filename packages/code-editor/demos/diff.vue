@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { DiffEditor } from '@pro/code-editor'
+import { ElCheckbox } from 'element-plus'
 
 const original = `function calculateTotal(items) {
   let total = 0
@@ -43,10 +44,7 @@ const sideBySide = ref(true)
 <template>
   <div>
     <div style="margin-bottom: 12px">
-      <label style="font-size: 13px; cursor: pointer; user-select: none">
-        <input v-model="sideBySide" type="checkbox" style="margin-right: 6px" />
-        Side by side
-      </label>
+      <ElCheckbox v-model="sideBySide" label="Side by side" />
     </div>
     <DiffEditor
       :original="original"

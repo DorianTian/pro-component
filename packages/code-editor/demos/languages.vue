@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { CodeEditor } from '@pro/code-editor'
+import { ElRadioGroup, ElRadioButton } from 'element-plus'
 
 import type { EditorLanguage } from '@pro/code-editor'
 
@@ -91,7 +92,6 @@ func main() {
   shell: `#!/bin/bash
 set -euo pipefail
 
-# Deploy script
 ENV=\${1:-staging}
 BRANCH=\$(git rev-parse --abbrev-ref HEAD)
 
@@ -101,14 +101,12 @@ docker build -t app:latest .
 docker tag app:latest registry.example.com/app:$BRANCH
 
 if [ "$ENV" = "production" ]; then
-  echo "⚠️  Production deploy — running tests first"
+  echo "Production deploy — running tests first"
   docker run --rm app:latest npm test
 fi
 
 docker push registry.example.com/app:$BRANCH
-kubectl set image deployment/app app=registry.example.com/app:$BRANCH
-
-echo "✅ Deployed successfully"`,
+echo "Deployed successfully"`,
 
   json: `{
   "name": "@pro/code-editor",
@@ -123,16 +121,6 @@ echo "✅ Deployed successfully"`,
 }`,
 }
 
-const languages: { value: EditorLanguage; label: string }[] = [
-  { value: 'sql', label: 'SQL' },
-  { value: 'javascript', label: 'JavaScript' },
-  { value: 'typescript', label: 'TypeScript' },
-  { value: 'python', label: 'Python' },
-  { value: 'go', label: 'Go' },
-  { value: 'shell', label: 'Bash' },
-  { value: 'json', label: 'JSON' },
-]
-
 const code = computed({
   get: () => samples[language.value] ?? '',
   set: () => {},
@@ -141,23 +129,16 @@ const code = computed({
 
 <template>
   <div>
-    <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap">
-      <button
-        v-for="lang in languages"
-        :key="lang.value"
-        :style="{
-          padding: '4px 12px',
-          borderRadius: '4px',
-          border: language === lang.value ? '1px solid #409eff' : '1px solid #ddd',
-          background: language === lang.value ? '#ecf5ff' : '#fff',
-          color: language === lang.value ? '#409eff' : '#333',
-          cursor: 'pointer',
-          fontSize: '13px',
-        }"
-        @click="language = lang.value"
-      >
-        {{ lang.label }}
-      </button>
+    <div style="margin-bottom: 12px">
+      <ElRadioGroup v-model="language" size="small">
+        <ElRadioButton value="sql">SQL</ElRadioButton>
+        <ElRadioButton value="javascript">JavaScript</ElRadioButton>
+        <ElRadioButton value="typescript">TypeScript</ElRadioButton>
+        <ElRadioButton value="python">Python</ElRadioButton>
+        <ElRadioButton value="go">Go</ElRadioButton>
+        <ElRadioButton value="shell">Bash</ElRadioButton>
+        <ElRadioButton value="json">JSON</ElRadioButton>
+      </ElRadioGroup>
     </div>
 
     <CodeEditor v-model="code" :language="language" :min-height="360" />

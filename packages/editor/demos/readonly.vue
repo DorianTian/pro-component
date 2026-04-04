@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RichEditor } from '@pro/editor'
+import { ElCheckbox } from 'element-plus'
 
 const readOnly = ref(true)
 
@@ -24,10 +25,7 @@ const content = ref(`<h2>Release Notes v2.0.0</h2>
 <template>
   <div>
     <div style="margin-bottom: 12px">
-      <label style="font-size: 13px; cursor: pointer; user-select: none">
-        <input v-model="readOnly" type="checkbox" style="margin-right: 6px" />
-        Read only
-      </label>
+      <ElCheckbox v-model="readOnly" label="Read only" />
     </div>
     <RichEditor v-model="content" :read-only="readOnly" :min-height="280" />
   </div>

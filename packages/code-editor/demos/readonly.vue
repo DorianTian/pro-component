@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { CodeEditor } from '@pro/code-editor'
+import { ElCheckbox } from 'element-plus'
 
 const readOnly = ref(true)
 
@@ -23,10 +24,7 @@ server {
 <template>
   <div>
     <div style="margin-bottom: 12px">
-      <label style="font-size: 13px; cursor: pointer; user-select: none">
-        <input v-model="readOnly" type="checkbox" style="margin-right: 6px" />
-        Read only
-      </label>
+      <ElCheckbox v-model="readOnly" label="Read only" />
     </div>
     <CodeEditor v-model="code" language="shell" :read-only="readOnly" :min-height="300" />
   </div>

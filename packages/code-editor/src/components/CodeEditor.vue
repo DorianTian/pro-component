@@ -257,8 +257,14 @@ defineExpose({
         >
           <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
             <path
-              d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4 1v2h8V3H4z"
+              d="M2 4l4 4-4 4"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              fill="none"
             />
+            <path d="M8 14h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
         </button>
         <slot name="toolbar-actions" />

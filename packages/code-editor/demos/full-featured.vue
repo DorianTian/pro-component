@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { CodeEditor } from '@pro/code-editor'
+import { ElSelect, ElOption, ElSlider, ElCheckbox } from 'element-plus'
 
 import type { EditorLanguage, EditorTheme } from '@pro/code-editor'
 
 const editorRef = ref<InstanceType<typeof CodeEditor> | null>(null)
-const theme = ref<EditorTheme>('vs-dark')
+const theme = ref<EditorTheme>('github-dark')
 const language = ref<EditorLanguage>('typescript')
 const readOnly = ref(false)
 const minimap = ref(true)
@@ -43,11 +44,6 @@ const filteredUsers = computed(() => {
   )
 })
 
-const paginatedUsers = computed(() => {
-  const start = (state.value.currentPage - 1) * state.value.pageSize
-  return filteredUsers.value.slice(start, start + state.value.pageSize)
-})
-
 async function fetchUsers(): Promise<void> {
   state.value.loading = true
   state.value.error = null
@@ -77,60 +73,41 @@ const languages: { value: EditorLanguage; label: string }[] = [
   { value: 'html', label: 'HTML' },
   { value: 'css', label: 'CSS' },
 ]
+
+const themeOptions: { value: EditorTheme; label: string }[] = [
+  { value: 'github-dark', label: 'GitHub Dark' },
+  { value: 'github-light', label: 'GitHub Light' },
+  { value: 'vs', label: 'VS Light' },
+  { value: 'vs-dark', label: 'VS Dark' },
+]
 </script>
 
 <template>
   <div>
-    <!-- Controls -->
     <div
       style="display: flex; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; align-items: center"
     >
+      <ElSelect v-model="language" size="small" style="width: 140px">
+        <ElOption v-for="l in languages" :key="l.value" :label="l.label" :value="l.value" />
+      </ElSelect>
+      <ElSelect v-model="theme" size="small" style="width: 140px">
+        <ElOption v-for="t in themeOptions" :key="t.value" :label="t.label" :value="t.value" />
+      </ElSelect>
       <div style="display: flex; align-items: center; gap: 6px">
-        <span style="font-size: 12px; color: #6b7280">Language:</span>
-        <select
-          v-model="language"
-          style="
-            padding: 3px 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 12px;
-            background: #fff;
-          "
+        <span style="font-size: 12px; color: #6b7280; white-space: nowrap"
+          >Font: {{ fontSize }}px</span
         >
-          <option v-for="l in languages" :key="l.value" :value="l.value">{{ l.label }}</option>
-        </select>
+        <ElSlider
+          v-model="fontSize"
+          :min="10"
+          :max="24"
+          :show-tooltip="false"
+          style="width: 80px"
+        />
       </div>
-      <div style="display: flex; align-items: center; gap: 6px">
-        <span style="font-size: 12px; color: #6b7280">Theme:</span>
-        <select
-          v-model="theme"
-          style="
-            padding: 3px 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 12px;
-            background: #fff;
-          "
-        >
-          <option value="vs">Light</option>
-          <option value="vs-dark">Dark</option>
-          <option value="hc-black">HC Dark</option>
-        </select>
-      </div>
-      <div style="display: flex; align-items: center; gap: 6px">
-        <span style="font-size: 12px; color: #6b7280">Font:</span>
-        <input v-model.number="fontSize" type="range" min="10" max="24" style="width: 80px" />
-        <span style="font-size: 12px; color: #999">{{ fontSize }}px</span>
-      </div>
-      <label style="font-size: 12px; cursor: pointer; user-select: none; color: #6b7280">
-        <input v-model="minimap" type="checkbox" style="margin-right: 4px" />Minimap
-      </label>
-      <label style="font-size: 12px; cursor: pointer; user-select: none; color: #6b7280">
-        <input v-model="wordWrap" type="checkbox" style="margin-right: 4px" />Wrap
-      </label>
-      <label style="font-size: 12px; cursor: pointer; user-select: none; color: #6b7280">
-        <input v-model="readOnly" type="checkbox" style="margin-right: 4px" />Read only
-      </label>
+      <ElCheckbox v-model="minimap" label="Minimap" />
+      <ElCheckbox v-model="wordWrap" label="Wrap" />
+      <ElCheckbox v-model="readOnly" label="Read only" />
     </div>
 
     <CodeEditor
