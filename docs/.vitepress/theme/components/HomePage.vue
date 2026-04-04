@@ -14,81 +14,81 @@ const features = [
   {
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>`,
     title: 'ProTable',
-    subtitle: 'Schema-Driven Data Table',
-    desc: 'One column schema drives search form, table columns, and detail view. Built-in pagination, toolbar, column settings, editable rows, and virtual scrolling for 100K+ rows.',
+    subtitle: 'Schema 驱动数据表格',
+    desc: '一份 Column 配置同时驱动搜索表单、表格列和详情视图。内置分页、工具栏、列设置、可编辑行、10 万行级虚拟滚动。',
     color: '#7c6ce7',
   },
   {
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="13" y2="12"/><line x1="7" y1="16" x2="15" y2="16"/></svg>`,
     title: 'ProForm',
-    subtitle: 'Smart Form Builder',
-    desc: 'ValueType-based controls, field groups with colSpan grid, conditional visibility, ModalForm, DrawerForm, StepsForm, and ProFormList dynamic arrays.',
+    subtitle: '智能表单构建器',
+    desc: '基于 ValueType 自动生成控件，支持字段分组、colSpan 网格、条件显隐、ModalForm、DrawerForm、StepsForm 及动态数组。',
     color: '#3b82f6',
   },
   {
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="7" y1="8" x2="11" y2="8"/><line x1="13" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="11" y2="12"/><line x1="13" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="11" y2="16"/><line x1="13" y1="16" x2="17" y2="16"/></svg>`,
     title: 'ProDescriptions',
-    subtitle: 'Detail View Renderer',
-    desc: 'Reuse ProTable column definitions to render read-only detail panels. Shared schema means zero duplication between table and detail views.',
+    subtitle: '详情定义列表',
+    desc: '复用 ProTable 的 columns 定义渲染只读详情面板。一份 Schema 同时驱动表格和详情，零重复代码。',
     color: '#10b981',
   },
 ]
 
 const highlights = [
   {
-    label: 'Headless-First',
-    desc: 'Every component splits into Composable (logic) + Component (render). Full control when you need it.',
+    label: 'Headless-First 架构',
+    desc: '每个组件拆分为 Composable（逻辑层）+ Component（渲染层），需要完全控制时随时接管。',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 3 Q17 8 12 12 Q7 16 12 21"/><line x1="3" y1="12" x2="21" y2="12"/></svg>`,
   },
   {
-    label: 'CDN Hot-Swap',
-    desc: 'Import Maps + ESM CDN. Upgrade component versions without rebuilding. Grayscale rollout included.',
+    label: 'CDN 热更新',
+    desc: 'Import Maps + ESM CDN 分发，无需重新构建即可升级组件版本，支持灰度发布。',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`,
   },
   {
-    label: '15+ ValueTypes',
-    desc: 'text, date, money, select, switch, rate, progress, image, code... Auto-adapts across table, form, and descriptions.',
+    label: '15+ ValueType',
+    desc: 'text、date、money、select、switch、rate、progress、image、code... 自动适配表格、表单和详情。',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7h16M4 12h10M4 17h13"/></svg>`,
   },
   {
-    label: 'Virtual Scroll',
-    desc: 'ElTableV2 / ElTreeV2 / ElSelectV2 dual-engine. Handle 100K rows without pagination.',
+    label: '虚拟滚动',
+    desc: 'ElTableV2 / ElTreeV2 / ElSelectV2 双引擎，轻松处理 10 万行数据，无需分页。',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="14" x2="20" y2="14"/><path d="M20 9v6" stroke-dasharray="2 2"/></svg>`,
   },
   {
-    label: 'i18n Ready',
-    desc: 'ProConfigProvider with built-in en-US / zh-CN. Locale-aware formatters for numbers, dates, and money.',
+    label: '国际化就绪',
+    desc: 'ProConfigProvider 内置中英双语，数字、日期、金额格式化器自动适配当前语言环境。',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><line x1="3" y1="12" x2="21" y2="12"/></svg>`,
   },
   {
-    label: 'Dark Mode',
-    desc: 'Complete semantic token system. One toggle switches the entire UI. Zero hardcoded colors.',
+    label: '深色模式',
+    desc: '完整的语义化 Token 体系，一键切换全局主题，零硬编码颜色值。',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3a9 9 0 1 0 9 9c0-4.97-4.03-9-9-9z"/><path d="M12 3a7 7 0 0 1 0 18" fill="currentColor" opacity="0.3"/></svg>`,
   },
 ]
 
 const techStack = [
-  { name: 'Vue 3.5', icon: '⚡', desc: 'Composition API' },
-  { name: 'Element Plus 2.13', icon: '🧱', desc: 'UI Foundation' },
-  { name: 'TypeScript 5.9', icon: '🔷', desc: 'Strict Mode' },
-  { name: 'Turborepo', icon: '🚀', desc: 'Monorepo Build' },
+  { name: 'Vue 3.5', icon: '⚡', desc: '组合式 API' },
+  { name: 'Element Plus 2.13', icon: '🧱', desc: 'UI 基础层' },
+  { name: 'TypeScript 5.9', icon: '🔷', desc: '严格模式' },
+  { name: 'Turborepo', icon: '🚀', desc: 'Monorepo 构建' },
   { name: 'Rollup 4', icon: '📦', desc: 'ESM / CJS / UMD' },
-  { name: 'Vitest', icon: '🧪', desc: 'Unit + Component' },
+  { name: 'Vitest', icon: '🧪', desc: '单元 + 组件测试' },
 ]
 
 const codeExample = `import { ProTable, useProTable } from '@pro/table'
 
 const columns = [
-  { dataIndex: 'name', title: 'Name', valueType: 'text' },
-  { dataIndex: 'status', title: 'Status', valueType: 'select',
+  { dataIndex: 'name', title: '姓名', valueType: 'text' },
+  { dataIndex: 'status', title: '状态', valueType: 'select',
     valueEnum: {
-      active: { text: 'Active', status: 'success' },
-      disabled: { text: 'Disabled', status: 'error' },
+      active: { text: '启用', status: 'success' },
+      disabled: { text: '禁用', status: 'error' },
     }},
-  { dataIndex: 'createdAt', title: 'Created', valueType: 'date' },
+  { dataIndex: 'createdAt', title: '创建时间', valueType: 'date' },
 ]
 
-// One schema drives table + search form + descriptions
+// 一份 Schema 同时驱动表格 + 搜索表单 + 详情视图
 <ProTable :columns="columns" :request="fetchData" />`
 </script>
 
@@ -101,19 +101,19 @@ const columns = [
       <div class="hero__content">
         <div class="hero__badge">
           <span class="hero__badge-dot" />
-          <span>Open Source &middot; MIT License</span>
+          <span>开源免费 &middot; MIT 协议</span>
         </div>
         <h1 class="hero__title">
-          <span class="hero__title-line">Build Enterprise</span>
-          <span class="hero__title-line hero__title-line--accent">Interfaces Faster</span>
+          <span class="hero__title-line">更快构建</span>
+          <span class="hero__title-line hero__title-line--accent">企业级中后台</span>
         </h1>
         <p class="hero__subtitle">
-          Vue 3 + Element Plus higher-order component library.<br />
-          One schema drives tables, forms, and detail views.
+          Vue 3 + Element Plus 高阶组件库<br />
+          一份 Schema 同时驱动表格、表单和详情视图
         </p>
         <div class="hero__actions">
           <a href="/guide/getting-started" class="hero__btn hero__btn--primary">
-            Get Started
+            快速上手
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 8h10M9 4l4 4-4 4" />
             </svg>
@@ -130,7 +130,7 @@ const columns = [
         <div class="hero__stats">
           <div class="hero__stat">
             <span class="hero__stat-value">40+</span>
-            <span class="hero__stat-label">Components</span>
+            <span class="hero__stat-label">组件</span>
           </div>
           <div class="hero__stat-sep" />
           <div class="hero__stat">
@@ -150,11 +150,11 @@ const columns = [
     <section class="features">
       <div class="section-container">
         <div class="section-header">
-          <span class="section-label">Core Components</span>
-          <h2 class="section-title">One Schema, Three Views</h2>
+          <span class="section-label">核心组件</span>
+          <h2 class="section-title">一份 Schema，三种视图</h2>
           <p class="section-desc">
-            Define your columns once. ProTable, ProForm, and ProDescriptions share the same schema —
-            zero duplication, maximum consistency.
+            定义一次 columns 配置，ProTable、ProForm、ProDescriptions 共享同一份
+            Schema，零重复、最大一致性。
           </p>
         </div>
         <div class="features__grid">
@@ -179,8 +179,8 @@ const columns = [
     <section class="highlights">
       <div class="section-container">
         <div class="section-header">
-          <span class="section-label">Why Pro Components</span>
-          <h2 class="section-title">Enterprise-Grade by Default</h2>
+          <span class="section-label">为什么选择 Pro Components</span>
+          <h2 class="section-title">开箱即用的企业级能力</h2>
         </div>
         <div class="highlights__grid">
           <div v-for="h in highlights" :key="h.label" class="highlight-card">
@@ -197,14 +197,14 @@ const columns = [
       <div class="section-container">
         <div class="code-section__layout">
           <div class="code-section__text">
-            <span class="section-label">Quick Start</span>
-            <h2 class="section-title">Minutes, Not Days</h2>
+            <span class="section-label">快速开始</span>
+            <h2 class="section-title">分钟级接入，不是天</h2>
             <p class="section-desc">
-              Define columns with valueType, pass a request function. ProTable handles search form,
-              pagination, formatting, and rendering automatically.
+              定义 columns 配置 valueType，传入 request 函数，ProTable
+              自动处理搜索表单、分页、格式化和渲染。
             </p>
             <a href="/guide/getting-started" class="code-section__link">
-              Read the Guide
+              阅读指南
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M3 8h10M9 4l4 4-4 4" />
               </svg>
@@ -227,8 +227,8 @@ const columns = [
     <section class="tech-stack">
       <div class="section-container">
         <div class="section-header">
-          <span class="section-label">Built With</span>
-          <h2 class="section-title">Modern Stack, No Compromise</h2>
+          <span class="section-label">技术栈</span>
+          <h2 class="section-title">现代工程，零妥协</h2>
         </div>
         <div class="tech-stack__grid">
           <div v-for="t in techStack" :key="t.name" class="tech-card">
@@ -244,16 +244,14 @@ const columns = [
     <section class="cta">
       <div class="section-container">
         <div class="cta__inner">
-          <h2 class="cta__title">Ready to Build?</h2>
-          <p class="cta__desc">
-            Install with pnpm and start building enterprise interfaces in minutes.
-          </p>
+          <h2 class="cta__title">开始构建</h2>
+          <p class="cta__desc">使用 pnpm 安装，几分钟内开始搭建企业级中后台界面。</p>
           <div class="cta__install">
             <code>pnpm add @pro/pro-components element-plus</code>
           </div>
           <div class="cta__actions">
             <a href="/guide/getting-started" class="hero__btn hero__btn--primary">
-              Get Started
+              快速上手
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M3 8h10M9 4l4 4-4 4" />
               </svg>
@@ -264,7 +262,7 @@ const columns = [
                   d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"
                 />
               </svg>
-              Star on GitHub
+              GitHub
             </a>
           </div>
         </div>
