@@ -75,6 +75,13 @@ export default defineConfig({
           ],
         },
         {
+          text: '编辑器组件',
+          items: [
+            { text: 'CodeEditor 代码编辑器', link: '/components/code-editor' },
+            { text: 'RichEditor 富文本编辑器', link: '/components/rich-editor' },
+          ],
+        },
+        {
           text: '增强组件',
           items: [
             { text: 'ProTree 增强树', link: '/components/pro-tree' },
