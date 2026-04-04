@@ -243,11 +243,18 @@
 
 /* ---- Home page tweaks ---- */
 
-.VPHero .name {
-  background: linear-gradient(135deg, #7c6ce7 0%, #5a4bc5 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* Remove default content padding on custom homepage */
+.VPPage .VPContent .container {
+  max-width: 100% !important;
+  padding: 0 !important;
+}
+
+.VPPage .VPDoc {
+  padding: 0 !important;
+}
+
+.VPPage .content {
+  padding: 0 !important;
 }
 
 /* ---- Content spacing ---- */

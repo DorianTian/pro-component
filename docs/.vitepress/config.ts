@@ -161,7 +161,7 @@ export default defineConfig({
       ],
     },
 
-    socialLinks: [{ icon: 'github', link: 'https://github.com/your-org/pro-components' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/Dorian-Lab/pro-components' }],
 
     search: {
       provider: 'local',
