@@ -4,11 +4,13 @@ import { CodeEditor } from '@pro/code-editor'
 
 import type { EditorTheme } from '@pro/code-editor'
 
-const theme = ref<EditorTheme>('vs-dark')
+const theme = ref<EditorTheme>('github-dark')
 
 const themes: { value: EditorTheme; label: string }[] = [
-  { value: 'vs', label: 'Light' },
-  { value: 'vs-dark', label: 'Dark' },
+  { value: 'github-light', label: 'GitHub Light' },
+  { value: 'github-dark', label: 'GitHub Dark' },
+  { value: 'vs', label: 'VS Light' },
+  { value: 'vs-dark', label: 'VS Dark' },
   { value: 'hc-black', label: 'High Contrast Dark' },
   { value: 'hc-light', label: 'High Contrast Light' },
 ]

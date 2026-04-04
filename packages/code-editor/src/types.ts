@@ -17,7 +17,13 @@ export type EditorLanguage =
   | 'plaintext'
 
 /** Editor theme presets */
-export type EditorTheme = 'vs' | 'vs-dark' | 'hc-black' | 'hc-light'
+export type EditorTheme =
+  | 'vs'
+  | 'vs-dark'
+  | 'hc-black'
+  | 'hc-light'
+  | 'github-light'
+  | 'github-dark'
 
 /** Diagnostic marker from Monaco */
 export interface EditorDiagnostic {

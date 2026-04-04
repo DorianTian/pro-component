@@ -3,6 +3,7 @@ export { default as DiffEditor } from './components/DiffEditor.vue'
 export { default as CodeEditorTabs } from './components/CodeEditorTabs.vue'
 
 export { useCodeEditor } from './composables/use-code-editor'
+export { registerGitHubThemes, GITHUB_LIGHT, GITHUB_DARK } from './themes'
 export type { UseCodeEditorOptions } from './composables/use-code-editor'
 
 export type {

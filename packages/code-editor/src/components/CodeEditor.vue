@@ -44,7 +44,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   modelValue: '',
   language: 'plaintext',
-  theme: 'vs-dark',
+  theme: 'github-dark',
   readOnly: false,
   minHeight: 200,
   maxHeight: 0,
@@ -166,6 +166,10 @@ const wrapperStyle = computed(() => {
   return style
 })
 
+const isDarkTheme = computed(
+  () => props.theme === 'vs-dark' || props.theme === 'hc-black' || props.theme === 'github-dark',
+)
+
 /** Language display name */
 const LANGUAGE_LABELS: Record<string, string> = {
   javascript: 'JavaScript',
@@ -214,7 +218,7 @@ defineExpose({
 <template>
   <div
     class="pro-code-editor"
-    :class="{ 'pro-code-editor--dark': theme === 'vs-dark' || theme === 'hc-black' }"
+    :class="{ 'pro-code-editor--dark': isDarkTheme }"
     :style="wrapperStyle"
   >
     <!-- Toolbar -->

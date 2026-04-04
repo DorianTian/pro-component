@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch, computed, shallowRef } from 'vue'
 import * as monaco from 'monaco-editor'
+import { registerGitHubThemes } from '../themes'
 
 import type { EditorLanguage, EditorTheme } from '../types'
 
@@ -27,7 +28,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   language: 'plaintext',
-  theme: 'vs-dark',
+  theme: 'github-dark',
   sideBySide: true,
   minHeight: 300,
   readOnly: true,
@@ -43,6 +44,8 @@ const editorRef = shallowRef<monaco.editor.IStandaloneDiffEditor | null>(null)
 function createEditor(): void {
   const container = containerRef.value
   if (!container) return
+
+  registerGitHubThemes()
 
   const diffEditor = monaco.editor.createDiffEditor(container, {
     automaticLayout: true,
@@ -126,7 +129,10 @@ defineExpose({
 <template>
   <div
     class="pro-diff-editor"
-    :class="{ 'pro-diff-editor--dark': theme === 'vs-dark' || theme === 'hc-black' }"
+    :class="{
+      'pro-diff-editor--dark':
+        theme === 'vs-dark' || theme === 'hc-black' || theme === 'github-dark',
+    }"
     :style="containerStyle"
   >
     <div ref="containerRef" class="pro-diff-editor__body" />

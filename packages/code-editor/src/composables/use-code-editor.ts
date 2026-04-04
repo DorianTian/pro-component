@@ -1,5 +1,6 @@
 import { ref, shallowRef, onMounted, onBeforeUnmount, watch, type Ref } from 'vue'
 import * as monaco from 'monaco-editor'
+import { registerGitHubThemes } from '../themes'
 
 import type {
   EditorLanguage,
@@ -63,6 +64,8 @@ export function useCodeEditor(opts: UseCodeEditorOptions): UseCodeEditorReturn {
   function createEditor(): void {
     const container = opts.container.value
     if (!container) return
+
+    registerGitHubThemes()
 
     const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
       value: opts.defaultValue ?? '',

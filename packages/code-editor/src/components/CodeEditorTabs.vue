@@ -29,7 +29,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   activeKey: undefined,
-  theme: 'vs-dark',
+  theme: 'github-dark',
   minHeight: 400,
   fontSize: 14,
   minimap: false,
@@ -235,7 +235,9 @@ defineExpose({
 <template>
   <div
     class="pro-code-tabs"
-    :class="{ 'pro-code-tabs--dark': theme === 'vs-dark' || theme === 'hc-black' }"
+    :class="{
+      'pro-code-tabs--dark': theme === 'vs-dark' || theme === 'hc-black' || theme === 'github-dark',
+    }"
     :style="containerStyle"
   >
     <!-- Tab bar -->
