@@ -57,10 +57,12 @@
   background-color: var(--el-color-primary-light-9, #ecf5ff);
 }
 
-/* Editing cells: adjust padding for input controls.
-   Reduce side padding (EditableCell adds its own 2px inner padding)
-   and add vertical padding for consistent row height. */
+/* Editing cells: disable overflow:hidden so input borders are never clipped.
+   When a row is in edit mode, text truncation/tooltip is irrelevant — the cell
+   contains an input control, not overflowing text. Also adjust padding. */
 .pro-table .el-table .pro-table__row--editing td.el-table__cell > .cell {
+  overflow: visible;
+  text-overflow: unset;
   padding: 4px 8px;
 }
 
