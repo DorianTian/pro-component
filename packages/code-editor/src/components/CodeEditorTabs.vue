@@ -198,7 +198,7 @@ watch(
 )
 
 const containerStyle = computed(() => ({
-  minHeight: `${props.minHeight}px`,
+  height: `${props.minHeight}px`,
 }))
 
 const diagnosticSummary = computed(() => {

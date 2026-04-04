@@ -158,10 +158,10 @@ watch(
 
 const containerStyle = computed(() => {
   const style: Record<string, string> = {
-    minHeight: `${props.minHeight}px`,
+    height: `${props.minHeight}px`,
   }
   if (props.maxHeight > 0) {
-    style.maxHeight = `${props.maxHeight}px`
+    style.height = `${props.maxHeight}px`
   }
   return style
 })
