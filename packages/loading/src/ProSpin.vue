@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * ProSpin — Lightweight spinner component.
- * Can be used standalone (inline indicator) or as a wrapper (overlay on content).
+ * ProSpin — Refined spinner component.
+ * Standalone (inline) or wrapper (overlay on content) modes.
  */
 import { computed, useSlots } from 'vue'
 import { useProLocale } from '@pro/hooks'
@@ -9,13 +9,9 @@ import { useProLocale } from '@pro/hooks'
 defineOptions({ name: 'ProSpin' })
 
 interface Props {
-  /** Whether to show the spinner */
   spinning?: boolean
-  /** Spinner size: small (16px), default (24px), large (40px) */
   size?: 'small' | 'default' | 'large'
-  /** Loading tip text shown below the spinner */
   tip?: string
-  /** Delay before showing spinner (ms) — prevents flash for fast loads */
   delay?: number
 }
 
@@ -29,92 +25,101 @@ const { t } = useProLocale()
 const slots = useSlots()
 const hasContent = computed(() => !!slots.default)
 
-const sizeMap: Record<string, number> = {
-  small: 16,
-  default: 24,
-  large: 40,
-}
-
-const spinnerSize = computed(() => sizeMap[props.size] ?? 24)
-const strokeWidth = computed(() => (props.size === 'small' ? 3 : 2.5))
+const sizeMap: Record<string, number> = { small: 18, default: 28, large: 44 }
+const spinnerSize = computed(() => sizeMap[props.size] ?? 28)
 </script>
 
 <template>
-  <!-- Wrapper mode: overlay spinner on slotted content -->
-  <div v-if="hasContent" class="pro-spin" :class="{ 'pro-spin--spinning': spinning }">
-    <div class="pro-spin__content" :class="{ 'pro-spin__content--blur': spinning }">
+  <!-- Wrapper mode -->
+  <div v-if="hasContent" class="pro-spin" :class="{ 'pro-spin--active': spinning }">
+    <div class="pro-spin__content" :class="{ 'pro-spin__content--dimmed': spinning }">
       <slot />
     </div>
     <Transition name="pro-spin-fade">
       <div v-if="spinning" class="pro-spin__overlay">
         <div class="pro-spin__indicator">
-          <svg
-            class="pro-spin__svg"
-            :width="spinnerSize"
-            :height="spinnerSize"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <circle
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="var(--pro-border-default, #e5e5e5)"
-              :stroke-width="strokeWidth"
-            />
-            <path
-              d="M12 2a10 10 0 0 1 10 10"
-              stroke="var(--pro-color-primary, #2563eb)"
-              :stroke-width="strokeWidth"
-              stroke-linecap="round"
-            />
-          </svg>
+          <div class="pro-spin__dot" :style="{ width: spinnerSize + 'px', height: spinnerSize + 'px' }">
+            <span /><span /><span /><span />
+          </div>
           <span v-if="tip" class="pro-spin__tip">{{ tip }}</span>
         </div>
       </div>
     </Transition>
   </div>
 
-  <!-- Standalone mode: inline spinner -->
+  <!-- Standalone mode -->
   <span v-else class="pro-spin__inline" role="status" :aria-label="t('pro.common.loading')">
-    <svg
-      class="pro-spin__svg"
-      :width="spinnerSize"
-      :height="spinnerSize"
-      viewBox="0 0 24 24"
-      fill="none"
-    >
-      <circle
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="var(--pro-border-default, #e5e5e5)"
-        :stroke-width="strokeWidth"
-      />
-      <path
-        d="M12 2a10 10 0 0 1 10 10"
-        stroke="var(--pro-color-primary, #2563eb)"
-        :stroke-width="strokeWidth"
-        stroke-linecap="round"
-      />
-    </svg>
+    <span class="pro-spin__dot" :style="{ width: spinnerSize + 'px', height: spinnerSize + 'px' }">
+      <span /><span /><span /><span />
+    </span>
     <span v-if="tip" class="pro-spin__tip pro-spin__tip--inline">{{ tip }}</span>
   </span>
 </template>
 
 <style>
-/* ---- Animation ---- */
+/* ================================================
+   ProSpin — Ant Design inspired 4-dot spinner
+   ================================================ */
+
+/* ---- Dot container ---- */
+.pro-spin__dot {
+  position: relative;
+  display: inline-block;
+  animation: pro-spin-rotate 1.2s linear infinite;
+}
+
+/* ---- Individual dots ---- */
+.pro-spin__dot > span {
+  position: absolute;
+  width: 35%;
+  height: 35%;
+  background-color: var(--pro-color-primary, #2563eb);
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: pro-spin-bounce 1.2s ease-in-out infinite;
+  transform: scale(0.6);
+}
+
+.pro-spin__dot > span:nth-child(1) {
+  top: 0;
+  left: 0;
+}
+
+.pro-spin__dot > span:nth-child(2) {
+  top: 0;
+  right: 0;
+  animation-delay: 0.3s;
+}
+
+.pro-spin__dot > span:nth-child(3) {
+  bottom: 0;
+  right: 0;
+  animation-delay: 0.6s;
+}
+
+.pro-spin__dot > span:nth-child(4) {
+  bottom: 0;
+  left: 0;
+  animation-delay: 0.9s;
+}
+
+/* ---- Animations ---- */
 @keyframes pro-spin-rotate {
-  from {
-    transform: rotate(0deg);
-  }
   to {
     transform: rotate(360deg);
   }
 }
 
-.pro-spin__svg {
-  animation: pro-spin-rotate 0.8s linear infinite;
+@keyframes pro-spin-bounce {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ---- Wrapper mode ---- */
@@ -122,14 +127,11 @@ const strokeWidth = computed(() => (props.size === 'small' ? 3 : 2.5))
   position: relative;
 }
 
-.pro-spin__content--blur {
+.pro-spin__content--dimmed {
   pointer-events: none;
   user-select: none;
-  opacity: 0.4;
-  filter: blur(0.5px);
-  transition:
-    opacity 0.2s ease,
-    filter 0.2s ease;
+  opacity: 0.35;
+  transition: opacity 0.3s ease;
 }
 
 .pro-spin__overlay {
@@ -145,14 +147,14 @@ const strokeWidth = computed(() => (props.size === 'small' ? 3 : 2.5))
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 /* ---- Inline mode ---- */
 .pro-spin__inline {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   vertical-align: middle;
 }
 
@@ -161,6 +163,7 @@ const strokeWidth = computed(() => (props.size === 'small' ? 3 : 2.5))
   font-size: var(--pro-text-sm, 13px);
   color: var(--pro-color-primary, #2563eb);
   font-weight: var(--pro-font-weight-medium, 500);
+  letter-spacing: 0.01em;
 }
 
 .pro-spin__tip--inline {
@@ -170,7 +173,7 @@ const strokeWidth = computed(() => (props.size === 'small' ? 3 : 2.5))
 /* ---- Transition ---- */
 .pro-spin-fade-enter-active,
 .pro-spin-fade-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.25s ease;
 }
 
 .pro-spin-fade-enter-from,
