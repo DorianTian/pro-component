@@ -233,6 +233,7 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: {
+        'element-plus': resolve(__dirname, '../node_modules/element-plus'),
         '@pro/table': resolve(__dirname, '../../packages/pro-table/src'),
         '@pro/form': resolve(__dirname, '../../packages/pro-form/src'),
         '@pro/descriptions': resolve(__dirname, '../../packages/pro-descriptions/src'),
